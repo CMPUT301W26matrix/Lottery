@@ -6,7 +6,7 @@
 
 [User Interface Mockups and Storyboard Sequences](https://github.com/CMPUT301W26matrix/lottery/wiki/User-Interface-Mockups-and-Storyboard-Sequences)
 
-[Object-Oriented Analysis](https://github.com/CMPUT301W26matrix/lottery/wiki/CRC)
+[Object Oriented Analysis](https://github.com/CMPUT301W26matrix/lottery/wiki/CRC)
 
 ## Member
 
