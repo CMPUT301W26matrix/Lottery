@@ -44,3 +44,19 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
 }
+
+val sdkDir: String = rootProject.file("local.properties")
+    .readLines()
+    .first { it.startsWith("sdk.dir=") }
+    .removePrefix("sdk.dir=")
+
+tasks.register<Javadoc>("generateJavadoc") {
+    dependsOn("compileReleaseJavaWithJavac")
+    source(android.sourceSets["main"].java.directories)
+    doFirst {
+        val javaCompile = tasks.named("compileReleaseJavaWithJavac", JavaCompile::class).get()
+        classpath = javaCompile.classpath
+    }
+    destinationDir = file("${rootProject.rootDir}/javadocs")
+    isFailOnError = false
+}
