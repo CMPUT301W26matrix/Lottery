@@ -44,3 +44,14 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
 }
+
+tasks.register<Javadoc>("generateJavadoc") {
+    dependsOn("compileReleaseJavaWithJavac")
+    source(android.sourceSets["main"].java.directories)
+    doFirst {
+        val javaCompile = tasks.named("compileReleaseJavaWithJavac", JavaCompile::class).get()
+        classpath = javaCompile.classpath
+    }
+    destinationDir = file("${rootProject.rootDir}/javadocs")
+    isFailOnError = false
+}
