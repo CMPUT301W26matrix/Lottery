@@ -32,6 +32,11 @@ jobs:
       - name: Enable execute permission for gradlew
         run: chmod +x gradlew
 
+      - name: Add google-services.json
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: printf '%s' "$GOOGLE_SERVICES_JSON" > app/google-services.json
+
       - name: Build with Gradle
         run: ./gradlew build
 
