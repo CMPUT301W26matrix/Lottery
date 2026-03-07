@@ -40,12 +40,6 @@ import java.util.UUID;
  * </ul>
  * </p>
  * 
- * <p>NOTE:
- * For the prototype checkpoint, posters are stored as local URIs.
- * Cross-device poster sharing will require Firebase Storage upload
- * in a future implementation.
- * </p>
- * 
  * <p>Satisfies requirements for:
  * US 02.01.01: Event creation with promotional QR code.
  * US 02.01.04: Registration deadline management.
@@ -202,7 +196,7 @@ public class CreateEventActivity extends AppCompatActivity {
 
     /**
      * Logic for US 02.01.01, US 02.04.01, and US 02.02.03.
-     * Validates input and persists event metadata (including local poster URI and location requirement) to Firestore.
+     * Validates input and persists event data to Firestore.
      */
     private void createEvent() {
         String title = Objects.requireNonNull(etEventTitle.getText()).toString().trim();
@@ -210,23 +204,12 @@ public class CreateEventActivity extends AppCompatActivity {
         String details = Objects.requireNonNull(etEventDetails.getText()).toString().trim();
 
         // 1. Mandatory Field Validation (US 02.01.04 Requirement)
-        if (title.isEmpty()) {
-            Toast.makeText(this, "Event title is required", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (eventStartDate == null) {
-            Toast.makeText(this, "Event start date and time are required", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (regEndDate == null) {
-            Toast.makeText(this, "Registration end date is required", Toast.LENGTH_SHORT).show();
+        if (title.isEmpty() || eventStartDate == null || regEndDate == null) {
+            Toast.makeText(this, "Event title, Start Date, and Registration End are required", Toast.LENGTH_SHORT).show();
             return;
         }
 
         // 2. Business Rule Validation (US 02.01.04 Requirement)
-        // Uses EventValidationUtils for testable business logic
         if (!EventValidationUtils.isRegistrationDeadlineValid(regEndDate, eventStartDate)) {
             Toast.makeText(this, "Registration must end before the event starts", Toast.LENGTH_LONG).show();
             return;
@@ -237,14 +220,7 @@ public class CreateEventActivity extends AppCompatActivity {
         }
 
         int maxCapacity = capacityStr.isEmpty() ? 0 : Integer.parseInt(capacityStr);
-
-        /**
-         * NOTE:
-         * For the prototype checkpoint, we store the local content:// URI as a string.
-         */
         String posterUriToSave = (selectedPosterUri != null) ? selectedPosterUri.toString() : "";
-
-        // US 02.02.03: Get the value of the geolocation toggle
         boolean requireLocation = swRequireLocation.isChecked();
 
         // Create the model instance
@@ -267,11 +243,8 @@ public class CreateEventActivity extends AppCompatActivity {
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(this, "Event Launched Successfully!", Toast.LENGTH_SHORT).show();
                     
-                    // Navigate to details screen to show the created event
-                    Intent intent = new Intent(CreateEventActivity.this, EventDetailsActivity.class);
-                    intent.putExtra("eventId", eventId);
-                    startActivity(intent);
-                    
+                    // US 02.01.01: Return to Dashboard instead of details page.
+                    // The new event will now appear in the RecyclerView list on MainActivity.
                     finish();
                 })
                 .addOnFailureListener(e -> {
@@ -279,23 +252,4 @@ public class CreateEventActivity extends AppCompatActivity {
                     Toast.makeText(this, "Failed to create event", Toast.LENGTH_SHORT).show();
                 });
     }
-
-    /*
-    /**
-     * Placeholder for future cloud storage integration (US 02.04.01 Production).
-     * This method will handle uploading the local file to Firebase Storage
-     * and saving the public download URL to Firestore.
-     *
-    private void uploadPosterToFirebase(Uri uri, String eventId) {
-        // StorageReference storageRef = FirebaseStorage.getInstance()
-        //    .getReference("event_posters/" + eventId + ".jpg");
-        //
-        // storageRef.putFile(uri)
-        //    .addOnSuccessListener(taskSnapshot ->
-        //        storageRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
-        //            // Future: update Firestore with downloadUri.toString()
-        //        })
-        //    );
-    }
-    */
 }

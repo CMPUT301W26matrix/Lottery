@@ -42,7 +42,8 @@
             android:layout_marginTop="32dp"
             app:cardCornerRadius="12dp"
             app:cardElevation="0dp"
-            app:strokeColor="@color/divider_gray"
+            app:cardBackgroundColor="@color/primary_light_blue"
+            app:strokeColor="@color/border_outline"
             app:strokeWidth="1dp"
             app:layout_constraintTop_toBottomOf="@id/tvSubHeader">
             <LinearLayout
@@ -74,7 +75,8 @@
             android:layout_marginTop="16dp"
             app:cardCornerRadius="12dp"
             app:cardElevation="0dp"
-            app:strokeColor="@color/divider_gray"
+            app:cardBackgroundColor="@color/primary_light_blue"
+            app:strokeColor="@color/border_outline"
             app:strokeWidth="1dp"
             app:layout_constraintTop_toBottomOf="@id/cardEventTitle">
 
@@ -258,7 +260,8 @@
             android:layout_marginTop="16dp"
             app:cardCornerRadius="12dp"
             app:cardElevation="0dp"
-            app:strokeColor="@color/divider_gray"
+            app:cardBackgroundColor="@color/primary_light_blue"
+            app:strokeColor="@color/border_outline"
             app:strokeWidth="1dp"
             app:layout_constraintTop_toBottomOf="@id/cardDateInputs">
             <LinearLayout
@@ -315,7 +318,8 @@
             android:layout_marginTop="16dp"
             app:cardCornerRadius="12dp"
             app:cardElevation="0dp"
-            app:strokeColor="@color/divider_gray"
+            app:cardBackgroundColor="@color/primary_light_blue"
+            app:strokeColor="@color/border_outline"
             app:strokeWidth="1dp"
             app:layout_constraintTop_toBottomOf="@id/cardEventSettings">
             <LinearLayout
@@ -345,7 +349,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Upload Image"
-                        android:backgroundTint="@color/primary_light_blue"
+                        android:backgroundTint="@color/white"
                         android:textColor="@color/primary_blue"
                         app:icon="@android:drawable/ic_menu_gallery"
                         app:iconTint="@color/primary_blue" />
@@ -370,7 +374,8 @@
             android:layout_marginTop="16dp"
             app:cardCornerRadius="12dp"
             app:cardElevation="0dp"
-            app:strokeColor="@color/divider_gray"
+            app:cardBackgroundColor="@color/primary_light_blue"
+            app:strokeColor="@color/border_outline"
             app:strokeWidth="1dp"
             app:layout_constraintTop_toBottomOf="@id/cardPoster">
             <LinearLayout
@@ -415,7 +420,7 @@
                     android:layout_marginTop="8dp"
                     android:text="Pre-generate QR Code"
                     android:textColor="@color/primary_blue"
-                    android:backgroundTint="@color/primary_light_blue" />
+                    android:backgroundTint="@color/white" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
