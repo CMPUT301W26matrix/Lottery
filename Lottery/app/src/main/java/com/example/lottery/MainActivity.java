@@ -15,8 +15,10 @@ import androidx.appcompat.app.AppCompatActivity;
 public class MainActivity extends AppCompatActivity {
 
     /**
-     * A simulated flag to represent the user's role in the system.
-     * When true, the user is treated as an Organizer and granted access to event creation.
+     * Simulation of the user's role.
+     * Set to true to simulate an Organizer (US 02.01.01 access), 
+     * or false to simulate a regular Entrant.
+     * TODO: Replace with real user role from Firebase Auth in future sprints.
      */
     private boolean isOrganizer = true;
 
@@ -32,16 +34,25 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Find the "Create Event" navigation button from the layout
         Button btnGoToCreateEvent = findViewById(R.id.btnGoToCreateEvent);
 
-        // Access Control Logic: Only organizers can see the Create Event button.
+        /**
+         * Access Control Logic for US 02.01.01:
+         * Only users identified as Organizers are permitted to see and access 
+         * the Create Event feature.
+         */
         if (isOrganizer) {
             btnGoToCreateEvent.setVisibility(View.VISIBLE);
         } else {
             btnGoToCreateEvent.setVisibility(View.GONE);
         }
 
-        // Navigate to the event creation screen.
+        /**
+         * Navigation Setup:
+         * Sets a click listener on the button to transition from the Dashboard
+         * to the CreateEventActivity (Organizer workflow).
+         */
         btnGoToCreateEvent.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, CreateEventActivity.class);
             startActivity(intent);

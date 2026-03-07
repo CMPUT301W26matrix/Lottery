@@ -21,6 +21,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -133,9 +134,11 @@ public class CreateEventActivity extends AppCompatActivity {
                     if (uri != null) {
                         posterUriString = uri.toString();
                         ivPosterPreview.setImageURI(uri);
+                        btnUploadPoster.setVisibility(View.GONE);
                     }
                 });
         btnUploadPoster.setOnClickListener(v -> getContentLauncher.launch("image/*"));
+        ivPosterPreview.setOnClickListener(v -> getContentLauncher.launch("image/*"));
     }
 
     /**
@@ -174,9 +177,9 @@ public class CreateEventActivity extends AppCompatActivity {
      */
     private void createEvent() {
         // Collect and trim user inputs
-        String title = etEventTitle.getText().toString().trim();
-        String capacityStr = etMaxCapacity.getText().toString().trim();
-        String details = etEventDetails.getText().toString().trim();
+        String title = Objects.requireNonNull(etEventTitle.getText()).toString().trim();
+        String capacityStr = Objects.requireNonNull(etMaxCapacity.getText()).toString().trim();
+        String details = Objects.requireNonNull(etEventDetails.getText()).toString().trim();
 
         // 1. Mandatory Field Validation (US 02.01.04 Requirement)
         if (title.isEmpty() || eventDate == null || deadlineDate == null) {

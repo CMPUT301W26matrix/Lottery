@@ -7,7 +7,7 @@ import java.util.Date;
  * This class encapsulates all data related to an event, including its identity,
  * scheduling, registration details, and promotional content.
  * It is designed to be compatible with Firebase Firestore serialization.
- *
+ * 
  * Satisfies requirements for:
  * US 02.01.01: Event creation with promotional QR code.
  * US 02.01.04: Registration deadline management.
@@ -50,7 +50,7 @@ public class Event {
      * @param qrCodeContent        The content of the promotional QR code.
      * @param organizerId          The ID of the event organizer.
      */
-    public Event(String eventId, String title, Date scheduledDateTime, Date registrationDeadline,
+    public Event(String eventId, String title, Date scheduledDateTime, Date registrationDeadline, 
                  Integer maxCapacity, String details, String posterUri, String qrCodeContent, String organizerId) {
         this.eventId = eventId;
         this.title = title;
