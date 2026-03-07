@@ -1,1 +1,1 @@
-typeSearchIndex = [{"l":"All Classes and Interfaces","u":"allclasses-index.html"},{"p":"com.example.lottery","l":"MainActivity"}];updateSearchResults();
+typeSearchIndex = [{"l":"All Classes and Interfaces","u":"allclasses-index.html"},{"p":"com.example.lottery","l":"CreateEventActivity"},{"p":"com.example.lottery.model","l":"Event"},{"p":"com.example.lottery","l":"LotteryApplication"},{"p":"com.example.lottery","l":"MainActivity"},{"p":"com.example.lottery.util","l":"QRCodeUtils"}];updateSearchResults();
