@@ -7,8 +7,10 @@ import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
 
 /**
- * MainActivity serves as the main dashboard and entry point for the application.
- * It implements basic role-based navigation logic to support different user stories.
+ * MainActivity serves as the primary dashboard for the application.
+ * It coordinates navigation between different features based on the user's role.
+ * 
+ * Supports US 02.01.01 by providing an entry point for organizers.
  */
 public class MainActivity extends AppCompatActivity {
 
@@ -20,6 +22,13 @@ public class MainActivity extends AppCompatActivity {
      */
     private boolean isOrganizer = true;
 
+    /**
+     * Initializes the activity, sets up the layout, and configures role-based access to UI elements.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after
+     *                           previously being shut down then this Bundle contains the data it most
+     *                           recently supplied in {@link #onSaveInstanceState}.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
