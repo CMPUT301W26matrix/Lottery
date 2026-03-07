@@ -1,9 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
-
-    // Add the Google services Gradle plugin
-    // id("com.google.gms.google-services")
-
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -48,6 +45,8 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:34.9.0"))
     implementation("com.google.firebase:firebase-firestore")
 
+    // ZXing for QR Code generation (US 02.01.01)
+    implementation("com.google.zxing:core:3.5.3")
 }
 
 tasks.register<Javadoc>("generateJavadoc") {

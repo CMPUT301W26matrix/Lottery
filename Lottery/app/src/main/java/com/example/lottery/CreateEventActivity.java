@@ -2,26 +2,30 @@ package com.example.lottery;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.lottery.model.Event;
 import com.example.lottery.util.QRCodeUtils;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 import java.util.UUID;
 
 /**
- * Activity for organizers to create new events.
- * Handles event details input, date/time selection, poster uploading,
- * and saving the event data to Firebase Firestore.
+ * Activity for organizers to create new events (US 02.01.01).
+ * Handles event details, poster selection, and promotional QR code generation.
  */
 public class CreateEventActivity extends AppCompatActivity {
 
@@ -30,18 +34,18 @@ public class CreateEventActivity extends AppCompatActivity {
     // UI Components
     private TextInputEditText etEventTitle, etMaxCapacity, etEventDetails;
     private Button btnEventDateTime, btnRegistrationDeadline, btnUploadPoster, btnGenerateQRCode, btnCreateEvent;
-    private ImageView ivPosterPreview;
+    private ImageView ivPosterPreview, ivQRCodePreview;
+    private TextView tvQRCodeLabel;
+    private MaterialCardView cvQRCode;
     
-    // Event Data Variables
+    // Event Data Variables - Fixed eventId to ensure consistency
+    private final String eventId = UUID.randomUUID().toString();
     private String qrCodeContent = "";
-    private String scheduledDateTime = "";
-    private String registrationDeadline = "";
+    private Date eventDate;
+    private Date deadlineDate;
     private String posterUriString = "";
 
-    // Activity Result Launcher for picking images from gallery
     private ActivityResultLauncher<String> getContentLauncher;
-    
-    // Firestore instance for database operations
     private FirebaseFirestore db;
 
     @Override
@@ -49,10 +53,29 @@ public class CreateEventActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_event);
 
-        // Initialize Firestore database connection
-        db = FirebaseFirestore.getInstance();
+        // Initialize Firestore
+        try {
+            db = FirebaseFirestore.getInstance();
+        } catch (Exception e) {
+            Log.e(TAG, "Firebase initialization failed", e);
+            Toast.makeText(this, "Service Unavailable", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
-        // Initialize UI components by finding views in the layout
+        initializeViews();
+        setupImagePicker();
+
+        // US 02.01.01: Generate unique promotional QR content tied to eventId and display it
+        btnGenerateQRCode.setOnClickListener(v -> generateAndDisplayQRCode());
+
+        btnCreateEvent.setOnClickListener(v -> createEvent());
+
+        btnEventDateTime.setOnClickListener(v -> showDateTimePicker(btnEventDateTime, true));
+        btnRegistrationDeadline.setOnClickListener(v -> showDateTimePicker(btnRegistrationDeadline, false));
+    }
+
+    private void initializeViews() {
         etEventTitle = findViewById(R.id.etEventTitle);
         etMaxCapacity = findViewById(R.id.etMaxCapacity);
         etEventDetails = findViewById(R.id.etEventDetails);
@@ -62,162 +85,101 @@ public class CreateEventActivity extends AppCompatActivity {
         btnGenerateQRCode = findViewById(R.id.btnGenerateQRCode);
         btnCreateEvent = findViewById(R.id.btnCreateEvent);
         ivPosterPreview = findViewById(R.id.ivPosterPreview);
+        
+        // QR Code Upgrade Views
+        ivQRCodePreview = findViewById(R.id.ivQRCodePreview);
+        tvQRCodeLabel = findViewById(R.id.tvQRCodeLabel);
+        cvQRCode = findViewById(R.id.cvQRCode);
+    }
 
-        /**
-         * Initialize the Image Picker Launcher.
-         * Sets up the callback for when a user selects an image from their device.
-         */
+    /**
+     * US 02.01.01: Generates QR code content and renders it as a Bitmap for the UI.
+     */
+    private void generateAndDisplayQRCode() {
+        qrCodeContent = QRCodeUtils.generateUniqueQrContent(eventId);
+        Bitmap qrBitmap = QRCodeUtils.generateQRCodeBitmap(qrCodeContent);
+        
+        if (qrBitmap != null) {
+            ivQRCodePreview.setImageBitmap(qrBitmap);
+            tvQRCodeLabel.setVisibility(View.VISIBLE);
+            cvQRCode.setVisibility(View.VISIBLE);
+            Log.d(TAG, "QR Code displayed for event: " + eventId);
+            Toast.makeText(this, "QR Code Generated!", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Failed to generate QR Code", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void setupImagePicker() {
         getContentLauncher = registerForActivityResult(new ActivityResultContracts.GetContent(),
                 uri -> {
                     if (uri != null) {
                         posterUriString = uri.toString();
                         ivPosterPreview.setImageURI(uri);
-                        Log.d(TAG, "Poster Image Selected: " + posterUriString);
                     }
                 });
-
-        // Set listener for uploading a poster image
         btnUploadPoster.setOnClickListener(v -> getContentLauncher.launch("image/*"));
-
-        // Set listeners for picking date and time for the event and registration deadline
-        btnEventDateTime.setOnClickListener(v -> showDateTimePicker(btnEventDateTime, true));
-        btnRegistrationDeadline.setOnClickListener(v -> showDateTimePicker(btnRegistrationDeadline, false));
-
-        /**
-         * Listener for generating a unique QR code content.
-         * Generates a temporary unique ID and seeds the QR content generation logic.
-         */
-        btnGenerateQRCode.setOnClickListener(v -> {
-            String tempId = UUID.randomUUID().toString();
-            qrCodeContent = QRCodeUtils.generateUniqueQrContent(tempId);
-            Log.d(TAG, "QR Code Content Generated: " + qrCodeContent);
-            Toast.makeText(this, "QR Code content generated!", Toast.LENGTH_SHORT).show();
-        });
-
-        // Set listener for the final event creation action
-        btnCreateEvent.setOnClickListener(v -> {
-            createEvent();
-        });
     }
 
-    /**
-     * Helper method to display a DatePickerDialog followed by a TimePickerDialog.
-     * @param button The button that triggered the picker and where the result will be displayed.
-     * @param isEventTime Boolean flag to determine if we are setting the event time or the registration deadline.
-     */
     private void showDateTimePicker(Button button, boolean isEventTime) {
         final Calendar calendar = Calendar.getInstance();
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH);
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-
-        // Show Date Picker
-        DatePickerDialog datePickerDialog = new DatePickerDialog(this, (view, year1, month1, dayOfMonth) -> {
-            int hour = calendar.get(Calendar.HOUR_OF_DAY);
-            int minute = calendar.get(Calendar.MINUTE);
-
-            // Show Time Picker after Date is selected
-            TimePickerDialog timePickerDialog = new TimePickerDialog(this, (view1, hourOfDay, minute1) -> {
-                String formattedDateTime = String.format(Locale.getDefault(), "%04d-%02d-%02d %02d:%02d",
-                        year1, month1 + 1, dayOfMonth, hourOfDay, minute1);
-                button.setText(formattedDateTime);
-                
-                // Store the result in the corresponding variable
-                if (isEventTime) {
-                    scheduledDateTime = formattedDateTime;
-                } else {
-                    registrationDeadline = formattedDateTime;
-                }
-            }, hour, minute, true);
-            timePickerDialog.show();
-        }, year, month, day);
-        datePickerDialog.show();
+        new DatePickerDialog(this, (view, year, month, day) -> {
+            new TimePickerDialog(this, (v, hour, min) -> {
+                Calendar selected = Calendar.getInstance();
+                selected.set(year, month, day, hour, min);
+                Date date = selected.getTime();
+                button.setText(String.format(Locale.getDefault(), "%04d-%02d-%02d %02d:%02d", year, month + 1, day, hour, min));
+                if (isEventTime) eventDate = date; else deadlineDate = date;
+            }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true).show();
+        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
     }
 
     /**
-     * Validates input fields and creates an Event object.
-     * If validation passes, the event is saved to Firebase Firestore.
+     * Logic for US 02.01.01 Firestore save.
+     * Ensures Event object is stored in the "events" collection with eventId as the document ID.
      */
     private void createEvent() {
-        // Read values from input fields
         String title = etEventTitle.getText().toString().trim();
         String capacityStr = etMaxCapacity.getText().toString().trim();
         String details = etEventDetails.getText().toString().trim();
 
-        // 1. Validation Logic
-        if (title.isEmpty()) {
-            Toast.makeText(this, "Event title is required", Toast.LENGTH_SHORT).show();
+        // Basic validation
+        if (title.isEmpty() || eventDate == null) {
+            Toast.makeText(this, "Title and Date are required", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        if (scheduledDateTime.isEmpty()) {
-            Toast.makeText(this, "Event date and time is required", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (registrationDeadline.isEmpty()) {
-            Toast.makeText(this, "Registration deadline is required", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        int maxCapacity;
-        if (capacityStr.isEmpty()) {
-            Toast.makeText(this, "Maximum capacity is required", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        try {
-            maxCapacity = Integer.parseInt(capacityStr);
-            if (maxCapacity <= 0) {
-                Toast.makeText(this, "Maximum capacity must be greater than 0", Toast.LENGTH_SHORT).show();
-                return;
-            }
-        } catch (NumberFormatException e) {
-            Toast.makeText(this, "Invalid capacity value", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (posterUriString.isEmpty()) {
-            Toast.makeText(this, "Event poster is required", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // 2. Event object creation
-        // Generate a unique ID for the event
-        String eventId = UUID.randomUUID().toString();
-        String organizerId = "organizer_123"; // Placeholder for the current user's ID
-
-        // Generate QR code content if not already pre-generated
+        // Auto-generate QR content if not manually generated
         if (qrCodeContent.isEmpty()) {
             qrCodeContent = QRCodeUtils.generateUniqueQrContent(eventId);
         }
 
-        // Create the Event data model
+        int maxCapacity = capacityStr.isEmpty() ? 0 : Integer.parseInt(capacityStr);
+
+        // Create model instance (Shared model for US 02.01.01 & US 02.01.04)
         Event newEvent = new Event(
                 eventId,
                 title,
-                scheduledDateTime,
-                registrationDeadline,
+                eventDate,
+                deadlineDate,
                 maxCapacity,
                 details,
                 posterUriString,
                 qrCodeContent,
-                organizerId
+                "organizer_current_user" // TODO: Get actual organizer ID
         );
 
-        /**
-         * 3. Save to Firestore.
-         * Uploads the event object to the "events" collection using eventId as the document ID.
-         */
+        // Save to Firestore using eventId as document path
         db.collection("events").document(eventId)
                 .set(newEvent)
                 .addOnSuccessListener(aVoid -> {
-                    Log.d(TAG, "Event successfully written to Firestore!");
-                    Toast.makeText(CreateEventActivity.this, "Event created successfully", Toast.LENGTH_SHORT).show();
-                    finish(); // Return to the dashboard after successful creation
+                    Log.d(TAG, "Document successfully written with ID: " + eventId);
+                    Toast.makeText(this, "Event Launched Successfully!", Toast.LENGTH_SHORT).show();
+                    finish();
                 })
                 .addOnFailureListener(e -> {
-                    Log.w(TAG, "Error adding document", e);
-                    Toast.makeText(CreateEventActivity.this, "Failed to create event", Toast.LENGTH_SHORT).show();
+                    Log.w(TAG, "Error writing document", e);
+                    Toast.makeText(this, "Failed to create event", Toast.LENGTH_SHORT).show();
                 });
     }
 }
