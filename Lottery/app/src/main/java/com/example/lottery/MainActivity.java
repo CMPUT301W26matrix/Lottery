@@ -4,7 +4,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * MainActivity serves as the primary dashboard for the application.
@@ -57,5 +63,35 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, CreateEventActivity.class);
             startActivity(intent);
         });
+
+        Button btnViewEvents = findViewById(R.id.btnViewEvents);
+        btnViewEvents.setOnClickListener(v -> showEventPickerDialog());
+    }
+
+    private void showEventPickerDialog() {
+        FirebaseFirestore.getInstance().collection("events").get()
+                .addOnSuccessListener(querySnapshot -> {
+                    List<String> ids = new ArrayList<>();
+                    List<String> titles = new ArrayList<>();
+                    for (QueryDocumentSnapshot doc : querySnapshot) {
+                        ids.add(doc.getId());
+                        String title = doc.getString("title");
+                        titles.add(title != null ? title : doc.getId());
+                    }
+                    if (ids.isEmpty()) {
+                        Toast.makeText(this, "No events found", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    new AlertDialog.Builder(this)
+                            .setTitle("Select an Event")
+                            .setItems(titles.toArray(new String[0]), (dialog, which) -> {
+                                Intent intent = new Intent(this, EventDetailsActivity.class);
+                                intent.putExtra("eventId", ids.get(which));
+                                startActivity(intent);
+                            })
+                            .show();
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Failed to load events", Toast.LENGTH_SHORT).show());
     }
 }
