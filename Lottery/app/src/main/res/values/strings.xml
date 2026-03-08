@@ -19,4 +19,11 @@
     <string name="generate_qr_code">Generate QR Code</string>
     <string name="event_qr_code">Event QR Code</string>
     <string name="helper_max_capacity">Number of entrants allowed in this event</string>
+    <string name="event_details_title">Event Details</string>
+    <string name="registration_deadline">Registration Deadline</string>
+    <string name="about_this_event">About this Event</string>
+    <string name="location_verification_required">Location Verification Required</string>
+    <string name="welcome_to_lottery_app">Welcome to Lottery App</string>
+    <string name="create_event">Create Event</string>
+    <string name="view_events">View Events</string>
 </resources>
