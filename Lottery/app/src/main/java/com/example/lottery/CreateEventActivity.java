@@ -21,6 +21,9 @@ import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.FirebaseFirestore;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -39,7 +42,7 @@ public class CreateEventActivity extends AppCompatActivity {
     private TextInputEditText etEventStart, etEventEnd, etRegStart, etRegEnd, etDrawDate;
     private Button btnOpenUploadDialog, btnGenerateQRCode, btnCreateEvent;
     private ImageButton btnBack;
-    private ImageView ivQRCodePreview;
+    private ImageView ivQRCodePreview, ivPosterPreview; // Added ivPosterPreview
     private TextView tvQRCodeLabel, tvPosterStatus;
     private MaterialCardView cvQRCode;
     private SwitchMaterial swRequireLocation;
@@ -49,12 +52,7 @@ public class CreateEventActivity extends AppCompatActivity {
     private String qrCodeContent = "";
     private Date eventStartDate, eventEndDate, regStartDate, regEndDate, drawDate;
     
-    /** 
-     * URI of the selected poster image. 
-     * Received from UploadPosterDialogFragment.
-     */
     private Uri selectedPosterUri = null;
-
     private FirebaseFirestore db;
 
     @Override
@@ -62,7 +60,6 @@ public class CreateEventActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_event);
 
-        // Initialize Firestore
         try {
             db = FirebaseFirestore.getInstance();
         } catch (Exception e) {
@@ -75,21 +72,16 @@ public class CreateEventActivity extends AppCompatActivity {
         initializeViews();
         setupDialogCallback();
 
-        // Fixed: Back button listener
         if (btnBack != null) {
             btnBack.setOnClickListener(v -> finish());
         }
 
-        // US 02.04.01: Open the upload poster dialog
         btnOpenUploadDialog.setOnClickListener(v -> {
             UploadPosterDialogFragment dialog = new UploadPosterDialogFragment();
             dialog.show(getSupportFragmentManager(), "upload_poster");
         });
 
-        // US 02.01.01: Generate and display QR code
         btnGenerateQRCode.setOnClickListener(v -> generateAndDisplayQRCode());
-
-        // Launch Event action
         btnCreateEvent.setOnClickListener(v -> createEvent());
     }
 
@@ -98,14 +90,12 @@ public class CreateEventActivity extends AppCompatActivity {
         etMaxCapacity = findViewById(R.id.etMaxCapacity);
         etEventDetails = findViewById(R.id.etEventDetails);
         
-        // Refactored Date Inputs
         etEventStart = findViewById(R.id.etEventStart);
         etEventEnd = findViewById(R.id.etEventEnd);
         etRegStart = findViewById(R.id.etRegStart);
         etRegEnd = findViewById(R.id.etRegEnd);
         etDrawDate = findViewById(R.id.etDrawDate);
 
-        // Date Picker Click Listeners
         etEventStart.setOnClickListener(v -> showDateTimePicker(etEventStart, "eventStart"));
         etEventEnd.setOnClickListener(v -> showDateTimePicker(etEventEnd, "eventEnd"));
         etRegStart.setOnClickListener(v -> showDateTimePicker(etRegStart, "regStart"));
@@ -118,6 +108,7 @@ public class CreateEventActivity extends AppCompatActivity {
         btnBack = findViewById(R.id.btnBack);
         
         ivQRCodePreview = findViewById(R.id.ivQRCodePreview);
+        ivPosterPreview = findViewById(R.id.ivPosterPreview); // Initialize ivPosterPreview
         tvQRCodeLabel = findViewById(R.id.tvQRCodeLabel);
         tvPosterStatus = findViewById(R.id.tvPosterStatus);
         cvQRCode = findViewById(R.id.cvQRCode);
@@ -132,8 +123,39 @@ public class CreateEventActivity extends AppCompatActivity {
                 selectedPosterUri = Uri.parse(uriString);
                 tvPosterStatus.setText("Poster selected");
                 tvPosterStatus.setTextColor(getResources().getColor(R.color.primary_blue));
+                
+                // Show preview immediately
+                if (ivPosterPreview != null) {
+                    ivPosterPreview.setImageURI(selectedPosterUri);
+                    ivPosterPreview.setVisibility(View.VISIBLE);
+                }
             }
         });
+    }
+
+    /**
+     * Copies the selected image to internal storage to ensure persistent access.
+     */
+    private String saveImageToInternalStorage(Uri uri) {
+        try {
+            String fileName = "poster_" + UUID.randomUUID().toString() + ".jpg";
+            File file = new File(getFilesDir(), fileName);
+            
+            InputStream inputStream = getContentResolver().openInputStream(uri);
+            FileOutputStream outputStream = new FileOutputStream(file);
+            byte[] buffer = new byte[1024];
+            int read;
+            while ((read = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, read);
+            }
+            outputStream.close();
+            inputStream.close();
+            
+            return Uri.fromFile(file).toString();
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to save image locally", e);
+            return uri.toString(); // Fallback to original URI
+        }
     }
 
     private void generateAndDisplayQRCode() {
@@ -188,10 +210,15 @@ public class CreateEventActivity extends AppCompatActivity {
         }
 
         int maxCapacity = capacityStr.isEmpty() ? 0 : Integer.parseInt(capacityStr);
-        String posterUriToSave = (selectedPosterUri != null) ? selectedPosterUri.toString() : "";
+        
+        // IMPORTANT: Save image locally before storing URI in Firestore
+        String posterUriToSave = "";
+        if (selectedPosterUri != null) {
+            posterUriToSave = saveImageToInternalStorage(selectedPosterUri);
+        }
+        
         boolean requireLocation = swRequireLocation.isChecked();
 
-        // Updated event creation logic with improved metadata
         Event newEvent = new Event(
                 eventId, title, eventStartDate, regEndDate, maxCapacity, 
                 details, posterUriToSave, qrCodeContent, "organizer_current_user", requireLocation

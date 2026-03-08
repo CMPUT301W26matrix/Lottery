@@ -382,6 +382,17 @@
                         android:textStyle="bold"
                         android:textColor="@color/primary_blue" />
 
+                    <!-- Poster Preview Image -->
+                    <ImageView
+                        android:id="@+id/ivPosterPreview"
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:layout_marginTop="12dp"
+                        android:scaleType="centerCrop"
+                        android:visibility="gone"
+                        tools:visibility="visible"
+                        tools:src="@tools:sample/backgrounds/scenic" />
+
                     <LinearLayout
                         android:id="@+id/llPosterAction"
                         android:layout_width="match_parent"
