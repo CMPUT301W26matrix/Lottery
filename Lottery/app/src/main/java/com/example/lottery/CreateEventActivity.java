@@ -79,6 +79,13 @@ public class CreateEventActivity extends AppCompatActivity {
 
     private FirebaseFirestore db;
 
+    /**
+     * Initializes the activity, sets up Firebase, bind views,
+     * and click button listeners for QR code generation and event creation.
+     *
+     * @param savedInstanceState If the activity is initialized again after being shut down,
+     *                           this contains the most recent data, in other case it is null.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
