@@ -68,6 +68,15 @@ public class MainActivity extends AppCompatActivity {
         btnViewEvents.setOnClickListener(v -> showEventPickerDialog());
     }
 
+    /**
+     * Events Picker Dialog:
+     * Get instance from Firestore backend
+     * Initialize array for ids and titles
+     * Show AlertDialog and ask for user's choice
+     * Use intent to transition to EventDetailsActivity
+     *
+     * @return void
+     */
     private void showEventPickerDialog() {
         FirebaseFirestore.getInstance().collection("events").get()
                 .addOnSuccessListener(querySnapshot -> {

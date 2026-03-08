@@ -110,6 +110,9 @@ public class CreateEventActivity extends AppCompatActivity {
         btnCreateEvent.setOnClickListener(v -> createEvent());
     }
 
+    /**
+     * Initialize view for the create event activity.
+     */
     private void initializeViews() {
         etEventTitle = findViewById(R.id.etEventTitle);
         etMaxCapacity = findViewById(R.id.etMaxCapacity);
