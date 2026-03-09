@@ -33,6 +33,16 @@ import java.util.UUID;
 
 /**
  * Activity for organizers to create or edit events.
+ *
+ * <p>Key Responsibilities:
+ * <ul>
+ *   <li>Provides UI for entering event details (Title, Date, Capacity, etc.).</li>
+ *   <li>Handles both creation of new events and editing of existing ones.</li>
+ *   <li>Enforces business rules such as registration deadline validation 
+ *       and waiting list limit enforcement.</li>
+ *   <li>Manages promotional QR code generation and poster selection.</li>
+ * </ul>
+ * </p>
  */
 public class CreateEventActivity extends AppCompatActivity {
 
@@ -48,12 +58,19 @@ public class CreateEventActivity extends AppCompatActivity {
     private MaterialCardView cvQRCode;
     private SwitchMaterial swRequireLocation, swLimitWaitingList;
 
+    // Core data variables
+    /** Unique identifier for the event. */
     private String eventId = UUID.randomUUID().toString();
+    /** Content encoded within the event's promotional QR code. */
     private String qrCodeContent = "";
+    /** Date objects representing various event deadlines and scheduled times. */
     private Date eventStartDate, eventEndDate, regStartDate, regEndDate, drawDate;
+    /** Flag indicating whether the activity is in edit mode for an existing event. */
     private boolean isEditMode = false;
 
+    /** URI of the selected poster image. */
     private Uri selectedPosterUri = null;
+    /** Firebase Firestore instance for database operations. */
     private FirebaseFirestore db;
 
     @Override
@@ -95,6 +112,7 @@ public class CreateEventActivity extends AppCompatActivity {
         btnGenerateQRCode.setOnClickListener(v -> generateAndDisplayQRCode());
         btnCreateEvent.setOnClickListener(v -> validateAndSaveEvent());
 
+        // US 02.02.02: Handle waiting list limit toggle
         swLimitWaitingList.setOnCheckedChangeListener((buttonView, isChecked) -> {
             tilWaitingListLimit.setVisibility(isChecked ? View.VISIBLE : View.GONE);
             if (!isChecked) {
@@ -103,6 +121,9 @@ public class CreateEventActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Initializes UI component references and sets up click listeners for date pickers.
+     */
     private void initializeViews() {
         tvHeader = findViewById(R.id.tvHeader);
         etEventTitle = findViewById(R.id.etEventTitle);
@@ -138,6 +159,11 @@ public class CreateEventActivity extends AppCompatActivity {
         etWaitingListLimit = findViewById(R.id.etWaitingListLimit);
     }
 
+    /**
+     * Loads existing event data from Firestore and populates the UI fields.
+     *
+     * @param existingEventId The unique ID of the event to load.
+     */
     private void loadEventData(String existingEventId) {
         db.collection("events").document(existingEventId).get().addOnSuccessListener(doc -> {
             if (!doc.exists()) {
@@ -154,6 +180,7 @@ public class CreateEventActivity extends AppCompatActivity {
             etEventDetails.setText(event.getDetails());
             swRequireLocation.setChecked(event.isRequireLocation());
 
+            // US 02.03.01: Load waiting list limit
             if (event.getWaitingListLimit() != null) {
                 swLimitWaitingList.setChecked(true);
                 etWaitingListLimit.setText(String.valueOf(event.getWaitingListLimit()));
@@ -168,9 +195,9 @@ public class CreateEventActivity extends AppCompatActivity {
                 tvPosterStatus.setTextColor(getResources().getColor(R.color.primary_blue));
             }
 
-            qrCodeContent = event.getQrCodeContent();
-            eventStartDate = event.getScheduledDateTime();
-            regEndDate = event.getRegistrationDeadline();
+            this.qrCodeContent = event.getQrCodeContent();
+            this.eventStartDate = event.getScheduledDateTime();
+            this.regEndDate = event.getRegistrationDeadline();
 
             SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm", Locale.getDefault());
             if (eventStartDate != null) {
@@ -182,6 +209,9 @@ public class CreateEventActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Sets up the fragment result listener for receiving poster image selection results.
+     */
     private void setupDialogCallback() {
         getSupportFragmentManager().setFragmentResultListener("posterRequest", this, (requestKey, bundle) -> {
             String uriString = bundle.getString("posterUri");
@@ -200,6 +230,12 @@ public class CreateEventActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Copies the selected image to internal storage to ensure persistent access.
+     *
+     * @param uri The URI of the image to save.
+     * @return The internal URI of the saved image.
+     */
     private String saveImageToInternalStorage(Uri uri) {
         try {
             String fileName = "poster_" + UUID.randomUUID() + ".jpg";
@@ -225,6 +261,9 @@ public class CreateEventActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Generates a unique QR code for the event and displays it in the UI.
+     */
     private void generateAndDisplayQRCode() {
         qrCodeContent = QRCodeUtils.generateUniqueQrContent(eventId);
         Bitmap qrBitmap = QRCodeUtils.generateQRCodeBitmap(qrCodeContent);
@@ -236,7 +275,13 @@ public class CreateEventActivity extends AppCompatActivity {
         }
     }
 
-    private void showDateTimePicker(TextInputEditText editText, String fieldType) {
+    /**
+     * Displays a date and time picker dialog and updates the provided EditText with the selection.
+     *
+     * @param editText  The EditText to update with the formatted date string.
+     * @param fieldType The type of field being updated (e.g., "eventStart", "regEnd").
+     */
+    private void showDateTimePicker(final TextInputEditText editText, final String fieldType) {
         final Calendar calendar = Calendar.getInstance();
         new DatePickerDialog(this, (view, year, month, day) ->
                 new TimePickerDialog(this, (v, hour, min) -> {
@@ -279,6 +324,18 @@ public class CreateEventActivity extends AppCompatActivity {
         ).show();
     }
 
+    /**
+     * Validates all input fields and business rules before saving the event to Firestore.
+     *
+     * <p>Rules enforced:
+     * <ul>
+     *   <li>Title, Start Date, and Registration End are required.</li>
+     *   <li>Registration must end before the event starts.</li>
+     *   <li>Waiting list limit must be a positive integer.</li>
+     *   <li>New limit cannot be less than the current number of entrants when editing.</li>
+     * </ul>
+     * </p>
+     */
     private void validateAndSaveEvent() {
         String title = Objects.requireNonNull(etEventTitle.getText()).toString().trim();
         String capacityStr = Objects.requireNonNull(etMaxCapacity.getText()).toString().trim();
@@ -295,6 +352,7 @@ public class CreateEventActivity extends AppCompatActivity {
             return;
         }
 
+        // US 02.02.02: Validate waiting list limit
         Integer waitingListLimit = null;
         if (swLimitWaitingList.isChecked()) {
             if (waitingLimitStr.isEmpty()) {
@@ -303,7 +361,7 @@ public class CreateEventActivity extends AppCompatActivity {
             }
             try {
                 waitingListLimit = Integer.parseInt(waitingLimitStr);
-                if (waitingListLimit <= 0) {
+                if (!EventValidationUtils.isWaitingListLimitValid(waitingListLimit)) {
                     Toast.makeText(this, "Limit must be a positive integer (>0)", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -314,6 +372,8 @@ public class CreateEventActivity extends AppCompatActivity {
         }
 
         final Integer finalWaitingListLimit = waitingListLimit;
+
+        // US 02.02.02: AC #3: Check if new limit is smaller than current entrants when editing
         if (isEditMode && finalWaitingListLimit != null) {
             db.collection("events").document(eventId).collection("entrants").get()
                     .addOnSuccessListener(snapshots -> {
@@ -336,6 +396,14 @@ public class CreateEventActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Constructs an Event object and persists it to the Firestore database.
+     *
+     * @param title            The title of the event.
+     * @param capacityStr      The string representation of the maximum capacity.
+     * @param details          The detailed description of the event.
+     * @param waitingListLimit The limit for the waiting list (null for unlimited).
+     */
     private void saveEventToFirestore(String title, String capacityStr, String details, Integer waitingListLimit) {
         if (qrCodeContent.isEmpty()) {
             qrCodeContent = QRCodeUtils.generateUniqueQrContent(eventId);
