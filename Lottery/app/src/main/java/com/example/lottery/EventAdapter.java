@@ -1,13 +1,16 @@
 package com.example.lottery;
 
+import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.lottery.model.Event;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -72,8 +75,17 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
             tvWaiting.setText("0");
             tvSelected.setText("0");
             
-            // Default status for prototype
-            tvStatus.setText("ACTIVE");
+            if (event.getScheduledDateTime() != null && event.getScheduledDateTime().after(new Date())) {
+                tvStatus.setText("ACTIVE");
+                tvStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.primary_blue));
+                tvStatus.setBackgroundTintList(ColorStateList.valueOf(
+                        ContextCompat.getColor(itemView.getContext(), R.color.primary_light_blue)));
+            } else {
+                tvStatus.setText("CLOSED");
+                tvStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.text_secondary));
+                tvStatus.setBackgroundTintList(ColorStateList.valueOf(
+                        ContextCompat.getColor(itemView.getContext(), R.color.divider_gray)));
+            }
 
             itemView.setOnClickListener(v -> {
                 if (listener != null) {
