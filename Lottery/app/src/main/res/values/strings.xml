@@ -1,3 +1,30 @@
 <resources>
     <string name="app_name">Lottery</string>
+    <string name="create">Create</string>
+    <string name="create_new_event">Create New Event</string>
+    <string name="complete_the_form_below_to_create_your_event">Complete the form below to create your event</string>
+    <string name="event_title">Event Title</string>
+    <string name="event_date">Event Date</string>
+    <string name="start">Start</string>
+    <string name="mm_dd_yyyy_hh_mm">mm/dd/yyyy hh:mm</string>
+    <string name="end">End</string>
+    <string name="registration_period">Registration Period</string>
+    <string name="draw_date">Draw Date</string>
+    <string name="maximum_capacity">Maximum Capacity</string>
+    <string name="event_details_amp_description"><![CDATA[Event Details & Description]]></string>
+    <string name="require_geolocation_for_entrants">Require Geolocation for Entrants</string>
+    <string name="event_poster">Event Poster</string>
+    <string name="no_poster_selected">No poster selected</string>
+    <string name="upload_image">Upload Image</string>
+    <string name="launch_event">Launch Event</string>
+    <string name="generate_qr_code">Generate QR Code</string>
+    <string name="event_qr_code">Event QR Code</string>
+    <string name="helper_max_capacity">Number of entrants allowed in this event</string>
+    <string name="event_details_title">Event Details</string>
+    <string name="registration_deadline">Registration Deadline</string>
+    <string name="about_this_event">About this Event</string>
+    <string name="location_verification_required">Location Verification Required</string>
+    <string name="welcome_to_lottery_app">Welcome to Lottery App</string>
+    <string name="create_event">Create Event</string>
+    <string name="view_events">View Events</string>
 </resources>
