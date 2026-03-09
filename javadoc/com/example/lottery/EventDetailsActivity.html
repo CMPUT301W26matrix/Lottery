@@ -111,14 +111,15 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">EventDetailsActivity</span>
 <span class="extends-implements">extends androidx.appcompat.app.AppCompatActivity</span></div>
-<div class="block">Activity to display the details of a specific event.
+<div class="block">Activity to display the details of a specific event and handle registration.
 
  <p>Responsibilities:
  <ul>
    <li>Fetch the event record from Firestore using the supplied event ID.</li>
    <li>Render the poster, title, schedule, deadline, and description.</li>
    <li>Surface organizer-configured requirements such as geolocation.</li>
-   <li>Keep the branch's custom bottom navigation active on the details screen.</li>
+   <li>Enforce waiting-list capacity rules on the details screen.</li>
+   <li>Keep the custom bottom navigation active on the details screen.</li>
  </ul>
  </p></div>
 </section>
@@ -183,9 +184,7 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onCreate(android.os.Bundle)" class="member-name-link">onCreate</a><wbr>(android.os.Bundle&nbsp;savedInstanceState)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Binds the screen, initializes Firestore, and loads the requested event document.</div>
-</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
@@ -248,12 +247,9 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="onCreate(android.os.Bundle)">
 <h3>onCreate</h3>
 <div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onCreate</span><wbr><span class="parameters">(android.os.Bundle&nbsp;savedInstanceState)</span></div>
-<div class="block">Binds the screen, initializes Firestore, and loads the requested event document.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code>onCreate</code>&nbsp;in class&nbsp;<code>androidx.fragment.app.FragmentActivity</code></dd>
-<dt>Parameters:</dt>
-<dd><code>savedInstanceState</code> - previously saved activity state, if any</dd>
 </dl>
 </section>
 </li>

@@ -126,6 +126,11 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Validates if the registration deadline occurs before the event start time.</div>
 </div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#isWaitingListLimitValid(java.lang.Integer)" class="member-name-link">isWaitingListLimitValid</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&nbsp;limit)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">US 02.03.01: Validates if the waiting list limit is a positive integer.</div>
+</div>
 </div>
 </div>
 </div>
@@ -170,6 +175,20 @@ loadScripts(document, 'script');</script>
 <dd><code>eventDate</code> - The scheduled start date of the event.</dd>
 <dt>Returns:</dt>
 <dd>true if the deadline is strictly before the event date, false otherwise or if either is null.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="isWaitingListLimitValid(java.lang.Integer)">
+<h3>isWaitingListLimitValid</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isWaitingListLimitValid</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&nbsp;limit)</span></div>
+<div class="block">US 02.03.01: Validates if the waiting list limit is a positive integer.
+ null is considered valid as it represents an "Unlimited" state.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>limit</code> - The waiting list limit to validate.</dd>
+<dt>Returns:</dt>
+<dd>true if the limit is null or greater than zero.</dd>
 </dl>
 </section>
 </li>
