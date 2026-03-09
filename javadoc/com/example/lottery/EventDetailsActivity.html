@@ -118,7 +118,8 @@ loadScripts(document, 'script');</script>
    <li>Fetch the event record from Firestore using the supplied event ID.</li>
    <li>Render the poster, title, schedule, deadline, and description.</li>
    <li>Surface organizer-configured requirements such as geolocation.</li>
-   <li>Enforce waiting-list capacity rules on the details screen.</li>
+   <li>Enforce US 02.03.01: Disables registration when waiting list is full.</li>
+   <li>Writes registration data to Firestore 'entrants' sub-collection (US 02.01.01).</li>
    <li>Keep the custom bottom navigation active on the details screen.</li>
  </ul>
  </p></div>

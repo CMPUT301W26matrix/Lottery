@@ -93,7 +93,20 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">EventAdapter</span>
 <span class="extends-implements">extends androidx.recyclerview.widget.RecyclerView.Adapter&lt;com.example.lottery.EventAdapter.EventViewHolder&gt;</span></div>
-<div class="block">Adapter for displaying a list of events in the Organizer Dashboard.</div>
+<div class="block">Adapter for displaying a list of events in the Organizer Dashboard.
+ 
+ <p>Key Responsibilities:
+ <ul>
+   <li>Binds event metadata to RecyclerView items.</li>
+   <li>Dynamically fetches and displays the current waiting list count from Firestore.</li>
+   <li>Handles clicks on event items to navigate to detailed views.</li>
+   <li>Visualizes event status (ACTIVE/CLOSED) based on scheduled date.</li>
+ </ul>
+ </p>
+ 
+ <p>Satisfies requirement for:
+ US 02.03.01: Show the waiting list capacity.
+ </p></div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -109,7 +122,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color"><code>static interface&nbsp;</code></div>
 <div class="col-second even-row-color"><code><a href="EventAdapter.OnEventClickListener.html" class="type-name-link" title="interface in com.example.lottery">EventAdapter.OnEventClickListener</a></code></div>
 <div class="col-last even-row-color">
-<div class="block">Interface for handling event item clicks.</div>
+<div class="block">Interface definition for a callback to be invoked when an event item is clicked.</div>
 </div>
 </div>
 <div class="inherited-list">
@@ -127,7 +140,9 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(java.util.List,com.example.lottery.EventAdapter.OnEventClickListener)" class="member-name-link">EventAdapter</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="model/Event.html" title="class in com.example.lottery.model">Event</a>&gt;&nbsp;eventList,
  <a href="EventAdapter.OnEventClickListener.html" title="interface in com.example.lottery">EventAdapter.OnEventClickListener</a>&nbsp;listener)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-last even-row-color">
+<div class="block">Constructs a new EventAdapter.</div>
+</div>
 </div>
 </section>
 </li>
@@ -178,6 +193,12 @@ loadScripts(document, 'script');</script>
 <h3>EventAdapter</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">EventAdapter</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="model/Event.html" title="class in com.example.lottery.model">Event</a>&gt;&nbsp;eventList,
  <a href="EventAdapter.OnEventClickListener.html" title="interface in com.example.lottery">EventAdapter.OnEventClickListener</a>&nbsp;listener)</span></div>
+<div class="block">Constructs a new EventAdapter.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>eventList</code> - The list of events to display.</dd>
+<dd><code>listener</code> - The listener to handle click events.</dd>
+</dl>
 </section>
 </li>
 </ul>

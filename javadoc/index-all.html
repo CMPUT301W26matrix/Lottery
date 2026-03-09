@@ -84,10 +84,12 @@ loadScripts(document, 'script');</script>
 <div class="block">Adapter for displaying a list of events in the Organizer Dashboard.</div>
 </dd>
 <dt><a href="com/example/lottery/EventAdapter.html#%3Cinit%3E(java.util.List,com.example.lottery.EventAdapter.OnEventClickListener)" class="member-name-link">EventAdapter(List&lt;Event&gt;, EventAdapter.OnEventClickListener)</a> - Constructor for class com.example.lottery.<a href="com/example/lottery/EventAdapter.html" title="class in com.example.lottery">EventAdapter</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Constructs a new EventAdapter.</div>
+</dd>
 <dt><a href="com/example/lottery/EventAdapter.OnEventClickListener.html" class="type-name-link" title="interface in com.example.lottery">EventAdapter.OnEventClickListener</a> - Interface in <a href="com/example/lottery/package-summary.html">com.example.lottery</a></dt>
 <dd>
-<div class="block">Interface for handling event item clicks.</div>
+<div class="block">Interface definition for a callback to be invoked when an event item is clicked.</div>
 </dd>
 <dt><a href="com/example/lottery/EventDetailsActivity.html" class="type-name-link" title="class in com.example.lottery">EventDetailsActivity</a> - Class in <a href="com/example/lottery/package-summary.html">com.example.lottery</a></dt>
 <dd>
@@ -145,7 +147,7 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/util/EventValidationUtils.html#isWaitingListLimitValid(java.lang.Integer)" class="member-name-link">isWaitingListLimitValid(Integer)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/EventValidationUtils.html" title="class in com.example.lottery.util">EventValidationUtils</a></dt>
 <dd>
-<div class="block">US 02.03.01: Validates if the waiting list limit is a positive integer.</div>
+<div class="block">US 02.03.01 / US 02.02.02: Validates if the waiting list limit is a positive integer.</div>
 </dd>
 </dl>
 <h2 class="title" id="I:L">L</h2>
@@ -161,7 +163,7 @@ loadScripts(document, 'script');</script>
 <dl class="index">
 <dt><a href="com/example/lottery/MainActivity.html" class="type-name-link" title="class in com.example.lottery">MainActivity</a> - Class in <a href="com/example/lottery/package-summary.html">com.example.lottery</a></dt>
 <dd>
-<div class="block">MainActivity serves as the Organizer Dashboard.</div>
+<div class="block">MainActivity serves as the Organizer Dashboard, displaying a summary of all events.</div>
 </dd>
 <dt><a href="com/example/lottery/MainActivity.html#%3Cinit%3E()" class="member-name-link">MainActivity()</a> - Constructor for class com.example.lottery.<a href="com/example/lottery/MainActivity.html" title="class in com.example.lottery">MainActivity</a></dt>
 <dd>&nbsp;</dd>
@@ -191,9 +193,13 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/example/lottery/EventAdapter.html#onCreateViewHolder(android.view.ViewGroup,int)" class="member-name-link">onCreateViewHolder(ViewGroup, int)</a> - Method in class com.example.lottery.<a href="com/example/lottery/EventAdapter.html" title="class in com.example.lottery">EventAdapter</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/EventAdapter.OnEventClickListener.html#onEventClick(com.example.lottery.model.Event)" class="member-name-link">onEventClick(Event)</a> - Method in interface com.example.lottery.<a href="com/example/lottery/EventAdapter.OnEventClickListener.html" title="interface in com.example.lottery">EventAdapter.OnEventClickListener</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Called when an event has been clicked.</div>
+</dd>
 <dt><a href="com/example/lottery/MainActivity.html#onEventClick(com.example.lottery.model.Event)" class="member-name-link">onEventClick(Event)</a> - Method in class com.example.lottery.<a href="com/example/lottery/MainActivity.html" title="class in com.example.lottery">MainActivity</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Handles clicks on individual event items in the RecyclerView.</div>
+</dd>
 <dt><a href="com/example/lottery/MainActivity.html#onResume()" class="member-name-link">onResume()</a> - Method in class com.example.lottery.<a href="com/example/lottery/MainActivity.html" title="class in com.example.lottery">MainActivity</a></dt>
 <dd>&nbsp;</dd>
 </dl>
