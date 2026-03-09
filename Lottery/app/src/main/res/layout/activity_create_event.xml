@@ -37,8 +37,8 @@
 
                     <ImageButton
                         android:id="@+id/btnBack"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:contentDescription="Back"
                         android:src="@drawable/ic_back_arrow"
@@ -381,38 +381,6 @@
                             android:textSize="16sp" />
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <com.google.android.material.switchmaterial.SwitchMaterial
-                        android:id="@+id/swLimitWaitingList"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:text="Limit Waiting List Size"
-                        android:textColor="@color/primary_blue"
-                        android:textSize="16sp" />
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/tilWaitingListLimit"
-                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:hint="Waiting List Limit"
-                        android:visibility="gone"
-                        app:boxCornerRadiusTopStart="12dp"
-                        app:boxCornerRadiusTopEnd="12dp"
-                        app:boxCornerRadiusBottomStart="12dp"
-                        app:boxCornerRadiusBottomEnd="12dp"
-                        app:boxStrokeColor="@color/primary_blue"
-                        app:hintTextColor="@color/primary_blue">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etWaitingListLimit"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="number"
-                            android:textSize="16sp" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tilEventDetails"
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
@@ -439,15 +407,76 @@
                             android:textSize="16sp" />
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <com.google.android.material.switchmaterial.SwitchMaterial
-                        android:id="@+id/swRequireLocation"
+                    <!-- Limit Waiting List Row -->
+                    <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:text="@string/require_geolocation_for_entrants"
-                        android:textColor="@color/primary_blue"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
+                        android:layout_marginTop="24dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:text="Limit Waiting List Size"
+                            android:textColor="@color/primary_blue"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/swLimitWaitingList"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true" />
+                    </RelativeLayout>
+
+                    <!-- Waiting List Limit Input Field -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilWaitingListLimit"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:hint="Waiting List Limit"
+                        android:visibility="gone"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxStrokeColor="@color/primary_blue"
+                        app:hintTextColor="@color/primary_blue"
+                        tools:visibility="visible">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etWaitingListLimit"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="number"
+                            android:textSize="16sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Geolocation Requirement Row -->
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:text="@string/require_geolocation_for_entrants"
+                            android:textColor="@color/primary_blue"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/swRequireLocation"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true" />
+                    </RelativeLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

@@ -24,7 +24,7 @@ public class EventValidationUtils {
     }
 
     /**
-     * US 02.03.01: Validates if the waiting list limit is a positive integer.
+     * US 02.03.01 / US 02.02.02: Validates if the waiting list limit is a positive integer.
      * null is considered valid as it represents an "Unlimited" state.
      *
      * @param limit The waiting list limit to validate.
