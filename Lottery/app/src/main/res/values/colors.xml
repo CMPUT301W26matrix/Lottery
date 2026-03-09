@@ -3,16 +3,22 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <!-- Modern Blue Theme Palette -->
-    <color name="primary_blue">#1E6FD9</color>
-    <color name="accent_blue">#0288D1</color>
-    <color name="primary_light_blue">#E3F2FD</color>
-    <color name="background_light">#F5F7FA</color>
-    <color name="background_page">#F5F7FA</color>
-    <color name="text_primary">#111827</color>
-    <color name="text_secondary">#6B7280</color>
-    <color name="text_gray">#6B7280</color>
-    <color name="border_outline">#D1D5DB</color>
-    <color name="divider_gray">#D1D5DB</color>
-    <color name="upload_area_bg">#F9FAFB</color>
+    <color name="primary_blue">#0052FF</color>
+    <color name="accent_blue">#0047DB</color>
+    <color name="primary_light_blue">#EEF3FF</color>
+
+    <color name="background_light">#FFFFFF</color>
+    <color name="background_page">#F7F9FC</color>
+    <color name="upload_area_bg">#EEF3FF</color>
+
+    <color name="text_primary">#111111</color>
+    <color name="text_secondary">#5F6B7A</color>
+    <color name="text_gray">#8A93A3</color>
+
+    <color name="border_outline">#E6EAF2</color>
+    <color name="divider_gray">#EEF2F7</color>
+
+    <color name="success_green">#16A34A</color>
+    <color name="warning_orange">#D97706</color>
+    <color name="error_red">#DC2626</color>
 </resources>
