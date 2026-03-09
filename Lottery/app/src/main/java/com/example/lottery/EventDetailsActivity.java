@@ -42,11 +42,14 @@ public class EventDetailsActivity extends AppCompatActivity {
     private TextView tvEventTitle, tvScheduledDate, tvRegistrationDeadline, tvEventDetails, tvLocationRequirement;
     private TextView tvFullMessage, tvWaitingListCapacity;
     private Button btnRegister;
+    private Button btnEditEvent;
+
     private FirebaseFirestore db;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
 
     /** The current event being displayed. */
     private Event currentEvent;
+    private String eventId;
     /** Flag indicating if the waiting list has reached its capacity. */
     private boolean isEventFull = false;
 
@@ -64,12 +67,13 @@ public class EventDetailsActivity extends AppCompatActivity {
         tvFullMessage = findViewById(R.id.tvFullMessage);
         tvWaitingListCapacity = findViewById(R.id.tvWaitingListCapacity);
         btnRegister = findViewById(R.id.btnRegister);
+        btnEditEvent = findViewById(R.id.btnEditEvent);
 
         db = FirebaseFirestore.getInstance();
 
         setupNavigation();
 
-        String eventId = getIntent().getStringExtra("eventId");
+        eventId = getIntent().getStringExtra("eventId");
         if (eventId != null) {
             fetchEventDetails(eventId);
         } else {
@@ -78,6 +82,18 @@ public class EventDetailsActivity extends AppCompatActivity {
         }
 
         btnRegister.setOnClickListener(v -> handleRegistration());
+        btnEditEvent.setOnClickListener(v -> handleEditEvent());
+    }
+
+    /**
+     * Refreshes the displayed event details whenever the activity returns to the foreground.
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (eventId != null) {
+            fetchEventDetails(eventId);
+        }
     }
 
     /**
@@ -210,6 +226,14 @@ public class EventDetailsActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Launches CreateEventActivity in edit mode for the currently displayed event.
+     */
+    private void handleEditEvent() {
+        Intent intent = new Intent(this, CreateEventActivity.class);
+        intent.putExtra("eventId", eventId);
+        startActivity(intent);
+    }
     /**
      * Updates the UI components with the provided event data.
      *
