@@ -5,25 +5,39 @@ import org.junit.Test;
 import com.example.lottery.util.QRCodeUtils;
 
 /**
- * Unit tests for the QRCodeUtils class.
+ * Unit tests for the {@link QRCodeUtils} class.
+ *
+ * <p>This class validates the QR code generation logic, ensuring that:
+ * <ul>
+ *   <li>The generated content correctly incorporates the event ID.</li>
+ *   <li>The generated content is unique even when called with the same event ID.</li>
+ * </ul>
+ * </p>
  */
 public class QRCodeUtilsTest {
 
+    /**
+     * Verifies that the generated QR content includes the event ID as a prefix.
+     */
     @Test
     public void testGenerateUniqueQrContentContainsEventId() {
         String eventId = "testEventId";
         String qrContent = QRCodeUtils.generateUniqueQrContent(eventId);
-        
-        assertNotNull(qrContent);
-        assertTrue(qrContent.startsWith(eventId));
+
+        assertNotNull("QR content should not be null", qrContent);
+        assertTrue("QR content should start with the event ID", qrContent.startsWith(eventId));
     }
 
+    /**
+     * Verifies that multiple calls to generate QR content with the same event ID
+     * produce unique results, ensuring non-repeatability.
+     */
     @Test
     public void testGenerateUniqueQrContentIsUnique() {
         String eventId = "sameId";
         String qrContent1 = QRCodeUtils.generateUniqueQrContent(eventId);
         String qrContent2 = QRCodeUtils.generateUniqueQrContent(eventId);
-        
-        assertNotEquals(qrContent1, qrContent2);
+
+        assertNotEquals("Two generated QR contents for the same event ID should be unique", qrContent1, qrContent2);
     }
 }

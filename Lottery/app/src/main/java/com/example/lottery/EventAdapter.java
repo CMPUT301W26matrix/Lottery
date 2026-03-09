@@ -26,7 +26,12 @@ import java.util.Locale;
  *   <li>Binds event metadata to RecyclerView items.</li>
  *   <li>Dynamically fetches and displays the current waiting list count from Firestore.</li>
  *   <li>Handles clicks on event items to navigate to detailed views.</li>
+ *   <li>Visualizes event status (ACTIVE/CLOSED) based on scheduled date.</li>
  * </ul>
+ * </p>
+ * 
+ * <p>Satisfies requirement for:
+ * US 02.03.01: Show the waiting list capacity.
  * </p>
  */
 public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHolder> {
@@ -119,7 +124,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
             // 1. Clean Capacity Display: Just the Max Capacity (US 02.01.04)
             tvCapacity.setText(String.valueOf(event.getMaxCapacity()));
             
-            // 2. Fetch and Format Waiting Column: "current / limit" (US 02.02.02)
+            // 2. Fetch and Format Waiting Column: "current / limit" (US 02.03.01)
             db.collection("events").document(event.getEventId())
                     .collection("entrants")
                     .get()
@@ -138,6 +143,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
 
             tvSelected.setText("0");
             
+            // Dynamic status based on scheduled date
             if (event.getScheduledDateTime() != null && event.getScheduledDateTime().after(new Date())) {
                 tvStatus.setText("ACTIVE");
                 tvStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.primary_blue));

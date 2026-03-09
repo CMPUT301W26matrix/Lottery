@@ -17,16 +17,32 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * MainActivity serves as the Organizer Dashboard.
+ * MainActivity serves as the Organizer Dashboard, displaying a summary of all events.
+ *
+ * <p>Key Responsibilities:
+ * <ul>
+ *   <li>Displays a list of events created by the organizer.</li>
+ *   <li>Provides a summary of event statuses (Active, Closed, etc.).</li>
+ *   <li>Handles navigation to the event creation screen and event detail screens.</li>
+ *   <li>Fetches event data from Firestore on creation and resume.</li>
+ * </ul>
+ * </p>
  */
 public class MainActivity extends AppCompatActivity implements EventAdapter.OnEventClickListener {
 
     private static final String TAG = "MainActivity";
 
+    /** RecyclerView for displaying the list of events. */
     private RecyclerView rvEvents;
+    /** Adapter for binding event data to the RecyclerView. */
     private EventAdapter adapter;
+    /** List to hold the event objects fetched from Firestore. */
     private List<Event> eventList;
-    private TextView tvNoEvents, tvActiveCount, tvClosedCount, tvPendingCount, tvTotalCount;
+    /** TextView displayed when no events are found. */
+    private TextView tvNoEvents;
+    /** TextViews for displaying summary statistics of event statuses. */
+    private TextView tvActiveCount, tvClosedCount, tvPendingCount, tvTotalCount;
+    /** Firebase Firestore instance for database operations. */
     private FirebaseFirestore db;
 
     @Override
@@ -35,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements EventAdapter.OnEv
         setContentView(R.layout.activity_main);
 
         db = FirebaseFirestore.getInstance();
-        
+
         // Bind UI Components
         rvEvents = findViewById(R.id.rvEvents);
         tvNoEvents = findViewById(R.id.tvNoEvents);
@@ -43,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements EventAdapter.OnEv
         tvClosedCount = findViewById(R.id.tvClosedCount);
         tvPendingCount = findViewById(R.id.tvPendingCount);
         tvTotalCount = findViewById(R.id.tvTotalCount);
-        
+
         // Setup RecyclerView
         eventList = new ArrayList<>();
         adapter = new EventAdapter(eventList, this);
@@ -54,6 +70,9 @@ public class MainActivity extends AppCompatActivity implements EventAdapter.OnEv
         loadOrganizerEvents();
     }
 
+    /**
+     * Sets up click listeners for the main navigation elements.
+     */
     private void setupNavigation() {
         View btnCreate = findViewById(R.id.nav_create_container);
         if (btnCreate != null) {
@@ -74,7 +93,11 @@ public class MainActivity extends AppCompatActivity implements EventAdapter.OnEv
     }
 
     /**
-     * Loads events and handles compatibility with older database schemas.
+     * Loads events from the Firestore 'events' collection.
+     *
+     * <p>This method clears the existing list, fetches all documents, and repopulates the list.
+     * It includes a compatibility fix to handle older documents that might use different field names for dates.
+     * After fetching, it updates the RecyclerView and the summary statistics UI.</p>
      */
     private void loadOrganizerEvents() {
         db.collection("events")
@@ -88,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements EventAdapter.OnEv
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         try {
                             Event event = document.toObject(Event.class);
-                            
+
                             // Compatibility fix: If new field is null, check if old field names exist
                             if (event.getScheduledDateTime() == null) {
                                 Date oldDate = document.getDate("eventDate");
@@ -110,7 +133,7 @@ public class MainActivity extends AppCompatActivity implements EventAdapter.OnEv
                             Log.e(TAG, "Error mapping document " + document.getId(), e);
                         }
                     }
-                    
+
                     adapter.notifyDataSetChanged();
                     updateSummaryStats(active, closed, 0, eventList.size());
                     tvNoEvents.setVisibility(eventList.isEmpty() ? View.VISIBLE : View.GONE);
@@ -121,6 +144,14 @@ public class MainActivity extends AppCompatActivity implements EventAdapter.OnEv
                 });
     }
 
+    /**
+     * Updates the summary statistic TextViews with the provided counts.
+     *
+     * @param active  The number of active events.
+     * @param closed  The number of closed events.
+     * @param pending The number of pending events.
+     * @param total   The total number of events.
+     */
     private void updateSummaryStats(int active, int closed, int pending, int total) {
         tvActiveCount.setText(String.valueOf(active));
         tvClosedCount.setText(String.valueOf(closed));
@@ -128,6 +159,11 @@ public class MainActivity extends AppCompatActivity implements EventAdapter.OnEv
         tvTotalCount.setText(String.valueOf(total));
     }
 
+    /**
+     * Handles clicks on individual event items in the RecyclerView.
+     *
+     * @param event The Event object that was clicked.
+     */
     @Override
     public void onEventClick(Event event) {
         Intent intent = new Intent(this, EventDetailsActivity.class);
