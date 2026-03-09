@@ -6,4 +6,19 @@
     <string name="i_m_an_organizer">✪ I\'m an Organizer</string>
     <string name="i_m_an_admin">✪ I\'m an Admin</string>
     <string name="sign_in">✪ Sign In</string>
+
+    <!-- Additional strings for sign-up/sign-in Activities -->
+    <string name="name">Name</string>
+    <string name="email">Email</string>
+    <string name="phone_number_optional">Phone Number (Optional)</string>
+    <string name="password">Password</string>
+    <string name="re_enter_password">Re-Enter Password</string>
+    <string name="continue_text">Continue</string>
+    <string name="continue_without_registering">Continue Without Registering</string>
+    <string name="admin_code">Admin Code</string>
+    <string name="error_password_mismatch">Passwords do not match</string>
+    <string name="error_invalid_email">Invalid email address</string>
+    <string name="error_name_required">Name is required</string>
+    <string name="error_password_required">Password is required</string>
+    <string name="error_invalid_admin_code">Invalid admin code</string>
 </resources>
