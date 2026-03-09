@@ -342,8 +342,21 @@ public class CreateEventActivity extends AppCompatActivity {
         String details = Objects.requireNonNull(etEventDetails.getText()).toString().trim();
         String waitingLimitStr = Objects.requireNonNull(etWaitingListLimit.getText()).toString().trim();
 
-        if (title.isEmpty() || eventStartDate == null || regEndDate == null) {
-            Toast.makeText(this, "Event title, Start Date, and Registration End are required", Toast.LENGTH_SHORT).show();
+        // 1.1 Event must have title
+        if (title.isEmpty()) {
+            Toast.makeText(this, "Event title is required", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 1.2 Event must have start date and time
+        if (eventStartDate == null) {
+            Toast.makeText(this, "Event date and time are required", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 1.3 Event must have registration deadline
+        if (regEndDate == null) {
+            Toast.makeText(this, "Registration deadline is required", Toast.LENGTH_SHORT).show();
             return;
         }
 
