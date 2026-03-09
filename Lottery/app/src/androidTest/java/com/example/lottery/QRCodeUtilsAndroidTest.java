@@ -17,10 +17,8 @@ public class QRCodeUtilsAndroidTest {
 
     @Test
     public void testGenerateQRCodeBitmapReturnsExpectedSize() {
-        // Generate QR Code Bitmap
         Bitmap bitmap = QRCodeUtils.generateQRCodeBitmap("test-event-qr-code-generation_seed-42");
 
-        // Bitmap should not be null, its height and weight should be 512
         assertNotNull(bitmap);
         assertEquals(512, bitmap.getWidth());
         assertEquals(512, bitmap.getHeight());

@@ -2,105 +2,136 @@ package com.example.lottery;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
-import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import com.example.lottery.model.Event;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
- * MainActivity serves as the primary dashboard for the application.
- * It coordinates navigation between different features based on the user's role.
- * 
- * Supports US 02.01.01 by providing an entry point for organizers.
+ * MainActivity serves as the Organizer Dashboard.
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements EventAdapter.OnEventClickListener {
 
-    /**
-     * Simulation of the user's role.
-     * Set to true to simulate an Organizer (US 02.01.01 access), 
-     * or false to simulate a regular Entrant.
-     * TODO: Replace with real user role from Firebase Auth in future sprints.
-     */
-    private boolean isOrganizer = true;
+    private static final String TAG = "MainActivity";
 
-    /**
-     * Initializes the activity, sets up the layout, and configures role-based access to UI elements.
-     *
-     * @param savedInstanceState If the activity is being re-initialized after
-     *                           previously being shut down then this Bundle contains the data it most
-     *                           recently supplied in {@link #onSaveInstanceState}.
-     */
+    private RecyclerView rvEvents;
+    private EventAdapter adapter;
+    private List<Event> eventList;
+    private TextView tvNoEvents, tvActiveCount, tvClosedCount, tvPendingCount, tvTotalCount;
+    private FirebaseFirestore db;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Find the "Create Event" navigation button from the layout
-        Button btnGoToCreateEvent = findViewById(R.id.btnGoToCreateEvent);
+        db = FirebaseFirestore.getInstance();
+        
+        // Bind UI Components
+        rvEvents = findViewById(R.id.rvEvents);
+        tvNoEvents = findViewById(R.id.tvNoEvents);
+        tvActiveCount = findViewById(R.id.tvActiveCount);
+        tvClosedCount = findViewById(R.id.tvClosedCount);
+        tvPendingCount = findViewById(R.id.tvPendingCount);
+        tvTotalCount = findViewById(R.id.tvTotalCount);
+        
+        // Setup RecyclerView
+        eventList = new ArrayList<>();
+        adapter = new EventAdapter(eventList, this);
+        rvEvents.setLayoutManager(new LinearLayoutManager(this));
+        rvEvents.setAdapter(adapter);
 
-        /**
-         * Access Control Logic for US 02.01.01:
-         * Only users identified as Organizers are permitted to see and access 
-         * the Create Event feature.
-         */
-        if (isOrganizer) {
-            btnGoToCreateEvent.setVisibility(View.VISIBLE);
-        } else {
-            btnGoToCreateEvent.setVisibility(View.GONE);
+        setupNavigation();
+        loadOrganizerEvents();
+    }
+
+    private void setupNavigation() {
+        View btnCreate = findViewById(R.id.nav_create_container);
+        if (btnCreate != null) {
+            btnCreate.setOnClickListener(v -> {
+                startActivity(new Intent(MainActivity.this, CreateEventActivity.class));
+            });
         }
+        View btnHome = findViewById(R.id.nav_home);
+        if (btnHome != null) {
+            btnHome.setOnClickListener(v -> Toast.makeText(this, "Home", Toast.LENGTH_SHORT).show());
+        }
+    }
 
-        /**
-         * Navigation Setup:
-         * Sets a click listener on the button to transition from the Dashboard
-         * to the CreateEventActivity (Organizer workflow).
-         */
-        btnGoToCreateEvent.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, CreateEventActivity.class);
-            startActivity(intent);
-        });
-
-        Button btnViewEvents = findViewById(R.id.btnViewEvents);
-        btnViewEvents.setOnClickListener(v -> showEventPickerDialog());
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadOrganizerEvents();
     }
 
     /**
-     * Events Picker Dialog:
-     * Get instance from Firestore backend
-     * Initialize array for ids and titles
-     * Show AlertDialog and ask for user's choice
-     * Use intent to transition to EventDetailsActivity
-     *
-     * @return void
+     * Loads events and handles compatibility with older database schemas.
      */
-    private void showEventPickerDialog() {
-        FirebaseFirestore.getInstance().collection("events").get()
-                .addOnSuccessListener(querySnapshot -> {
-                    List<String> ids = new ArrayList<>();
-                    List<String> titles = new ArrayList<>();
-                    for (QueryDocumentSnapshot doc : querySnapshot) {
-                        ids.add(doc.getId());
-                        String title = doc.getString("title");
-                        titles.add(title != null ? title : doc.getId());
+    private void loadOrganizerEvents() {
+        db.collection("events")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    eventList.clear();
+                    int active = 0;
+                    int closed = 0;
+                    Date now = new Date();
+
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        try {
+                            Event event = document.toObject(Event.class);
+                            
+                            // Compatibility fix: If new field is null, check if old field names exist
+                            if (event.getScheduledDateTime() == null) {
+                                Date oldDate = document.getDate("eventDate");
+                                if (oldDate != null) event.setScheduledDateTime(oldDate);
+                            }
+                            if (event.getRegistrationDeadline() == null) {
+                                Date oldDeadline = document.getDate("deadlineDate");
+                                if (oldDeadline != null) event.setRegistrationDeadline(oldDeadline);
+                            }
+
+                            eventList.add(event);
+
+                            if (event.getScheduledDateTime() != null && event.getScheduledDateTime().after(now)) {
+                                active++;
+                            } else {
+                                closed++;
+                            }
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error mapping document " + document.getId(), e);
+                        }
                     }
-                    if (ids.isEmpty()) {
-                        Toast.makeText(this, "No events found", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    new AlertDialog.Builder(this)
-                            .setTitle("Select an Event")
-                            .setItems(titles.toArray(new String[0]), (dialog, which) -> {
-                                Intent intent = new Intent(this, EventDetailsActivity.class);
-                                intent.putExtra("eventId", ids.get(which));
-                                startActivity(intent);
-                            })
-                            .show();
+                    
+                    adapter.notifyDataSetChanged();
+                    updateSummaryStats(active, closed, 0, eventList.size());
+                    tvNoEvents.setVisibility(eventList.isEmpty() ? View.VISIBLE : View.GONE);
                 })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Failed to load events", Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Firestore error", e);
+                    Toast.makeText(this, "Failed to load events", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void updateSummaryStats(int active, int closed, int pending, int total) {
+        tvActiveCount.setText(String.valueOf(active));
+        tvClosedCount.setText(String.valueOf(closed));
+        tvPendingCount.setText(String.valueOf(pending));
+        tvTotalCount.setText(String.valueOf(total));
+    }
+
+    @Override
+    public void onEventClick(Event event) {
+        Intent intent = new Intent(this, EventDetailsActivity.class);
+        intent.putExtra("eventId", event.getEventId());
+        startActivity(intent);
     }
 }

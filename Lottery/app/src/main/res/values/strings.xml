@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Lottery</string>
+    <string name="create">Create</string>
     <string name="create_new_event">Create New Event</string>
     <string name="complete_the_form_below_to_create_your_event">Complete the form below to create your event</string>
     <string name="event_title">Event Title</string>
