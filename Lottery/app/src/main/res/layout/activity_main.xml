@@ -234,7 +234,7 @@
     <FrameLayout
         android:id="@+id/bottom_nav_container"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="70dp"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <include layout="@layout/layout_bottom_nav" />
