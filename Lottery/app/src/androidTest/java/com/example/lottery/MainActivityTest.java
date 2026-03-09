@@ -23,26 +23,6 @@ public class MainActivityTest {
     public ActivityScenarioRule<MainActivity> activityRule =
             new ActivityScenarioRule<>(MainActivity.class);
 
-//    @Test
-//    public void testRoleButtonsAreDisplayed() {
-//        // Check that all buttons are displayed
-//        onView(withId(R.id.entrant_login_button))
-//                .check(matches(isDisplayed()));
-//                //.check(matches(withText("✪ I\\'m an Entrant")));
-//
-//        onView(withId(R.id.organizer_login_button))
-//                .check(matches(isDisplayed()));
-//                //.check(matches(withText("✪ I\\'m an Organizer")));
-//
-//        onView(withId(R.id.admin_login_button))
-//                .check(matches(isDisplayed()));
-//                //.check(matches(withText("✪ I\\'m an Admin")));
-//
-//        onView(withId(R.id.btnSignIn))
-//                .check(matches(isDisplayed()));
-//                //.check(matches(withText("Sign In")));
-//    }
-
     @Before
     public void setupIntents() {
         Intents.init();
@@ -95,5 +75,22 @@ public class MainActivityTest {
         intended(hasComponent(EntrantRegistrationActivity.class.getName()));
     }
 
+    @Test
+    public void testSwitchToOrganizerRegistrationActivity() {
+        onView(withId(R.id.organizer_login_button)).perform(click());
+        intended(hasComponent(OrganizerRegistrationActivity.class.getName()));
+    }
+
+    @Test
+    public void testSwitchToAdminSignInActivity() {
+        onView(withId(R.id.admin_login_button)).perform(click());
+        intended(hasComponent(AdminSignInActivity.class.getName()));
+    }
+
+    @Test
+    public void testSwitchToGeneralSignInActivity() {
+        onView(withId(R.id.btnSignIn)).perform(click());
+        intended(hasComponent(GeneralSignInActivity.class.getName()));
+    }
 
 }
