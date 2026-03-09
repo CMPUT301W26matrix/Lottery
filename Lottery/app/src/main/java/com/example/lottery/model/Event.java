@@ -35,8 +35,14 @@ public class Event {
     private String title;
     /** The scheduled start date and time for the event. */
     private Date scheduledDateTime;
+    /** The scheduled end date and time for the event. */
+    private Date eventEndDate;
+    /** The date and time when registration opens for the event. */
+    private Date registrationStartDate;
     /** The deadline by which entrants must register for the event. */
     private Date registrationDeadline;
+    /** The date and time when the lottery draw is held for the event. */
+    private Date drawDate;
     /** The maximum number of participants allowed for the event. */
     private Integer maxCapacity;
     /** A detailed description of the event. */
@@ -62,23 +68,30 @@ public class Event {
      *
      * @param eventId              The unique ID of the event.
      * @param title                The title of the event.
-     * @param scheduledDateTime    The date and time the event starts.
-     * @param registrationDeadline The deadline for entrant registration.
-     * @param maxCapacity          The maximum participant capacity.
-     * @param details              The event description.
-     * @param posterUri            The URI of the event poster.
-     * @param qrCodeContent        The content of the promotional QR code.
-     * @param organizerId          The ID of the event organizer.
-     * @param requireLocation      Whether geolocation verification is required.
-     * @param waitingListLimit     The optional limit for the waiting list.
+     * @param scheduledDateTime     The date and time the event starts.
+     * @param eventEndDate          The date and time the event ends.
+     * @param registrationStartDate The date and time registration opens.
+     * @param registrationDeadline  The deadline for entrant registration.
+     * @param drawDate              The date and time when the event draw is held.
+     * @param maxCapacity           The maximum participant capacity.
+     * @param details               The event description.
+     * @param posterUri             The URI of the event poster.
+     * @param qrCodeContent         The content of the promotional QR code.
+     * @param organizerId           The ID of the event organizer.
+     * @param requireLocation       Whether geolocation verification is required.
+     * @param waitingListLimit      The optional limit for the waiting list.
      */
-    public Event(String eventId, String title, Date scheduledDateTime, Date registrationDeadline, 
-                 Integer maxCapacity, String details, String posterUri, String qrCodeContent, 
+    public Event(String eventId, String title, Date scheduledDateTime, Date eventEndDate,
+                 Date registrationStartDate, Date registrationDeadline, Date drawDate,
+                 Integer maxCapacity, String details, String posterUri, String qrCodeContent,
                  String organizerId, boolean requireLocation, Integer waitingListLimit) {
         this.eventId = eventId;
         this.title = title;
         this.scheduledDateTime = scheduledDateTime;
+        this.eventEndDate = eventEndDate;
+        this.registrationStartDate = registrationStartDate;
         this.registrationDeadline = registrationDeadline;
+        this.drawDate = drawDate;
         this.maxCapacity = maxCapacity;
         this.details = details;
         this.posterUri = posterUri;
@@ -103,10 +116,25 @@ public class Event {
     /** @param scheduledDateTime The scheduled date and time to set for the event. */
     public void setScheduledDateTime(Date scheduledDateTime) { this.scheduledDateTime = scheduledDateTime; }
 
+    /** @return The scheduled end date and time of the event. */
+    public Date getEventEndDate() { return eventEndDate; }
+    /** @param eventEndDate The scheduled end date and time to set for the event. */
+    public void setEventEndDate(Date eventEndDate) { this.eventEndDate = eventEndDate; }
+
+    /** @return The date and time when registration opens for the event. */
+    public Date getRegistrationStartDate() { return registrationStartDate; }
+    /** @param registrationStartDate The date and time when registration opens to set for the event. */
+    public void setRegistrationStartDate(Date registrationStartDate) { this.registrationStartDate = registrationStartDate; }
+
     /** @return The registration deadline for the event. */
     public Date getRegistrationDeadline() { return registrationDeadline; }
     /** @param registrationDeadline The registration deadline to set for the event. */
     public void setRegistrationDeadline(Date registrationDeadline) { this.registrationDeadline = registrationDeadline; }
+
+    /** @return The date and time when the lottery draw is held for the event. */
+    public Date getDrawDate() { return drawDate; }
+    /** @param drawDate The date and time when the lottery draw is held to set for the event. */
+    public void setDrawDate(Date drawDate) { this.drawDate = drawDate; }
 
     /** @return The maximum participant capacity. */
     public Integer getMaxCapacity() { return maxCapacity; }
