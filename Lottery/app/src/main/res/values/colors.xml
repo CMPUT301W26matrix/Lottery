@@ -7,8 +7,8 @@
     <color name="accent_blue">#0047DB</color>
     <color name="primary_light_blue">#EEF3FF</color>
 
-    <color name="background_light">#FFFFFF</color>
-    <color name="background_page">#F7F9FC</color>
+    <color name="card_background">#FFFFFF</color>
+    <color name="page_background">#F7F9FC</color>
     <color name="upload_area_bg">#EEF3FF</color>
 
     <color name="text_primary">#111111</color>

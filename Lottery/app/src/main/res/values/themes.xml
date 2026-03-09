@@ -5,13 +5,13 @@
         <item name="colorPrimary">@color/primary_blue</item>
         <item name="colorOutline">@color/border_outline</item>
         <item name="elevationOverlayEnabled">false</item>
-        <item name="android:colorBackground">@color/background_light</item>
-        <item name="colorSurface">@color/background_light</item>
-        <item name="colorSurfaceVariant">@color/background_page</item>
-        <item name="colorSurfaceContainer">@color/background_page</item>
-        <item name="colorSurfaceContainerLow">@color/background_page</item>
-        <item name="colorSurfaceContainerHigh">@color/background_page</item>
-        <item name="colorSurfaceContainerHighest">@color/background_page</item>
+        <item name="android:colorBackground">@color/page_background</item>
+        <item name="colorSurface">@color/card_background</item>
+        <item name="colorSurfaceVariant">@color/page_background</item>
+        <item name="colorSurfaceContainer">@color/page_background</item>
+        <item name="colorSurfaceContainerLow">@color/page_background</item>
+        <item name="colorSurfaceContainerHigh">@color/page_background</item>
+        <item name="colorSurfaceContainerHighest">@color/page_background</item>
     </style>
 
     <style name="Theme.Lottery" parent="Base.Theme.Lottery" />
