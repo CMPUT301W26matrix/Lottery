@@ -19,11 +19,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class EntrantRegistrationActivityTest {
-
+public class OrganizerRegistrationActivityTest {
     @Rule
-    public ActivityScenarioRule<EntrantRegistrationActivity> activityRule =
-            new ActivityScenarioRule<>(EntrantRegistrationActivity.class);
+    public ActivityScenarioRule<OrganizerRegistrationActivity> activityRule =
+            new ActivityScenarioRule<>(OrganizerRegistrationActivity.class);
 
     @Before
     public void setUp() {

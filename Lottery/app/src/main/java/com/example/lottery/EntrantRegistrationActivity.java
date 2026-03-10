@@ -1,6 +1,7 @@
 package com.example.lottery;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Patterns;
 import android.widget.Button;
@@ -11,8 +12,9 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
@@ -26,6 +28,11 @@ public class EntrantRegistrationActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
 
+    private SharedPreferences sharedPreferences;
+
+    private static final String KEY_USER_ID = "userId";
+    private static final String KEY_USER_ROLE = "userRole";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,6 +43,9 @@ public class EntrantRegistrationActivity extends AppCompatActivity {
         // Initialize firebase
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
+
+        // Initialize SharedPreferences
+        sharedPreferences = getSharedPreferences("AppPrefs", MODE_PRIVATE);
 
         // Initialize button views
         backButton = findViewById(R.id.btnBack);
@@ -50,8 +60,7 @@ public class EntrantRegistrationActivity extends AppCompatActivity {
 
         // Set on click listeners for buttons
         backButton.setOnClickListener(view -> {
-            Intent intent = new Intent(EntrantRegistrationActivity.this, MainActivity.class);
-            startActivity(intent);
+            finish(); // Just close this activity, automatically returning to MainActivity
         });
 
         continueButton.setOnClickListener(view -> {
@@ -61,86 +70,73 @@ public class EntrantRegistrationActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Register the user with Firebase Authentication
+     * This creates the login credentials
+     */
     private void registerUser() {
-        final String email = entrantEmail.getText().toString().trim();
-        final String password = entrantPassword.getText().toString().trim();
-        final String name = entrantName.getText().toString().trim();
-        final String phone = entrantPhone.getText().toString().trim();
+        // Get values from input fields
+        String email = entrantEmail.getText().toString().trim();
+        String password = entrantPassword.getText().toString().trim();
+        String name = entrantName.getText().toString().trim();
+        String phone = entrantPhone.getText().toString().trim();
 
-        // Disable button to prevent multiple clicks
-        continueButton.setEnabled(false);
-        Toast.makeText(EntrantRegistrationActivity.this,
-                "Creating account...", Toast.LENGTH_LONG).show();
-
+        // Create user in Firebase Authentication
         mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Registration successful
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            if (user != null) {
-                                saveUserToFirestore(user.getUid(), name, email, phone);
-                            }
-                        } else {
-                            // Registration failed
-                            continueButton.setEnabled(true);
-                            String errorMessage = task.getException() != null ?
-                                    task.getException().getMessage() : "Registration failed";
-                            Toast.makeText(EntrantRegistrationActivity.this,
-                                    "Registration failed: " + errorMessage, Toast.LENGTH_LONG).show();
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        // User account created
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        if (user != null) {
+                            // Save additional user data to Firestore
+                            saveUserToFirestore(user.getUid(), name, email, phone);
                         }
+                    } else {
+                        // Failed to create account
+                        String errorMessage = task.getException() != null ?
+                                task.getException().getMessage() : "Registration failed";
+                        Toast.makeText(this, "Error: " + errorMessage, Toast.LENGTH_LONG).show();
                     }
                 });
     }
 
     /**
-     * Saves user data to Firestore after successful authentication.
-     * Creates a user document in the "users" collection with the user's UID.
-     * Stores the user's role as "entrant" for role-based access control.
-     *
-     * @param userId The Firebase Authentication UID of the user
-     * @param name The user's full name
-     * @param email The user's email address
-     * @param phone The user's phone number (may be empty)
+     * Save user profile data to Firestore
+     * This stores additional info like name, phone, and role
      */
-    private void saveUserToFirestore(final String userId, final String name,
-                                     final String email, final String phone) {
-        // Create user data map
-        Map<String, Object> user = new HashMap<>();
-        user.put("name", name);
-        user.put("email", email);
-        user.put("phone", phone);
-        user.put("role", "entrant");
-        user.put("createdAt", System.currentTimeMillis());
-        user.put("userId", userId);
-        user.put("hasAcceptedInvitation", false); // For US 01.05.02
-        user.put("notificationsEnabled", true); // For US 01.04.03
+    private void saveUserToFirestore(String userId, String name, String email, String phone) {
+        // Create a Map (like a dictionary) of user data to store
+        Map<String, Object> userData = new HashMap<>();
+        userData.put("userId", userId);            // Link to Auth UID
+        userData.put("name", name);                // User's full name
+        userData.put("email", email);              // User's email
+        userData.put("phone", phone);              // Optional phone number
+        userData.put("role", "entrant");        // User role
+        userData.put("createdAt", Timestamp.now()); // Timestamp
+        userData.put("notificationsEnabled", true); // Default setting
 
-        // Save to Firestore
+        // Save to Firestore in the "users" collection
         db.collection("users").document(userId)
-                .set(user)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        // Store user info locally
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putString(KEY_USER_ID, userId);
-                        editor.putBoolean(KEY_IS_ANONYMOUS, false);
-                        editor.apply();
+                .set(userData)
+                .addOnSuccessListener(aVoid -> {
+                    // Data saved successfully
 
-                        showToast("Registration successful!");
+                    // Save user info locally so we know they're logged in next time
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString(KEY_USER_ID, userId);
+                    editor.putString(KEY_USER_ROLE, "entrant");
+                    editor.apply();
 
-                        // Navigate to main screen
-                        navigateToEntrantMain(userId, name, email, false);
-                    }
+                    Toast.makeText(this, "Registration successful!", Toast.LENGTH_SHORT).show();
+
+                    // Go to entrant main screen
+                    navigateToEntrantMain(userId, name, email, false); // for now: isAnonymous is false (not yet implemented)
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        btnContinue.setEnabled(true);
-                        showToast("Failed to save user data: " + e.getMessage());
-                    }
+                .addOnFailureListener(e -> {
+                    // Failed to save data
+                    continueButton.setEnabled(true);
+                    Toast.makeText(this, "Failed to save profile: " + e.getMessage(),
+                            Toast.LENGTH_LONG).show();
                 });
     }
 
@@ -153,7 +149,6 @@ public class EntrantRegistrationActivity extends AppCompatActivity {
         // Validate name
         if (name.isEmpty()) {
             entrantName.setError("Name is required");
-            //etName.requestFocus();
             Toast.makeText(EntrantRegistrationActivity.this,
                     "Please enter your name", Toast.LENGTH_LONG).show();
             return false;
@@ -162,7 +157,6 @@ public class EntrantRegistrationActivity extends AppCompatActivity {
         // Validate email
         if (email.isEmpty()) {
             entrantEmail.setError("Email is required");
-            //etEmail.requestFocus();
             Toast.makeText(EntrantRegistrationActivity.this,
                     "Please enter a valid email", Toast.LENGTH_LONG).show();
             return false;
@@ -170,7 +164,6 @@ public class EntrantRegistrationActivity extends AppCompatActivity {
 
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             entrantEmail.setError("Invalid email address");
-            //entrantEmail.requestFocus();
             Toast.makeText(EntrantRegistrationActivity.this,
                     "Please enter a valid email", Toast.LENGTH_LONG).show();
             return false;
@@ -179,7 +172,6 @@ public class EntrantRegistrationActivity extends AppCompatActivity {
         // Validate password
         if (password.isEmpty()) {
             entrantPassword.setError("Password is required");
-            //etPassword.requestFocus();
             Toast.makeText(EntrantRegistrationActivity.this,
                     "Please enter a password", Toast.LENGTH_LONG).show();
             return false;
@@ -187,7 +179,6 @@ public class EntrantRegistrationActivity extends AppCompatActivity {
 
         if (password.length() < 8) {
             entrantPassword.setError("Invalid password");
-            //entrantPassword.requestFocus();
             Toast.makeText(EntrantRegistrationActivity.this,
                     "Password must be at least 8 characters", Toast.LENGTH_LONG).show();
             return false;
@@ -196,11 +187,26 @@ public class EntrantRegistrationActivity extends AppCompatActivity {
         // Validate password match
         if (!password.equals(password2)) {
             entrantPassword2.setError("Passwords do not match");
-            //entrantPassword2.requestFocus();
             return false;
         }
 
         // Phone number is optional - no validation needed
         return true;
+    }
+
+    private void navigateToEntrantMain(String userId, String userName,
+                                       String userEmail, boolean isAnonymous) {
+        Intent intent = new Intent(EntrantRegistrationActivity.this, EntrantMainActivity.class);
+        intent.putExtra("userId", userId);
+        intent.putExtra("userName", userName);
+        intent.putExtra("isRegistered", !isAnonymous);
+        intent.putExtra("isAnonymous", isAnonymous);
+
+        if (userEmail != null) {
+            intent.putExtra("userEmail", userEmail);
+        }
+
+        startActivity(intent);
+        finish();
     }
 }
