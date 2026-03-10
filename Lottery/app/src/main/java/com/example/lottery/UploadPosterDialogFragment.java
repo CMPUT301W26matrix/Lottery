@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -35,17 +36,29 @@ import androidx.fragment.app.DialogFragment;
  */
 public class UploadPosterDialogFragment extends DialogFragment {
 
-    /** Temporary storage for the URI of the selected image before confirmation. */
+    /**
+     * Temporary storage for the URI of the selected image before confirmation.
+     */
     private Uri tempUri = null;
-    /** ImageView to display the thumbnail of the selected poster. */
+    /**
+     * ImageView to display the thumbnail of the selected poster.
+     */
     private ImageView ivPreview;
-    /** Button to confirm the current image selection and close the dialog. */
+    /**
+     * Button to confirm the current image selection and close the dialog.
+     */
     private Button btnSelect;
-    /** Container view for the preview image, used as a click target for enlargement. */
+    /**
+     * Container view for the preview image, used as a click target for enlargement.
+     */
     private View cvPreviewContainer;
-    /** Hint text shown to the user after an image is selected. */
+    /**
+     * Hint text shown to the user after an image is selected.
+     */
     private View tvHint;
-    /** Launcher for the GetContent activity result contract to pick an image. */
+    /**
+     * Launcher for the GetContent activity result contract to pick an image.
+     */
     private ActivityResultLauncher<String> pickerLauncher;
 
     /**

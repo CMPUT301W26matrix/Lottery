@@ -13,8 +13,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:fillViewport="true"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/bottom_nav_container">
+        app:layout_constraintBottom_toTopOf="@id/bottom_nav_container"
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -26,36 +26,36 @@
                 android:id="@+id/tvAppTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="32dp"
                 android:text="Lottery Event App"
                 android:textColor="@color/primary_blue"
                 android:textSize="28sp"
                 android:textStyle="bold"
-                android:layout_marginTop="32dp"
-                android:layout_marginStart="20dp"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/tvOrganizerLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
                 android:layout_marginStart="20dp"
+                android:layout_marginTop="4dp"
                 android:letterSpacing="0.1"
                 android:text="Organizer Dashboard"
                 android:textColor="@color/text_gray"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                app:layout_constraintTop_toBottomOf="@id/tvAppTitle"
-                app:layout_constraintStart_toStartOf="parent" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvAppTitle" />
 
             <!-- Summary Cards Section -->
             <GridLayout
                 android:id="@+id/glSummary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
                 android:layout_marginHorizontal="12dp"
+                android:layout_marginTop="24dp"
                 android:columnCount="2"
                 android:rowCount="2"
                 app:layout_constraintTop_toBottomOf="@id/tvOrganizerLabel">
@@ -69,26 +69,29 @@
                     android:layout_margin="8dp"
                     app:cardBackgroundColor="@color/card_background"
                     app:cardCornerRadius="16dp">
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:gravity="center"
                         android:orientation="vertical"
-                        android:padding="16dp"
-                        android:gravity="center">
+                        android:padding="16dp">
+
                         <TextView
                             android:id="@+id/tvActiveCount"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0"
+                            android:textColor="@color/primary_blue"
                             android:textSize="24sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/primary_blue" />
+                            android:textStyle="bold" />
+
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Active Events"
-                            android:textSize="12sp"
-                            android:textColor="@color/text_gray" />
+                            android:textColor="@color/text_gray"
+                            android:textSize="12sp" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -101,26 +104,29 @@
                     android:layout_margin="8dp"
                     app:cardBackgroundColor="@color/card_background"
                     app:cardCornerRadius="16dp">
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:gravity="center"
                         android:orientation="vertical"
-                        android:padding="16dp"
-                        android:gravity="center">
+                        android:padding="16dp">
+
                         <TextView
                             android:id="@+id/tvClosedCount"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0"
+                            android:textColor="@color/text_gray"
                             android:textSize="24sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/text_gray" />
+                            android:textStyle="bold" />
+
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Closed Events"
-                            android:textSize="12sp"
-                            android:textColor="@color/text_gray" />
+                            android:textColor="@color/text_gray"
+                            android:textSize="12sp" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -133,26 +139,29 @@
                     android:layout_margin="8dp"
                     app:cardBackgroundColor="@color/card_background"
                     app:cardCornerRadius="16dp">
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:gravity="center"
                         android:orientation="vertical"
-                        android:padding="16dp"
-                        android:gravity="center">
+                        android:padding="16dp">
+
                         <TextView
                             android:id="@+id/tvPendingCount"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0"
+                            android:textColor="#F57C00"
                             android:textSize="24sp"
-                            android:textStyle="bold"
-                            android:textColor="#F57C00" />
+                            android:textStyle="bold" />
+
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Pending Draws"
-                            android:textSize="12sp"
-                            android:textColor="@color/text_gray" />
+                            android:textColor="@color/text_gray"
+                            android:textSize="12sp" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -165,26 +174,29 @@
                     android:layout_margin="8dp"
                     app:cardBackgroundColor="@color/card_background"
                     app:cardCornerRadius="16dp">
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:gravity="center"
                         android:orientation="vertical"
-                        android:padding="16dp"
-                        android:gravity="center">
+                        android:padding="16dp">
+
                         <TextView
                             android:id="@+id/tvTotalCount"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0"
+                            android:textColor="@color/black"
                             android:textSize="24sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/black" />
+                            android:textStyle="bold" />
+
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Total Events"
-                            android:textSize="12sp"
-                            android:textColor="@color/text_gray" />
+                            android:textColor="@color/text_gray"
+                            android:textSize="12sp" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
             </GridLayout>
@@ -194,14 +206,14 @@
                 android:id="@+id/tvYourEventsTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="32dp"
                 android:text="Your Events"
+                android:textColor="@color/primary_blue"
                 android:textSize="20sp"
                 android:textStyle="bold"
-                android:textColor="@color/primary_blue"
-                android:layout_marginTop="32dp"
-                android:layout_marginStart="20dp"
-                app:layout_constraintTop_toBottomOf="@id/glSummary"
-                app:layout_constraintStart_toStartOf="parent" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/glSummary" />
 
             <!-- Events List -->
             <androidx.recyclerview.widget.RecyclerView
@@ -218,14 +230,14 @@
                 android:id="@+id/tvNoEvents"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="40dp"
                 android:text="No events created yet"
                 android:textColor="@color/text_gray"
                 android:textSize="16sp"
-                android:layout_marginTop="40dp"
                 android:visibility="gone"
-                app:layout_constraintTop_toBottomOf="@id/tvYourEventsTitle"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+                app:layout_constraintTop_toBottomOf="@id/tvYourEventsTitle" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>

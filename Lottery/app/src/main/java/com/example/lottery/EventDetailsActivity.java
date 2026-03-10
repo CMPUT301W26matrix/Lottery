@@ -10,11 +10,14 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.lottery.model.Event;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Locale;
@@ -37,21 +40,22 @@ import java.util.Map;
 public class EventDetailsActivity extends AppCompatActivity {
 
     private static final String TAG = "EventDetailsActivity";
-
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
     private ImageView ivEventPoster;
     private TextView tvEventTitle, tvScheduledDate, tvEventEndDate, tvRegistrationStart,
             tvRegistrationDeadline, tvDrawDate, tvEventDetails, tvLocationRequirement;
     private TextView tvFullMessage, tvWaitingListCapacity;
     private Button btnRegister;
     private Button btnEditEvent;
-
     private FirebaseFirestore db;
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
-
-    /** The current event being displayed. */
+    /**
+     * The current event being displayed.
+     */
     private Event currentEvent;
     private String eventId;
-    /** Flag indicating if the waiting list has reached its capacity. */
+    /**
+     * Flag indicating if the waiting list has reached its capacity.
+     */
     private boolean isEventFull = false;
 
     @Override
@@ -192,7 +196,7 @@ public class EventDetailsActivity extends AppCompatActivity {
 
     /**
      * Implements the actual registration by writing to the Firestore 'entrants' sub-collection.
-     * 
+     *
      * <p>Enforces waiting list capacity rules (US 02.03.01) and saves entrant data (US 02.01.01).</p>
      */
     private void handleRegistration() {
@@ -238,6 +242,7 @@ public class EventDetailsActivity extends AppCompatActivity {
         intent.putExtra("eventId", eventId);
         startActivity(intent);
     }
+
     /**
      * Updates the UI components with the provided event data.
      *

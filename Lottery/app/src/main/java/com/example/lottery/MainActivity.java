@@ -6,12 +6,15 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.lottery.model.Event;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -32,17 +35,29 @@ public class MainActivity extends AppCompatActivity implements EventAdapter.OnEv
 
     private static final String TAG = "MainActivity";
 
-    /** RecyclerView for displaying the list of events. */
+    /**
+     * RecyclerView for displaying the list of events.
+     */
     private RecyclerView rvEvents;
-    /** Adapter for binding event data to the RecyclerView. */
+    /**
+     * Adapter for binding event data to the RecyclerView.
+     */
     private EventAdapter adapter;
-    /** List to hold the event objects fetched from Firestore. */
+    /**
+     * List to hold the event objects fetched from Firestore.
+     */
     private List<Event> eventList;
-    /** TextView displayed when no events are found. */
+    /**
+     * TextView displayed when no events are found.
+     */
     private TextView tvNoEvents;
-    /** TextViews for displaying summary statistics of event statuses. */
+    /**
+     * TextViews for displaying summary statistics of event statuses.
+     */
     private TextView tvActiveCount, tvClosedCount, tvPendingCount, tvTotalCount;
-    /** Firebase Firestore instance for database operations. */
+    /**
+     * Firebase Firestore instance for database operations.
+     */
     private FirebaseFirestore db;
 
     @Override

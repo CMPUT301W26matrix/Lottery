@@ -12,7 +12,9 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.lottery.model.Event;
 import com.example.lottery.util.EventValidationUtils;
 import com.example.lottery.util.QRCodeUtils;
@@ -21,6 +23,7 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -38,7 +41,7 @@ import java.util.UUID;
  * <ul>
  *   <li>Provides UI for entering event details (Title, Date, Capacity, etc.).</li>
  *   <li>Handles both creation of new events and editing of existing ones.</li>
- *   <li>Enforces business rules such as registration deadline validation 
+ *   <li>Enforces business rules such as registration deadline validation
  *       and waiting list limit enforcement.</li>
  *   <li>Manages promotional QR code generation and poster selection.</li>
  * </ul>
@@ -59,18 +62,30 @@ public class CreateEventActivity extends AppCompatActivity {
     private SwitchMaterial swRequireLocation, swLimitWaitingList;
 
     // Core data variables
-    /** Unique identifier for the event. */
+    /**
+     * Unique identifier for the event.
+     */
     private String eventId = UUID.randomUUID().toString();
-    /** Content encoded within the event's promotional QR code. */
+    /**
+     * Content encoded within the event's promotional QR code.
+     */
     private String qrCodeContent = "";
-    /** Date objects representing various event deadlines and scheduled times. */
+    /**
+     * Date objects representing various event deadlines and scheduled times.
+     */
     private Date eventStartDate, eventEndDate, regStartDate, regEndDate, drawDate;
-    /** Flag indicating whether the activity is in edit mode for an existing event. */
+    /**
+     * Flag indicating whether the activity is in edit mode for an existing event.
+     */
     private boolean isEditMode = false;
 
-    /** URI of the selected poster image. */
+    /**
+     * URI of the selected poster image.
+     */
     private Uri selectedPosterUri = null;
-    /** Firebase Firestore instance for database operations. */
+    /**
+     * Firebase Firestore instance for database operations.
+     */
     private FirebaseFirestore db;
 
     @Override

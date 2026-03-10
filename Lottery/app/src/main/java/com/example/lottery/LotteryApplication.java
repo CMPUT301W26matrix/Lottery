@@ -1,6 +1,7 @@
 package com.example.lottery;
 
 import android.app.Application;
+
 import com.google.firebase.FirebaseApp;
 
 /**

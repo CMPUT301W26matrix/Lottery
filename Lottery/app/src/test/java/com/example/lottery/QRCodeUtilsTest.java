@@ -1,8 +1,12 @@
 package com.example.lottery;
 
-import static org.junit.Assert.*;
-import org.junit.Test;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import com.example.lottery.util.QRCodeUtils;
+
+import org.junit.Test;
 
 /**
  * Unit tests for the {@link QRCodeUtils} class.

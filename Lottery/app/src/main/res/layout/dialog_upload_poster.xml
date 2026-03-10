@@ -3,51 +3,51 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/page_background"
     android:orientation="vertical"
-    android:padding="24dp"
-    android:background="@color/page_background">
+    android:padding="24dp">
 
     <TextView
         android:id="@+id/tvDialogTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Upload Poster"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:textColor="@color/primary_blue"
+        android:layout_marginBottom="24dp"
         android:gravity="center"
-        android:layout_marginBottom="24dp" />
+        android:text="Upload Poster"
+        android:textColor="@color/primary_blue"
+        android:textSize="22sp"
+        android:textStyle="bold" />
 
     <!-- Preview Area with Placeholder -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cvDialogPreview"
         android:layout_width="match_parent"
         android:layout_height="220dp"
+        android:layout_marginBottom="8dp"
         app:cardBackgroundColor="@color/card_background"
         app:cardCornerRadius="16dp"
         app:cardElevation="2dp"
         app:strokeColor="@color/divider_gray"
-        app:strokeWidth="1dp"
-        android:layout_marginBottom="8dp">
+        app:strokeWidth="1dp">
 
         <ImageView
             android:id="@+id/ivDialogPreview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:contentDescription="Poster Preview"
             android:scaleType="centerCrop"
-            android:src="@drawable/event_placeholder"
-            android:contentDescription="Poster Preview" />
+            android:src="@drawable/event_placeholder" />
     </com.google.android.material.card.MaterialCardView>
 
     <TextView
         android:id="@+id/tvPreviewHint"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Tap image to enlarge"
-        android:gravity="center"
-        android:textSize="13sp"
-        android:textColor="@color/text_gray"
         android:layout_marginBottom="20dp"
+        android:gravity="center"
+        android:text="Tap image to enlarge"
+        android:textColor="@color/text_gray"
+        android:textSize="13sp"
         android:visibility="invisible" />
 
     <Button
@@ -55,9 +55,9 @@
         style="@style/Widget.Material3.Button.TonalButton"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:text="Browse Device"
         android:layout_marginBottom="32dp"
         android:backgroundTint="@color/primary_light_blue"
+        android:text="Browse Device"
         android:textColor="@color/primary_blue"
         app:icon="@android:drawable/ic_menu_gallery"
         app:iconTint="@color/primary_blue" />
@@ -74,23 +74,23 @@
             style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="0dp"
             android:layout_height="56dp"
+            android:layout_marginEnd="8dp"
             android:layout_weight="1"
             android:text="Cancel"
             android:textColor="@color/primary_blue"
-            app:strokeColor="@color/primary_blue"
-            android:layout_marginEnd="8dp" />
+            app:strokeColor="@color/primary_blue" />
 
         <Button
             android:id="@+id/btnSelectConfirm"
             style="@style/Widget.Material3.Button.UnelevatedButton"
             android:layout_width="0dp"
             android:layout_height="56dp"
+            android:layout_marginStart="8dp"
             android:layout_weight="1"
-            android:text="Select"
-            android:enabled="false"
             android:backgroundTint="@color/primary_blue"
-            android:textColor="@color/white"
-            android:layout_marginStart="8dp" />
+            android:enabled="false"
+            android:text="Select"
+            android:textColor="@color/white" />
     </LinearLayout>
 
 </LinearLayout>

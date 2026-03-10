@@ -1,14 +1,20 @@
 package com.example.lottery;
 
-import static org.junit.Assert.*;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import com.example.lottery.model.Event;
-import java.util.Date;
+
+import org.junit.Test;
+
 import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Unit tests for the Event model class.
- * Ensures data integrity and validation for core fields including US 02.04.01 
+ * Ensures data integrity and validation for core fields including US 02.04.01
  * and US 02.02.03 requirements.
  */
 public class EventTest {
@@ -31,8 +37,8 @@ public class EventTest {
         Integer waitingListLimit = 100;
 
         Event event = new Event(eventId, title, now, now, now, now, now,
-                                maxCapacity, details, posterUri, qrCodeContent,
-                                organizerId, requireLocation, waitingListLimit);
+                maxCapacity, details, posterUri, qrCodeContent,
+                organizerId, requireLocation, waitingListLimit);
 
         assertEquals(eventId, event.getEventId());
         assertEquals(posterUri, event.getPosterUri());
@@ -47,10 +53,10 @@ public class EventTest {
     @Test
     public void testRequireLocationStorage() {
         Event event = new Event();
-        
+
         event.setRequireLocation(true);
         assertTrue("Geolocation requirement should be true", event.isRequireLocation());
-        
+
         event.setRequireLocation(false);
         assertFalse("Geolocation requirement should be false", event.isRequireLocation());
     }
@@ -74,18 +80,18 @@ public class EventTest {
     @Test
     public void testEmptyPosterUriHandling() {
         Event event = new Event();
-        
+
         // Test Null
         event.setPosterUri(null);
         assertNull("Event should handle null posterUri safely", event.getPosterUri());
-        
+
         // Test Empty String
         event.setPosterUri("");
         assertEquals("Event should store empty string for posterUri", "", event.getPosterUri());
     }
 
     /**
-     * Verifies the registration deadline business rule: 
+     * Verifies the registration deadline business rule:
      * registrationDeadline must be before scheduledDateTime.
      */
     @Test
@@ -95,7 +101,7 @@ public class EventTest {
         Date eventStart = calendar.getTime();
         calendar.set(2024, Calendar.DECEMBER, 30, 10, 0);
         Date validDeadline = calendar.getTime();
-        
+
         assertTrue("Deadline should be before event start", validDeadline.before(eventStart));
     }
 }

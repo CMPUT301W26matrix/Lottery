@@ -44,7 +44,7 @@ public class CreateEventActivityTest {
     }
 
     /**
-     * Verifies US 02.03.01 AC #1: Toggling the waiting list limit switch 
+     * Verifies US 02.03.01 AC #1: Toggling the waiting list limit switch
      * correctly shows and hides the numeric input field.
      */
     @Test

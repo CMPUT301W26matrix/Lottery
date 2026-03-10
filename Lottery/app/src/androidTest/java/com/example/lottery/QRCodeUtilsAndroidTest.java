@@ -15,7 +15,7 @@ import org.junit.runner.RunWith;
 /**
  * Instrumented tests for the {@link QRCodeUtils} class.
  *
- * <p>These tests run on an Android device or emulator to verify QR code 
+ * <p>These tests run on an Android device or emulator to verify QR code
  * bitmap generation, which requires Android graphics APIs.</p>
  */
 @RunWith(AndroidJUnit4.class)

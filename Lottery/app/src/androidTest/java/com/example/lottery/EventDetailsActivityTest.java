@@ -4,8 +4,6 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.Matchers.not;
 
 import android.content.Context;
 import android.content.Intent;
@@ -25,7 +23,7 @@ import org.junit.runner.RunWith;
 public class EventDetailsActivityTest {
 
     /**
-     * Test Case 1: Verifies that the activity launches correctly when provided 
+     * Test Case 1: Verifies that the activity launches correctly when provided
      * with a valid eventId via Intent.
      */
     @Test
@@ -42,7 +40,7 @@ public class EventDetailsActivityTest {
     }
 
     /**
-     * Test Case 2: Verifies that UI elements are present and initialized 
+     * Test Case 2: Verifies that UI elements are present and initialized
      * (Placeholder check). Note: Real Firestore data loading is asynchronous.
      */
     @Test

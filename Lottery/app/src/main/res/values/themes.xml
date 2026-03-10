@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- Base application theme. -->
     <style name="Base.Theme.Lottery" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
@@ -18,6 +18,7 @@
     // Source - https://stackoverflow.com/a/57843956
     // Posted by Gabriele Mariotti
     // Retrieved 2026-03-09, License - CC BY-SA 4.0
+
     <style name="RoundedImageStyle">
         <item name="cornerSize">12dp</item>
     </style>

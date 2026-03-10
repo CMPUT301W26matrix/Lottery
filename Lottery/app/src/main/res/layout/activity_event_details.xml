@@ -10,8 +10,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:fillViewport="true"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/bottom_action_container">
+        app:layout_constraintBottom_toTopOf="@id/bottom_action_container"
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -39,8 +39,8 @@
                     android:id="@+id/btnEditEvent"
                     android:layout_width="wrap_content"
                     android:layout_height="40dp"
-                    android:minHeight="40dp"
                     android:backgroundTint="@color/primary_blue"
+                    android:minHeight="40dp"
                     android:paddingHorizontal="16dp"
                     android:text="Edit Event"
                     android:textAllCaps="false" />
@@ -82,11 +82,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:clickable="false"
+                android:focusable="false"
                 android:text="@string/location_verification_required"
                 android:textColor="@color/primary_blue"
                 android:textSize="12sp"
-                android:clickable="false"
-                android:focusable="false"
                 android:visibility="gone"
                 app:checkedIconVisible="false"
                 app:chipBackgroundColor="@color/primary_light_blue"

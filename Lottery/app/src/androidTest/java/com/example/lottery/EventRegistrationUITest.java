@@ -31,7 +31,7 @@ public class EventRegistrationUITest {
             new ActivityScenarioRule<>(CreateEventActivity.class);
 
     /**
-     * Verifies that checking the "Limit Waiting List Size" switch toggles the visibility 
+     * Verifies that checking the "Limit Waiting List Size" switch toggles the visibility
      * of the numeric input field (Acceptance Criterion #1).
      */
     @Test
@@ -65,10 +65,10 @@ public class EventRegistrationUITest {
         // Toggle ON and type something
         onView(withId(R.id.swLimitWaitingList)).perform(click());
         onView(withId(R.id.etWaitingListLimit)).perform(typeText("50"), closeSoftKeyboard());
-        
+
         // Toggle OFF
         onView(withId(R.id.swLimitWaitingList)).perform(click());
-        
+
         // Toggle ON again - field should be empty
         onView(withId(R.id.swLimitWaitingList)).perform(click());
         onView(withId(R.id.etWaitingListLimit)).check(matches(withText("")));
