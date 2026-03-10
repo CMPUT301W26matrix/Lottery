@@ -39,7 +39,8 @@ public class EventDetailsActivity extends AppCompatActivity {
     private static final String TAG = "EventDetailsActivity";
 
     private ImageView ivEventPoster;
-    private TextView tvEventTitle, tvScheduledDate, tvRegistrationDeadline, tvEventDetails, tvLocationRequirement;
+    private TextView tvEventTitle, tvScheduledDate, tvEventEndDate, tvRegistrationStart,
+            tvRegistrationDeadline, tvDrawDate, tvEventDetails, tvLocationRequirement;
     private TextView tvFullMessage, tvWaitingListCapacity;
     private Button btnRegister;
     private Button btnEditEvent;
@@ -61,7 +62,10 @@ public class EventDetailsActivity extends AppCompatActivity {
         ivEventPoster = findViewById(R.id.ivEventPoster);
         tvEventTitle = findViewById(R.id.tvEventTitle);
         tvScheduledDate = findViewById(R.id.tvScheduledDate);
+        tvEventEndDate = findViewById(R.id.tvEventEndDate);
+        tvRegistrationStart = findViewById(R.id.tvRegistrationStart);
         tvRegistrationDeadline = findViewById(R.id.tvRegistrationDeadline);
+        tvDrawDate = findViewById(R.id.tvDrawDate);
         tvEventDetails = findViewById(R.id.tvEventDetails);
         tvLocationRequirement = findViewById(R.id.tvLocationRequirement);
         tvFullMessage = findViewById(R.id.tvFullMessage);
@@ -243,17 +247,20 @@ public class EventDetailsActivity extends AppCompatActivity {
         tvEventTitle.setText(event.getTitle());
         tvEventDetails.setText(event.getDetails());
 
-        if (event.getScheduledDateTime() != null) {
-            tvScheduledDate.setText(dateFormat.format(event.getScheduledDateTime()));
-        }
-
-        if (event.getRegistrationDeadline() != null) {
-            tvRegistrationDeadline.setText(dateFormat.format(event.getRegistrationDeadline()));
-        }
+        tvScheduledDate.setText(event.getScheduledDateTime() != null
+                ? dateFormat.format(event.getScheduledDateTime()) : "");
+        tvEventEndDate.setText(event.getEventEndDate() != null
+                ? dateFormat.format(event.getEventEndDate()) : "");
+        tvRegistrationStart.setText(event.getRegistrationStartDate() != null
+                ? dateFormat.format(event.getRegistrationStartDate()) : "");
+        tvRegistrationDeadline.setText(event.getRegistrationDeadline() != null
+                ? dateFormat.format(event.getRegistrationDeadline()) : "");
+        tvDrawDate.setText(event.getDrawDate() != null
+                ? dateFormat.format(event.getDrawDate()) : "");
 
         if (tvWaitingListCapacity != null) {
             String capacityLabel = (event.getWaitingListLimit() == null) ? "Unlimited" : String.valueOf(event.getWaitingListLimit());
-            tvWaitingListCapacity.setText("Waiting List Capacity: " + capacityLabel);
+            tvWaitingListCapacity.setText(capacityLabel);
         }
 
         if (tvLocationRequirement != null) {
