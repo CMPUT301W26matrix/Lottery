@@ -31,8 +31,6 @@ public class OrganizerRegistrationActivity extends AppCompatActivity {
 
     private SharedPreferences sharedPreferences;
 
-    private static final String KEY_DEVICE_ID = "deviceId";
-    private static final String KEY_IS_ANONYMOUS = "isAnonymous";
     private static final String KEY_USER_ID = "userId";
     private static final String KEY_USER_ROLE = "userRole";
 
