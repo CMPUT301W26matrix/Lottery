@@ -39,19 +39,19 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
     /**
      * List of events to be displayed.
      */
-    private List<Event> eventList;
+    private final List<Event> eventList;
     /**
      * Listener for event click interactions.
      */
-    private OnEventClickListener listener;
+    private final OnEventClickListener listener;
     /**
      * Date formatter for displaying event scheduled times.
      */
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm", Locale.getDefault());
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm", Locale.getDefault());
     /**
      * Firebase Firestore instance for data retrieval.
      */
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     /**
      * Constructs a new EventAdapter.
@@ -101,7 +101,12 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         /**
          * TextViews for various event details.
          */
-        private TextView tvTitle, tvDate, tvStatus, tvCapacity, tvWaiting, tvSelected;
+        private final TextView tvTitle;
+        private final TextView tvDate;
+        private final TextView tvStatus;
+        private final TextView tvCapacity;
+        private final TextView tvWaiting;
+        private final TextView tvSelected;
 
         /**
          * Constructs an EventViewHolder.

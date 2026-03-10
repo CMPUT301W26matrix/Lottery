@@ -59,10 +59,10 @@ public class CreateEventActivityTest {
         onView(withId(R.id.swLimitWaitingList)).perform(click());
 
         // Now the input field should be VISIBLE
-        onView(withId(R.id.tilWaitingListLimit)).check(matches(isDisplayed()));
+        onView(withId(R.id.tilWaitingListLimit)).perform(scrollTo()).check(matches(isDisplayed()));
 
         // Click again to disable
-        onView(withId(R.id.swLimitWaitingList)).perform(click());
+        onView(withId(R.id.swLimitWaitingList)).perform(scrollTo(), click());
 
         // Should be hidden again
         onView(withId(R.id.tilWaitingListLimit)).check(matches(not(isDisplayed())));
