@@ -3,6 +3,7 @@ package com.example.lottery;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -42,15 +43,16 @@ public class EventRegistrationUITest {
 
         // Toggle the switch ON
         onView(withId(R.id.swLimitWaitingList))
-                .perform(click());
+                .perform(scrollTo(), click());
 
         // Now the limit input should be visible
         onView(withId(R.id.tilWaitingListLimit))
+                .perform(scrollTo())
                 .check(matches(isDisplayed()));
 
         // Toggle the switch OFF
         onView(withId(R.id.swLimitWaitingList))
-                .perform(click());
+                .perform(scrollTo(), click());
 
         // It should be hidden again
         onView(withId(R.id.tilWaitingListLimit))
@@ -63,14 +65,14 @@ public class EventRegistrationUITest {
     @Test
     public void testSwitchClearsInput() {
         // Toggle ON and type something
-        onView(withId(R.id.swLimitWaitingList)).perform(click());
-        onView(withId(R.id.etWaitingListLimit)).perform(typeText("50"), closeSoftKeyboard());
+        onView(withId(R.id.swLimitWaitingList)).perform(scrollTo(), click());
+        onView(withId(R.id.etWaitingListLimit)).perform(scrollTo(), typeText("50"), closeSoftKeyboard());
 
         // Toggle OFF
-        onView(withId(R.id.swLimitWaitingList)).perform(click());
+        onView(withId(R.id.swLimitWaitingList)).perform(scrollTo(), click());
 
         // Toggle ON again - field should be empty
-        onView(withId(R.id.swLimitWaitingList)).perform(click());
-        onView(withId(R.id.etWaitingListLimit)).check(matches(withText("")));
+        onView(withId(R.id.swLimitWaitingList)).perform(scrollTo(), click());
+        onView(withId(R.id.etWaitingListLimit)).perform(scrollTo()).check(matches(withText("")));
     }
 }

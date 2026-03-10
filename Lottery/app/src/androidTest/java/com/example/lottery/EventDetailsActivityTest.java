@@ -3,6 +3,7 @@ package com.example.lottery;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 import android.content.Context;
@@ -10,6 +11,7 @@ import android.content.Intent;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.espresso.matcher.ViewMatchers.Visibility;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import org.junit.Test;
@@ -50,9 +52,10 @@ public class EventDetailsActivityTest {
         intent.putExtra("eventId", "dummy_id");
 
         try (ActivityScenario<EventDetailsActivity> scenario = ActivityScenario.launch(intent)) {
-            // Check if headers and labels are visible
-            onView(withId(R.id.tvDetailsHeader)).check(matches(isDisplayed()));
-            onView(withId(R.id.tvScheduledDate)).check(matches(isDisplayed()));
+            onView(withId(R.id.tvDetailsHeader))
+                    .check(matches(withEffectiveVisibility(Visibility.VISIBLE)));
+            onView(withId(R.id.tvScheduledDate))
+                    .check(matches(withEffectiveVisibility(Visibility.VISIBLE)));
         }
     }
 
