@@ -26,16 +26,27 @@
             android:exported="false" />
 
         <activity
+            android:name=".OrganizerBrowseEventsActivity"
+            android:exported="false"
+            android:label="@string/organizer_dashboard" />
+
+        <activity
             android:name=".AdminBrowseEventsActivity"
             android:exported="false"
-            android:label="Browse Events"
+            android:label="@string/admin_all_events_title"
             android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".AdminEventDetailsActivity"
+            android:exported="false"
+            android:label="@string/admin_event_details_title"
+            android:parentActivityName=".AdminBrowseEventsActivity" />
 
         <activity
             android:name=".EventDetailsActivity"
             android:exported="false"
-            android:label="Event Details"
-            android:parentActivityName=".MainActivity" />
+            android:label="@string/event_details_title"
+            android:parentActivityName=".OrganizerBrowseEventsActivity" />
 
     </application>
 

@@ -1,5 +1,9 @@
 <resources>
     <string name="app_name">Lottery</string>
+    <string name="role_selector_title">Choose Your Role</string>
+    <string name="role_selector_subtitle">Select the interface you want to enter</string>
+    <string name="enter_organizer_view">Organizer View</string>
+    <string name="enter_admin_view">Administrator View</string>
     <string name="create">Create</string>
     <string name="create_new_event">Create New Event</string>
     <string name="complete_the_form_below_to_create_your_event">Complete the form below to create your event</string>
@@ -43,6 +47,8 @@
     <string name="welcome_to_lottery_app">Welcome to Lottery App</string>
     <string name="lottery_event_app">Lottery Event App</string>
     <string name="organizer_dashboard">Organizer Dashboard</string>
+    <string name="organizer_event_browser_title">Lottery Organizer</string>
+    <string name="organizer_event_browser_subtitle">Browse events published by you</string>
     <string name="create_event">Create Event</string>
     <string name="view_events">View Events</string>
     <string name="default_count">0</string>
@@ -62,10 +68,14 @@
     <string name="nav_profile">Profile</string>
     <string name="admin_event_browser_title">Lottery Admin</string>
     <string name="admin_event_browser_subtitle">Browse all published events</string>
+    <string name="admin_event_details_title">Admin Event Details</string>
     <string name="admin_all_events_title">All Events</string>
     <string name="admin_no_events">No events available</string>
     <string name="admin_browse_events_active_tab">Browsing all events</string>
     <string name="failed_to_load_events">Failed to load events</string>
+    <string name="failed_to_load_event_details">Failed to load event details</string>
+    <string name="event_not_found">Event not found</string>
+    <string name="error_event_id_missing">Error: Event ID missing</string>
     <string name="admin_nav_events">Events</string>
     <string name="admin_nav_profiles">Profiles</string>
     <string name="admin_nav_images">Images</string>
@@ -74,4 +84,5 @@
     <string name="admin_images_coming_soon">Browse images coming soon</string>
     <string name="admin_logs_coming_soon">Notification logs coming soon</string>
     <string name="back">Back</string>
+    <string name="unlimited">Unlimited</string>
 </resources>
