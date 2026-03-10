@@ -536,14 +536,15 @@
                             android:textSize="14sp" />
                     </LinearLayout>
 
-                    <ImageView
+                    <com.google.android.material.imageview.ShapeableImageView
                         android:id="@+id/ivPosterPreview"
                         android:layout_width="match_parent"
                         android:layout_height="200dp"
                         android:layout_marginTop="12dp"
                         android:contentDescription="@string/event_poster"
                         android:scaleType="centerCrop"
-                        android:visibility="gone" />
+                        android:visibility="gone"
+                        app:shapeAppearanceOverlay="@style/RoundedImageStyle" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
