@@ -179,7 +179,7 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
      */
     @Override
     public void onEventClick(Event event) {
-        Intent intent = new Intent(this, EventDetailsActivity.class);
+        Intent intent = new Intent(this, OrganizerEventDetailsActivity.class);
         intent.putExtra("eventId", event.getEventId());
         startActivity(intent);
     }
