@@ -317,7 +317,7 @@
         android:layout_height="70dp"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <include layout="@layout/layout_bottom_nav" />
+        <include layout="@layout/layout_bottom_nav_organizer" />
     </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

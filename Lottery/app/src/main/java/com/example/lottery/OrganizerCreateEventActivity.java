@@ -47,9 +47,9 @@ import java.util.UUID;
  * </ul>
  * </p>
  */
-public class CreateEventActivity extends AppCompatActivity {
+public class OrganizerCreateEventActivity extends AppCompatActivity {
 
-    private static final String TAG = "CreateEventActivity";
+    private static final String TAG = "OrganizerCreateEvent";
 
     private TextInputEditText etEventTitle, etMaxCapacity, etEventDetails, etWaitingListLimit;
     private TextInputEditText etEventStart, etEventEnd, etRegStart, etRegEnd, etDrawDate;
@@ -91,7 +91,7 @@ public class CreateEventActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_create_event);
+        setContentView(R.layout.activity_organizer_create_event);
 
         try {
             db = FirebaseFirestore.getInstance();
@@ -120,7 +120,7 @@ public class CreateEventActivity extends AppCompatActivity {
         }
 
         btnOpenUploadDialog.setOnClickListener(v -> {
-            UploadPosterDialogFragment dialog = new UploadPosterDialogFragment();
+            OrganizerUploadPosterDialogFragment dialog = new OrganizerUploadPosterDialogFragment();
             dialog.show(getSupportFragmentManager(), "upload_poster");
         });
 

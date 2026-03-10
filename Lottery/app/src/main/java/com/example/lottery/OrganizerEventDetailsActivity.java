@@ -121,7 +121,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         View btnCreate = findViewById(R.id.nav_create_container);
         if (btnCreate != null) {
             btnCreate.setOnClickListener(v -> {
-                startActivity(new Intent(this, CreateEventActivity.class));
+                startActivity(new Intent(this, OrganizerCreateEventActivity.class));
             });
         }
 
@@ -235,10 +235,10 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * Launches CreateEventActivity in edit mode for the currently displayed event.
+     * Launches OrganizerCreateEventActivity in edit mode for the currently displayed event.
      */
     private void handleEditEvent() {
-        Intent intent = new Intent(this, CreateEventActivity.class);
+        Intent intent = new Intent(this, OrganizerCreateEventActivity.class);
         intent.putExtra("eventId", eventId);
         startActivity(intent);
     }

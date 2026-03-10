@@ -28,8 +28,8 @@ import org.junit.runner.RunWith;
 public class EventRegistrationUITest {
 
     @Rule
-    public ActivityScenarioRule<CreateEventActivity> activityRule =
-            new ActivityScenarioRule<>(CreateEventActivity.class);
+    public ActivityScenarioRule<OrganizerCreateEventActivity> activityRule =
+            new ActivityScenarioRule<>(OrganizerCreateEventActivity.class);
 
     /**
      * Verifies that checking the "Limit Waiting List Size" switch toggles the visibility

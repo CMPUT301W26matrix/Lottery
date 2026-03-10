@@ -91,7 +91,7 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
     private void setupNavigation() {
         View btnCreate = findViewById(R.id.nav_create_container);
         if (btnCreate != null) {
-            btnCreate.setOnClickListener(v -> startActivity(new Intent(OrganizerBrowseEventsActivity.this, CreateEventActivity.class)));
+            btnCreate.setOnClickListener(v -> startActivity(new Intent(OrganizerBrowseEventsActivity.this, OrganizerCreateEventActivity.class)));
         }
         View btnHome = findViewById(R.id.nav_home);
         if (btnHome != null) {

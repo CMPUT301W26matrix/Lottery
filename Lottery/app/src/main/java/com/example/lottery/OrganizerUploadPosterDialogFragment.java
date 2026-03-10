@@ -34,7 +34,7 @@ import androidx.fragment.app.DialogFragment;
  * where the bundle contains the key "posterUri".
  * </p>
  */
-public class UploadPosterDialogFragment extends DialogFragment {
+public class OrganizerUploadPosterDialogFragment extends DialogFragment {
 
     /**
      * Temporary storage for the URI of the selected image before confirmation.
@@ -89,7 +89,7 @@ public class UploadPosterDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        View view = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_upload_poster, null);
+        View view = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_organizer_upload_poster, null);
 
         ivPreview = view.findViewById(R.id.ivDialogPreview);
         btnSelect = view.findViewById(R.id.btnSelectConfirm);

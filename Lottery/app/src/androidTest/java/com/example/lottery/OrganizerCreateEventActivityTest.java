@@ -17,15 +17,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Instrumentation tests for CreateEventActivity.
+ * Instrumentation tests for OrganizerCreateEventActivity.
  * Focuses on US 02.03.01: Optionally Limit Waiting List Size.
  */
 @RunWith(AndroidJUnit4.class)
-public class CreateEventActivityTest {
+public class OrganizerCreateEventActivityTest {
 
     @Rule
-    public ActivityScenarioRule<CreateEventActivity> activityRule =
-            new ActivityScenarioRule<>(CreateEventActivity.class);
+    public ActivityScenarioRule<OrganizerCreateEventActivity> activityRule =
+            new ActivityScenarioRule<>(OrganizerCreateEventActivity.class);
 
     @Test
     public void testUIComponentsDisplayed() {
