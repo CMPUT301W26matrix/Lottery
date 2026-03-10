@@ -1,4 +1,6 @@
 package com.example.lottery;
 
-public class EntrantMainActivity {
+import androidx.appcompat.app.AppCompatActivity;
+
+public class EntrantMainActivity extends AppCompatActivity {
 }
