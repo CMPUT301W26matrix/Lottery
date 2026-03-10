@@ -23,6 +23,11 @@ jobs:
       - name: Enable execute permission for gradlew
         run: chmod +x Lottery/gradlew
 
+      - name: Add google-services.json
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: printf '%s' "$GOOGLE_SERVICES_JSON" > Lottery/app/google-services.json
+
       - name: Build
         run: ./gradlew build
         working-directory: Lottery
@@ -45,6 +50,11 @@ jobs:
 
       - name: Enable execute permission for gradlew
         run: chmod +x Lottery/gradlew
+
+      - name: Add google-services.json
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: printf '%s' "$GOOGLE_SERVICES_JSON" > Lottery/app/google-services.json
 
       - name: Run unit tests
         run: ./gradlew test
