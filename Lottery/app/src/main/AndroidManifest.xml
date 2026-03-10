@@ -26,6 +26,12 @@
             android:exported="false" />
 
         <activity
+            android:name=".AdminBrowseEventsActivity"
+            android:exported="false"
+            android:label="Browse Events"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
             android:name=".EventDetailsActivity"
             android:exported="false"
             android:label="Event Details"

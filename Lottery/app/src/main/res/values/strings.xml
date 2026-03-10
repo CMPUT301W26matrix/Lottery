@@ -28,4 +28,17 @@
     <string name="welcome_to_lottery_app">Welcome to Lottery App</string>
     <string name="create_event">Create Event</string>
     <string name="view_events">View Events</string>
+    <string name="admin_event_browser_title">Lottery Admin</string>
+    <string name="admin_event_browser_subtitle">Browse all published events</string>
+    <string name="admin_all_events_title">All Events</string>
+    <string name="admin_no_events">No events available</string>
+    <string name="admin_browse_events_active_tab">Browsing all events</string>
+    <string name="failed_to_load_events">Failed to load events</string>
+    <string name="admin_nav_events">Events</string>
+    <string name="admin_nav_profiles">Profiles</string>
+    <string name="admin_nav_images">Images</string>
+    <string name="admin_nav_logs">Logs</string>
+    <string name="admin_profiles_coming_soon">Browse profiles coming soon</string>
+    <string name="admin_images_coming_soon">Browse images coming soon</string>
+    <string name="admin_logs_coming_soon">Notification logs coming soon</string>
 </resources>
