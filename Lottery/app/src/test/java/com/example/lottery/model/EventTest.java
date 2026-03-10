@@ -40,7 +40,8 @@ public class EventTest {
     @Test
     public void testEventConstructorWithLimit() {
         // Verify constructor correctly maps the waiting list limit
-        Event event = new Event("1", "Title", null, null, 10, "Details", null, null, "Org1", false, 100);
+        Event event = new Event("1", "Title", null, null, null, null, null,
+                10, "Details", null, null, "Org1", false, 100);
         assertEquals(Integer.valueOf(100), event.getWaitingListLimit());
     }
 }

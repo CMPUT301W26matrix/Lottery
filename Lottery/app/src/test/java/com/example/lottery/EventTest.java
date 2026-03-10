@@ -30,9 +30,8 @@ public class EventTest {
         boolean requireLocation = true;
         Integer waitingListLimit = 100;
 
-        // Pass 11 arguments to match the updated Event constructor
-        Event event = new Event(eventId, title, now, now, 
-                                maxCapacity, details, posterUri, qrCodeContent, 
+        Event event = new Event(eventId, title, now, now, now, now, now,
+                                maxCapacity, details, posterUri, qrCodeContent,
                                 organizerId, requireLocation, waitingListLimit);
 
         assertEquals(eventId, event.getEventId());
