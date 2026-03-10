@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
         android:gravity="center"
-        android:text="Upload Poster"
+        android:text="@string/upload_poster"
         android:textColor="@color/primary_blue"
         android:textSize="22sp"
         android:textStyle="bold" />
@@ -34,7 +34,7 @@
             android:id="@+id/ivDialogPreview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:contentDescription="Poster Preview"
+            android:contentDescription="@string/poster_preview"
             android:scaleType="centerCrop"
             android:src="@drawable/event_placeholder" />
     </com.google.android.material.card.MaterialCardView>
@@ -45,7 +45,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
         android:gravity="center"
-        android:text="Tap image to enlarge"
+        android:text="@string/tap_image_to_enlarge"
         android:textColor="@color/text_gray"
         android:textSize="13sp"
         android:visibility="invisible" />
@@ -57,7 +57,7 @@
         android:layout_height="56dp"
         android:layout_marginBottom="32dp"
         android:backgroundTint="@color/primary_light_blue"
-        android:text="Browse Device"
+        android:text="@string/browse_device"
         android:textColor="@color/primary_blue"
         app:icon="@android:drawable/ic_menu_gallery"
         app:iconTint="@color/primary_blue" />
@@ -76,7 +76,7 @@
             android:layout_height="56dp"
             android:layout_marginEnd="8dp"
             android:layout_weight="1"
-            android:text="Cancel"
+            android:text="@string/cancel"
             android:textColor="@color/primary_blue"
             app:strokeColor="@color/primary_blue" />
 
@@ -89,7 +89,7 @@
             android:layout_weight="1"
             android:backgroundTint="@color/primary_blue"
             android:enabled="false"
-            android:text="Select"
+            android:text="@string/select"
             android:textColor="@color/white" />
     </LinearLayout>
 

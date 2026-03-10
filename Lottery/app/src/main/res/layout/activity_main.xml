@@ -28,7 +28,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="32dp"
-                android:text="Lottery Event App"
+                android:text="@string/lottery_event_app"
                 android:textColor="@color/primary_blue"
                 android:textSize="28sp"
                 android:textStyle="bold"
@@ -42,7 +42,7 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="4dp"
                 android:letterSpacing="0.1"
-                android:text="Organizer Dashboard"
+                android:text="@string/organizer_dashboard"
                 android:textColor="@color/text_gray"
                 android:textSize="14sp"
                 android:textStyle="bold"
@@ -81,7 +81,7 @@
                             android:id="@+id/tvActiveCount"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="0"
+                            android:text="@string/default_count"
                             android:textColor="@color/primary_blue"
                             android:textSize="24sp"
                             android:textStyle="bold" />
@@ -89,7 +89,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Active Events"
+                            android:text="@string/active_events"
                             android:textColor="@color/text_gray"
                             android:textSize="12sp" />
                     </LinearLayout>
@@ -116,7 +116,7 @@
                             android:id="@+id/tvClosedCount"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="0"
+                            android:text="@string/default_count"
                             android:textColor="@color/text_gray"
                             android:textSize="24sp"
                             android:textStyle="bold" />
@@ -124,7 +124,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Closed Events"
+                            android:text="@string/closed_events"
                             android:textColor="@color/text_gray"
                             android:textSize="12sp" />
                     </LinearLayout>
@@ -151,7 +151,7 @@
                             android:id="@+id/tvPendingCount"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="0"
+                            android:text="@string/default_count"
                             android:textColor="#F57C00"
                             android:textSize="24sp"
                             android:textStyle="bold" />
@@ -159,7 +159,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Pending Draws"
+                            android:text="@string/pending_draws"
                             android:textColor="@color/text_gray"
                             android:textSize="12sp" />
                     </LinearLayout>
@@ -186,7 +186,7 @@
                             android:id="@+id/tvTotalCount"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="0"
+                            android:text="@string/default_count"
                             android:textColor="@color/black"
                             android:textSize="24sp"
                             android:textStyle="bold" />
@@ -194,7 +194,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Total Events"
+                            android:text="@string/total_events"
                             android:textColor="@color/text_gray"
                             android:textSize="12sp" />
                     </LinearLayout>
@@ -208,7 +208,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="32dp"
-                android:text="Your Events"
+                android:text="@string/your_events"
                 android:textColor="@color/primary_blue"
                 android:textSize="20sp"
                 android:textStyle="bold"
@@ -231,7 +231,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="40dp"
-                android:text="No events created yet"
+                android:text="@string/no_events_created_yet"
                 android:textColor="@color/text_gray"
                 android:textSize="16sp"
                 android:visibility="gone"

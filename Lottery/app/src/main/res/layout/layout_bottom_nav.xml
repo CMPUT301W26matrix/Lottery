@@ -39,7 +39,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Home"
+                    android:text="@string/nav_home"
                     android:textColor="@color/primary_blue"
                     android:textSize="11sp" />
             </LinearLayout>
@@ -61,7 +61,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="History"
+                    android:text="@string/nav_history"
                     android:textColor="@color/text_gray"
                     android:textSize="11sp" />
             </LinearLayout>
@@ -89,7 +89,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Favorites"
+                    android:text="@string/nav_favorites"
                     android:textColor="@color/text_gray"
                     android:textSize="11sp" />
             </LinearLayout>
@@ -111,7 +111,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Profile"
+                    android:text="@string/nav_profile"
                     android:textColor="@color/text_gray"
                     android:textSize="11sp" />
             </LinearLayout>
