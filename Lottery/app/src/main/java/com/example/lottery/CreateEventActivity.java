@@ -187,25 +187,46 @@ public class CreateEventActivity extends AppCompatActivity {
                 tilWaitingListLimit.setVisibility(View.VISIBLE);
             }
 
-            if (event.getPosterUri() != null && !event.getPosterUri().isEmpty() && ivPosterPreview != null) {
-                selectedPosterUri = Uri.parse(event.getPosterUri());
-                ivPosterPreview.setImageURI(selectedPosterUri);
-                ivPosterPreview.setVisibility(View.VISIBLE);
-                tvPosterStatus.setText("Poster selected");
-                tvPosterStatus.setTextColor(getResources().getColor(R.color.primary_blue));
+            String posterUri = event.getPosterUri();
+            if (posterUri != null && !posterUri.isEmpty() && ivPosterPreview != null) {
+                try {
+                    selectedPosterUri = Uri.parse(posterUri);
+                    ivPosterPreview.setImageURI(selectedPosterUri);
+                    ivPosterPreview.setVisibility(View.VISIBLE);
+                    tvPosterStatus.setText("Poster selected");
+                    tvPosterStatus.setTextColor(getResources().getColor(R.color.primary_blue));
+                } catch (SecurityException e) {
+                    Log.e(TAG, "Failed to load event poster", e);
+                    selectedPosterUri = null;
+                    ivPosterPreview.setVisibility(View.GONE);
+                    tvPosterStatus.setText("Poster unavailable");
+                }
             }
 
             this.qrCodeContent = event.getQrCodeContent();
             this.eventStartDate = event.getScheduledDateTime();
+            this.eventEndDate = event.getEventEndDate();
+            this.regStartDate = event.getRegistrationStartDate();
             this.regEndDate = event.getRegistrationDeadline();
+            this.drawDate = event.getDrawDate();
 
             SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm", Locale.getDefault());
             if (eventStartDate != null) {
                 etEventStart.setText(sdf.format(eventStartDate));
             }
+            if (eventEndDate != null) {
+                etEventEnd.setText(sdf.format(eventEndDate));
+            }
+            if (regStartDate != null) {
+                etRegStart.setText(sdf.format(regStartDate));
+            }
             if (regEndDate != null) {
                 etRegEnd.setText(sdf.format(regEndDate));
             }
+            if (drawDate != null) {
+                etDrawDate.setText(sdf.format(drawDate));
+            }
+
         });
     }
 
@@ -219,7 +240,7 @@ public class CreateEventActivity extends AppCompatActivity {
                 return;
             }
 
-            selectedPosterUri = Uri.parse(uriString);
+            selectedPosterUri = Uri.parse(saveImageToInternalStorage(Uri.parse(uriString)));
             tvPosterStatus.setText("Poster selected");
             tvPosterStatus.setTextColor(getResources().getColor(R.color.primary_blue));
 
@@ -238,6 +259,13 @@ public class CreateEventActivity extends AppCompatActivity {
      */
     private String saveImageToInternalStorage(Uri uri) {
         try {
+            if (uri == null) {
+                return "";
+            }
+            if ("file".equals(uri.getScheme())) {
+                return uri.toString();
+            }
+
             String fileName = "poster_" + UUID.randomUUID() + ".jpg";
             File file = new File(getFilesDir(), fileName);
 
@@ -423,14 +451,17 @@ public class CreateEventActivity extends AppCompatActivity {
         }
 
         int maxCapacity = capacityStr.isEmpty() ? 0 : Integer.parseInt(capacityStr);
-        String posterUriToSave = selectedPosterUri != null ? saveImageToInternalStorage(selectedPosterUri) : "";
+        String posterUriToSave = selectedPosterUri != null ? selectedPosterUri.toString() : "";
         boolean requireLocation = swRequireLocation.isChecked();
 
         Event event = new Event(
                 eventId,
                 title,
                 eventStartDate,
+                eventEndDate,
+                regStartDate,
                 regEndDate,
+                drawDate,
                 maxCapacity,
                 details,
                 posterUriToSave,

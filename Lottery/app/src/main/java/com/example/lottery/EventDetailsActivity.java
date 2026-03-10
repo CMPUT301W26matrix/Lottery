@@ -39,14 +39,18 @@ public class EventDetailsActivity extends AppCompatActivity {
     private static final String TAG = "EventDetailsActivity";
 
     private ImageView ivEventPoster;
-    private TextView tvEventTitle, tvScheduledDate, tvRegistrationDeadline, tvEventDetails, tvLocationRequirement;
+    private TextView tvEventTitle, tvScheduledDate, tvEventEndDate, tvRegistrationStart,
+            tvRegistrationDeadline, tvDrawDate, tvEventDetails, tvLocationRequirement;
     private TextView tvFullMessage, tvWaitingListCapacity;
     private Button btnRegister;
+    private Button btnEditEvent;
+
     private FirebaseFirestore db;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
 
     /** The current event being displayed. */
     private Event currentEvent;
+    private String eventId;
     /** Flag indicating if the waiting list has reached its capacity. */
     private boolean isEventFull = false;
 
@@ -58,18 +62,22 @@ public class EventDetailsActivity extends AppCompatActivity {
         ivEventPoster = findViewById(R.id.ivEventPoster);
         tvEventTitle = findViewById(R.id.tvEventTitle);
         tvScheduledDate = findViewById(R.id.tvScheduledDate);
+        tvEventEndDate = findViewById(R.id.tvEventEndDate);
+        tvRegistrationStart = findViewById(R.id.tvRegistrationStart);
         tvRegistrationDeadline = findViewById(R.id.tvRegistrationDeadline);
+        tvDrawDate = findViewById(R.id.tvDrawDate);
         tvEventDetails = findViewById(R.id.tvEventDetails);
         tvLocationRequirement = findViewById(R.id.tvLocationRequirement);
         tvFullMessage = findViewById(R.id.tvFullMessage);
         tvWaitingListCapacity = findViewById(R.id.tvWaitingListCapacity);
         btnRegister = findViewById(R.id.btnRegister);
+        btnEditEvent = findViewById(R.id.btnEditEvent);
 
         db = FirebaseFirestore.getInstance();
 
         setupNavigation();
 
-        String eventId = getIntent().getStringExtra("eventId");
+        eventId = getIntent().getStringExtra("eventId");
         if (eventId != null) {
             fetchEventDetails(eventId);
         } else {
@@ -78,6 +86,18 @@ public class EventDetailsActivity extends AppCompatActivity {
         }
 
         btnRegister.setOnClickListener(v -> handleRegistration());
+        btnEditEvent.setOnClickListener(v -> handleEditEvent());
+    }
+
+    /**
+     * Refreshes the displayed event details whenever the activity returns to the foreground.
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (eventId != null) {
+            fetchEventDetails(eventId);
+        }
     }
 
     /**
@@ -211,6 +231,14 @@ public class EventDetailsActivity extends AppCompatActivity {
     }
 
     /**
+     * Launches CreateEventActivity in edit mode for the currently displayed event.
+     */
+    private void handleEditEvent() {
+        Intent intent = new Intent(this, CreateEventActivity.class);
+        intent.putExtra("eventId", eventId);
+        startActivity(intent);
+    }
+    /**
      * Updates the UI components with the provided event data.
      *
      * @param event The event data to display.
@@ -219,17 +247,20 @@ public class EventDetailsActivity extends AppCompatActivity {
         tvEventTitle.setText(event.getTitle());
         tvEventDetails.setText(event.getDetails());
 
-        if (event.getScheduledDateTime() != null) {
-            tvScheduledDate.setText(dateFormat.format(event.getScheduledDateTime()));
-        }
-
-        if (event.getRegistrationDeadline() != null) {
-            tvRegistrationDeadline.setText(dateFormat.format(event.getRegistrationDeadline()));
-        }
+        tvScheduledDate.setText(event.getScheduledDateTime() != null
+                ? dateFormat.format(event.getScheduledDateTime()) : "");
+        tvEventEndDate.setText(event.getEventEndDate() != null
+                ? dateFormat.format(event.getEventEndDate()) : "");
+        tvRegistrationStart.setText(event.getRegistrationStartDate() != null
+                ? dateFormat.format(event.getRegistrationStartDate()) : "");
+        tvRegistrationDeadline.setText(event.getRegistrationDeadline() != null
+                ? dateFormat.format(event.getRegistrationDeadline()) : "");
+        tvDrawDate.setText(event.getDrawDate() != null
+                ? dateFormat.format(event.getDrawDate()) : "");
 
         if (tvWaitingListCapacity != null) {
             String capacityLabel = (event.getWaitingListLimit() == null) ? "Unlimited" : String.valueOf(event.getWaitingListLimit());
-            tvWaitingListCapacity.setText("Waiting List Capacity: " + capacityLabel);
+            tvWaitingListCapacity.setText(capacityLabel);
         }
 
         if (tvLocationRequirement != null) {

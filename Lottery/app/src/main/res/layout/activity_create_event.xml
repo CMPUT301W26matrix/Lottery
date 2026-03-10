@@ -520,7 +520,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:backgroundTint="@color/primary_light_blue"
-                            android:text="@string/upload_image"
+                            android:text="@string/upload_poster"
                             android:textColor="@color/primary_blue"
                             android:textSize="14sp"
                             app:icon="@android:drawable/ic_menu_gallery"

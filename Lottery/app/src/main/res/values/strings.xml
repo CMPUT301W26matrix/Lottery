@@ -15,7 +15,7 @@
     <string name="require_geolocation_for_entrants">Require Geolocation for Entrants</string>
     <string name="event_poster">Event Poster</string>
     <string name="no_poster_selected">No poster selected</string>
-    <string name="upload_image">Upload Image</string>
+    <string name="upload_poster">Upload Poster</string>
     <string name="launch_event">Launch Event</string>
     <string name="generate_qr_code">Generate QR Code</string>
     <string name="event_qr_code">Event QR Code</string>
