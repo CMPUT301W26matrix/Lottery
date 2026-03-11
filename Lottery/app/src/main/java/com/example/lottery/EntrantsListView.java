@@ -57,7 +57,7 @@ public class EntrantsListView extends AppCompatActivity{
     private SignedUpListAdapter SignedUpListAdapter;
     private CancelledListAdapter CancelledListAdapter;
     private WaitedListedListAdapter WaitedListedListAdapter;
-    private LinearLayout CancelledEntrantsListLayout, signedUpEntrantsListLyaout ,waitedListEntrantsListLayout;
+    private LinearLayout cancelledEntrantsListLayout, signedUpEntrantsListLyaout ,waitedListEntrantsListLayout;
     private RecyclerView signedUpEventsView, waitedListEventsView, cancelledEntrantsView;
     private CollectionReference entrantsRef;
     /**
@@ -98,19 +98,19 @@ public class EntrantsListView extends AppCompatActivity{
             // Source - https://stackoverflow.com/a/12125545
             // Posted by nandeesh
             // Retrieved 2026-03-10, License - CC BY-SA 3.0
-            cancelledEntrantsView.setVisibility(View.GONE);
-            waitedListEventsView.setVisibility(View.GONE);
+            cancelledEntrantsListLayout.setVisibility(View.GONE);
+            waitedListEntrantsListLayout.setVisibility(View.GONE);
 
         });
         // switch to signed up component to display the entrants list that have signed up
         btnSwitchCancelled.setOnClickListener(v -> {
-            signedUpEventsView.setVisibility(View.GONE);
-            waitedListEventsView.setVisibility(View.GONE);
+            signedUpEntrantsListLyaout.setVisibility(View.GONE);
+            waitedListEntrantsListLayout.setVisibility(View.GONE);
         });
         // switch to signed up component to display the entrants list that have signed up
         btnSwitchWaitedList.setOnClickListener(v -> {
-            cancelledEntrantsView.setVisibility(View.GONE);
-            signedUpEventsView.setVisibility(View.GONE);
+            cancelledEntrantsListLayout.setVisibility(View.GONE);
+            signedUpEntrantsListLyaout.setVisibility(View.GONE);
         });
 
         //fetch entrants list from firebase
@@ -158,7 +158,7 @@ public class EntrantsListView extends AppCompatActivity{
         signedUpEventsView = findViewById(R.id.signed_up_events_view);
         waitedListEventsView = findViewById(R.id.waited_list_events_view);
         cancelledEntrantsView = findViewById(R.id.cancelled_entrants_view);
-        CancelledEntrantsListLayout = findViewById(R.id.cancelled_entrants_list_layout);
+        cancelledEntrantsListLayout = findViewById(R.id.cancelled_entrants_list_layout);
         signedUpEntrantsListLyaout = findViewById(R.id.signed_up_entrants_list_layout);
         waitedListEntrantsListLayout = findViewById(R.id.waited_list_entrants_list_layout);
     }

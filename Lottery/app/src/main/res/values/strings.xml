@@ -95,6 +95,11 @@
     <string name="entrants_list_function_toggle_button_group_send_notification_text">Send Notification</string>
     <string name="entrants_list_function_toggle_button_group_view_location_text">View Location</string>
     <string name="entrants_list_sample_button">Sample Winners</string>
+    <string name="sample_winners_string">Sample Winners</string>
+    <string name="sample_fragment_hint">Enter number here</string>
+    <string name="sub_header_sample_fragment">How Many Entrants Should Be Sampled?</string>
+    <string name="send_notification_string">Send Notification</string>
+    <string name="notification_input_hint">write notification content here</string>
     <string name="organizer_dashboard">Organizer Dashboard</string>
     <string name="organizer_event_browser_title">Lottery Organizer</string>
     <string name="organizer_event_browser_subtitle">Browse events published by you</string>
