@@ -1,6 +1,6 @@
 package com.example.lottery.model;
 
-/*
+/**
  * User model
  * Represents an entrant/user in the system.
  * This class stores basic personal information.
