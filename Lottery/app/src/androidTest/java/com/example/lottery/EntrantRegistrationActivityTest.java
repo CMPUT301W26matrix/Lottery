@@ -41,12 +41,6 @@ public class EntrantRegistrationActivityTest {
         onView(withId(R.id.btnBack)).check(matches(isDisplayed()));
     }
 
-//    @Test
-//    public void testBackButtonNavigatesToMainActivity() {
-//        onView(withId(R.id.btnBack)).perform(click());
-//        intended(hasComponent(MainActivity.class.getName()));
-//    }
-
     @Test
     public void testBackButtonFinishesActivity() {
         // Just verify the button is clickable - we can't easily test finish() in isolation
@@ -107,24 +101,6 @@ public class EntrantRegistrationActivityTest {
         onView(withId(R.id.etEmail)).check(matches(hasErrorText("Invalid email address")));
     }
 
-    // Test 3: Successful registration with Firebase
-//    @Test
-//    public void testSuccessfulRegistrationNavigatesToOrganizerMainScreen() {
-//        String testName = "John Doe";
-//        String testEmail = "john.doe@example.com";
-//        String testPhone = "1234567890";
-//        String testPassword = "password123";
-//
-//        onView(withId(R.id.etName)).perform(typeText(testName), closeSoftKeyboard());
-//        onView(withId(R.id.etEmail)).perform(typeText(testEmail), closeSoftKeyboard());
-//        onView(withId(R.id.etPhoneNumber)).perform(typeText(testPhone), closeSoftKeyboard());
-//        onView(withId(R.id.etPassword)).perform(typeText(testPassword), closeSoftKeyboard());
-//        onView(withId(R.id.etReEnterPassword)).perform(typeText(testPassword), closeSoftKeyboard());
-//        onView(withId(R.id.btnContinue)).perform(click());
-//
-//        // Should navigate to OrganizerMainActivity
-//        intended(hasComponent(OrganizerMainActivity.class.getName()));
-//    }
 
     // NEW Test 3: Test that validation passes with valid input
     @Test

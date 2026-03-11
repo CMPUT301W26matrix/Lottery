@@ -1,5 +1,6 @@
 package com.example.lottery;
 
+import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 
@@ -24,13 +25,16 @@ public class MainActivityTest {
             new ActivityScenarioRule<>(MainActivity.class);
 
     @Before
-    public void setupIntents() {
+    public void setUp() {
         Intents.init();
+        // Clear any existing SharedPreferences before each test
+//        clearSharedPreferences();
     }
 
     @After
-    public void takeDownIntents() {
+    public void tearDown() {
         Intents.release();
+//        clearSharedPreferences();
     }
 
     @Test

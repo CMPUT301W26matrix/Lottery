@@ -25,7 +25,7 @@
         <activity android:name=".AdminSignInActivity" />
         <activity android:name=".GeneralSignInActivity" />
         <activity android:name=".EntrantMainActivity" />
-        <activity android:name=".OrganizerMainActivity" />
+        <activity android:name=".OrganizerBrowseEventsActivity" />
     </application>
 
 </manifest>

@@ -20,6 +20,17 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * OrganizerRegistrationActivity handles the registration process for organizer users.
+ * Organizers must register with email and password through Firebase Authentication,
+ * and their profile information is stored in Firestore with the role "organizer".
+ *
+ * <p>This activity validates user input, creates user accounts in Firebase Auth,
+ * stores organizer profiles in Firestore, and saves session information in SharedPreferences.</p>
+ *
+ * @see OrganizerBrowseEventsActivity
+ * @see MainActivity
+ */
 public class OrganizerRegistrationActivity extends AppCompatActivity {
 
     private FirebaseFirestore db;
@@ -196,7 +207,7 @@ public class OrganizerRegistrationActivity extends AppCompatActivity {
 
     private void navigateToOrganizerMain(String userId, String userName,
                                        String userEmail) {
-        Intent intent = new Intent(OrganizerRegistrationActivity.this, OrganizerMainActivity.class);
+        Intent intent = new Intent(OrganizerRegistrationActivity.this, OrganizerBrowseEventsActivity.class);
         intent.putExtra("userId", userId);
         intent.putExtra("userName", userName);
         intent.putExtra("isRegistered", true);

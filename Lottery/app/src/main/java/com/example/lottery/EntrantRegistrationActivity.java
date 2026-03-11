@@ -3,6 +3,7 @@ package com.example.lottery;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Patterns;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,10 +17,26 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.installations.FirebaseInstallations;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
+/**
+ * EntrantRegistrationActivity handles the registration process for entrant users.
+ * It provides two registration options:
+ * <ul>
+ *     <li>Full registration with email/password using Firebase Authentication</li>
+ *     <li>Anonymous registration using Firebase Installation ID (FID) for users who want to use the app without creating an account (should be modified to identify users by device)</li>
+ * </ul>
+ *
+ * <p>This activity validates user input, creates user accounts in Firebase Auth,
+ * stores user profiles in Firestore, and saves session information in SharedPreferences.</p>
+ *
+ * @see EntrantMainActivity
+ * @see MainActivity
+ */
 public class EntrantRegistrationActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private EditText entrantName, entrantEmail, entrantPassword, entrantPassword2, entrantPhone;
@@ -32,6 +49,9 @@ public class EntrantRegistrationActivity extends AppCompatActivity {
 
     private static final String KEY_USER_ID = "userId";
     private static final String KEY_USER_ROLE = "userRole";
+    private static final String KEY_USER_NAME = "userName";
+    private static final String KEY_IS_ANONYMOUS = "isAnonymous";
+    private static final String KEY_FID = "fid"; // Store FID instead of custom deviceId
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +88,82 @@ public class EntrantRegistrationActivity extends AppCompatActivity {
                 registerUser();
             }
         });
+
+        // Handle anonymous registration
+        anonContinueButton.setOnClickListener(view -> {
+            registerAnonymousUser();
+        });
     }
+
+    private void registerAnonymousUser() {
+        // Get Firebase Installation ID (FID) to identify anonymous users
+        FirebaseInstallations.getInstance().getId()
+                .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                String fid = task.getResult(); // Get the FID
+
+                                // Create anonymous user ID using FID
+                                String anonymousUserId = "anon_" + fid;
+
+                                // Check if this device has already registered anonymously
+                                boolean isExistingAnonymous = sharedPreferences.getBoolean(KEY_IS_ANONYMOUS, false);
+
+                                String existingUserId = sharedPreferences.getString(KEY_USER_ID, null);
+                                String existingFid = sharedPreferences.getString(KEY_FID, null);
+
+                                if (isExistingAnonymous && existingUserId != null && existingFid != null && existingFid.equals(fid)) {
+                                    // Device already has an anonymous account with same FID
+                                    anonContinueButton.setText("Continue Without Registering");
+
+                                    String existingName = sharedPreferences.getString(KEY_USER_NAME, "Unregistered User");
+                                    navigateToEntrantMain(existingUserId, existingName, null, true);
+                                    return;
+                                }
+
+                                // Create user data for Firestore
+                                Map<String, Object> userData = new HashMap<>();
+                                userData.put("userId", anonymousUserId);
+                                userData.put("name", ""); // No email for anonymous
+                                userData.put("email", ""); // No email for anonymous
+                                userData.put("phone", ""); // No email for anonymous
+                                userData.put("role", "entrant");
+                                userData.put("isAnonymous", true);
+                                userData.put("deviceId", fid);
+
+                                // Add timestamps
+                                userData.put("createdAt", Timestamp.now());
+                                userData.put("notificationsEnabled", true);
+
+                                // Save to FireStore
+                                db.collection("users").document(anonymousUserId)
+                                        .set(userData)
+                                        .addOnSuccessListener(aVoid -> {
+                                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                                            editor.putString(KEY_USER_ID, anonymousUserId);
+                                            editor.putString(KEY_USER_ROLE, "entrant");
+                                            editor.putString(KEY_USER_NAME, null);
+                                            editor.putBoolean(KEY_IS_ANONYMOUS, true);
+                                            editor.putString(KEY_FID, fid);
+                                            editor.apply();
+
+                                            Toast.makeText(this, "Continuing as anonymous user", Toast.LENGTH_SHORT).show();
+
+                                            // Go to entrant main screen
+                                            navigateToEntrantMain(anonymousUserId,
+                                                    null,
+                                                    null, true);
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            anonContinueButton.setText("Continue Without Registering");
+
+                                            Toast.makeText(this, "Failed to continue: " + e.getMessage(),
+                                                    Toast.LENGTH_LONG).show();
+                                        });
+                            }
+                        });
+
+    }
+
 
     /**
      * Register the user with Firebase Authentication
@@ -130,7 +225,7 @@ public class EntrantRegistrationActivity extends AppCompatActivity {
                     Toast.makeText(this, "Registration successful!", Toast.LENGTH_SHORT).show();
 
                     // Go to entrant main screen
-                    navigateToEntrantMain(userId, name, email, false); // for now: isAnonymous is false (not yet implemented)
+                    navigateToEntrantMain(userId, name, email, false);
                 })
                 .addOnFailureListener(e -> {
                     // Failed to save data
@@ -193,6 +288,8 @@ public class EntrantRegistrationActivity extends AppCompatActivity {
         // Phone number is optional - no validation needed
         return true;
     }
+
+
 
     private void navigateToEntrantMain(String userId, String userName,
                                        String userEmail, boolean isAnonymous) {

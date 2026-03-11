@@ -12,15 +12,28 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.HashMap;
-import java.util.Map;
-
+/**
+ * GeneralSignInActivity handles the sign-in process for existing users.
+ * Users can sign in with their email and password, and are then redirected
+ * to the appropriate main activity based on their role (entrant or organizer).
+ *
+ * <p>This activity:
+ * <ul>
+ *     <li>Authenticates users with Firebase Auth using email/password</li>
+ *     <li>Retrieves user role from Firestore</li>
+ *     <li>Navigates to role-specific main activities (EntrantMainActivity or OrganizerBrowseEventsActivity)</li>
+ *     <li>Stores session information in SharedPreferences</li>
+ * </ul>
+ *
+ * @see EntrantMainActivity
+ * @see OrganizerBrowseEventsActivity
+ * @see MainActivity
+ */
 public class GeneralSignInActivity extends AppCompatActivity {
 
     private EditText userEmail, userPassword;
@@ -191,7 +204,7 @@ public class GeneralSignInActivity extends AppCompatActivity {
             intent.putExtra("isAnonymous", false);
 
         } else if ("organizer".equals(userRole)) {
-            intent = new Intent(GeneralSignInActivity.this, OrganizerMainActivity.class);
+            intent = new Intent(GeneralSignInActivity.this, OrganizerBrowseEventsActivity.class);
             intent.putExtra("userId", userId);
             intent.putExtra("userName", userName);
             intent.putExtra("userEmail", userEmail);
