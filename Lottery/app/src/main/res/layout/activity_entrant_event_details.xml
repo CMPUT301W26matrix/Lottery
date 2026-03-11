@@ -53,7 +53,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
-                android:text="Swimming Lessons"
+                android:text="Event Title"
                 android:textColor="#333333"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -63,7 +63,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Registration Period : XX-XX to XX-XX"
+                android:text="Registration details unavailable"
                 android:textColor="#666666"
                 android:textSize="13sp" />
 
@@ -94,7 +94,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:lineSpacingExtra="4dp"
-                android:text="Join our swimming lessons designed for beginners and intermediate swimmers. Participants will be guided by experienced instructors to improve their technique, endurance, and confidence in the water."
+                android:text="No event description available."
                 android:textColor="#555555"
                 android:textSize="14sp" />
 

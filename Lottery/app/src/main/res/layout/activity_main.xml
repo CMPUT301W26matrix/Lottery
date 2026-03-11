@@ -7,6 +7,8 @@
     android:background="@color/page_background"
     tools:context=".MainActivity">
 
+
+
     <!-- 1. Main Content Area (Scrollable) -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/main_scroll_view"

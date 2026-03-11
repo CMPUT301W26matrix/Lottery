@@ -1,8 +1,10 @@
 package com.example.lottery;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
@@ -22,6 +24,8 @@ import java.util.List;
 
 public class NotificationsActivity extends AppCompatActivity implements NotificationAdapter.OnNotificationClickListener {
 
+    public static final String EXTRA_USER_ID = "userId";
+
     private RecyclerView rvNotifications;
     private TextView tvNoNotifications;
     private ImageButton btnBack;
@@ -30,8 +34,7 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
     private NotificationAdapter adapter;
     private final List<NotificationItem> notificationList = new ArrayList<>();
 
-    // Temporary test entrant ID
-    private final String entrantId = "6xygP8FXpxATgAkKmj27";
+    private String userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,14 +58,37 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
         rvNotifications.setLayoutManager(new LinearLayoutManager(this));
         rvNotifications.setAdapter(adapter);
 
+        readIntentData();
+        if (userId == null) {
+            return;
+        }
+
         btnBack.setOnClickListener(v -> finish());
 
         loadNotifications();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (userId != null) {
+            loadNotifications();
+        }
+    }
+
+    private void readIntentData() {
+        userId = getIntent().getStringExtra(EXTRA_USER_ID);
+
+        if (userId == null || userId.isEmpty()) {
+            Toast.makeText(this, "Missing user information", Toast.LENGTH_SHORT).show();
+            userId = null;
+            finish();
+        }
+    }
+
     private void loadNotifications() {
         db.collection("users")
-                .document(entrantId)
+                .document(userId)
                 .collection("notifications")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .get()
@@ -78,7 +104,6 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
 
                         boolean isRead = Boolean.TRUE.equals(document.getBoolean("isRead"));
                         boolean actionTaken = Boolean.TRUE.equals(document.getBoolean("actionTaken"));
-
                         String response = document.getString("response");
 
                         NotificationItem item = new NotificationItem(
@@ -98,49 +123,54 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
                     adapter.notifyDataSetChanged();
 
                     if (notificationList.isEmpty()) {
-                        tvNoNotifications.setVisibility(TextView.VISIBLE);
-                        rvNotifications.setVisibility(RecyclerView.GONE);
+                        tvNoNotifications.setVisibility(View.VISIBLE);
+                        rvNotifications.setVisibility(View.GONE);
                     } else {
-                        tvNoNotifications.setVisibility(TextView.GONE);
-                        rvNotifications.setVisibility(RecyclerView.VISIBLE);
+                        tvNoNotifications.setVisibility(View.GONE);
+                        rvNotifications.setVisibility(View.VISIBLE);
                     }
                 })
                 .addOnFailureListener(e -> {
-                    tvNoNotifications.setVisibility(TextView.VISIBLE);
+                    tvNoNotifications.setVisibility(View.VISIBLE);
                     tvNoNotifications.setText("Failed to load notifications");
-                    rvNotifications.setVisibility(RecyclerView.GONE);
+                    rvNotifications.setVisibility(View.GONE);
                 });
     }
 
-    private void updateEntrantStatus(String eventId, String status) {
+    private void updateUserStatusForEvent(String eventId, String status) {
         db.collection("events")
                 .document(eventId)
                 .collection("entrants")
-                .document(entrantId)
-                .update("status", status);
+                .document(userId)
+                .update("status", status)
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Failed to update status", Toast.LENGTH_SHORT).show()
+                );
     }
 
     private void markActionTaken(NotificationItem item, String response) {
         db.collection("users")
-                .document(entrantId)
+                .document(userId)
                 .collection("notifications")
                 .document(item.getNotificationId())
                 .update(
                         "actionTaken", true,
                         "response", response
+                )
+                .addOnSuccessListener(unused -> {
+                    item.setActionTaken(true);
+                    item.setResponse(response);
+                    adapter.notifyDataSetChanged();
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Failed to update notification", Toast.LENGTH_SHORT).show()
                 );
-
-        item.setActionTaken(true);
-        item.setResponse(response);
-        adapter.notifyDataSetChanged();
     }
 
     @Override
     public void onNotificationClick(NotificationItem item) {
-
-        // mark as read when opened
         db.collection("users")
-                .document(entrantId)
+                .document(userId)
                 .collection("notifications")
                 .document(item.getNotificationId())
                 .update("isRead", true);
@@ -155,12 +185,12 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
         if ("win".equalsIgnoreCase(item.getType()) && !item.isActionTaken()) {
 
             builder.setPositiveButton("Accept Invite", (dialog, which) -> {
-                updateEntrantStatus(item.getEventId(), "ACCEPTED");
+                updateUserStatusForEvent(item.getEventId(), "ACCEPTED");
                 markActionTaken(item, "ACCEPTED");
             });
 
             builder.setNegativeButton("Reject", (dialog, which) -> {
-                updateEntrantStatus(item.getEventId(), "REJECTED");
+                updateUserStatusForEvent(item.getEventId(), "REJECTED");
                 markActionTaken(item, "REJECTED");
             });
 

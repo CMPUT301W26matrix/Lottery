@@ -56,7 +56,11 @@ public class MainActivity extends AppCompatActivity implements EventAdapter.OnEv
            This forces the app to open your entrant screen
         -------------------------------------------------- */
         Intent intent = new Intent(MainActivity.this, EntrantEventDetailsActivity.class);
+        intent.putExtra(EntrantEventDetailsActivity.EXTRA_EVENT_ID, "27f4180b-d282-41fc-a240-5d2675d4bf59");
+        intent.putExtra(EntrantEventDetailsActivity.EXTRA_USER_ID, "7EwFNDGwGyR89nPgfPzwD8wG6jq2");
         startActivity(intent);
+        finish();
+
         /* ------------------------------------------------- */
 
     }
