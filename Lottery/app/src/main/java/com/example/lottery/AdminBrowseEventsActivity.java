@@ -20,21 +20,20 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * OrganizerBrowseEventsActivity serves as the organizer event browser, displaying a summary of published events.
+ * AdminBrowseEventsActivity serves as the administrator event browser, displaying a summary of all events.
  *
  * <p>Key Responsibilities:
  * <ul>
- *   <li>Displays a list of events created by the organizer.</li>
- *   <li>Provides a summary of event statuses (Active, Closed, etc.).</li>
- *   <li>Handles navigation to the event creation screen and event detail screens.</li>
+ *   <li>Displays a list of all published events in the system.</li>
+ *   <li>Provides a summary of event statuses (Active, Closed, Pending, etc.).</li>
+ *   <li>Handles navigation to admin-only event detail screens.</li>
  *   <li>Fetches event data from Firestore on creation and resume.</li>
  * </ul>
  * </p>
  */
-public class OrganizerBrowseEventsActivity extends AppCompatActivity implements EventAdapter.OnEventClickListener {
+public class AdminBrowseEventsActivity extends AppCompatActivity implements EventAdapter.OnEventClickListener {
 
-    private static final String TAG = "OrganizerBrowseEventsActivity";
-
+    private static final String TAG = "AdminBrowseEvents";
     /**
      * RecyclerView for displaying the list of events.
      */
@@ -54,7 +53,10 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
     /**
      * TextViews for displaying summary statistics of event statuses.
      */
-    private TextView tvActiveCount, tvClosedCount, tvPendingCount, tvTotalCount;
+    private TextView tvActiveCount;
+    private TextView tvClosedCount;
+    private TextView tvPendingCount;
+    private TextView tvTotalCount;
     /**
      * Firebase Firestore instance for database operations.
      */
@@ -63,11 +65,10 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_organizer_browse_events);
+        setContentView(R.layout.activity_admin_browse_events);
 
         db = FirebaseFirestore.getInstance();
 
-        // Bind UI Components
         rvEvents = findViewById(R.id.rvEvents);
         tvNoEvents = findViewById(R.id.tvNoEvents);
         tvActiveCount = findViewById(R.id.tvActiveCount);
@@ -75,34 +76,48 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
         tvPendingCount = findViewById(R.id.tvPendingCount);
         tvTotalCount = findViewById(R.id.tvTotalCount);
 
-        // Setup RecyclerView
         eventList = new ArrayList<>();
         adapter = new EventAdapter(eventList, this);
         rvEvents.setLayoutManager(new LinearLayoutManager(this));
         rvEvents.setAdapter(adapter);
 
         setupNavigation();
-        loadOrganizerEvents();
-    }
-
-    /**
-     * Sets up click listeners for the organizer navigation elements.
-     */
-    private void setupNavigation() {
-        View btnCreate = findViewById(R.id.nav_create_container);
-        if (btnCreate != null) {
-            btnCreate.setOnClickListener(v -> startActivity(new Intent(OrganizerBrowseEventsActivity.this, OrganizerCreateEventActivity.class)));
-        }
-        View btnHome = findViewById(R.id.nav_home);
-        if (btnHome != null) {
-            btnHome.setOnClickListener(v -> Toast.makeText(this, "Home", Toast.LENGTH_SHORT).show());
-        }
+        loadEvents();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        loadOrganizerEvents();
+        loadEvents();
+    }
+
+    /**
+     * Sets up click listeners for the admin navigation elements.
+     */
+    private void setupNavigation() {
+        View btnHome = findViewById(R.id.nav_home);
+        if (btnHome != null) {
+            btnHome.setOnClickListener(v ->
+                    Toast.makeText(this, R.string.admin_browse_events_active_tab, Toast.LENGTH_SHORT).show());
+        }
+
+        View btnProfiles = findViewById(R.id.nav_profiles);
+        if (btnProfiles != null) {
+            btnProfiles.setOnClickListener(v ->
+                    Toast.makeText(this, R.string.admin_profiles_coming_soon, Toast.LENGTH_SHORT).show());
+        }
+
+        View btnImages = findViewById(R.id.nav_images);
+        if (btnImages != null) {
+            btnImages.setOnClickListener(v ->
+                    Toast.makeText(this, R.string.admin_images_coming_soon, Toast.LENGTH_SHORT).show());
+        }
+
+        View btnLogs = findViewById(R.id.nav_logs);
+        if (btnLogs != null) {
+            btnLogs.setOnClickListener(v ->
+                    Toast.makeText(this, R.string.admin_logs_coming_soon, Toast.LENGTH_SHORT).show());
+        }
     }
 
     /**
@@ -112,32 +127,42 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
      * It includes a compatibility fix to handle older documents that might use different field names for dates.
      * After fetching, it updates the RecyclerView and the summary statistics UI.</p>
      */
-    private void loadOrganizerEvents() {
+    private void loadEvents() {
         db.collection("events")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     eventList.clear();
                     int active = 0;
                     int closed = 0;
+                    int pending = 0;
                     Date now = new Date();
 
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         try {
                             Event event = document.toObject(Event.class);
 
-                            // Compatibility fix: If new field is null, check if old field names exist
                             if (event.getScheduledDateTime() == null) {
                                 Date oldDate = document.getDate("eventDate");
-                                if (oldDate != null) event.setScheduledDateTime(oldDate);
+                                if (oldDate != null) {
+                                    event.setScheduledDateTime(oldDate);
+                                }
                             }
                             if (event.getRegistrationDeadline() == null) {
                                 Date oldDeadline = document.getDate("deadlineDate");
-                                if (oldDeadline != null) event.setRegistrationDeadline(oldDeadline);
+                                if (oldDeadline != null) {
+                                    event.setRegistrationDeadline(oldDeadline);
+                                }
                             }
 
                             eventList.add(event);
 
-                            if (event.getScheduledDateTime() != null && event.getScheduledDateTime().after(now)) {
+                            if (event.getDrawDate() != null
+                                    && event.getRegistrationDeadline() != null
+                                    && event.getRegistrationDeadline().before(now)
+                                    && event.getDrawDate().after(now)) {
+                                pending++;
+                            } else if (event.getScheduledDateTime() != null
+                                    && event.getScheduledDateTime().after(now)) {
                                 active++;
                             } else {
                                 closed++;
@@ -148,12 +173,12 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
                     }
 
                     adapter.notifyDataSetChanged();
-                    updateSummaryStats(active, closed, 0, eventList.size());
+                    updateSummaryStats(active, closed, pending, eventList.size());
                     tvNoEvents.setVisibility(eventList.isEmpty() ? View.VISIBLE : View.GONE);
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Firestore error", e);
-                    Toast.makeText(this, "Failed to load events", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.failed_to_load_events, Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -172,14 +197,14 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
         tvTotalCount.setText(String.valueOf(total));
     }
 
+    @Override
     /**
      * Handles clicks on individual event items in the RecyclerView.
      *
      * @param event The Event object that was clicked.
      */
-    @Override
     public void onEventClick(Event event) {
-        Intent intent = new Intent(this, OrganizerEventDetailsActivity.class);
+        Intent intent = new Intent(this, AdminEventDetailsActivity.class);
         intent.putExtra("eventId", event.getEventId());
         startActivity(intent);
     }

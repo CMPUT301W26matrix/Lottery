@@ -5,16 +5,18 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/page_background"
     tools:context=".MainActivity">
 
-    <!-- Vertical packed chain head: title + 3 buttons centered at ~40% from top -->
     <TextView
         android:id="@+id/tvChooseRole"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/choose_your_role"
-        android:textSize="30sp"
         android:layout_marginBottom="32dp"
+        android:text="@string/choose_your_role"
+        android:textColor="@color/primary_blue"
+        android:textSize="30sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/entrant_login_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -54,13 +56,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/organizer_login_button" />
 
-    <!-- Bottom row: horizontal packed chain, fixed at bottom -->
     <TextView
         android:id="@+id/tvSignInHint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="224dp"
         android:text="@string/already_have_an_account"
+        android:textColor="@color/text_secondary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/btnSignIn"
         app:layout_constraintHorizontal_chainStyle="packed"
@@ -73,7 +75,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginBottom="208dp"
         android:text="@string/sign_in"
-        android:textColor="#212121"
+        android:textColor="@color/text_primary"
         app:backgroundTint="@color/lightPurple"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

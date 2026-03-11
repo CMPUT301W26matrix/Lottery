@@ -1,18 +1,11 @@
 plugins {
     alias(libs.plugins.android.application)
-
-    // Add the Google services Gradle plugin
-    id("com.google.gms.google-services")
-
+    alias(libs.plugins.google.services)
 }
 
 android {
     namespace = "com.example.lottery"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.lottery"
@@ -55,11 +48,17 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation("androidx.test.espresso:espresso-intents:3.6.1")
 
-    // Import the Firebase BoM
+    // Firebase
     implementation(platform("com.google.firebase:firebase-bom:34.9.0"))
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-auth")
 
+    // ZXing for QR Code generation (US 02.01.01)
+    implementation("com.google.zxing:core:3.5.3")
+
+    // Glide for image loading (Optional but useful for local URIs too)
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
 }
 
 tasks.register<Javadoc>("generateJavadoc") {
