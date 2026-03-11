@@ -20,8 +20,6 @@
     <string name="error_name_required">Name is required</string>
     <string name="error_password_required">Password is required</string>
     <string name="error_invalid_password">Invalid password</string>
-    <string name="error_invalid_admin_code">Invalid admin code</string>
-    <string name="backArrow">←</string>
     <string name="back_button_description">Return to Role Selection</string>
     <string name="sign_in_title">Sign In</string>
     <string name="admin_sign_in_title">Admin Sign In</string>
@@ -44,13 +42,8 @@
     <string name="prompt_enter_a_password">Please enter a password</string>
     <string name="prompt_password_min_length">Password must be at least 8 characters</string>
 
-    <string name="role_selector_title">Choose Your Role</string>
-    <string name="role_selector_subtitle">Select the interface you want to enter</string>
-    <string name="enter_organizer_view">Organizer View</string>
-    <string name="enter_admin_view">Administrator View</string>
     <string name="create">Create</string>
     <string name="create_new_event">Create New Event</string>
-    <string name="complete_the_form_below_to_create_your_event">Complete the form below to create your event</string>
     <string name="event_title">Event Title</string>
     <string name="event_date">Event Date</string>
     <string name="start">Start</string>
@@ -85,16 +78,11 @@
     <string name="waiting_list_capacity">Waiting List Capacity</string>
     <string name="event_full_message">This event is full. Waiting list is closed.</string>
     <string name="join_waiting_list">Join Waiting List</string>
-    <string name="registration_deadline">Registration Deadline</string>
     <string name="about_this_event">About this Event</string>
     <string name="location_verification_required">Location Verification Required</string>
-    <string name="welcome_to_lottery_app">Welcome to Lottery App</string>
-    <string name="lottery_event_app">Lottery Event App</string>
     <string name="organizer_dashboard">Organizer Dashboard</string>
     <string name="organizer_event_browser_title">Lottery Organizer</string>
     <string name="organizer_event_browser_subtitle">Browse events published by you</string>
-    <string name="create_event">Create Event</string>
-    <string name="view_events">View Events</string>
     <string name="default_count">0</string>
     <string name="active_events">Active Events</string>
     <string name="closed_events">Closed Events</string>
