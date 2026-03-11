@@ -24,7 +24,7 @@ public class WaitingListActivity extends AppCompatActivity {
     private TextView emptyMessage;
 
     private ArrayList<User> entrants;
-    private com.example.lottery.EntrantAdapter entrantAdapter;
+    private EntrantAdapter entrantAdapter;
 
     private FirebaseFirestore db;
     private String eventId;
