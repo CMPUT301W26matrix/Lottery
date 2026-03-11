@@ -34,7 +34,7 @@ import java.util.Locale;
  * US 02.03.01: Show the waiting list capacity.
  * </p>
  */
-public class    EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHolder> {
+public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHolder> {
 
     /**
      * List of events to be displayed.

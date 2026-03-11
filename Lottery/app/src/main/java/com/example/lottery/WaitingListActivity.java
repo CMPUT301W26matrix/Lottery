@@ -13,7 +13,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 
-/*
+/**
  * WaitingListActivity
  * Displays the real entrants who joined the waiting list
  * for the selected event.
@@ -117,9 +117,7 @@ public class WaitingListActivity extends AppCompatActivity {
                                 });
                     });
                 })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Failed to load waiting list", Toast.LENGTH_SHORT).show();
-                });
+                .addOnFailureListener(e -> Toast.makeText(this, "Failed to load waiting list", Toast.LENGTH_SHORT).show());
     }
 
     /*
