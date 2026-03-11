@@ -36,17 +36,15 @@ import com.google.firebase.firestore.FirebaseFirestore;
  */
 public class GeneralSignInActivity extends AppCompatActivity {
 
-    private EditText userEmail, userPassword;
-    private Button continueButton;
-    private ImageButton backButton;
-
-    private FirebaseFirestore db;
-    private FirebaseAuth mAuth;
-    private SharedPreferences sharedPreferences;
-
     private static final String KEY_USER_ID = "userId";
     private static final String KEY_USER_ROLE = "userRole";
     private static final String KEY_USER_NAME = "userName";
+    private EditText userEmail, userPassword;
+    private Button continueButton;
+    private ImageButton backButton;
+    private FirebaseFirestore db;
+    private FirebaseAuth mAuth;
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -190,7 +188,7 @@ public class GeneralSignInActivity extends AppCompatActivity {
     }
 
     private void navigateBasedOnRole(String userRole, String userId, String userName,
-                                         String userEmail) {
+                                     String userEmail) {
 
         Intent intent = null;
 

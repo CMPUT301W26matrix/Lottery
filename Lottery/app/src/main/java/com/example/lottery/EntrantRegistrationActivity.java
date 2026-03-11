@@ -36,20 +36,17 @@ import java.util.Map;
  * @see MainActivity
  */
 public class EntrantRegistrationActivity extends AppCompatActivity {
-    private FirebaseFirestore db;
-    private EditText entrantName, entrantEmail, entrantPassword, entrantPassword2, entrantPhone;
-    private Button continueButton, anonContinueButton;
-    private ImageButton backButton;
-
-    private FirebaseAuth mAuth;
-
-    private SharedPreferences sharedPreferences;
-
     private static final String KEY_USER_ID = "userId";
     private static final String KEY_USER_ROLE = "userRole";
     private static final String KEY_USER_NAME = "userName";
     private static final String KEY_IS_ANONYMOUS = "isAnonymous";
     private static final String KEY_FID = "fid"; // Store FID instead of custom deviceId
+    private FirebaseFirestore db;
+    private EditText entrantName, entrantEmail, entrantPassword, entrantPassword2, entrantPhone;
+    private Button continueButton, anonContinueButton;
+    private ImageButton backButton;
+    private FirebaseAuth mAuth;
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,68 +94,68 @@ public class EntrantRegistrationActivity extends AppCompatActivity {
         // Get Firebase Installation ID (FID) to identify anonymous users
         FirebaseInstallations.getInstance().getId()
                 .addOnCompleteListener(task -> {
-                            if (task.isSuccessful()) {
-                                String fid = task.getResult(); // Get the FID
+                    if (task.isSuccessful()) {
+                        String fid = task.getResult(); // Get the FID
 
-                                // Create anonymous user ID using FID
-                                String anonymousUserId = "anon_" + fid;
+                        // Create anonymous user ID using FID
+                        String anonymousUserId = "anon_" + fid;
 
-                                // Check if this device has already registered anonymously
-                                boolean isExistingAnonymous = sharedPreferences.getBoolean(KEY_IS_ANONYMOUS, false);
+                        // Check if this device has already registered anonymously
+                        boolean isExistingAnonymous = sharedPreferences.getBoolean(KEY_IS_ANONYMOUS, false);
 
-                                String existingUserId = sharedPreferences.getString(KEY_USER_ID, null);
-                                String existingFid = sharedPreferences.getString(KEY_FID, null);
+                        String existingUserId = sharedPreferences.getString(KEY_USER_ID, null);
+                        String existingFid = sharedPreferences.getString(KEY_FID, null);
 
-                                if (isExistingAnonymous && existingUserId != null && existingFid != null && existingFid.equals(fid)) {
-                                    // Device already has an anonymous account with same FID
+                        if (isExistingAnonymous && existingUserId != null && existingFid != null && existingFid.equals(fid)) {
+                            // Device already has an anonymous account with same FID
+                            anonContinueButton.setText(R.string.continue_without_registering);
+
+                            String existingName = sharedPreferences.getString(KEY_USER_NAME, getString(R.string.unregistered_user));
+                            navigateToEntrantMain(existingUserId, existingName, null, true);
+                            return;
+                        }
+
+                        // Create user data for Firestore
+                        Map<String, Object> userData = new HashMap<>();
+                        userData.put("userId", anonymousUserId);
+                        userData.put("name", ""); // No email for anonymous
+                        userData.put("email", ""); // No email for anonymous
+                        userData.put("phone", ""); // No email for anonymous
+                        userData.put("role", "entrant");
+                        userData.put("isAnonymous", true);
+                        userData.put("deviceId", fid);
+
+                        // Add timestamps
+                        userData.put("createdAt", Timestamp.now());
+                        userData.put("notificationsEnabled", true);
+
+                        // Save to FireStore
+                        db.collection("users").document(anonymousUserId)
+                                .set(userData)
+                                .addOnSuccessListener(aVoid -> {
+                                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                                    editor.putString(KEY_USER_ID, anonymousUserId);
+                                    editor.putString(KEY_USER_ROLE, "entrant");
+                                    editor.putString(KEY_USER_NAME, null);
+                                    editor.putBoolean(KEY_IS_ANONYMOUS, true);
+                                    editor.putString(KEY_FID, fid);
+                                    editor.apply();
+
+                                    Toast.makeText(this, R.string.continuing_as_anonymous_user, Toast.LENGTH_SHORT).show();
+
+                                    // Go to entrant main screen
+                                    navigateToEntrantMain(anonymousUserId,
+                                            null,
+                                            null, true);
+                                })
+                                .addOnFailureListener(e -> {
                                     anonContinueButton.setText(R.string.continue_without_registering);
 
-                                    String existingName = sharedPreferences.getString(KEY_USER_NAME, getString(R.string.unregistered_user));
-                                    navigateToEntrantMain(existingUserId, existingName, null, true);
-                                    return;
-                                }
-
-                                // Create user data for Firestore
-                                Map<String, Object> userData = new HashMap<>();
-                                userData.put("userId", anonymousUserId);
-                                userData.put("name", ""); // No email for anonymous
-                                userData.put("email", ""); // No email for anonymous
-                                userData.put("phone", ""); // No email for anonymous
-                                userData.put("role", "entrant");
-                                userData.put("isAnonymous", true);
-                                userData.put("deviceId", fid);
-
-                                // Add timestamps
-                                userData.put("createdAt", Timestamp.now());
-                                userData.put("notificationsEnabled", true);
-
-                                // Save to FireStore
-                                db.collection("users").document(anonymousUserId)
-                                        .set(userData)
-                                        .addOnSuccessListener(aVoid -> {
-                                        SharedPreferences.Editor editor = sharedPreferences.edit();
-                                            editor.putString(KEY_USER_ID, anonymousUserId);
-                                            editor.putString(KEY_USER_ROLE, "entrant");
-                                            editor.putString(KEY_USER_NAME, null);
-                                            editor.putBoolean(KEY_IS_ANONYMOUS, true);
-                                            editor.putString(KEY_FID, fid);
-                                            editor.apply();
-
-                                            Toast.makeText(this, R.string.continuing_as_anonymous_user, Toast.LENGTH_SHORT).show();
-
-                                            // Go to entrant main screen
-                                            navigateToEntrantMain(anonymousUserId,
-                                                    null,
-                                                    null, true);
-                                        })
-                                        .addOnFailureListener(e -> {
-                                            anonContinueButton.setText(R.string.continue_without_registering);
-
-                                            Toast.makeText(this, getString(R.string.error_failed_to_continue, e.getMessage()),
-                                                    Toast.LENGTH_LONG).show();
-                                        });
-                            }
-                        });
+                                    Toast.makeText(this, getString(R.string.error_failed_to_continue, e.getMessage()),
+                                            Toast.LENGTH_LONG).show();
+                                });
+                    }
+                });
 
     }
 
@@ -286,7 +283,6 @@ public class EntrantRegistrationActivity extends AppCompatActivity {
         // Phone number is optional - no validation needed
         return true;
     }
-
 
 
     private void navigateToEntrantMain(String userId, String userName,

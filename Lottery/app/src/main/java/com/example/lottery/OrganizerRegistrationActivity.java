@@ -33,17 +33,14 @@ import java.util.Map;
  */
 public class OrganizerRegistrationActivity extends AppCompatActivity {
 
+    private static final String KEY_USER_ID = "userId";
+    private static final String KEY_USER_ROLE = "userRole";
     private FirebaseFirestore db;
     private EditText organizerName, organizerEmail, organizerPassword, organizerPassword2, organizerPhone;
     private Button continueButton;
     private ImageButton backButton;
-
     private FirebaseAuth mAuth;
-
     private SharedPreferences sharedPreferences;
-
-    private static final String KEY_USER_ID = "userId";
-    private static final String KEY_USER_ROLE = "userRole";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -206,7 +203,7 @@ public class OrganizerRegistrationActivity extends AppCompatActivity {
     }
 
     private void navigateToOrganizerMain(String userId, String userName,
-                                       String userEmail) {
+                                         String userEmail) {
         Intent intent = new Intent(OrganizerRegistrationActivity.this, OrganizerBrowseEventsActivity.class);
         intent.putExtra("userId", userId);
         intent.putExtra("userName", userName);

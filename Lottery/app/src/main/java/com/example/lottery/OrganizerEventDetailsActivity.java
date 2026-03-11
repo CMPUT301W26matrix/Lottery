@@ -252,7 +252,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> Toast.makeText(this, "Failed to join waiting list. Please try again.", Toast.LENGTH_SHORT).show());
     }
-    
+
     /**
      * Retrieves the signed-in user's ID from SharedPreferences.
      *

@@ -24,8 +24,8 @@ import java.util.ArrayList;
  */
 public class EntrantAdapter extends ArrayAdapter<User> {
 
-    private Context context;
-    private ArrayList<User> entrants;
+    private final Context context;
+    private final ArrayList<User> entrants;
 
     // Constructor: receives the list of entrants
     public EntrantAdapter(Context context, ArrayList<User> entrants) {

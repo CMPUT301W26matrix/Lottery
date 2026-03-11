@@ -97,7 +97,8 @@ public class WaitingListActivity extends AppCompatActivity {
                                         String email = userSnapshot.getString("email");
                                         String phone = userSnapshot.getString("phone");
 
-                                        if (username == null || username.isEmpty()) username = "Unknown User";
+                                        if (username == null || username.isEmpty())
+                                            username = "Unknown User";
                                         if (email == null || email.isEmpty()) email = "No email";
                                         if (phone == null || phone.isEmpty()) phone = "No phone";
 

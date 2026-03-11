@@ -19,19 +19,17 @@ import androidx.core.view.WindowInsetsCompat;
  * without registering.
  */
 public class MainActivity extends AppCompatActivity {
+    private static final String KEY_IS_ANONYMOUS = "isAnonymous";
+    private static final String KEY_USER_ID = "userId";
+    private static final String KEY_USER_NAME = "userName";
+    private static final String KEY_FID = "fid";
     private Button signInButton;
     private Button entrantButton;
     private Button organizerButton;
     private Button adminButton;
     private TextView chooseRoleText;
     private TextView signInPrompt;
-
     private SharedPreferences sharedPreferences;
-
-    private static final String KEY_IS_ANONYMOUS = "isAnonymous";
-    private static final String KEY_USER_ID = "userId";
-    private static final String KEY_USER_NAME = "userName";
-    private static final String KEY_FID = "fid";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
