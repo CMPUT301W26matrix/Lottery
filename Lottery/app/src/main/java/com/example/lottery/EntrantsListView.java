@@ -8,7 +8,9 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -29,6 +31,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.lottery.model.Event;
 import com.example.lottery.util.EventValidationUtils;
 import com.example.lottery.util.QRCodeUtils;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.card.MaterialCardView;
@@ -47,8 +56,9 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 
-public class EntrantsListView extends AppCompatActivity{
+public class EntrantsListView extends AppCompatActivity implements NotificationFragment.NotificationListener, SampleFragment.SamplingListener, OnMapReadyCallback{
     private static final String TAG = "CreateEventActivity";
+    private final int FINE_PERMISSION_CODE = 1;
     private Button btnSwitchSignedUp, btnSwitchCancelled, btnSwitchWaitedList, btnSendNotification, btnViewLocation, btnSampleWinners;
     private FirebaseFirestore db;
     private ArrayList<Entrant> entrantSignedUpArrayList;
@@ -57,9 +67,11 @@ public class EntrantsListView extends AppCompatActivity{
     private SignedUpListAdapter SignedUpListAdapter;
     private CancelledListAdapter CancelledListAdapter;
     private WaitedListedListAdapter WaitedListedListAdapter;
-    private LinearLayout cancelledEntrantsListLayout, signedUpEntrantsListLyaout ,waitedListEntrantsListLayout;
+    private LinearLayout cancelledEntrantsListLayout, signedUpEntrantsListLayout ,waitedListEntrantsListLayout, viewLocationLayout;
     private RecyclerView signedUpEventsView, waitedListEventsView, cancelledEntrantsView;
     private CollectionReference entrantsRef;
+    private GoogleMap googleMap;
+    private MapView mapView;
     /**
      * Initializes the activity, sets up Firebase, bind views,
      * and click button listeners for QR code generation and event creation.
@@ -82,6 +94,9 @@ public class EntrantsListView extends AppCompatActivity{
             return;
         }
         initializeViews();
+        mapView.onCreate(savedInstanceState);
+        mapView.getMapAsync(this);
+
         entrantSignedUpArrayList = new ArrayList<>();
         entrantCancelledArrayList = new ArrayList<>();
         entrantWaitedListArrayList = new ArrayList<>();
@@ -93,24 +108,68 @@ public class EntrantsListView extends AppCompatActivity{
         cancelledEntrantsView.setAdapter(CancelledListAdapter);
         entrantsRef = db.collection("entrants");
 
+
         // switch to signed up component to display the entrants list that have signed up
         btnSwitchSignedUp.setOnClickListener(v -> {
             // Source - https://stackoverflow.com/a/12125545
             // Posted by nandeesh
             // Retrieved 2026-03-10, License - CC BY-SA 3.0
+            signedUpEntrantsListLayout.setVisibility(View.VISIBLE);
             cancelledEntrantsListLayout.setVisibility(View.GONE);
             waitedListEntrantsListLayout.setVisibility(View.GONE);
-
+            viewLocationLayout.setVisibility(View.GONE);
         });
+
+
         // switch to signed up component to display the entrants list that have signed up
         btnSwitchCancelled.setOnClickListener(v -> {
-            signedUpEntrantsListLyaout.setVisibility(View.GONE);
+            cancelledEntrantsListLayout.setVisibility(View.VISIBLE);
+            signedUpEntrantsListLayout.setVisibility(View.GONE);
             waitedListEntrantsListLayout.setVisibility(View.GONE);
+            viewLocationLayout.setVisibility(View.GONE);
         });
+
+
         // switch to signed up component to display the entrants list that have signed up
         btnSwitchWaitedList.setOnClickListener(v -> {
+            waitedListEntrantsListLayout.setVisibility(View.VISIBLE);
             cancelledEntrantsListLayout.setVisibility(View.GONE);
-            signedUpEntrantsListLyaout.setVisibility(View.GONE);
+            signedUpEntrantsListLayout.setVisibility(View.GONE);
+            viewLocationLayout.setVisibility(View.GONE);
+        });
+
+
+        //display send notification fragment
+        btnSendNotification.setOnClickListener(view->{
+            NotificationFragment notificationFragment = new NotificationFragment();
+            notificationFragment.show(getSupportFragmentManager(),"Send Notification");
+        });
+
+
+        // display sample fragment
+        btnSampleWinners.setOnClickListener(view->{
+            SampleFragment sampleFragment = new SampleFragment();
+            sampleFragment.show(getSupportFragmentManager(),"Sample Winners");
+        });
+
+
+        // switch to view location component to display the entrants on the map
+        btnViewLocation.setOnClickListener(v->{
+            viewLocationLayout.setVisibility(View.VISIBLE);
+            cancelledEntrantsListLayout.setVisibility(View.GONE);
+            waitedListEntrantsListLayout.setVisibility(View.GONE);
+            signedUpEntrantsListLayout.setVisibility(View.GONE);
+            if(googleMap!=null){
+                if(waitedListEntrantsListLayout.getVisibility()==View.VISIBLE){
+                    insertMarkers(entrantWaitedListArrayList);
+                }
+                if(signedUpEntrantsListLayout.getVisibility()==View.VISIBLE){
+                    insertMarkers(entrantSignedUpArrayList);
+                }
+                if(cancelledEntrantsListLayout.getVisibility()==View.VISIBLE){
+                    insertMarkers(entrantCancelledArrayList);
+                }
+            }
         });
 
         //fetch entrants list from firebase
@@ -130,12 +189,13 @@ public class EntrantsListView extends AppCompatActivity{
                     String register_timestamp= snapshot.getString("register_timestamp");
                     String user_id= snapshot.getString("user_id");
                     String entrant_status = snapshot.getString("entrant_status");
+                    com.google.firebase.firestore.GeoPoint location = snapshot.getGeoPoint("location");
                     if(Objects.equals(entrant_status, "signed_up")){
-                        entrantSignedUpArrayList.add(new Entrant(accepted_timestamp, cancelled_timestamp, event_id, invitation_timestamp, referrer_id, register_timestamp, user_id,entrant_status));
+                        entrantSignedUpArrayList.add(new Entrant(accepted_timestamp, cancelled_timestamp, event_id, invitation_timestamp, referrer_id, register_timestamp, user_id,entrant_status, location));
                     } else if (Objects.equals(entrant_status, "waited_listed")){
-                        entrantWaitedListArrayList.add(new Entrant(accepted_timestamp, cancelled_timestamp, event_id, invitation_timestamp, referrer_id, register_timestamp, user_id,entrant_status));
+                        entrantWaitedListArrayList.add(new Entrant(accepted_timestamp, cancelled_timestamp, event_id, invitation_timestamp, referrer_id, register_timestamp, user_id,entrant_status, location));
                     } else if(Objects.equals(entrant_status, "cancelled")){
-                    entrantCancelledArrayList.add(new Entrant(accepted_timestamp, cancelled_timestamp, event_id, invitation_timestamp, referrer_id, register_timestamp, user_id,entrant_status));
+                    entrantCancelledArrayList.add(new Entrant(accepted_timestamp, cancelled_timestamp, event_id, invitation_timestamp, referrer_id, register_timestamp, user_id,entrant_status, location));
                     }
                 }
                 SignedUpListAdapter.notifyDataSetChanged();
@@ -144,7 +204,15 @@ public class EntrantsListView extends AppCompatActivity{
             }
         });
     }
+    @Override
+    public int sampling(int size){
+        System.out.print("true");
+        return 0;
+    }
+    @Override
+    public void sendNotification(String content){
 
+    }
     /**
      * Initialize view for the create event activity.
      */
@@ -159,7 +227,65 @@ public class EntrantsListView extends AppCompatActivity{
         waitedListEventsView = findViewById(R.id.waited_list_events_view);
         cancelledEntrantsView = findViewById(R.id.cancelled_entrants_view);
         cancelledEntrantsListLayout = findViewById(R.id.cancelled_entrants_list_layout);
-        signedUpEntrantsListLyaout = findViewById(R.id.signed_up_entrants_list_layout);
+        signedUpEntrantsListLayout = findViewById(R.id.signed_up_entrants_list_layout);
         waitedListEntrantsListLayout = findViewById(R.id.waited_list_entrants_list_layout);
+        viewLocationLayout = findViewById(R.id.view_location_layout);
+        mapView = findViewById(R.id.mapView);
     }
+
+    // Source - https://stackoverflow.com/a/30054797
+    // Posted by Ankit Khare, modified by community. See post 'Timeline' for change history
+    // Retrieved 2026-03-11, License - CC BY-SA 3.0
+    private void insertMarkers(ArrayList<Entrant> list) {
+        googleMap.clear();
+        final LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        for (int i = 0; i < list.size(); i++) {
+            Entrant entrant = list.get(i);
+            com.google.firebase.firestore.GeoPoint geoLocation = entrant.getLocation();
+            final LatLng position = new LatLng(geoLocation.getLatitude(), geoLocation.getLongitude());
+            final MarkerOptions options = new MarkerOptions().position(position);
+            googleMap.addMarker(options);
+            builder.include(position);
+        }
+    }
+
+
+    // Source - https://stackoverflow.com/a/19806967
+    // Posted by Naveed Ali, modified by community. See post 'Timeline' for change history
+    // Retrieved 2026-03-11, License - CC BY-SA 4.0
+        @Override
+        public void onMapReady(GoogleMap g) {
+            googleMap = g;
+            googleMap.getUiSettings().setZoomControlsEnabled(true);
+        }
+        @Override
+        public void onStart() {
+        mapView.onStart();
+        super.onStart();
+        }
+        @Override
+        public void onStop(){
+        mapView.onStop();
+        super.onStop();
+        }
+        @Override
+        public void onResume() {
+            mapView.onResume();
+            super.onResume();
+        }
+        @Override
+        public void onPause() {
+            super.onPause();
+            mapView.onPause();
+        }
+        @Override
+        public void onDestroy() {
+            super.onDestroy();
+            mapView.onDestroy();
+        }
+        @Override
+        public void onLowMemory() {
+            super.onLowMemory();
+            mapView.onLowMemory();
+        }
 }

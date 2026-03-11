@@ -9,6 +9,15 @@ public class Entrant {
     private String register_timestamp;
     private String user_id;
     private String entrant_status;
+    private com.google.firebase.firestore.GeoPoint location;
+
+    public com.google.firebase.firestore.GeoPoint getLocation() {
+        return location;
+    }
+
+    public void setLocation(com.google.firebase.firestore.GeoPoint location) {
+        this.location = location;
+    }
 
     public String getEntrant_status() {
         return entrant_status;
@@ -21,7 +30,7 @@ public class Entrant {
     public Entrant() {
     }
 
-    public Entrant(String accepted_timestamp, String cancelled_timestamp, String event_id, String invitation_timestamp, String referrer_id, String register_timestamp, String user_id, String entrant_status) {
+    public Entrant(String accepted_timestamp, String cancelled_timestamp, String event_id, String invitation_timestamp, String referrer_id, String register_timestamp, String user_id, String entrant_status, com.google.firebase.firestore.GeoPoint location) {
         this.accepted_timestamp = accepted_timestamp;
         this.cancelled_timestamp = cancelled_timestamp;
         this.event_id = event_id;
@@ -30,6 +39,7 @@ public class Entrant {
         this.register_timestamp = register_timestamp;
         this.user_id = user_id;
         this.entrant_status = entrant_status;
+        this.location = location;
     }
 
     public String getAccepted_timestamp() {

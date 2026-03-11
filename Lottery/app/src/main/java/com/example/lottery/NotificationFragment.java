@@ -12,7 +12,7 @@ import androidx.fragment.app.DialogFragment;
 
 public class NotificationFragment extends DialogFragment {
     interface NotificationListener {
-        int sendNotification(String content);
+        void sendNotification(String content);
     }
     private NotificationListener listener;
 

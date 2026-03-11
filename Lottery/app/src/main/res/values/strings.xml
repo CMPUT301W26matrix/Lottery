@@ -100,6 +100,7 @@
     <string name="sub_header_sample_fragment">How Many Entrants Should Be Sampled?</string>
     <string name="send_notification_string">Send Notification</string>
     <string name="notification_input_hint">write notification content here</string>
+    <string name="view_location_header_string">Entrants Map</string>
     <string name="organizer_dashboard">Organizer Dashboard</string>
     <string name="organizer_event_browser_title">Lottery Organizer</string>
     <string name="organizer_event_browser_subtitle">Browse events published by you</string>

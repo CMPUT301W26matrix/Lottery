@@ -37,6 +37,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
+    implementation(libs.play.services.maps)
     implementation(libs.ext.junit)
     implementation(libs.espresso.core)
     implementation(libs.firebase.installations)
