@@ -117,4 +117,32 @@
     <string name="admin_logs_coming_soon">Notification logs coming soon</string>
     <string name="back">Back</string>
     <string name="unlimited">Unlimited</string>
+
+    <!-- EntrantEventDetailsActivity -->
+    <string name="missing_event_or_user_info">Missing event or user information</string>
+    <string name="registration_period_range">Registration Period: %1$s to %2$s</string>
+    <string name="registration_closes_with_draw">Registration closes: %1$s | Draw date: %2$s</string>
+    <string name="registration_closes">Registration closes: %1$s</string>
+    <string name="event_ends">Event ends: %1$s</string>
+    <string name="registration_details_unavailable">Registration details unavailable</string>
+    <string name="people_in_waitlist">People in Waitlist: %1$d</string>
+    <string name="leave_wait_list">Leave Wait List</string>
+    <string name="join_wait_list">Join Wait List</string>
+    <string name="joined_waitlist">Joined waitlist</string>
+    <string name="left_waitlist">Left waitlist</string>
+    <string name="event_description_unavailable">No event description available.</string>
+
+    <!-- NotificationsActivity -->
+    <string name="notifications_title">Notifications</string>
+    <string name="no_notifications_yet">No notifications yet</string>
+    <string name="missing_user_info">Missing user information</string>
+    <string name="failed_to_update_status">Failed to update status</string>
+    <string name="failed_to_update_notification">Failed to update notification</string>
+    <string name="failed_to_load_notifications">Failed to load notifications</string>
+    <string name="accept_invite">Accept Invite</string>
+    <string name="reject">Reject</string>
+    <string name="close">Close</string>
+    <string name="notification_response">Response: %1$s</string>
+    <string name="notification_new_badge">NEW</string>
+    <string name="settings">Settings</string>
 </resources>

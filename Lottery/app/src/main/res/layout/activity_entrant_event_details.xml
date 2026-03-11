@@ -44,7 +44,7 @@
                     android:layout_gravity="top|end"
                     android:layout_margin="12dp"
                     android:background="@android:color/transparent"
-                    android:contentDescription="Close"
+                    android:contentDescription="@string/close"
                     android:src="@android:drawable/ic_menu_close_clear_cancel" />
             </FrameLayout>
 
@@ -53,7 +53,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
-                android:text="Event Title"
+                android:text="@string/event_title"
                 android:textColor="#333333"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -63,7 +63,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Registration details unavailable"
+                android:text="@string/registration_details_unavailable"
                 android:textColor="#666666"
                 android:textSize="13sp" />
 
@@ -83,7 +83,7 @@
                 android:layout_height="48dp"
                 android:layout_marginTop="16dp"
                 android:backgroundTint="#8E7AE6"
-                android:text="Join Wait List"
+                android:text="@string/join_wait_list"
                 android:textAllCaps="false"
                 android:textColor="@android:color/white"
                 android:textSize="16sp" />
@@ -94,7 +94,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:lineSpacingExtra="4dp"
-                android:text="No event description available."
+                android:text="@string/event_description_unavailable"
                 android:textColor="#555555"
                 android:textSize="14sp" />
 
@@ -125,7 +125,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:background="@android:color/transparent"
-                android:contentDescription="Notifications"
+                android:contentDescription="@string/notifications_title"
                 android:src="@android:drawable/ic_lock_idle_alarm" />
 
             <TextView
@@ -152,7 +152,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@android:color/transparent"
-            android:contentDescription="Settings"
+            android:contentDescription="@string/settings"
             android:src="@android:drawable/ic_menu_manage" />
 
         <ImageButton
@@ -160,7 +160,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@android:color/transparent"
-            android:contentDescription="Home"
+            android:contentDescription="@string/nav_home"
             android:src="@android:drawable/ic_menu_view" />
     </LinearLayout>
 

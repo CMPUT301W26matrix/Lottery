@@ -131,7 +131,7 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
         userId = getIntent().getStringExtra(EXTRA_USER_ID);
 
         if (userId == null || userId.isEmpty()) {
-            Toast.makeText(this, "Missing user information", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.missing_user_info, Toast.LENGTH_SHORT).show();
             userId = null;
             finish();
         }
@@ -187,7 +187,7 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
                 })
                 .addOnFailureListener(e -> {
                     tvNoNotifications.setVisibility(View.VISIBLE);
-                    tvNoNotifications.setText("Failed to load notifications");
+                    tvNoNotifications.setText(R.string.failed_to_load_notifications);
                     rvNotifications.setVisibility(View.GONE);
                 });
     }
@@ -205,7 +205,7 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
                 .document(userId)
                 .update("status", status)
                 .addOnFailureListener(e ->
-                        Toast.makeText(this, "Failed to update status", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, R.string.failed_to_update_status, Toast.LENGTH_SHORT).show()
                 );
     }
 
@@ -230,7 +230,7 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
                     adapter.notifyDataSetChanged();
                 })
                 .addOnFailureListener(e ->
-                        Toast.makeText(this, "Failed to update notification", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, R.string.failed_to_update_notification, Toast.LENGTH_SHORT).show()
                 );
     }
 
@@ -260,17 +260,17 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
 
         if ("win".equalsIgnoreCase(item.getType()) && !item.isActionTaken()) {
 
-            builder.setPositiveButton("Accept Invite", (dialog, which) -> {
+            builder.setPositiveButton(R.string.accept_invite, (dialog, which) -> {
                 updateUserStatusForEvent(item.getEventId(), "ACCEPTED");
                 markActionTaken(item, "ACCEPTED");
             });
 
-            builder.setNegativeButton("Reject", (dialog, which) -> {
+            builder.setNegativeButton(R.string.reject, (dialog, which) -> {
                 updateUserStatusForEvent(item.getEventId(), "REJECTED");
                 markActionTaken(item, "REJECTED");
             });
 
-            builder.setNeutralButton("Close", (dialog, which) -> dialog.dismiss());
+            builder.setNeutralButton(R.string.close, (dialog, which) -> dialog.dismiss());
 
         } else {
             builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());

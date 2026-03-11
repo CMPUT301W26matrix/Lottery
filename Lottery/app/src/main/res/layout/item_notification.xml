@@ -34,7 +34,7 @@
             android:paddingTop="2dp"
             android:paddingRight="6dp"
             android:paddingBottom="2dp"
-            android:text="NEW"
+            android:text="@string/notification_new_badge"
             android:textColor="@android:color/white"
             android:textSize="10sp"
             android:textStyle="bold"

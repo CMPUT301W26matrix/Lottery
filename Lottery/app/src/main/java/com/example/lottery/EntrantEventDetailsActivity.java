@@ -202,7 +202,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         userId = intent.getStringExtra(EXTRA_USER_ID);
 
         if (eventId == null || eventId.isEmpty() || userId == null || userId.isEmpty()) {
-            Toast.makeText(this, "Missing event or user information", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.missing_event_or_user_info, Toast.LENGTH_SHORT).show();
             eventId = null;
             userId = null;
             finish();
@@ -218,7 +218,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (!documentSnapshot.exists()) {
-                        Toast.makeText(this, "Event not found", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, R.string.event_not_found, Toast.LENGTH_SHORT).show();
                         finish();
                         return;
                     }
@@ -242,11 +242,11 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                     String posterUri = documentSnapshot.getString("posterUri");
 
                     if (title == null || title.isEmpty()) {
-                        title = "Event Details";
+                        title = getString(R.string.event_details_title);
                     }
 
                     if (details == null || details.isEmpty()) {
-                        details = "No event description available.";
+                        details = getString(R.string.event_description_unavailable);
                     }
 
                     tvEventTitle.setText(title);
@@ -258,7 +258,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                     loadPosterImage(posterUri);
                 })
                 .addOnFailureListener(e ->
-                        Toast.makeText(this, "Failed to load event details", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, R.string.failed_to_load_event_details, Toast.LENGTH_SHORT).show()
                 );
     }
 
@@ -267,17 +267,17 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
      */
     private String buildRegistrationText(Timestamp start, Timestamp deadline, Timestamp endDate, Timestamp drawDate) {
         if (start != null && deadline != null) {
-            return "Registration Period: " + dateFormat.format(start.toDate()) +
-                    " to " + dateFormat.format(deadline.toDate());
+            return getString(R.string.registration_period_range,
+                    dateFormat.format(start.toDate()), dateFormat.format(deadline.toDate()));
         } else if (deadline != null && drawDate != null) {
-            return "Registration closes: " + dateFormat.format(deadline.toDate()) +
-                    " | Draw date: " + dateFormat.format(drawDate.toDate());
+            return getString(R.string.registration_closes_with_draw,
+                    dateFormat.format(deadline.toDate()), dateFormat.format(drawDate.toDate()));
         } else if (deadline != null) {
-            return "Registration closes: " + dateFormat.format(deadline.toDate());
+            return getString(R.string.registration_closes, dateFormat.format(deadline.toDate()));
         } else if (endDate != null) {
-            return "Event ends: " + dateFormat.format(endDate.toDate());
+            return getString(R.string.event_ends, dateFormat.format(endDate.toDate()));
         } else {
-            return "Registration details unavailable";
+            return getString(R.string.registration_details_unavailable);
         }
     }
 
@@ -330,10 +330,10 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
             if (documentSnapshot.exists()
                     && "waiting".equalsIgnoreCase(documentSnapshot.getString("status"))) {
                 isInWaitlist = true;
-                btnWaitlistAction.setText("Leave Wait List");
+                btnWaitlistAction.setText(R.string.leave_wait_list);
             } else {
                 isInWaitlist = false;
-                btnWaitlistAction.setText("Join Wait List");
+                btnWaitlistAction.setText(R.string.join_wait_list);
             }
         });
     }
@@ -349,7 +349,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     waitlistCount = queryDocumentSnapshots.size();
-                    tvWaitlistCount.setText("People in Waitlist: " + waitlistCount);
+                    tvWaitlistCount.setText(getString(R.string.people_in_waitlist, waitlistCount));
                 });
     }
 
@@ -387,9 +387,9 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                 .set(entrantData)
                 .addOnSuccessListener(unused -> {
                     isInWaitlist = true;
-                    btnWaitlistAction.setText("Leave Wait List");
+                    btnWaitlistAction.setText(R.string.leave_wait_list);
                     loadWaitlistCount();
-                    Toast.makeText(this, "Joined waitlist", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.joined_waitlist, Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -404,9 +404,9 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                 .delete()
                 .addOnSuccessListener(unused -> {
                     isInWaitlist = false;
-                    btnWaitlistAction.setText("Join Wait List");
+                    btnWaitlistAction.setText(R.string.join_wait_list);
                     loadWaitlistCount();
-                    Toast.makeText(this, "Left waitlist", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.left_waitlist, Toast.LENGTH_SHORT).show();
                 });
     }
 }

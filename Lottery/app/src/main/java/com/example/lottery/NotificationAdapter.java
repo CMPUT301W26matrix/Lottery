@@ -90,7 +90,8 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         // Show response if the user has already acted on the notification
         if (item.isActionTaken() && item.getResponse() != null && !item.getResponse().isEmpty()) {
             holder.tvResponse.setVisibility(View.VISIBLE);
-            holder.tvResponse.setText("Response: " + item.getResponse());
+            holder.tvResponse.setText(holder.itemView.getContext()
+                    .getString(R.string.notification_response, item.getResponse()));
         } else {
             holder.tvResponse.setVisibility(View.GONE);
         }
