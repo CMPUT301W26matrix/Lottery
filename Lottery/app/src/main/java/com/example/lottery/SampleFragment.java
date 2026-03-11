@@ -13,7 +13,7 @@ import java.util.Objects;
 
 public class SampleFragment extends DialogFragment {
     interface SamplingListener {
-        int sampling(int size);
+        void sampling(int size);
     }
     private SamplingListener listener;
 

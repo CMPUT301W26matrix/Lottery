@@ -205,9 +205,8 @@ public class EntrantsListView extends AppCompatActivity implements NotificationF
         });
     }
     @Override
-    public int sampling(int size){
-        System.out.print("true");
-        return 0;
+    public void sampling(int size){
+        entrantsRef.whereEqualTo("entrant_status",)
     }
     @Override
     public void sendNotification(String content){
