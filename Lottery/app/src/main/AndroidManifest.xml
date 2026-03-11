@@ -13,10 +13,23 @@
         android:theme="@style/Theme.Lottery">
         <activity android:name=".WaitingListActivity" />
         <activity
+            android:name=".model.NotificationItem"
+            android:exported="false" />
+        <activity
+            android:name=".model.NotificationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".NotificationsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".EntrantEventDetailsActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
