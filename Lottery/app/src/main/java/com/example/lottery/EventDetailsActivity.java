@@ -47,6 +47,8 @@ public class EventDetailsActivity extends AppCompatActivity {
     private TextView tvFullMessage, tvWaitingListCapacity;
     private Button btnRegister;
     private Button btnEditEvent;
+
+    private Button btnViewWaitingList;
     private FirebaseFirestore db;
     /**
      * The current event being displayed.
@@ -76,7 +78,7 @@ public class EventDetailsActivity extends AppCompatActivity {
         tvWaitingListCapacity = findViewById(R.id.tvWaitingListCapacity);
         btnRegister = findViewById(R.id.btnRegister);
         btnEditEvent = findViewById(R.id.btnEditEvent);
-
+        btnViewWaitingList = findViewById(R.id.btnViewWaitingList);
         db = FirebaseFirestore.getInstance();
 
         setupNavigation();
@@ -91,6 +93,11 @@ public class EventDetailsActivity extends AppCompatActivity {
 
         btnRegister.setOnClickListener(v -> handleRegistration());
         btnEditEvent.setOnClickListener(v -> handleEditEvent());
+        btnViewWaitingList.setOnClickListener(v -> {
+            Intent intent = new Intent(EventDetailsActivity.this, com.example.lottery.WaitingListActivity.class);
+            intent.putExtra("eventId", eventId); // pass event ID
+            startActivity(intent);
+        });
     }
 
     /**
