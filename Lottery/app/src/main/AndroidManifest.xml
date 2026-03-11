@@ -21,6 +21,12 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".EntrantRegistrationActivity" />
+        <activity android:name=".OrganizerRegistrationActivity" />
+        <activity android:name=".AdminSignInActivity" />
+        <activity android:name=".GeneralSignInActivity" />
+        <activity android:name=".EntrantMainActivity" />
+
         <activity
             android:name=".OrganizerCreateEventActivity"
             android:exported="false" />
@@ -47,7 +53,6 @@
             android:exported="false"
             android:label="@string/event_details_title"
             android:parentActivityName=".OrganizerBrowseEventsActivity" />
-
     </application>
 
 </manifest>
