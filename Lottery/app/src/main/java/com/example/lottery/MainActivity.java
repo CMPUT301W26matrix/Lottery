@@ -1,188 +1,100 @@
 package com.example.lottery;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.example.lottery.model.Event;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 /**
- * MainActivity serves as the Organizer Dashboard, displaying a summary of all events.
- *
- * <p>Key Responsibilities:
- * <ul>
- *   <li>Displays a list of events created by the organizer.</li>
- *   <li>Provides a summary of event statuses (Active, Closed, etc.).</li>
- *   <li>Handles navigation to the event creation screen and event detail screens.</li>
- *   <li>Fetches event data from Firestore on creation and resume.</li>
- * </ul>
- * </p>
+ * MainActivity is the entry point of the application. It displays the role selection screen
+ * where users can choose to register or sign in as an Entrant, Organizer, or Admin.
+ * It also handles automatic login for anonymous users who have previously used the app
+ * without registering.
  */
-public class MainActivity extends AppCompatActivity implements EventAdapter.OnEventClickListener {
+public class MainActivity extends AppCompatActivity {
+    private Button signInButton;
+    private Button entrantButton;
+    private Button organizerButton;
+    private Button adminButton;
+    private TextView chooseRoleText;
+    private TextView signInPrompt;
 
-    private static final String TAG = "MainActivity";
+    private SharedPreferences sharedPreferences;
 
-    /**
-     * RecyclerView for displaying the list of events.
-     */
-    private RecyclerView rvEvents;
-    /**
-     * Adapter for binding event data to the RecyclerView.
-     */
-    private EventAdapter adapter;
-    /**
-     * List to hold the event objects fetched from Firestore.
-     */
-    private List<Event> eventList;
-    /**
-     * TextView displayed when no events are found.
-     */
-    private TextView tvNoEvents;
-    /**
-     * TextViews for displaying summary statistics of event statuses.
-     */
-    private TextView tvActiveCount, tvClosedCount, tvPendingCount, tvTotalCount;
-    /**
-     * Firebase Firestore instance for database operations.
-     */
-    private FirebaseFirestore db;
+    private static final String KEY_IS_ANONYMOUS = "isAnonymous";
+    private static final String KEY_USER_ID = "userId";
+    private static final String KEY_USER_NAME = "userName";
+    private static final String KEY_FID = "fid";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        db = FirebaseFirestore.getInstance();
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
 
-        // Bind UI Components
-        rvEvents = findViewById(R.id.rvEvents);
-        tvNoEvents = findViewById(R.id.tvNoEvents);
-        tvActiveCount = findViewById(R.id.tvActiveCount);
-        tvClosedCount = findViewById(R.id.tvClosedCount);
-        tvPendingCount = findViewById(R.id.tvPendingCount);
-        tvTotalCount = findViewById(R.id.tvTotalCount);
+        sharedPreferences = getSharedPreferences("AppPrefs", MODE_PRIVATE);
 
-        // Setup RecyclerView
-        eventList = new ArrayList<>();
-        adapter = new EventAdapter(eventList, this);
-        rvEvents.setLayoutManager(new LinearLayoutManager(this));
-        rvEvents.setAdapter(adapter);
+        entrantButton = findViewById(R.id.entrant_login_button);
+        organizerButton = findViewById(R.id.organizer_login_button);
+        adminButton = findViewById(R.id.admin_login_button);
+        signInButton = findViewById(R.id.btnSignIn);
 
-        setupNavigation();
-        loadOrganizerEvents();
-    }
+        chooseRoleText = findViewById(R.id.tvChooseRole);
+        signInPrompt = findViewById(R.id.tvSignInHint);
 
-    /**
-     * Sets up click listeners for the main navigation elements.
-     */
-    private void setupNavigation() {
-        View btnCreate = findViewById(R.id.nav_create_container);
-        if (btnCreate != null) {
-            btnCreate.setOnClickListener(v -> {
-                startActivity(new Intent(MainActivity.this, CreateEventActivity.class));
-            });
-        }
-        View btnHome = findViewById(R.id.nav_home);
-        if (btnHome != null) {
-            btnHome.setOnClickListener(v -> Toast.makeText(this, "Home", Toast.LENGTH_SHORT).show());
-        }
+        entrantButton.setOnClickListener(view ->
+                startActivity(new Intent(MainActivity.this, EntrantRegistrationActivity.class)));
+
+        organizerButton.setOnClickListener(view ->
+                startActivity(new Intent(MainActivity.this, OrganizerRegistrationActivity.class)));
+
+        adminButton.setOnClickListener(view ->
+                startActivity(new Intent(MainActivity.this, AdminSignInActivity.class)));
+
+        signInButton.setOnClickListener(view ->
+                startActivity(new Intent(MainActivity.this, GeneralSignInActivity.class)));
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        loadOrganizerEvents();
+    protected void onStart() {
+        super.onStart();
+        checkAnonymousSession();
     }
 
-    /**
-     * Loads events from the Firestore 'events' collection.
-     *
-     * <p>This method clears the existing list, fetches all documents, and repopulates the list.
-     * It includes a compatibility fix to handle older documents that might use different field names for dates.
-     * After fetching, it updates the RecyclerView and the summary statistics UI.</p>
-     */
-    private void loadOrganizerEvents() {
-        db.collection("events")
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    eventList.clear();
-                    int active = 0;
-                    int closed = 0;
-                    Date now = new Date();
+    private void checkAnonymousSession() {
+        boolean isAnonymous = sharedPreferences.getBoolean(KEY_IS_ANONYMOUS, false);
+        String userId = sharedPreferences.getString(KEY_USER_ID, null);
+        String userName = sharedPreferences.getString(KEY_USER_NAME, "Anonymous User");
+        String fid = sharedPreferences.getString(KEY_FID, null);
 
-                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        try {
-                            Event event = document.toObject(Event.class);
-
-                            // Compatibility fix: If new field is null, check if old field names exist
-                            if (event.getScheduledDateTime() == null) {
-                                Date oldDate = document.getDate("eventDate");
-                                if (oldDate != null) event.setScheduledDateTime(oldDate);
-                            }
-                            if (event.getRegistrationDeadline() == null) {
-                                Date oldDeadline = document.getDate("deadlineDate");
-                                if (oldDeadline != null) event.setRegistrationDeadline(oldDeadline);
-                            }
-
-                            eventList.add(event);
-
-                            if (event.getScheduledDateTime() != null && event.getScheduledDateTime().after(now)) {
-                                active++;
-                            } else {
-                                closed++;
-                            }
-                        } catch (Exception e) {
-                            Log.e(TAG, "Error mapping document " + document.getId(), e);
-                        }
-                    }
-
-                    adapter.notifyDataSetChanged();
-                    updateSummaryStats(active, closed, 0, eventList.size());
-                    tvNoEvents.setVisibility(eventList.isEmpty() ? View.VISIBLE : View.GONE);
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Firestore error", e);
-                    Toast.makeText(this, "Failed to load events", Toast.LENGTH_SHORT).show();
-                });
+        if (isAnonymous && userId != null && userId.startsWith("anon_") && fid != null) {
+            navigateToEntrantMain(userId, userName, true);
+        }
     }
 
-    /**
-     * Updates the summary statistic TextViews with the provided counts.
-     *
-     * @param active  The number of active events.
-     * @param closed  The number of closed events.
-     * @param pending The number of pending events.
-     * @param total   The total number of events.
-     */
-    private void updateSummaryStats(int active, int closed, int pending, int total) {
-        tvActiveCount.setText(String.valueOf(active));
-        tvClosedCount.setText(String.valueOf(closed));
-        tvPendingCount.setText(String.valueOf(pending));
-        tvTotalCount.setText(String.valueOf(total));
-    }
+    private void navigateToEntrantMain(String userId, String userName, boolean isAnonymous) {
+        Intent intent = new Intent(MainActivity.this, EntrantMainActivity.class);
+        intent.putExtra("userId", userId);
+        intent.putExtra("userName", userName);
+        intent.putExtra("isRegistered", false);
+        intent.putExtra("isAnonymous", isAnonymous);
+        intent.putExtra("fid", sharedPreferences.getString(KEY_FID, ""));
 
-    /**
-     * Handles clicks on individual event items in the RecyclerView.
-     *
-     * @param event The Event object that was clicked.
-     */
-    @Override
-    public void onEventClick(Event event) {
-        Intent intent = new Intent(this, EventDetailsActivity.class);
-        intent.putExtra("eventId", event.getEventId());
         startActivity(intent);
+        finish();
     }
 }

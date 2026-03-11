@@ -40,7 +40,7 @@
                         android:layout_width="48dp"
                         android:layout_height="48dp"
                         android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="Back"
+                        android:contentDescription="@string/back"
                         android:src="@drawable/ic_back_arrow"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -417,7 +417,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerVertical="true"
-                            android:text="Limit Waiting List Size"
+                            android:text="@string/limit_waiting_list_size"
                             android:textColor="@color/primary_blue"
                             android:textSize="16sp"
                             android:textStyle="bold" />
@@ -437,7 +437,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:hint="Waiting List Limit"
+                        android:hint="@string/waiting_list_limit"
                         android:visibility="gone"
                         app:boxCornerRadiusBottomEnd="12dp"
                         app:boxCornerRadiusBottomStart="12dp"
@@ -632,7 +632,7 @@
         android:layout_height="70dp"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <include layout="@layout/layout_bottom_nav" />
+        <include layout="@layout/layout_bottom_nav_organizer" />
     </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

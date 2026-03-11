@@ -37,9 +37,9 @@ import java.util.Map;
  * </ul>
  * </p>
  */
-public class EventDetailsActivity extends AppCompatActivity {
+public class OrganizerEventDetailsActivity extends AppCompatActivity {
 
-    private static final String TAG = "EventDetailsActivity";
+    private static final String TAG = "OrganizerEventDetails";
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
     private ImageView ivEventPoster;
     private TextView tvEventTitle, tvScheduledDate, tvEventEndDate, tvRegistrationStart,
@@ -61,7 +61,7 @@ public class EventDetailsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_event_details);
+        setContentView(R.layout.activity_organizer_event_details);
 
         ivEventPoster = findViewById(R.id.ivEventPoster);
         tvEventTitle = findViewById(R.id.tvEventTitle);
@@ -121,7 +121,7 @@ public class EventDetailsActivity extends AppCompatActivity {
         View btnCreate = findViewById(R.id.nav_create_container);
         if (btnCreate != null) {
             btnCreate.setOnClickListener(v -> {
-                startActivity(new Intent(this, CreateEventActivity.class));
+                startActivity(new Intent(this, OrganizerCreateEventActivity.class));
             });
         }
 
@@ -235,10 +235,10 @@ public class EventDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * Launches CreateEventActivity in edit mode for the currently displayed event.
+     * Launches OrganizerCreateEventActivity in edit mode for the currently displayed event.
      */
     private void handleEditEvent() {
-        Intent intent = new Intent(this, CreateEventActivity.class);
+        Intent intent = new Intent(this, OrganizerCreateEventActivity.class);
         intent.putExtra("eventId", eventId);
         startActivity(intent);
     }
