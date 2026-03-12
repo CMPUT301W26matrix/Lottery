@@ -92,7 +92,7 @@
             <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:visibility="gone"
+                android:visibility="visible"
                 android:id="@+id/waited_list_entrants_list_layout"
                 android:layout_height="match_parent">
                 <androidx.recyclerview.widget.RecyclerView

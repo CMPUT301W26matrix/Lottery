@@ -44,6 +44,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -186,21 +187,22 @@ public class EntrantsListView extends AppCompatActivity implements NotificationF
                 entrantSignedUpArrayList.clear();
                 entrantWaitedListArrayList.clear();
                 for(QueryDocumentSnapshot snapshot: value){
-                    String accepted_timestamp = snapshot.getString("accepted_timestamp");
-                    String cancelled_timestamp = snapshot.getString("cancelled_timestamp");
+                    Timestamp accepted_timestamp = snapshot.getTimestamp("accepted_timestamp");
+                    Timestamp cancelled_timestamp = snapshot.getTimestamp("cancelled_timestamp");
                     String event_id = snapshot.getString("event_id");
-                    String invitation_timestamp= snapshot.getString("invitation_timestamp");
+                    Timestamp invitation_timestamp= snapshot.getTimestamp("invitation_timestamp");
                     String referrer_id= snapshot.getString("referrer_id");
-                    String register_timestamp= snapshot.getString("register_timestamp");
+                    Timestamp register_timestamp= snapshot.getTimestamp("register_timestamp");
                     String user_id= snapshot.getString("user_id");
                     String entrant_status = snapshot.getString("entrant_status");
+                    String user_name = snapshot.getString("user_name");
                     com.google.firebase.firestore.GeoPoint location = snapshot.getGeoPoint("location");
                     if(Objects.equals(entrant_status, "signed_up")){
-                        entrantSignedUpArrayList.add(new Entrant(accepted_timestamp, cancelled_timestamp, event_id, invitation_timestamp, referrer_id, register_timestamp, user_id,entrant_status, location));
+                        entrantSignedUpArrayList.add(new Entrant(accepted_timestamp, cancelled_timestamp, event_id, invitation_timestamp, referrer_id, register_timestamp, user_id,entrant_status, location, user_name));
                     } else if (Objects.equals(entrant_status, "waited_listed")){
-                        entrantWaitedListArrayList.add(new Entrant(accepted_timestamp, cancelled_timestamp, event_id, invitation_timestamp, referrer_id, register_timestamp, user_id,entrant_status, location));
+                        entrantWaitedListArrayList.add(new Entrant(accepted_timestamp, cancelled_timestamp, event_id, invitation_timestamp, referrer_id, register_timestamp, user_id,entrant_status, location, user_name));
                     } else if(Objects.equals(entrant_status, "cancelled")){
-                    entrantCancelledArrayList.add(new Entrant(accepted_timestamp, cancelled_timestamp, event_id, invitation_timestamp, referrer_id, register_timestamp, user_id,entrant_status, location));
+                    entrantCancelledArrayList.add(new Entrant(accepted_timestamp, cancelled_timestamp, event_id, invitation_timestamp, referrer_id, register_timestamp, user_id,entrant_status, location, user_name));
                     }
                 }
                 SignedUpListAdapter.notifyDataSetChanged();
@@ -210,7 +212,14 @@ public class EntrantsListView extends AppCompatActivity implements NotificationF
         });
     }
     @Override
-    public void sampling(int size){
+    public void sampling(String size){
+        try {
+            Integer.parseInt(size);
+        }catch(NumberFormatException e){
+            Toast.makeText(this,"ERROR: sample size must be an integer",Toast.LENGTH_LONG).show();
+            return;
+        }
+        int sample_size = Integer.parseInt(size);
         entrantsRef.whereEqualTo("entrant_status","waited_listed")
                 .get().addOnSuccessListener(queryDocumentSnapshots -> {
                     if(queryDocumentSnapshots.isEmpty()){
@@ -219,13 +228,13 @@ public class EntrantsListView extends AppCompatActivity implements NotificationF
                     List<DocumentSnapshot> data = queryDocumentSnapshots.getDocuments();
                     Collections.shuffle(data);
 
-                    if(data.size()<size){
-                        Toast.makeText(this,String.format("sample size should not > %d", data.size()),Toast.LENGTH_LONG).show();
+                    if(data.size()<sample_size || sample_size<=0){
+                        Toast.makeText(this,String.format("ERROR: check failed: 0 < sample size < %d", data.size()),Toast.LENGTH_LONG).show();
                         return;
                     }
 
                     WriteBatch batch = db.batch();
-                    for(int i = 0; i<size; i++){
+                    for(int i = 0; i<sample_size; i++){
                         DocumentReference pieceDataRef = data.get(i).getReference();
                         batch.update(pieceDataRef,"entrant_status","invited");
                     }

@@ -13,7 +13,7 @@ import java.util.Objects;
 
 public class SampleFragment extends DialogFragment {
     interface SamplingListener {
-        void sampling(int size);
+        void sampling(String size);
     }
     private SamplingListener listener;
 
@@ -45,7 +45,7 @@ public class SampleFragment extends DialogFragment {
                 .setPositiveButton("Ok", (dialog, which) -> {
                     String size = input.getText().toString();
                     if (!size.isEmpty()) {
-                        listener.sampling(Integer.parseInt(size));
+                        listener.sampling(size);
                     }
                 })
                 .create();

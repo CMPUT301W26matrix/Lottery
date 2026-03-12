@@ -41,7 +41,7 @@ public class SignedUpListAdapter extends RecyclerView.Adapter<SignedUpListAdapte
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Entrant entrant = mData.get(position);
-        holder.myTextView.setText(entrant.getUser_id());
+        holder.myTextView.setText(entrant.getUser_name());
     }
 
     // total number of rows

@@ -37,7 +37,7 @@ public class CancelledListAdapter extends RecyclerView.Adapter<CancelledListAdap
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
             Entrant entrant = mData.get(position);
-            holder.myTextView.setText(entrant.getUser_id());
+            holder.myTextView.setText(entrant.getUser_name());
         }
 
         // total number of rows

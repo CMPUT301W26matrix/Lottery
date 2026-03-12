@@ -1,12 +1,24 @@
 package com.example.lottery;
 
+import com.google.firebase.Timestamp;
+
 public class Entrant {
-    private String accepted_timestamp;
-    private String cancelled_timestamp;
+    private Timestamp accepted_timestamp;
+    private Timestamp cancelled_timestamp;
     private String event_id;
-    private String invitation_timestamp;
+    private String user_name;
+
+    public String getUser_name() {
+        return user_name;
+    }
+
+    public void setUser_name(String user_name) {
+        this.user_name = user_name;
+    }
+
+    private Timestamp invitation_timestamp;
     private String referrer_id;
-    private String register_timestamp;
+    private Timestamp register_timestamp;
     private String user_id;
     private String entrant_status;
     private com.google.firebase.firestore.GeoPoint location;
@@ -30,7 +42,7 @@ public class Entrant {
     public Entrant() {
     }
 
-    public Entrant(String accepted_timestamp, String cancelled_timestamp, String event_id, String invitation_timestamp, String referrer_id, String register_timestamp, String user_id, String entrant_status, com.google.firebase.firestore.GeoPoint location) {
+    public Entrant(Timestamp accepted_timestamp, Timestamp cancelled_timestamp, String event_id, Timestamp invitation_timestamp, String referrer_id, Timestamp register_timestamp, String user_id, String entrant_status, com.google.firebase.firestore.GeoPoint location, String user_name) {
         this.accepted_timestamp = accepted_timestamp;
         this.cancelled_timestamp = cancelled_timestamp;
         this.event_id = event_id;
@@ -40,21 +52,22 @@ public class Entrant {
         this.user_id = user_id;
         this.entrant_status = entrant_status;
         this.location = location;
+        this.user_name = user_name;
     }
 
-    public String getAccepted_timestamp() {
+    public Timestamp getAccepted_timestamp() {
         return accepted_timestamp;
     }
 
-    public void setAccepted_timestamp(String accepted_timestamp) {
+    public void setAccepted_timestamp(Timestamp accepted_timestamp) {
         this.accepted_timestamp = accepted_timestamp;
     }
 
-    public String getCancelled_timestamp() {
+    public Timestamp getCancelled_timestamp() {
         return cancelled_timestamp;
     }
 
-    public void setCancelled_timestamp(String cancelled_timestamp) {
+    public void setCancelled_timestamp(Timestamp cancelled_timestamp) {
         this.cancelled_timestamp = cancelled_timestamp;
     }
 
@@ -66,11 +79,11 @@ public class Entrant {
         this.event_id = event_id;
     }
 
-    public String getInvitation_timestamp() {
+    public Timestamp getInvitation_timestamp() {
         return invitation_timestamp;
     }
 
-    public void setInvitation_timestamp(String invitation_timestamp) {
+    public void setInvitation_timestamp(Timestamp invitation_timestamp) {
         this.invitation_timestamp = invitation_timestamp;
     }
 
@@ -82,11 +95,11 @@ public class Entrant {
         this.referrer_id = referrer_id;
     }
 
-    public String getRegister_timestamp() {
+    public Timestamp getRegister_timestamp() {
         return register_timestamp;
     }
 
-    public void setRegister_timestamp(String register_timestamp) {
+    public void setRegister_timestamp(Timestamp register_timestamp) {
         this.register_timestamp = register_timestamp;
     }
 
