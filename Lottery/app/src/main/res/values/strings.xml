@@ -2,10 +2,10 @@
     <string name="app_name">Lottery</string>
     <string name="choose_your_role">Choose your role</string>
     <string name="already_have_an_account">Already have an account?</string>
-    <string name="i_m_an_entrant">✪ I\'m an Entrant</string>
-    <string name="i_m_an_organizer">✪ I\'m an Organizer</string>
-    <string name="i_m_an_admin">✪ I\'m an Admin</string>
-    <string name="sign_in">✪ Sign In</string>
+    <string name="i_m_an_entrant">I\'m an Entrant</string>
+    <string name="i_m_an_organizer">I\'m an Organizer</string>
+    <string name="i_m_an_admin">I\'m an Admin</string>
+    <string name="sign_in">Sign In</string>
     <string name="name">Name</string>
     <string name="email">Email</string>
     <string name="phone_number_optional">Phone Number (Optional)</string>

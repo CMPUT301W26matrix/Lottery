@@ -34,6 +34,7 @@
         <activity android:name=".GeneralSignInActivity" />
         <activity android:name=".EntrantMainActivity" />
         <activity android:name=".EntrantProfileActivity" />
+        <activity android:name=".BrowseProfilesActivity" />
 
         <activity
             android:name=".OrganizerCreateEventActivity"
