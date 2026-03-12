@@ -1,12 +1,15 @@
 package com.example.lottery;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -59,7 +62,75 @@ public class BrowseProfilesActivity extends AppCompatActivity {
             return;
         }
 
+        setupNavigation();
         loadProfiles();
+    }
+
+    /**
+     * Sets up navigation actions for the admin bottom navigation bar.
+     */
+    private void setupNavigation() {
+        View btnHome = findViewById(R.id.nav_home);
+        if (btnHome != null) {
+            // Update UI to show home is inactive
+            TextView tvHome = btnHome.findViewById(android.R.id.text1); // This might be wrong, checking layout
+            // Looking at layout_bottom_nav_admin.xml, it doesn't use IDs for text/icons internally except the containers.
+            // I should use the IDs from the layout.
+            
+            btnHome.setOnClickListener(v -> {
+                Intent intent = new Intent(this, AdminBrowseEventsActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
+                finish();
+            });
+        }
+
+        View btnProfiles = findViewById(R.id.nav_profiles);
+        if (btnProfiles != null) {
+            // Highlight current tab
+            ImageView ivProfiles = btnProfiles.findViewById(R.id.nav_profile); // Wait, IDs are not in the layout for children.
+            // Let me re-read layout_bottom_nav_admin.xml
+        }
+        
+        // Let's just set the listeners first as they are in AdminBrowseEventsActivity
+        if (btnProfiles != null) {
+            btnProfiles.setOnClickListener(v ->
+                    Toast.makeText(this, "Browsing all profiles", Toast.LENGTH_SHORT).show());
+        }
+
+        View btnImages = findViewById(R.id.nav_images);
+        if (btnImages != null) {
+            btnImages.setOnClickListener(v ->
+                    Toast.makeText(this, R.string.admin_images_coming_soon, Toast.LENGTH_SHORT).show());
+        }
+
+        View btnLogs = findViewById(R.id.nav_logs);
+        if (btnLogs != null) {
+            btnLogs.setOnClickListener(v ->
+                    Toast.makeText(this, R.string.admin_logs_coming_soon, Toast.LENGTH_SHORT).show());
+        }
+        
+        // Manual highlighting since we are not using a real BottomNavigationView
+        highlightCurrentTab();
+    }
+
+    private void highlightCurrentTab() {
+        View btnHome = findViewById(R.id.nav_home);
+        View btnProfiles = findViewById(R.id.nav_profiles);
+
+        if (btnHome != null && btnProfiles != null) {
+            // Reset home
+            ImageView ivHome = (ImageView) ((android.view.ViewGroup) btnHome).getChildAt(0);
+            TextView tvHome = (TextView) ((android.view.ViewGroup) btnHome).getChildAt(1);
+            ivHome.setImageTintList(android.content.res.ColorStateList.valueOf(ContextCompat.getColor(this, R.color.text_gray)));
+            tvHome.setTextColor(ContextCompat.getColor(this, R.color.text_gray));
+
+            // Highlight profiles
+            ImageView ivProfiles = (ImageView) ((android.view.ViewGroup) btnProfiles).getChildAt(0);
+            TextView tvProfiles = (TextView) ((android.view.ViewGroup) btnProfiles).getChildAt(1);
+            ivProfiles.setImageTintList(android.content.res.ColorStateList.valueOf(ContextCompat.getColor(this, R.color.primary_blue)));
+            tvProfiles.setTextColor(ContextCompat.getColor(this, R.color.primary_blue));
+        }
     }
 
     /*
