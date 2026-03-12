@@ -96,6 +96,7 @@ loadScripts(document, 'script');</script>
 <li class="circle">com.example.lottery.<a href="com/example/lottery/EntrantEventDetailsActivity.html" class="type-name-link" title="class in com.example.lottery">EntrantEventDetailsActivity</a></li>
 <li class="circle">com.example.lottery.<a href="com/example/lottery/EntrantMainActivity.html" class="type-name-link" title="class in com.example.lottery">EntrantMainActivity</a></li>
 <li class="circle">com.example.lottery.<a href="com/example/lottery/EntrantRegistrationActivity.html" class="type-name-link" title="class in com.example.lottery">EntrantRegistrationActivity</a></li>
+<li class="circle">com.example.lottery.<a href="com/example/lottery/EntrantsListView.html" class="type-name-link" title="class in com.example.lottery">EntrantsListView</a> (implements com.google.android.gms.maps.OnMapReadyCallback)</li>
 <li class="circle">com.example.lottery.<a href="com/example/lottery/GeneralSignInActivity.html" class="type-name-link" title="class in com.example.lottery">GeneralSignInActivity</a></li>
 <li class="circle">com.example.lottery.<a href="com/example/lottery/MainActivity.html" class="type-name-link" title="class in com.example.lottery">MainActivity</a></li>
 <li class="circle">com.example.lottery.<a href="com/example/lottery/NotificationsActivity.html" class="type-name-link" title="class in com.example.lottery">NotificationsActivity</a> (implements com.example.lottery.<a href="com/example/lottery/NotificationAdapter.OnNotificationClickListener.html" title="interface in com.example.lottery">NotificationAdapter.OnNotificationClickListener</a>)</li>
@@ -120,13 +121,16 @@ loadScripts(document, 'script');</script>
 </li>
 </ul>
 </li>
+<li class="circle">com.example.lottery.<a href="com/example/lottery/Entrant.html" class="type-name-link" title="class in com.example.lottery">Entrant</a></li>
 <li class="circle">com.example.lottery.model.<a href="com/example/lottery/model/Event.html" class="type-name-link" title="class in com.example.lottery.model">Event</a></li>
 <li class="circle">com.example.lottery.util.<a href="com/example/lottery/util/EventValidationUtils.html" class="type-name-link" title="class in com.example.lottery.util">EventValidationUtils</a></li>
 <li class="circle">androidx.fragment.app.Fragment (implements androidx.activity.result.ActivityResultCaller, android.content.ComponentCallbacks, androidx.lifecycle.HasDefaultViewModelProviderFactory, androidx.lifecycle.LifecycleOwner, androidx.savedstate.SavedStateRegistryOwner, android.view.View.OnCreateContextMenuListener, androidx.lifecycle.ViewModelStoreOwner)
 <ul>
 <li class="circle">androidx.fragment.app.DialogFragment (implements android.content.DialogInterface.OnCancelListener, android.content.DialogInterface.OnDismissListener)
 <ul>
+<li class="circle">com.example.lottery.<a href="com/example/lottery/NotificationFragment.html" class="type-name-link" title="class in com.example.lottery">NotificationFragment</a></li>
 <li class="circle">com.example.lottery.<a href="com/example/lottery/OrganizerUploadPosterDialogFragment.html" class="type-name-link" title="class in com.example.lottery">OrganizerUploadPosterDialogFragment</a></li>
+<li class="circle">com.example.lottery.<a href="com/example/lottery/SampleFragment.html" class="type-name-link" title="class in com.example.lottery">SampleFragment</a></li>
 </ul>
 </li>
 </ul>
@@ -135,11 +139,26 @@ loadScripts(document, 'script');</script>
 <li class="circle">com.example.lottery.util.<a href="com/example/lottery/util/QRCodeUtils.html" class="type-name-link" title="class in com.example.lottery.util">QRCodeUtils</a></li>
 <li class="circle">androidx.recyclerview.widget.RecyclerView.Adapter&lt;VH&gt;
 <ul>
+<li class="circle">com.example.lottery.<a href="com/example/lottery/CancelledListAdapter.html" class="type-name-link" title="class in com.example.lottery">CancelledListAdapter</a></li>
 <li class="circle">com.example.lottery.<a href="com/example/lottery/EventAdapter.html" class="type-name-link" title="class in com.example.lottery">EventAdapter</a></li>
 <li class="circle">com.example.lottery.<a href="com/example/lottery/NotificationAdapter.html" class="type-name-link" title="class in com.example.lottery">NotificationAdapter</a></li>
+<li class="circle">com.example.lottery.<a href="com/example/lottery/SignedUpListAdapter.html" class="type-name-link" title="class in com.example.lottery">SignedUpListAdapter</a></li>
+<li class="circle">com.example.lottery.<a href="com/example/lottery/WaitedListedListAdapter.html" class="type-name-link" title="class in com.example.lottery">WaitedListedListAdapter</a></li>
+</ul>
+</li>
+<li class="circle">androidx.recyclerview.widget.RecyclerView.ViewHolder
+<ul>
+<li class="circle">com.example.lottery.<a href="com/example/lottery/CancelledListAdapter.ViewHolder.html" class="type-name-link" title="class in com.example.lottery">CancelledListAdapter.ViewHolder</a> (implements android.view.View.OnClickListener)</li>
+<li class="circle">com.example.lottery.<a href="com/example/lottery/SignedUpListAdapter.ViewHolder.html" class="type-name-link" title="class in com.example.lottery">SignedUpListAdapter.ViewHolder</a> (implements android.view.View.OnClickListener)</li>
+<li class="circle">com.example.lottery.<a href="com/example/lottery/WaitedListedListAdapter.ViewHolder.html" class="type-name-link" title="class in com.example.lottery">WaitedListedListAdapter.ViewHolder</a> (implements android.view.View.OnClickListener)</li>
 </ul>
 </li>
 <li class="circle">com.example.lottery.model.<a href="com/example/lottery/model/User.html" class="type-name-link" title="class in com.example.lottery.model">User</a></li>
+<li class="circle">com.example.lottery.<a href="com/example/lottery/User.html" class="type-name-link" title="class in com.example.lottery">User</a>
+<ul>
+<li class="circle">com.example.lottery.<a href="com/example/lottery/Organizer.html" class="type-name-link" title="class in com.example.lottery">Organizer</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -147,8 +166,11 @@ loadScripts(document, 'script');</script>
 <section class="hierarchy">
 <h2 title="Interface Hierarchy">Interface Hierarchy</h2>
 <ul>
+<li class="circle">com.example.lottery.<a href="com/example/lottery/CancelledListAdapter.ItemClickListener.html" class="type-name-link" title="interface in com.example.lottery">CancelledListAdapter.ItemClickListener</a></li>
 <li class="circle">com.example.lottery.<a href="com/example/lottery/EventAdapter.OnEventClickListener.html" class="type-name-link" title="interface in com.example.lottery">EventAdapter.OnEventClickListener</a></li>
 <li class="circle">com.example.lottery.<a href="com/example/lottery/NotificationAdapter.OnNotificationClickListener.html" class="type-name-link" title="interface in com.example.lottery">NotificationAdapter.OnNotificationClickListener</a></li>
+<li class="circle">com.example.lottery.<a href="com/example/lottery/SignedUpListAdapter.ItemClickListener.html" class="type-name-link" title="interface in com.example.lottery">SignedUpListAdapter.ItemClickListener</a></li>
+<li class="circle">com.example.lottery.<a href="com/example/lottery/WaitedListedListAdapter.ItemClickListener.html" class="type-name-link" title="interface in com.example.lottery">WaitedListedListAdapter.ItemClickListener</a></li>
 </ul>
 </section>
 </main>
