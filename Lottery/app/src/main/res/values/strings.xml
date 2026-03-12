@@ -123,6 +123,23 @@
     <string name="back">Back</string>
     <string name="unlimited">Unlimited</string>
 
+    <!-- Profile Screen Strings -->
+    <string name="profile_name">Taocheng Wang</string>
+    <string name="profile_email">taocheng@ualberta.ca</string>
+    <string name="role_organizer">Organizer</string>
+    <string name="section_account">ACCOUNT</string>
+    <string name="menu_edit_profile">Edit Profile</string>
+    <string name="menu_change_password">Change Password</string>
+    <string name="menu_notification_settings">Notification Settings</string>
+    <string name="section_organizer_tools">ORGANIZER TOOLS</string>
+    <string name="menu_my_events">My Events</string>
+    <string name="menu_event_history">Event History</string>
+    <string name="menu_manage_waiting_lists">Manage Waiting Lists</string>
+    <string name="section_app_settings">APP SETTINGS</string>
+    <string name="menu_help_support">Help &amp; Support</string>
+    <string name="menu_about_lottery">About Lottery App</string>
+    <string name="btn_log_out">Log Out</string>
+
     <!-- EntrantEventDetailsActivity -->
     <string name="missing_event_or_user_info">Missing event or user information</string>
     <string name="registration_period_range">Registration Period: %1$s to %2$s</string>

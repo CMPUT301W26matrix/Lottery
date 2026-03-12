@@ -59,6 +59,8 @@
             android:exported="false"
             android:label="@string/event_details_title"
             android:parentActivityName=".OrganizerBrowseEventsActivity" />
+
+        <activity android:name=".OrganizerProfileActivity"/>
     </application>
 
 </manifest>

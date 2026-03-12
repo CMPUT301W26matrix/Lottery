@@ -97,6 +97,12 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
         if (btnHome != null) {
             btnHome.setOnClickListener(v -> Toast.makeText(this, "Home", Toast.LENGTH_SHORT).show());
         }
+        View btnProfile = findViewById(R.id.nav_profile);
+        if (btnProfile != null) {
+            btnProfile.setOnClickListener(v -> {
+                startActivity(new Intent(this, OrganizerProfileActivity.class));
+            });
+        }
     }
 
     @Override

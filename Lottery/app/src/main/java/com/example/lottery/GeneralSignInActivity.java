@@ -68,7 +68,10 @@ public class GeneralSignInActivity extends AppCompatActivity {
 
         // Set on click listeners for buttons
         backButton.setOnClickListener(view -> {
-            finish(); // just close this activity, automatically returning to MainActivity
+            Intent intent = new Intent(GeneralSignInActivity.this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+            finish();
         });
 
         continueButton.setOnClickListener(view -> {
@@ -227,6 +230,4 @@ public class GeneralSignInActivity extends AppCompatActivity {
         }
 
     }
-
-
 }
