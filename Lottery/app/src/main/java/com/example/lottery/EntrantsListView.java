@@ -22,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -211,9 +212,15 @@ public class EntrantsListView extends AppCompatActivity implements NotificationF
             }
         });
     }
+
+    /**
+     * implement US 02.05.02, randomly sample a specific number of signed up entrants from the attendees
+     * @param size sampling size which is the number of random entrants needed to marked as invited
+     */
     @Override
     public void sampling(String size){
         try {
+            //if not a number, prevent executing sampling
             Integer.parseInt(size);
         }catch(NumberFormatException e){
             Toast.makeText(this,"ERROR: sample size must be an integer",Toast.LENGTH_LONG).show();
@@ -229,6 +236,7 @@ public class EntrantsListView extends AppCompatActivity implements NotificationF
                     Collections.shuffle(data);
 
                     if(data.size()<sample_size || sample_size<=0){
+                        // 0 < sample size < data size
                         Toast.makeText(this,String.format("ERROR: check failed: 0 < sample size < %d", data.size()),Toast.LENGTH_LONG).show();
                         return;
                     }
@@ -241,6 +249,11 @@ public class EntrantsListView extends AppCompatActivity implements NotificationF
                     batch.commit().addOnFailureListener(e->Log.d("sampling","commit failed"));
                 });
     }
+
+    /**
+     * send notification to specified entrants(depend on which list the organizer is browsing)
+     * @param content a sequence of words that will be sent to entrants
+     */
     @Override
     public void sendNotification(String content){
         System.out.print("true");
@@ -271,6 +284,9 @@ public class EntrantsListView extends AppCompatActivity implements NotificationF
     // Source - https://stackoverflow.com/a/30054797
     // Posted by Ankit Khare, modified by community. See post 'Timeline' for change history
     // Retrieved 2026-03-11, License - CC BY-SA 3.0
+    /**
+     * insert makers of entrants' location into the map
+     */
     private void insertMarkers(ArrayList<Entrant> list) {
         googleMap.clear();
         final LatLngBounds.Builder builder = new LatLngBounds.Builder();
@@ -289,7 +305,7 @@ public class EntrantsListView extends AppCompatActivity implements NotificationF
     // Posted by Naveed Ali, modified by community. See post 'Timeline' for change history
     // Retrieved 2026-03-11, License - CC BY-SA 4.0
         @Override
-        public void onMapReady(GoogleMap g) {
+        public void onMapReady(@NonNull GoogleMap g) {
             googleMap = g;
             googleMap.getUiSettings().setZoomControlsEnabled(true);
         }
