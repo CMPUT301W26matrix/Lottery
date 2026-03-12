@@ -131,7 +131,7 @@
     <string name="wait_for_lottery_to_see_invites">Wait for lottery results to see invitations here</string>
     <string name="accept_invites_to_see_signed_up">Accept invitations to see signed-up events here</string>
 
-    <!-- Event Item Strings -->
+    <!-- Event Item/Details Strings -->
     <string name="wait_listed">WAIT-LISTED</string>
     <string name="invited">INVITED</string>
     <string name="signed_up">SIGNED-UP</string>
@@ -143,4 +143,7 @@
     <string name="people_in_waitlist_template">People in Waitlist: %1$d</string>
     <string name="event_description_placeholder">Event description will appear here...</string>
     <string name="view_details">View Details</string>
+    <string name="event_details">Event Details</string>
+    <string name="join_wait_list">Join Wait List</string>
+    <string name="no_event_description">No event description available.</string>
 </resources>
