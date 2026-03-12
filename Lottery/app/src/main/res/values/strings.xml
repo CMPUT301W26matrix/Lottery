@@ -20,6 +20,11 @@
     <string name="error_name_required">Name is required</string>
     <string name="error_password_required">Password is required</string>
     <string name="error_invalid_password">Invalid password</string>
+    <string name="error_admin_code_required">Admin code is required</string>
+    <string name="error_incorrect_admin_code">Admin code is incorrect</string>
+    <string name="error_admin_code_lookup_failed">Failed to verify admin code</string>
+    <string name="error_admin_code_not_configured">Admin code is not configured</string>
+    <string name="error_admin_code_inactive">Admin code is inactive</string>
     <string name="back_button_description">Return to Role Selection</string>
     <string name="sign_in_title">Sign In</string>
     <string name="admin_sign_in_title">Admin Sign In</string>
