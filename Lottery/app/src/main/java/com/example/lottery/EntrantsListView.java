@@ -200,7 +200,7 @@ public class EntrantsListView extends AppCompatActivity implements NotificationF
                     com.google.firebase.firestore.GeoPoint location = snapshot.getGeoPoint("location");
                     if(Objects.equals(entrant_status, "signed_up")){
                         entrantSignedUpArrayList.add(new Entrant(accepted_timestamp, cancelled_timestamp, event_id, invitation_timestamp, referrer_id, register_timestamp, user_id,entrant_status, location, user_name));
-                    } else if (Objects.equals(entrant_status, "waited_listed")){
+                    } else if (Objects.equals(entrant_status, "waited_listed")||Objects.equals(entrant_status, "invited")){
                         entrantWaitedListArrayList.add(new Entrant(accepted_timestamp, cancelled_timestamp, event_id, invitation_timestamp, referrer_id, register_timestamp, user_id,entrant_status, location, user_name));
                     } else if(Objects.equals(entrant_status, "cancelled")){
                     entrantCancelledArrayList.add(new Entrant(accepted_timestamp, cancelled_timestamp, event_id, invitation_timestamp, referrer_id, register_timestamp, user_id,entrant_status, location, user_name));

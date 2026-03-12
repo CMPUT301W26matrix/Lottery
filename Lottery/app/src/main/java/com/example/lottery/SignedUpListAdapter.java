@@ -11,6 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,7 +43,8 @@ public class SignedUpListAdapter extends RecyclerView.Adapter<SignedUpListAdapte
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Entrant entrant = mData.get(position);
-        holder.myTextView.setText(entrant.getUser_name());
+        holder.tvEntrantName.setText(entrant.getUser_name());
+        holder.tvEntrantStatus.setText("");
     }
 
     // total number of rows
@@ -53,11 +56,13 @@ public class SignedUpListAdapter extends RecyclerView.Adapter<SignedUpListAdapte
 
     // stores and recycles views as they are scrolled off screen
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        TextView myTextView;
+        TextView tvEntrantName;
+        TextView tvEntrantStatus;
 
         ViewHolder(View itemView) {
             super(itemView);
-            myTextView = itemView.findViewById(R.id.tvEntrantName);
+            tvEntrantName = itemView.findViewById(R.id.tvEntrantName);
+            tvEntrantStatus = itemView.findViewById(R.id.tvEntrantStatus);
             itemView.setOnClickListener(this);
         }
 

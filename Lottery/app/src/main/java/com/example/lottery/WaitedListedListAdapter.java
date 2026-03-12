@@ -37,7 +37,8 @@ public class WaitedListedListAdapter extends RecyclerView.Adapter<WaitedListedLi
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Entrant entrant = mData.get(position);
-        holder.myTextView.setText(entrant.getUser_name());
+        holder.tvEntrantName.setText(entrant.getUser_name());
+        holder.tvEntrantStatus.setText(entrant.getEntrant_status());
     }
 
     // total number of rows
@@ -49,11 +50,13 @@ public class WaitedListedListAdapter extends RecyclerView.Adapter<WaitedListedLi
 
     // stores and recycles views as they are scrolled off screen
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        TextView myTextView;
+        TextView tvEntrantName;
+        TextView tvEntrantStatus;
 
         ViewHolder(View itemView) {
             super(itemView);
-            myTextView = itemView.findViewById(R.id.tvEntrantName);
+            tvEntrantName = itemView.findViewById(R.id.tvEntrantName);
+            tvEntrantStatus = itemView.findViewById(R.id.tvEntrantStatus);
             itemView.setOnClickListener(this);
         }
 
