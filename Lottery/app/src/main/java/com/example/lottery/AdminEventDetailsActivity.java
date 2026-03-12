@@ -5,14 +5,17 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.lottery.model.Event;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -58,6 +61,7 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
     private TextView tvWaitingListCapacity;
     private TextView tvEventDetails;
     private TextView tvLocationRequirement;
+    private Button btnDeleteEvent;
     /**
      * Firebase Firestore instance for database operations.
      */
@@ -84,6 +88,10 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
         tvWaitingListCapacity = findViewById(R.id.tvWaitingListCapacity);
         tvEventDetails = findViewById(R.id.tvEventDetails);
         tvLocationRequirement = findViewById(R.id.tvLocationRequirement);
+        btnDeleteEvent = findViewById(R.id.btnDeleteEvent);
+
+        // Set click listener for the delete button
+        btnDeleteEvent.setOnClickListener(v -> showDeleteConfirmationDialog());
 
         setupNavigation();
 
@@ -136,6 +144,81 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
             btnLogs.setOnClickListener(v ->
                     Toast.makeText(this, R.string.admin_logs_coming_soon, Toast.LENGTH_SHORT).show());
         }
+    }
+
+    /**
+     * Launches a confirmation dialog before deleting the event for confirmation.
+     */
+    private void showDeleteConfirmationDialog() {
+        new AlertDialog.Builder(this).setTitle("Confirm Deletion").setMessage("Do you confirm the deletion of this event?")
+                .setPositiveButton("Delete", (dialog, which) -> deleteEvent())
+                .setNegativeButton("Cancel", null).show();
+    }
+
+    private void deleteEvent() {
+        // If eventId is null or empty, show a toast message
+        if (eventId == null || eventId.isEmpty()) {
+            Toast.makeText(this, "Event ID is empty", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Disable the delete button
+        btnDeleteEvent.setEnabled(false);
+
+        db.collection("events")
+                .document(eventId)
+                .collection("entrants")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    int totalEntrants = queryDocumentSnapshots.size();
+                    // In case there are no entrants, delete the event document
+                    if (totalEntrants == 0) {
+                        deleteEventDocument();
+                        return;
+                    }
+
+                    // Delete each entrant document
+                    int[] deletedEntrants = {0};
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        document.getReference()
+                                .delete()
+                                .addOnSuccessListener(unused -> {
+                                    deletedEntrants[0]++;
+                                    if (deletedEntrants[0] == totalEntrants) {
+                                        deleteEventDocument();
+                                    }
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e(TAG, "Error deleting event entrant", e);
+                                    btnDeleteEvent.setEnabled(true);
+                                    Toast.makeText(this, "Failed to delete event entrants", Toast.LENGTH_SHORT).show();
+                                });
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error fetching event entrants", e);
+                    btnDeleteEvent.setEnabled(true);
+                    Toast.makeText(this, "Failed to delete event entrants", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    /**
+     * Deletes the event document after related entrant records have been removed.
+     */
+    private void deleteEventDocument() {
+        db.collection("events")
+                .document(eventId)
+                .delete()
+                .addOnSuccessListener(unused -> {
+                    Toast.makeText(this, "Event deleted successfully", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(this, AdminBrowseEventsActivity.class));
+                    finish();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error deleting event", e);
+                    btnDeleteEvent.setEnabled(true);
+                    Toast.makeText(this, "Failed to delete event", Toast.LENGTH_SHORT).show();
+                });
     }
 
     /**

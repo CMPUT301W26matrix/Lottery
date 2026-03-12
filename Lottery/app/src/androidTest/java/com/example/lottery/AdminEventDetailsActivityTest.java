@@ -2,9 +2,11 @@ package com.example.lottery;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
+import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 import android.content.Context;
@@ -30,9 +32,23 @@ public class AdminEventDetailsActivityTest {
             onView(withId(R.id.tvPageHeader)).perform(scrollTo()).check(matches(isDisplayed()));
             onView(withId(R.id.cvPoster)).perform(scrollTo()).check(matches(isDisplayed()));
             onView(withId(R.id.tvDetailsHeader)).perform(scrollTo()).check(matches(isDisplayed()));
+            onView(withId(R.id.btnDeleteEvent)).perform(scrollTo()).check(matches(isDisplayed()));
             onView(withId(R.id.bottom_nav_container)).check(matches(isDisplayed()));
             onView(withId(R.id.btnRegister)).check(doesNotExist());
             onView(withId(R.id.btnEditEvent)).check(doesNotExist());
+        }
+    }
+
+    @Test
+    public void testDeleteButtonShowsConfirmationDialog() {
+        Context context = ApplicationProvider.getApplicationContext();
+        Intent intent = new Intent(context, AdminEventDetailsActivity.class);
+        intent.putExtra("eventId", "admin_event_id");
+
+        try (ActivityScenario<AdminEventDetailsActivity> ignored = ActivityScenario.launch(intent)) {
+            onView(withId(R.id.btnDeleteEvent)).perform(scrollTo(), click());
+            onView(withText("Confirm Deletion")).check(matches(isDisplayed()));
+            onView(withText("Do you confirm the deletion of this event?")).check(matches(isDisplayed()));
         }
     }
 }
