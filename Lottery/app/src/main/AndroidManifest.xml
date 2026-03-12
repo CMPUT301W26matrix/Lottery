@@ -13,7 +13,7 @@
         android:theme="@style/Theme.Lottery">
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="place_holder"/>
+            android:value="AIzaSyBQ7iqhDezLQYBFeZf6nwlaqifkHkrrvGA"/>
 
         <activity
             android:name=".NotificationsActivity"

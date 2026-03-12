@@ -13,7 +13,7 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
-
+        manifestPlaceholders += mapOf("mapsApiKey" to "AIzaSyBQ7iqhDezLQYBFeZf6nwlaqifkHkrrvGA")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -49,6 +49,9 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation("androidx.test.espresso:espresso-intents:3.6.1")
 
+    androidTestImplementation(libs.ext.junit)
+    androidTestImplementation(libs.espresso.core)
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:34.9.0"))
     implementation("com.google.firebase:firebase-firestore")

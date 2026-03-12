@@ -30,6 +30,12 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.lottery.CancelledListAdapter;
+import com.example.lottery.Entrant;
+import com.example.lottery.NotificationFragment;
+import com.example.lottery.SampleFragment;
+import com.example.lottery.SignedUpListAdapter;
+import com.example.lottery.WaitedListedListAdapter;
 import com.example.lottery.model.Event;
 import com.example.lottery.util.EventValidationUtils;
 import com.example.lottery.util.QRCodeUtils;
