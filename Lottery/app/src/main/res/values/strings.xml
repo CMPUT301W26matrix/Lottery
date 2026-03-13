@@ -150,4 +150,9 @@
     <string name="notification_response">Response: %1$s</string>
     <string name="notification_new_badge">NEW</string>
     <string name="settings">Settings</string>
+    <string name="browse_profiles">Browse Profiles</string>
+    <string name="view_user_profiles">View user profiles</string>
+    <string name="there_are_no_user_profiles_in_the_system">There are no user profiles in the system.</string>
+    <string name="no_user_profiles_in_the_system">No user profiles in the system</string>
+    <string name="failed_to_load_profiles">Failed to load profiles</string>
 </resources>

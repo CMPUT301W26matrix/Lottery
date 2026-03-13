@@ -1,12 +1,16 @@
 package com.example.lottery;
 
+import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.example.lottery.model.User;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -42,6 +46,8 @@ public class BrowseProfilesActivity extends AppCompatActivity {
         profileAdapter = new ProfileAdapter(this, users);
         lvProfiles.setAdapter(profileAdapter);
 
+        setupNavigation();
+
         // Simple admin-only access check
         String role = getIntent().getStringExtra("role");
         if (role == null || !role.equals("admin")) {
@@ -51,6 +57,67 @@ public class BrowseProfilesActivity extends AppCompatActivity {
         }
 
         loadProfiles();
+    }
+
+    /**
+     * Sets up click listeners for the admin navigation elements.
+     */
+    private void setupNavigation() {
+        highlightProfilesTab();
+
+        View btnHome = findViewById(R.id.nav_home);
+        if (btnHome != null) {
+            btnHome.setOnClickListener(v -> {
+                Intent intent = new Intent(BrowseProfilesActivity.this, AdminBrowseEventsActivity.class);
+                intent.putExtra("role", "admin");
+                startActivity(intent);
+                finish();
+            });
+        }
+
+        View btnProfiles = findViewById(R.id.nav_profiles);
+        if (btnProfiles != null) {
+            btnProfiles.setOnClickListener(v ->
+                    Toast.makeText(this, "Already viewing profiles", Toast.LENGTH_SHORT).show());
+        }
+
+        View btnImages = findViewById(R.id.nav_images);
+        if (btnImages != null) {
+            btnImages.setOnClickListener(v ->
+                    Toast.makeText(this, R.string.admin_images_coming_soon, Toast.LENGTH_SHORT).show());
+        }
+
+        View btnLogs = findViewById(R.id.nav_logs);
+        if (btnLogs != null) {
+            btnLogs.setOnClickListener(v ->
+                    Toast.makeText(this, R.string.admin_logs_coming_soon, Toast.LENGTH_SHORT).show());
+        }
+    }
+
+    /**
+     * Highlights the current profiles tab without changing the shared layout defaults.
+     */
+    private void highlightProfilesTab() {
+        int activeColor = ContextCompat.getColor(this, R.color.primary_blue);
+        int inactiveColor = ContextCompat.getColor(this, R.color.text_gray);
+
+        ImageView homeIcon = findViewById(R.id.nav_home_icon);
+        TextView homeText = findViewById(R.id.nav_home_text);
+        ImageView profilesIcon = findViewById(R.id.nav_profiles_icon);
+        TextView profilesText = findViewById(R.id.nav_profiles_text);
+
+        if (homeIcon != null) {
+            homeIcon.setImageTintList(ColorStateList.valueOf(inactiveColor));
+        }
+        if (homeText != null) {
+            homeText.setTextColor(inactiveColor);
+        }
+        if (profilesIcon != null) {
+            profilesIcon.setImageTintList(ColorStateList.valueOf(activeColor));
+        }
+        if (profilesText != null) {
+            profilesText.setTextColor(activeColor);
+        }
     }
 
     /*
@@ -63,7 +130,7 @@ public class BrowseProfilesActivity extends AppCompatActivity {
                     users.clear();
 
                     if (queryDocumentSnapshots.isEmpty()) {
-                        tvEmptyProfiles.setText("No user profiles in the system");
+                        tvEmptyProfiles.setText(R.string.no_user_profiles_in_the_system);
                         tvEmptyProfiles.setVisibility(View.VISIBLE);
                         lvProfiles.setVisibility(View.GONE);
                         return;
@@ -72,7 +139,7 @@ public class BrowseProfilesActivity extends AppCompatActivity {
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                         String name = doc.getString("name");
                         String email = doc.getString("email");
-                        String phone = doc.getString("phone_number");
+                        String phone = doc.getString("phone");
 
                         if (name == null || name.isEmpty()) {
                             name = "Unknown User";
@@ -94,7 +161,7 @@ public class BrowseProfilesActivity extends AppCompatActivity {
                     profileAdapter.notifyDataSetChanged();
                 })
                 .addOnFailureListener(e -> {
-                    tvEmptyProfiles.setText("Failed to load profiles");
+                    tvEmptyProfiles.setText(R.string.failed_to_load_profiles);
                     tvEmptyProfiles.setVisibility(View.VISIBLE);
                     lvProfiles.setVisibility(View.GONE);
                     Toast.makeText(BrowseProfilesActivity.this, "Error loading profiles", Toast.LENGTH_SHORT).show();
