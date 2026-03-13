@@ -47,6 +47,7 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.mockito.core)
     testImplementation(libs.robolectric)
+    testImplementation("androidx.test:core:1.5.0")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.0.1")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.0.1")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.9.2")
