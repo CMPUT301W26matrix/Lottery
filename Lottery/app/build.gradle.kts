@@ -56,6 +56,7 @@ dependencies {
     // ZXing for QR Code generation (US 02.01.01)
     implementation("com.google.zxing:core:3.5.3")
 
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
     // Glide for image loading (Optional but useful for local URIs too)
     implementation("com.github.bumptech.glide:glide:4.16.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")

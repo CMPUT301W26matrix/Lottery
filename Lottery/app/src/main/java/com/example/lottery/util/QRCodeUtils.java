@@ -57,4 +57,20 @@ public class QRCodeUtils {
             return null;
         }
     }
+
+    /**
+     * Extracts the eventId from scanned QR content.
+     * QR content format: eventId_UUID
+     */
+    public static String extractEventId(String qrContent) {
+        if (qrContent == null || qrContent.isEmpty()) {
+            return null;
+        }
+
+        String[] parts = qrContent.split("_");
+        return parts.length > 0 ? parts[0] : null;
+    }
+
 }
+
+
