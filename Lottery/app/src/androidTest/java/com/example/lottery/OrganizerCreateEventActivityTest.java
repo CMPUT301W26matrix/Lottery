@@ -22,7 +22,6 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public class OrganizerCreateEventActivityTest {
-
     @Rule
     public ActivityScenarioRule<OrganizerCreateEventActivity> activityRule =
             new ActivityScenarioRule<>(OrganizerCreateEventActivity.class);

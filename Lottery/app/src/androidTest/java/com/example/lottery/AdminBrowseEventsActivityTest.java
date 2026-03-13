@@ -18,11 +18,9 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 public class AdminBrowseEventsActivityTest {
-
     @Rule
     public ActivityScenarioRule<AdminBrowseEventsActivity> activityRule =
             new ActivityScenarioRule<>(AdminBrowseEventsActivity.class);
-
     @Test
     public void testAdminBrowseEventsScreenIsDisplayed() {
         onView(withId(R.id.tvAppTitle)).perform(scrollTo()).check(matches(isDisplayed()));
