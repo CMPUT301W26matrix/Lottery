@@ -16,13 +16,6 @@
             android:value="AIzaSyBQ7iqhDezLQYBFeZf6nwlaqifkHkrrvGA"/>
 
         <activity
-            android:name=".NotificationsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".EntrantEventDetailsActivity"
-            android:exported="false" />
-        <activity android:name=".WaitingListActivity" />
-        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
