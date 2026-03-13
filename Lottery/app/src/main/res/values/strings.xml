@@ -81,13 +81,8 @@
     <string name="registration_start">Registration Start</string>
     <string name="registration_end">Registration End</string>
     <string name="waiting_list_capacity">Waiting List Capacity</string>
-    <string name="event_full_message">This event is full. Waiting list is closed.</string>
-    <string name="join_waiting_list">Join Waiting List</string>
     <string name="about_this_event">About this Event</string>
     <string name="location_verification_required">Location Verification Required</string>
-    <string name="welcome_to_lottery_app">Welcome to Lottery App</string>
-    <string name="create_event">Create Event</string>
-    <string name="view_events">View Events</string>
     <string name="cancelled_entrants_list_header_text">Entrants</string>
     <string name="entrants_list_toggle_button_group_waited_list_button_text">Waited</string>
     <string name="entrants_list_toggle_button_group_signed_up_button_text">Accepted</string>
@@ -182,30 +177,18 @@
     <string name="close">Close</string>
     <string name="notification_response">Response: %1$s</string>
     <string name="notification_new_badge">NEW</string>
-    <string name="settings">Settings</string>
     <string name="entrant_details_header">Entrant Details</string>
     <string name="registration_time">Registration Time</string>
 
     <!-- Entrant Main Screen Strings -->
     <string name="your_wait_listed_events">Your Wait-Listed Events</string>
-    <string name="your_invited_events">Your Invited Events</string>
-    <string name="your_signed_up_events">Your Signed-Up Events</string>
 
     <!-- Empty State Messages -->
     <string name="no_wait_listed_events">You have no events in your wait list</string>
-    <string name="no_invited_events">You have no pending invitations</string>
-    <string name="no_signed_up_events">You haven\'t signed up for any events yet</string>
     <string name="join_events_to_see_them_here">Join events to see them here</string>
-    <string name="wait_for_lottery_to_see_invites">Wait for lottery results to see invitations here</string>
-    <string name="accept_invites_to_see_signed_up">Accept invitations to see signed-up events here</string>
 
     <!-- Event Item/Details Strings -->
     <string name="wait_listed">WAIT-LISTED</string>
-    <string name="invited">INVITED</string>
-    <string name="signed_up">SIGNED-UP</string>
-    <string name="accept">Accept</string>
-    <string name="decline">Decline</string>
-    <string name="cancel_membership">Cancel Membership</string>
     <string name="registration_period_template">Registration Period: %1$s - %2$s</string>
     <string name="people_in_waitlist_template">People in Waitlist: %1$d</string>
     <string name="event_description_placeholder">Event description will appear here...</string>
