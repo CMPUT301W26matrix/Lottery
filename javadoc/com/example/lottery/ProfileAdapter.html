@@ -99,6 +99,7 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">ProfileAdapter</span>
 <span class="extends-implements">extends android.widget.ArrayAdapter&lt;<a href="model/User.html" title="class in com.example.lottery.model">User</a>&gt;</span></div>
+<div class="block">Displays user profiles in the admin browse profiles list.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -121,7 +122,9 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(android.content.Context,java.util.ArrayList)" class="member-name-link">ProfileAdapter</a><wbr>(android.content.Context&nbsp;context,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/ArrayList.html" title="class or interface in java.util" class="external-link">ArrayList</a>&lt;<a href="model/User.html" title="class in com.example.lottery.model">User</a>&gt;&nbsp;users)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-last even-row-color">
+<div class="block">Creates an adapter for displaying a list of users.</div>
+</div>
 </div>
 </section>
 </li>
@@ -140,7 +143,9 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getView(int,android.view.View,android.view.ViewGroup)" class="member-name-link">getView</a><wbr>(int&nbsp;position,
  android.view.View&nbsp;convertView,
  android.view.ViewGroup&nbsp;parent)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns a view for the user at the given position.</div>
+</div>
 </div>
 </div>
 </div>
@@ -172,6 +177,12 @@ loadScripts(document, 'script');</script>
 <h3>ProfileAdapter</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">ProfileAdapter</span><wbr><span class="parameters">(android.content.Context&nbsp;context,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/ArrayList.html" title="class or interface in java.util" class="external-link">ArrayList</a>&lt;<a href="model/User.html" title="class in com.example.lottery.model">User</a>&gt;&nbsp;users)</span></div>
+<div class="block">Creates an adapter for displaying a list of users.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>context</code> - the context used to inflate views</dd>
+<dd><code>users</code> - the users to display</dd>
+</dl>
 </section>
 </li>
 </ul>
@@ -191,11 +202,18 @@ loadScripts(document, 'script');</script>
  android.view.View&nbsp;convertView,
  @NonNull
  android.view.ViewGroup&nbsp;parent)</span></div>
+<div class="block">Returns a view for the user at the given position.</div>
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code>getView</code>&nbsp;in interface&nbsp;<code>android.widget.Adapter</code></dd>
 <dt>Overrides:</dt>
 <dd><code>getView</code>&nbsp;in class&nbsp;<code>android.widget.ArrayAdapter&lt;<a href="model/User.html" title="class in com.example.lottery.model">User</a>&gt;</code></dd>
+<dt>Parameters:</dt>
+<dd><code>position</code> - the position of the user in the list</dd>
+<dd><code>convertView</code> - the recycled view to reuse if available</dd>
+<dd><code>parent</code> - the parent view group</dd>
+<dt>Returns:</dt>
+<dd>the view displaying the user information</dd>
 </dl>
 </section>
 </li>
