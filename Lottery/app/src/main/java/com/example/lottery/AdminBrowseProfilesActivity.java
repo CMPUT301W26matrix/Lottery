@@ -4,11 +4,13 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
@@ -38,6 +40,7 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
 
         lvProfiles = findViewById(R.id.lvProfiles);
         tvEmptyProfiles = findViewById(R.id.tvEmptyProfiles);
+        Button enableDeletion = findViewById(R.id.btnEnableDeleteProfile);
 
         db = FirebaseFirestore.getInstance();
 
@@ -54,6 +57,24 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
             finish();
             return;
         }
+
+        final boolean[] isDeletionModeEnabled = {false};
+
+        // When click button, enable deletion mode
+        enableDeletion.setOnClickListener(v -> {
+            isDeletionModeEnabled[0] = true;
+            Toast.makeText(this, "Click profiles to delete", Toast.LENGTH_SHORT).show();
+        });
+
+        // ListView record the clicked item if in deletion mode start workflow
+        lvProfiles.setOnItemClickListener((parent, view, position, id) -> {
+            if (!isDeletionModeEnabled[0]) {
+                return;
+            }
+
+            User selectedUser = users.get(position);
+            showDeleteConfirmationDialog(selectedUser, isDeletionModeEnabled);
+        });
 
         loadProfiles();
     }
@@ -138,6 +159,7 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
                     }
 
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        String userId = doc.getId();
                         String name = doc.getString("name");
                         String email = doc.getString("email");
                         String phone = doc.getString("phone");
@@ -155,8 +177,7 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
                             phone = "";
                         }
 
-                        // The adapter expects a lightweight User object for display only, but not full info
-                        users.add(new User(name, email, phone));
+                        users.add(new User(userId, name, email, phone));
                     }
 
                     tvEmptyProfiles.setVisibility(View.GONE);
@@ -169,5 +190,40 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
                     lvProfiles.setVisibility(View.GONE);
                     Toast.makeText(AdminBrowseProfilesActivity.this, "Error loading profiles", Toast.LENGTH_SHORT).show();
                 });
+    }
+
+    /**
+     * Show AlertDialog with user's name and ask for confirmation.
+     *
+     * @param selectedUser          user be clicked in ListView
+     * @param isDeletionModeEnabled status of deleteMode
+     */
+    private void showDeleteConfirmationDialog(User selectedUser, boolean[] isDeletionModeEnabled) {
+        new AlertDialog.Builder(this)
+                .setTitle("Delete Profile")
+                .setMessage("Delete profile for " + selectedUser.getName() + "?")
+                .setPositiveButton("Confirm", (dialog, which) ->
+                        deleteProfile(selectedUser, isDeletionModeEnabled))
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    /**
+     * Delete profile from firebase with query of UserId
+     *
+     * @param selectedUser          user be clicked in ListView
+     * @param isDeletionModeEnabled status of deleteMode
+     */
+    private void deleteProfile(User selectedUser, boolean[] isDeletionModeEnabled) {
+        db.collection("users")
+                .document(selectedUser.getUserId())
+                .delete()
+                .addOnSuccessListener(unused -> {
+                    Toast.makeText(this, "Profile deleted", Toast.LENGTH_SHORT).show();
+                    isDeletionModeEnabled[0] = false;
+                    loadProfiles();
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Failed to delete profile", Toast.LENGTH_SHORT).show());
     }
 }

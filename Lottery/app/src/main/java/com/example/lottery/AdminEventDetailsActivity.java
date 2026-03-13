@@ -140,8 +140,12 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
 
         View btnProfiles = findViewById(R.id.nav_profiles);
         if (btnProfiles != null) {
-            btnProfiles.setOnClickListener(v ->
-                    Toast.makeText(this, R.string.admin_profiles_coming_soon, Toast.LENGTH_SHORT).show());
+            btnProfiles.setOnClickListener(v -> {
+                Intent intent = new Intent(this, AdminBrowseProfilesActivity.class);
+                intent.putExtra("role", "admin");
+                startActivity(intent);
+                finish();
+            });
         }
 
         View btnImages = findViewById(R.id.nav_images);

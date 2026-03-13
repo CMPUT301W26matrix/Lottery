@@ -33,7 +33,7 @@ public class ProfileAdapter extends ArrayAdapter<User> {
      * Creates an adapter for displaying a list of users.
      *
      * @param context the context used to inflate views
-     * @param users the users to display
+     * @param users   the users to display
      */
     public ProfileAdapter(Context context, ArrayList<User> users) {
         super(context, 0, users);
@@ -44,9 +44,9 @@ public class ProfileAdapter extends ArrayAdapter<User> {
     /**
      * Returns a view for the user at the given position.
      *
-     * @param position the position of the user in the list
+     * @param position    the position of the user in the list
      * @param convertView the recycled view to reuse if available
-     * @param parent the parent view group
+     * @param parent      the parent view group
      * @return the view displaying the user information
      */
     @NonNull

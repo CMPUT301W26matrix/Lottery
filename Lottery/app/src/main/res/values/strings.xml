@@ -117,7 +117,6 @@
     <string name="admin_nav_profiles">Profiles</string>
     <string name="admin_nav_images">Images</string>
     <string name="admin_nav_logs">Logs</string>
-    <string name="admin_profiles_coming_soon">Browse profiles coming soon</string>
     <string name="admin_images_coming_soon">Browse images coming soon</string>
     <string name="admin_logs_coming_soon">Notification logs coming soon</string>
     <string name="back">Back</string>
@@ -195,7 +194,6 @@
     <string name="event_details">Event Details</string>
     <string name="no_event_description">No event description available.</string>
     <string name="browse_profiles">Browse Profiles</string>
-    <string name="view_user_profiles">View user profiles</string>
     <string name="there_are_no_user_profiles_in_the_system">There are no user profiles in the system.</string>
     <string name="no_user_profiles_in_the_system">No user profiles in the system</string>
     <string name="failed_to_load_profiles">Failed to load profiles</string>
