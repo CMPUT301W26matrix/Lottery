@@ -15,10 +15,21 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
 
+/**
+ * Activity class representing the profile screen for an organizer.
+ * Provides options for logging out and navigating to other organizer-related screens.
+ */
 public class OrganizerProfileActivity extends AppCompatActivity {
 
     private Button btnLogout;
 
+    /**
+     * Initializes the activity, sets up the layout, and configures UI components.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after
+     *     previously being shut down then this Bundle contains the data it most
+     *     recently supplied in onSaveInstanceState(Bundle). Note: Otherwise it is null.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,6 +46,10 @@ public class OrganizerProfileActivity extends AppCompatActivity {
         setupNavigation();
     }
 
+    /**
+     * Configures the logout button and its associated click listener.
+     * Signs the user out of Firebase and clears local application preferences.
+     */
     private void setupButtons() {
 
         btnLogout = findViewById(R.id.btn_log_out);
@@ -55,6 +70,10 @@ public class OrganizerProfileActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Sets up click listeners for the navigation components in the UI.
+     * Handles transitions to the event browser and event creation screens.
+     */
     private void setupNavigation() {
 
         View btnHome = findViewById(R.id.nav_home);

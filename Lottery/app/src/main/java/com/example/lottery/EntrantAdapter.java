@@ -17,24 +17,40 @@ import com.example.lottery.model.User;
 import java.util.ArrayList;
 
 /**
- * EntrantAdapter
- * This adapter connects the list of entrants (User objects)
- * to the ListView in the WaitingListActivity.
- * It controls how each row (item_entrant.xml) is displayed.
+ * Adapter class for connecting a list of entrants (User objects) to a ListView.
+ * This adapter is primarily used in the WaitingListActivity to display entrants.
  */
 public class EntrantAdapter extends ArrayAdapter<User> {
 
+    /**
+     * The current context.
+     */
     private final Context context;
+    /**
+     * The list of entrants to display.
+     */
     private final ArrayList<User> entrants;
 
-    // Constructor: receives the list of entrants
+    /**
+     * Constructs a new EntrantAdapter.
+     *
+     * @param context  The current context.
+     * @param entrants The list of entrants to display.
+     */
     public EntrantAdapter(Context context, ArrayList<User> entrants) {
         super(context, 0, entrants);
         this.context = context;
         this.entrants = entrants;
     }
 
-    // getView() runs for every row in the ListView
+    /**
+     * Provides a view for an AdapterView (ListView, GridView, etc.)
+     *
+     * @param position    The position in the list of data that should be displayed in the list item view.
+     * @param convertView The recycled view to populate.
+     * @param parent      The parent ViewGroup that is used for inflation.
+     * @return The View for the position in the AdapterView.
+     */
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {

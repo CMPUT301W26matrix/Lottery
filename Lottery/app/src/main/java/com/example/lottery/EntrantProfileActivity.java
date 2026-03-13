@@ -16,14 +16,38 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+/**
+ * EntrantProfileActivity displays and manages the personal profile of an entrant user.
+ * 
+ * <p>Key Responsibilities:
+ * <ul>
+ *   <li>Displays the entrant's name and email retrieved from Firestore.</li>
+ *   <li>Provides a logout mechanism that clears Firebase authentication and local preferences.</li>
+ *   <li>Handles navigation to the entrant's home screen and other feature placeholders.</li>
+ *   <li>Serves as a hub for entrant settings such as profile editing and notification preferences.</li>
+ * </ul>
+ * </p>
+ */
 public class EntrantProfileActivity extends AppCompatActivity {
 
-    private TextView tvName, tvEmail;
+    /** TextView for displaying the entrant's name. */
+    private TextView tvName;
+    /** TextView for displaying the entrant's email. */
+    private TextView tvEmail;
+    /** Button used to trigger the logout process. */
     private Button btnLogout;
+    /** Firebase Firestore instance for database operations. */
     private FirebaseFirestore db;
+    /** Firebase Auth instance for handling user sessions. */
     private FirebaseAuth mAuth;
+    /** The unique identifier for the current user. */
     private String userId;
 
+    /**
+     * Initializes the activity, sets up the layout, and configures UI components.
+     * 
+     * @param savedInstanceState the previously saved state of the activity.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,6 +91,10 @@ public class EntrantProfileActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Fetches user profile data (name and email) from the Firestore "users" collection.
+     * Updates the UI if the document exists.
+     */
     private void loadUserProfile() {
         if (userId == null) return;
         
@@ -78,6 +106,10 @@ public class EntrantProfileActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Configures click listeners for the navigation bar elements.
+     * Manages transitions between the profile, home screen, and other features.
+     */
     private void setupNavigation() {
         findViewById(R.id.nav_home).setOnClickListener(v -> {
             Intent intent = new Intent(this, EntrantMainActivity.class);

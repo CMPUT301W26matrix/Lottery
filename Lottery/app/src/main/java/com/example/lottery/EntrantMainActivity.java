@@ -21,6 +21,10 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Main activity for the entrant user role.
+ * Displays a list of events and user statistics.
+ */
 public class EntrantMainActivity extends AppCompatActivity implements EventAdapter.OnEventClickListener {
 
     private RecyclerView rvEvents;
@@ -31,6 +35,13 @@ public class EntrantMainActivity extends AppCompatActivity implements EventAdapt
     private FirebaseFirestore db;
     private String userId;
 
+    /**
+     * Initializes the activity, setting up the UI and loading data.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after
+     *     previously being shut down then this Bundle contains the data it most
+     *     recently supplied in onSaveInstanceState(Bundle). Note: Otherwise it is null.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,6 +72,9 @@ public class EntrantMainActivity extends AppCompatActivity implements EventAdapt
         loadStats();
     }
 
+    /**
+     * Sets up click listeners for the navigation buttons.
+     */
     private void setupNavigation() {
         findViewById(R.id.nav_home).setOnClickListener(v -> {
             // Already home
@@ -81,6 +95,9 @@ public class EntrantMainActivity extends AppCompatActivity implements EventAdapt
         });
     }
 
+    /**
+     * Loads events from the Firestore database.
+     */
     private void loadEvents() {
         db.collection("events")
                 .get()
@@ -96,6 +113,9 @@ public class EntrantMainActivity extends AppCompatActivity implements EventAdapt
                 .addOnFailureListener(e -> Toast.makeText(this, "Failed to load events", Toast.LENGTH_SHORT).show());
     }
 
+    /**
+     * Loads user-specific statistics from the Firestore database.
+     */
     private void loadStats() {
         db.collection("events").get().addOnSuccessListener(queryDocumentSnapshots -> {
             if (tvActiveCount != null) {
@@ -115,6 +135,9 @@ public class EntrantMainActivity extends AppCompatActivity implements EventAdapt
         }
     }
 
+    /**
+     * Updates the empty state view based on whether the event list is empty.
+     */
     private void updateEmptyState() {
         if (eventList.isEmpty()) {
             if (emptyStateContainer != null) emptyStateContainer.setVisibility(View.VISIBLE);
@@ -125,6 +148,11 @@ public class EntrantMainActivity extends AppCompatActivity implements EventAdapt
         }
     }
 
+    /**
+     * Handles the event click event.
+     *
+     * @param event The event that was clicked.
+     */
     @Override
     public void onEventClick(Event event) {
         Intent intent = new Intent(this, EntrantEventDetailsActivity.class);

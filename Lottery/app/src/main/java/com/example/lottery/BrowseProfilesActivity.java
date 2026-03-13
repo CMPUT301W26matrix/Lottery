@@ -21,7 +21,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 
-/*
+/**
  * BrowseProfilesActivity
  * Allows administrator to browse all user profiles in the system.
  */

@@ -89,7 +89,7 @@ public class WaitingListActivity extends AppCompatActivity {
         }
     }
 
-    /*
+    /**
      * Loads entrant IDs from:
      * events/{eventId}/entrants
      *
@@ -157,7 +157,7 @@ public class WaitingListActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> Toast.makeText(this, "Failed to load waiting list", Toast.LENGTH_SHORT).show());
     }
 
-    /*
+    /**
      * Shows the empty message if no entrants exist.
      */
     private void showEmptyState() {
@@ -165,7 +165,7 @@ public class WaitingListActivity extends AppCompatActivity {
         waitingListView.setVisibility(View.GONE);
     }
 
-    /*
+    /**
      * Updates the screen after Firestore data finishes loading.
      */
     private void updateListState() {

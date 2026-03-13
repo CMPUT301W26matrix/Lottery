@@ -2,8 +2,15 @@ package com.example.lottery.model;
 
 import com.google.firebase.Timestamp;
 
+/**
+ * Model class representing the relationship between an entrant and an event.
+ * Stores the status of the entrant in the event (e.g., waitlisted, invited).
+ */
 public class EntrantEvent {
 
+    /**
+     * Enum representing the possible statuses of an entrant for an event.
+     */
     public enum Status {
         WAITLISTED,
         INVITED,
@@ -23,10 +30,19 @@ public class EntrantEvent {
     private int waitlistPosition;          // Position in waiting list (if applicable)
     private boolean notificationSent;      // Whether notification was sent
 
+    /**
+     * Default constructor for Firestore.
+     */
     public EntrantEvent() {
         // Default constructor for Firestore
     }
 
+    /**
+     * Constructs a new EntrantEvent relationship.
+     *
+     * @param entrantId The ID of the entrant.
+     * @param eventId   The ID of the event.
+     */
     public EntrantEvent(String entrantId, String eventId) {
         this.relationId = entrantId + "_" + eventId;
         this.entrantId = entrantId;
@@ -64,4 +80,3 @@ public class EntrantEvent {
     public boolean isNotificationSent() { return notificationSent; }
     public void setNotificationSent(boolean notificationSent) { this.notificationSent = notificationSent; }
 }
-

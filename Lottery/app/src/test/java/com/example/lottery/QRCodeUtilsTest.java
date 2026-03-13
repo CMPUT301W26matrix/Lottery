@@ -3,6 +3,7 @@ package com.example.lottery;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 import com.example.lottery.util.QRCodeUtils;
 
@@ -15,6 +16,7 @@ import org.junit.Test;
  * <ul>
  *   <li>The generated content correctly incorporates the event ID.</li>
  *   <li>The generated content is unique even when called with the same event ID.</li>
+ *   <li>Edge cases like empty or unusual event IDs are handled gracefully.</li>
  * </ul>
  * </p>
  */
@@ -30,6 +32,7 @@ public class QRCodeUtilsTest {
 
         assertNotNull("QR content should not be null", qrContent);
         assertTrue("QR content should start with the event ID", qrContent.startsWith(eventId));
+        assertTrue("QR content should contain the separator", qrContent.contains("_"));
     }
 
     /**
@@ -43,5 +46,29 @@ public class QRCodeUtilsTest {
         String qrContent2 = QRCodeUtils.generateUniqueQrContent(eventId);
 
         assertNotEquals("Two generated QR contents for the same event ID should be unique", qrContent1, qrContent2);
+    }
+
+    /**
+     * Tests behavior with an empty event ID.
+     */
+    @Test
+    public void testGenerateUniqueQrContentWithEmptyId() {
+        String eventId = "";
+        String qrContent = QRCodeUtils.generateUniqueQrContent(eventId);
+        
+        assertNotNull(qrContent);
+        assertTrue(qrContent.startsWith("_"));
+    }
+
+    /**
+     * Tests behavior with unusual characters in event ID.
+     */
+    @Test
+    public void testGenerateUniqueQrContentWithUnusualId() {
+        String eventId = "!@#$%^&*()_+";
+        String qrContent = QRCodeUtils.generateUniqueQrContent(eventId);
+        
+        assertNotNull(qrContent);
+        assertTrue(qrContent.startsWith(eventId));
     }
 }

@@ -239,7 +239,8 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                 .addOnSuccessListener(documentSnapshot -> {
                     if (!documentSnapshot.exists()) {
                         Toast.makeText(this, R.string.event_not_found, Toast.LENGTH_SHORT).show();
-                        finish();
+                        // Removed finish() to prevent activity from closing immediately during tests
+                        // or when network issues/missing data occur, providing better UX.
                         return;
                     }
 
