@@ -8,6 +8,9 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -39,6 +42,12 @@ public class AdminSignInActivity extends AppCompatActivity {
 
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_admin_sign_in);
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content), (v, insets) -> {
+            Insets in = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(in.left, in.top, in.right, in.bottom);
+            return insets;
+        });
 
         db = FirebaseFirestore.getInstance();
         adminCodeInput = findViewById(R.id.etAdminCode);

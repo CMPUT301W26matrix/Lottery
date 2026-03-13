@@ -15,11 +15,18 @@ import com.example.lottery.model.User;
 import java.util.ArrayList;
 
 /**
- * Displays user profiles in the admin browse profiles list.
+ * Adapter class for displaying user profiles in a list.
+ * This adapter is primarily used by administrators to browse user profiles.
  */
 public class ProfileAdapter extends ArrayAdapter<User> {
 
+    /**
+     * The current context.
+     */
     private final Context context;
+    /**
+     * The list of users to display.
+     */
     private final ArrayList<User> users;
 
     /**

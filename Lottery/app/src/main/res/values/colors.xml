@@ -3,18 +3,24 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <color name="primary_blue">#0052FF</color>
+    <!-- Legacy Blue -->
+    <color name="primary_blue_old">#0052FF</color>
+    <!-- New Design Blue -->
+    <color name="primary_blue">#2563EB</color>
     <color name="primary_light_blue">#EEF3FF</color>
+    <color name="primary_gradient_start">#60A5FA</color>
 
     <color name="card_background">#FFFFFF</color>
-    <color name="page_background">#F7F9FC</color>
+    <color name="page_background">#F5F6FA</color>
 
-    <color name="text_primary">#111111</color>
-    <color name="text_secondary">#5F6B7A</color>
+    <color name="text_primary">#1F2937</color>
+    <color name="text_secondary">#6B7280</color>
+    <color name="text_light">#9CA3AF</color>
     <color name="text_gray">#8A93A3</color>
 
     <color name="border_outline">#E6EAF2</color>
     <color name="divider_gray">#EEF2F7</color>
 
-    <color name="error_red">#DC2626</color>
+    <color name="error_red">#EF4444</color>
+    <color name="error_red_light">#FEE2E2</color>
 </resources>
