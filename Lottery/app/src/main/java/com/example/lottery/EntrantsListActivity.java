@@ -97,6 +97,7 @@ public class EntrantsListActivity extends AppCompatActivity implements Notificat
         eventId = getIntent().getStringExtra("eventId");
         if(eventId==null){
             Toast.makeText(this, "event id missing",Toast.LENGTH_SHORT).show();
+            finish();
             return;
         }
         initializeViews();
@@ -115,6 +116,7 @@ public class EntrantsListActivity extends AppCompatActivity implements Notificat
         waitedListEventsView.setAdapter(WaitedListedListAdapter);
         cancelledEntrantsView.setAdapter(CancelledListAdapter);
         invitedEventsView.setAdapter(InvitedListAdapter);
+        showWaitedListLayout();
 
         /**
          * switch to signed up component to display the entrants list that have signed up
@@ -123,22 +125,14 @@ public class EntrantsListActivity extends AppCompatActivity implements Notificat
             // Source - https://stackoverflow.com/a/12125545
             // Posted by nandeesh
             // Retrieved 2026-03-10, License - CC BY-SA 3.0
-            signedUpEntrantsListLayout.setVisibility(View.VISIBLE);
-            cancelledEntrantsListLayout.setVisibility(View.GONE);
-            waitedListEntrantsListLayout.setVisibility(View.GONE);
-            viewLocationLayout.setVisibility(View.GONE);
-            invitedEntrantsListLayout.setVisibility(View.GONE);
+            showSignedUpListLayout();
         });
 
         /**
         * switch to signed up component to display the entrants list that have signed up
          */
         btnSwitchCancelled.setOnClickListener(v -> {
-            cancelledEntrantsListLayout.setVisibility(View.VISIBLE);
-            signedUpEntrantsListLayout.setVisibility(View.GONE);
-            waitedListEntrantsListLayout.setVisibility(View.GONE);
-            viewLocationLayout.setVisibility(View.GONE);
-            invitedEntrantsListLayout.setVisibility(View.GONE);
+            showCancelledListLayout();
         });
 
 
@@ -146,11 +140,7 @@ public class EntrantsListActivity extends AppCompatActivity implements Notificat
          * switch to signed up component to display the entrants list that have signed up
          */
         btnSwitchWaitedList.setOnClickListener(v -> {
-            waitedListEntrantsListLayout.setVisibility(View.VISIBLE);
-            cancelledEntrantsListLayout.setVisibility(View.GONE);
-            signedUpEntrantsListLayout.setVisibility(View.GONE);
-            viewLocationLayout.setVisibility(View.GONE);
-            invitedEntrantsListLayout.setVisibility(View.GONE);
+            showWaitedListLayout();
         });
 
         /**
@@ -173,11 +163,7 @@ public class EntrantsListActivity extends AppCompatActivity implements Notificat
          * switch to invited component to display the entrants list that have invited by the organizer
          */
         btnSwitchInvited.setOnClickListener(view->{
-            invitedEntrantsListLayout.setVisibility(View.VISIBLE);
-            waitedListEntrantsListLayout.setVisibility(View.GONE);
-            cancelledEntrantsListLayout.setVisibility(View.GONE);
-            signedUpEntrantsListLayout.setVisibility(View.GONE);
-            viewLocationLayout.setVisibility(View.GONE);
+            showInvitedListLayout();
         });
 
         /**
@@ -400,14 +386,55 @@ public class EntrantsListActivity extends AppCompatActivity implements Notificat
     private void insertMarkers(ArrayList<Entrant> list) {
         googleMap.clear();
         final LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        boolean hasLocations = false;
         for (int i = 0; i < list.size(); i++) {
             Entrant entrant = list.get(i);
             com.google.firebase.firestore.GeoPoint geoLocation = entrant.getLocation();
+            if (geoLocation == null) {
+                continue;
+            }
             final LatLng position = new LatLng(geoLocation.getLatitude(), geoLocation.getLongitude());
             final MarkerOptions options = new MarkerOptions().position(position);
             googleMap.addMarker(options);
             builder.include(position);
+            hasLocations = true;
         }
+
+        if (!hasLocations) {
+            Toast.makeText(this, "No entrant locations available for this list.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void showSignedUpListLayout() {
+        signedUpEntrantsListLayout.setVisibility(View.VISIBLE);
+        cancelledEntrantsListLayout.setVisibility(View.GONE);
+        waitedListEntrantsListLayout.setVisibility(View.GONE);
+        viewLocationLayout.setVisibility(View.GONE);
+        invitedEntrantsListLayout.setVisibility(View.GONE);
+    }
+
+    private void showCancelledListLayout() {
+        cancelledEntrantsListLayout.setVisibility(View.VISIBLE);
+        signedUpEntrantsListLayout.setVisibility(View.GONE);
+        waitedListEntrantsListLayout.setVisibility(View.GONE);
+        viewLocationLayout.setVisibility(View.GONE);
+        invitedEntrantsListLayout.setVisibility(View.GONE);
+    }
+
+    private void showWaitedListLayout() {
+        waitedListEntrantsListLayout.setVisibility(View.VISIBLE);
+        cancelledEntrantsListLayout.setVisibility(View.GONE);
+        signedUpEntrantsListLayout.setVisibility(View.GONE);
+        viewLocationLayout.setVisibility(View.GONE);
+        invitedEntrantsListLayout.setVisibility(View.GONE);
+    }
+
+    private void showInvitedListLayout() {
+        invitedEntrantsListLayout.setVisibility(View.VISIBLE);
+        waitedListEntrantsListLayout.setVisibility(View.GONE);
+        cancelledEntrantsListLayout.setVisibility(View.GONE);
+        signedUpEntrantsListLayout.setVisibility(View.GONE);
+        viewLocationLayout.setVisibility(View.GONE);
     }
 
 

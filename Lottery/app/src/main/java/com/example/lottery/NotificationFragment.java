@@ -34,7 +34,7 @@ public class NotificationFragment extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        View view = getLayoutInflater().inflate(R.layout.sample_fragment, null);
+        View view = getLayoutInflater().inflate(R.layout.notification_fragment, null);
         EditText input = view.findViewById(R.id.input_sampling_size);
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         return builder

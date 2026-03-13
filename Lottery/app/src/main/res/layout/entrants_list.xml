@@ -108,7 +108,7 @@
             <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:visibility="visible"
+                android:visibility="gone"
                 android:id="@+id/signed_up_entrants_list_layout"
                 android:layout_height="match_parent">
                 <androidx.recyclerview.widget.RecyclerView
