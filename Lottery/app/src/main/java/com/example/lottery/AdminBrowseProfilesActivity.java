@@ -18,11 +18,10 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 
-/*
- * BrowseProfilesActivity
- * Allows administrator to browse all user profiles in the system.
+/**
+ * Allows administrators to browse all user profiles in the system.
  */
-public class BrowseProfilesActivity extends AppCompatActivity {
+public class AdminBrowseProfilesActivity extends AppCompatActivity {
 
     private ListView lvProfiles;
     private TextView tvEmptyProfiles;
@@ -35,7 +34,7 @@ public class BrowseProfilesActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_browse_profiles);
+        setContentView(R.layout.activity_admin_browse_profiles);
 
         lvProfiles = findViewById(R.id.lvProfiles);
         tvEmptyProfiles = findViewById(R.id.tvEmptyProfiles);
@@ -63,12 +62,13 @@ public class BrowseProfilesActivity extends AppCompatActivity {
      * Sets up click listeners for the admin navigation elements.
      */
     private void setupNavigation() {
+        // The shared admin nav defaults to the events tab, so this screen retints it.
         highlightProfilesTab();
 
         View btnHome = findViewById(R.id.nav_home);
         if (btnHome != null) {
             btnHome.setOnClickListener(v -> {
-                Intent intent = new Intent(BrowseProfilesActivity.this, AdminBrowseEventsActivity.class);
+                Intent intent = new Intent(AdminBrowseProfilesActivity.this, AdminBrowseEventsActivity.class);
                 intent.putExtra("role", "admin");
                 startActivity(intent);
                 finish();
@@ -127,6 +127,7 @@ public class BrowseProfilesActivity extends AppCompatActivity {
         db.collection("users")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
+                    // Rebuild the list from the latest Firestore snapshot each time.
                     users.clear();
 
                     if (queryDocumentSnapshots.isEmpty()) {
@@ -141,6 +142,7 @@ public class BrowseProfilesActivity extends AppCompatActivity {
                         String email = doc.getString("email");
                         String phone = doc.getString("phone");
 
+                        // Keep the list readable even when older documents have missing fields.
                         if (name == null || name.isEmpty()) {
                             name = "Unknown User";
                         }
@@ -153,6 +155,7 @@ public class BrowseProfilesActivity extends AppCompatActivity {
                             phone = "";
                         }
 
+                        // The adapter expects a lightweight User object for display only, but not full info
                         users.add(new User(name, email, phone));
                     }
 
@@ -164,7 +167,7 @@ public class BrowseProfilesActivity extends AppCompatActivity {
                     tvEmptyProfiles.setText(R.string.failed_to_load_profiles);
                     tvEmptyProfiles.setVisibility(View.VISIBLE);
                     lvProfiles.setVisibility(View.GONE);
-                    Toast.makeText(BrowseProfilesActivity.this, "Error loading profiles", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AdminBrowseProfilesActivity.this, "Error loading profiles", Toast.LENGTH_SHORT).show();
                 });
     }
 }
