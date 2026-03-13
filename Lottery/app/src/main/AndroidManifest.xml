@@ -33,7 +33,7 @@
         <activity android:name=".AdminSignInActivity" />
         <activity android:name=".GeneralSignInActivity" />
         <activity android:name=".EntrantMainActivity" />
-
+        <activity android:name=".AdminBrowseProfilesActivity" />
         <activity
             android:name=".OrganizerCreateEventActivity"
             android:exported="false" />

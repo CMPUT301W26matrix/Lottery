@@ -1,9 +1,9 @@
 package com.example.lottery;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -40,16 +40,13 @@ import java.util.Map;
 public class OrganizerEventDetailsActivity extends AppCompatActivity {
 
     private static final String TAG = "OrganizerEventDetails";
-    private static final String PREFS_NAME = "AppPrefs";
-    private static final String KEY_USER_ID = "userId";
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
     private ImageView ivEventPoster;
     private TextView tvEventTitle, tvScheduledDate, tvEventEndDate, tvRegistrationStart,
             tvRegistrationDeadline, tvDrawDate, tvEventDetails, tvLocationRequirement;
     private TextView tvFullMessage, tvWaitingListCapacity;
     private Button btnRegister;
-    private SharedPreferences sharedPreferences;
-
+    private Button btnEditEvent;
     private FirebaseFirestore db;
     /**
      * The current event being displayed.
@@ -78,9 +75,8 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         tvFullMessage = findViewById(R.id.tvFullMessage);
         tvWaitingListCapacity = findViewById(R.id.tvWaitingListCapacity);
         btnRegister = findViewById(R.id.btnRegister);
-        Button btnEditEvent = findViewById(R.id.btnEditEvent);
-        Button btnViewWaitingList = findViewById(R.id.btnViewWaitingList);
-        sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        btnEditEvent = findViewById(R.id.btnEditEvent);
+
         db = FirebaseFirestore.getInstance();
 
         setupNavigation();
@@ -95,11 +91,6 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
 
         btnRegister.setOnClickListener(v -> handleRegistration());
         btnEditEvent.setOnClickListener(v -> handleEditEvent());
-        btnViewWaitingList.setOnClickListener(v -> {
-            Intent intent = new Intent(this, WaitingListActivity.class);
-            intent.putExtra("eventId", eventId); // pass event ID
-            startActivity(intent);
-        });
     }
 
     /**
@@ -129,7 +120,9 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
 
         View btnCreate = findViewById(R.id.nav_create_container);
         if (btnCreate != null) {
-            btnCreate.setOnClickListener(v -> startActivity(new Intent(this, OrganizerCreateEventActivity.class)));
+            btnCreate.setOnClickListener(v -> {
+                startActivity(new Intent(this, OrganizerCreateEventActivity.class));
+            });
         }
 
         View btnHistory = findViewById(R.id.nav_calendar);
@@ -192,7 +185,6 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
      */
     private void updateRegistrationState(boolean isFull) {
         isEventFull = isFull;
-        btnRegister.setEnabled(!isFull);
         if (isFull) {
             btnRegister.setAlpha(0.5f);
             tvFullMessage.setVisibility(View.VISIBLE);
@@ -219,47 +211,27 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
 
         if (currentEvent == null) return;
 
-        String entrantId = getSignedInUserId();
-        if (entrantId == null || entrantId.isEmpty()) {
-            Toast.makeText(this, "Please sign in before joining the waiting list.", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        // Use Android ID as a persistent unique identifier for the entrant
+        String entrantId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+
+        Map<String, Object> entrantData = new HashMap<>();
+        entrantData.put("entrantId", entrantId);
+        entrantData.put("status", "waiting");
+        entrantData.put("registrationTime", Timestamp.now());
 
         // US 02.01.01: Add user to Firestore entrants sub-collection
         db.collection("events").document(currentEvent.getEventId())
                 .collection("entrants").document(entrantId)
-                .get()
-                .addOnSuccessListener(doc -> {
-                    if (doc.exists()) {
-                        Toast.makeText(this, "You are already on the waiting list.", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    Map<String, Object> entrantData = new HashMap<>();
-                    entrantData.put("entrantId", entrantId);
-                    entrantData.put("status", "waiting");
-                    entrantData.put("registrationTime", Timestamp.now());
-                    doc.getReference()
-                            .set(entrantData)
-                            .addOnSuccessListener(aVoid -> {
-                                Toast.makeText(this, "Successfully joined the waiting list!", Toast.LENGTH_SHORT).show();
-                                // Refresh capacity check after joining
-                                checkWaitingListCapacity(currentEvent);
-                            })
-                            .addOnFailureListener(e -> {
-                                Log.e(TAG, "Error joining waiting list", e);
-                                Toast.makeText(this, "Failed to join waiting list. Please try again.", Toast.LENGTH_SHORT).show();
-                            });
+                .set(entrantData)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(this, "Successfully joined the waiting list!", Toast.LENGTH_SHORT).show();
+                    // Refresh capacity check after joining
+                    checkWaitingListCapacity(currentEvent);
                 })
-                .addOnFailureListener(e -> Toast.makeText(this, "Failed to join waiting list. Please try again.", Toast.LENGTH_SHORT).show());
-    }
-
-    /**
-     * Retrieves the signed-in user's ID from SharedPreferences.
-     *
-     * @return the user ID string, or null if not signed in
-     */
-    private String getSignedInUserId() {
-        return sharedPreferences.getString(KEY_USER_ID, null);
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error joining waiting list", e);
+                    Toast.makeText(this, "Failed to join waiting list. Please try again.", Toast.LENGTH_SHORT).show();
+                });
     }
 
     /**
@@ -298,7 +270,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
 
         if (tvLocationRequirement != null) {
             if (event.isRequireLocation()) {
-                tvLocationRequirement.setText(getString(R.string.location_verification_required));
+                tvLocationRequirement.setText("Location Verification Required");
                 tvLocationRequirement.setVisibility(View.VISIBLE);
             } else {
                 tvLocationRequirement.setVisibility(View.GONE);

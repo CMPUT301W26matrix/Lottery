@@ -103,8 +103,11 @@ public class AdminBrowseEventsActivity extends AppCompatActivity implements Even
 
         View btnProfiles = findViewById(R.id.nav_profiles);
         if (btnProfiles != null) {
-            btnProfiles.setOnClickListener(v ->
-                    Toast.makeText(this, R.string.admin_profiles_coming_soon, Toast.LENGTH_SHORT).show());
+            btnProfiles.setOnClickListener(v -> {
+                Intent intent = new Intent(AdminBrowseEventsActivity.this, AdminBrowseProfilesActivity.class);
+                intent.putExtra("role", "admin");
+                startActivity(intent);
+            });
         }
 
         View btnImages = findViewById(R.id.nav_images);

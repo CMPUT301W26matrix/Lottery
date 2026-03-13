@@ -23,13 +23,13 @@ public class NotificationItem {
      * Creates a notification item with all fields initialized.
      *
      * @param notificationId the notification ID
-     * @param title the notification title
-     * @param message the notification message
-     * @param type the notification type
-     * @param eventId the related event ID
-     * @param isRead whether the notification has been read
-     * @param actionTaken whether the user has taken action on the notification
-     * @param response the user's response to the notification
+     * @param title          the notification title
+     * @param message        the notification message
+     * @param type           the notification type
+     * @param eventId        the related event ID
+     * @param isRead         whether the notification has been read
+     * @param actionTaken    whether the user has taken action on the notification
+     * @param response       the user's response to the notification
      */
     public NotificationItem(String notificationId, String title, String message, String type,
                             String eventId, boolean isRead, boolean actionTaken, String response) {
