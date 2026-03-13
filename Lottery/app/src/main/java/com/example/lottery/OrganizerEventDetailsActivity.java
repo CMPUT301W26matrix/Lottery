@@ -1,7 +1,6 @@
 package com.example.lottery;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,17 +10,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.lottery.model.Event;
-import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
 /**
  * Activity to display the details of a specific event and handle registration.
@@ -31,8 +26,6 @@ import java.util.Map;
  *   <li>Fetch the event record from Firestore using the supplied event ID.</li>
  *   <li>Render the poster, title, schedule, deadline, and description.</li>
  *   <li>Surface organizer-configured requirements such as geolocation.</li>
- *   <li>Enforce US 02.03.01: Disables registration when waiting list is full.</li>
- *   <li>Writes registration data to Firestore 'entrants' sub-collection (US 02.01.01).</li>
  *   <li>Keep the custom bottom navigation active on the details screen.</li>
  * </ul>
  * </p>
@@ -40,15 +33,11 @@ import java.util.Map;
 public class OrganizerEventDetailsActivity extends AppCompatActivity {
 
     private static final String TAG = "OrganizerEventDetails";
-    private static final String PREFS_NAME = "AppPrefs";
-    private static final String KEY_USER_ID = "userId";
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
     private ImageView ivEventPoster;
     private TextView tvEventTitle, tvScheduledDate, tvEventEndDate, tvRegistrationStart,
             tvRegistrationDeadline, tvDrawDate, tvEventDetails, tvLocationRequirement;
-    private TextView tvFullMessage, tvWaitingListCapacity;
-    private Button btnRegister;
-    private SharedPreferences sharedPreferences;
+    private TextView tvWaitingListCapacity;
 
     private FirebaseFirestore db;
     /**
@@ -56,10 +45,6 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
      */
     private Event currentEvent;
     private String eventId;
-    /**
-     * Flag indicating if the waiting list has reached its capacity.
-     */
-    private boolean isEventFull = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,12 +60,9 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         tvDrawDate = findViewById(R.id.tvDrawDate);
         tvEventDetails = findViewById(R.id.tvEventDetails);
         tvLocationRequirement = findViewById(R.id.tvLocationRequirement);
-        tvFullMessage = findViewById(R.id.tvFullMessage);
         tvWaitingListCapacity = findViewById(R.id.tvWaitingListCapacity);
-        btnRegister = findViewById(R.id.btnRegister);
         Button btnEditEvent = findViewById(R.id.btnEditEvent);
         Button btnViewWaitingList = findViewById(R.id.btnViewWaitingList);
-        sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         db = FirebaseFirestore.getInstance();
 
         setupNavigation();
@@ -93,7 +75,6 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
             finish();
         }
 
-        btnRegister.setOnClickListener(v -> handleRegistration());
         btnEditEvent.setOnClickListener(v -> handleEditEvent());
         btnViewWaitingList.setOnClickListener(v -> {
             Intent intent = new Intent(this, EntrantsListActivity.class);
@@ -152,7 +133,6 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
                         currentEvent = documentSnapshot.toObject(Event.class);
                         if (currentEvent != null) {
                             updateUI(currentEvent);
-                            checkWaitingListCapacity(currentEvent);
                         }
                     } else {
                         Toast.makeText(this, "Event not found", Toast.LENGTH_SHORT).show();
@@ -162,104 +142,6 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
                     Log.e(TAG, "Error fetching event details", e);
                     Toast.makeText(this, "Failed to load event details", Toast.LENGTH_SHORT).show();
                 });
-    }
-
-    /**
-     * Checks if the waiting list has reached its capacity and updates the UI accordingly.
-     *
-     * @param event The event to check capacity for.
-     */
-    private void checkWaitingListCapacity(Event event) {
-        if (event.getWaitingListLimit() == null) {
-            updateRegistrationState(false);
-            return;
-        }
-
-        db.collection("events").document(event.getEventId())
-                .collection("entrants")
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    int currentCount = queryDocumentSnapshots.size();
-                    updateRegistrationState(currentCount >= event.getWaitingListLimit());
-                })
-                .addOnFailureListener(e -> Log.e(TAG, "Error counting entrants", e));
-    }
-
-    /**
-     * Updates the registration button state and displays a message if the event is full.
-     *
-     * @param isFull True if the waiting list is full, false otherwise.
-     */
-    private void updateRegistrationState(boolean isFull) {
-        isEventFull = isFull;
-        btnRegister.setEnabled(!isFull);
-        if (isFull) {
-            btnRegister.setAlpha(0.5f);
-            tvFullMessage.setVisibility(View.VISIBLE);
-        } else {
-            btnRegister.setAlpha(1.0f);
-            tvFullMessage.setVisibility(View.GONE);
-        }
-    }
-
-    /**
-     * Implements the actual registration by writing to the Firestore 'entrants' sub-collection.
-     *
-     * <p>Enforces waiting list capacity rules (US 02.03.01) and saves entrant data (US 02.01.01).</p>
-     */
-    private void handleRegistration() {
-        if (isEventFull) {
-            new AlertDialog.Builder(this)
-                    .setTitle("Registration Unavailable")
-                    .setMessage("This event's waiting list has reached its maximum capacity. You cannot register at this time.")
-                    .setPositiveButton("OK", null)
-                    .show();
-            return;
-        }
-
-        if (currentEvent == null) return;
-
-        String entrantId = getSignedInUserId();
-        if (entrantId == null || entrantId.isEmpty()) {
-            Toast.makeText(this, "Please sign in before joining the waiting list.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // US 02.01.01: Add user to Firestore entrants sub-collection
-        db.collection("events").document(currentEvent.getEventId())
-                .collection("entrants").document(entrantId)
-                .get()
-                .addOnSuccessListener(doc -> {
-                    if (doc.exists()) {
-                        Toast.makeText(this, "You are already on the waiting list.", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    Map<String, Object> entrantData = new HashMap<>();
-                    entrantData.put("entrantId", entrantId);
-                    entrantData.put("status", "waiting");
-                    entrantData.put("registrationTime", Timestamp.now());
-                    doc.getReference()
-                            .set(entrantData)
-                            .addOnSuccessListener(aVoid -> {
-                                Toast.makeText(this, "Successfully joined the waiting list!", Toast.LENGTH_SHORT).show();
-                                // Refresh capacity check after joining
-                                checkWaitingListCapacity(currentEvent);
-                            })
-                            .addOnFailureListener(e -> {
-                                Log.e(TAG, "Error joining waiting list", e);
-                                Toast.makeText(this, "Failed to join waiting list. Please try again.", Toast.LENGTH_SHORT).show();
-                            });
-                })
-                .addOnFailureListener(e -> Toast.makeText(this, "Failed to join waiting list. Please try again.", Toast.LENGTH_SHORT).show());
-    }
-
-    /**
-     * Retrieves the signed-in user's ID from SharedPreferences.
-     *
-     * @return the user ID string, or null if not signed in
-     */
-    private String getSignedInUserId() {
-        return sharedPreferences.getString(KEY_USER_ID, null);
     }
 
     /**

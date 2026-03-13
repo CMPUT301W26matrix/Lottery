@@ -289,27 +289,6 @@
         android:padding="16dp"
         app:layout_constraintBottom_toTopOf="@id/bottom_nav_container">
 
-        <TextView
-            android:id="@+id/tvFullMessage"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:gravity="center"
-            android:text="@string/event_full_message"
-            android:textColor="@color/error_red"
-            android:textSize="14sp"
-            android:visibility="gone" />
-
-        <Button
-            android:id="@+id/btnRegister"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:backgroundTint="@color/primary_blue"
-            android:text="@string/join_waiting_list"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            app:cornerRadius="12dp" />
-
         <Button
             android:id="@+id/btnViewWaitingList"
             android:layout_width="match_parent"
