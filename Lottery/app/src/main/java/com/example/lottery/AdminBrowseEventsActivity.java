@@ -104,7 +104,7 @@ public class AdminBrowseEventsActivity extends AppCompatActivity implements Even
         View btnProfiles = findViewById(R.id.nav_profiles);
         if (btnProfiles != null) {
             btnProfiles.setOnClickListener(v -> {
-                Intent intent = new Intent(AdminBrowseEventsActivity.this, BrowseProfilesActivity.class);
+                Intent intent = new Intent(AdminBrowseEventsActivity.this, AdminBrowseProfilesActivity.class);
                 intent.putExtra("role", "admin");
                 startActivity(intent);
             });
