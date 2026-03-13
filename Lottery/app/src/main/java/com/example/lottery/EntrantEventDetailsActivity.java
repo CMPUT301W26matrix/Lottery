@@ -1,7 +1,6 @@
 package com.example.lottery;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -18,6 +17,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.lottery.util.InvitationFlowUtil;
+import com.example.lottery.util.PosterImageLoader;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -338,24 +338,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
      * Loads and displays the event poster image.
      */
     private void loadPosterImage(String posterUri) {
-        if (posterUri == null || posterUri.isEmpty()) {
-            ivEventPoster.setImageResource(android.R.drawable.ic_menu_gallery);
-            return;
-        }
-
-        try {
-            Uri uri = Uri.parse(posterUri);
-
-            if ("content".equals(uri.getScheme())
-                    || "file".equals(uri.getScheme())
-                    || "android.resource".equals(uri.getScheme())) {
-                ivEventPoster.setImageURI(uri);
-            } else {
-                ivEventPoster.setImageResource(android.R.drawable.ic_menu_gallery);
-            }
-        } catch (Exception e) {
-            ivEventPoster.setImageResource(android.R.drawable.ic_menu_gallery);
-        }
+        PosterImageLoader.load(ivEventPoster, posterUri, android.R.drawable.ic_menu_gallery);
     }
 
     /**

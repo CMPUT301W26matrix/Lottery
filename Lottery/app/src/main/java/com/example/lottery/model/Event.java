@@ -13,13 +13,6 @@ import java.util.Date;
  * </ul>
  * </p>
  *
- * <p>Known Limitations:
- * <ul>
- *   <li>The {@code posterUri} field currently stores a local device URI string. For cross-device
- *       functionality, this should be replaced with a remote storage URL (e.g., Firebase Storage).</li>
- * </ul>
- * </p>
- *
  * <p>Satisfies requirements for:
  * US 02.01.01: Event creation with promotional QR code.
  * US 02.01.04: Registration deadline management.
@@ -66,7 +59,7 @@ public class Event {
      */
     private String details;
     /**
-     * URI pointing to the event's promotional poster image.
+     * URI or download URL pointing to the event's promotional poster image.
      */
     private String posterUri;
     /**

@@ -15,22 +15,23 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.lottery.model.Event;
 import com.example.lottery.util.EventValidationUtils;
+import com.example.lottery.util.PosterImageLoader;
 import com.example.lottery.util.QRCodeUtils;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -88,9 +89,17 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
      */
     private Uri selectedPosterUri = null;
     /**
+     * Current poster value loaded from Firestore. This may already be a remote download URL.
+     */
+    private String existingPosterUri = "";
+    /**
      * Firebase Firestore instance for database operations.
      */
     private FirebaseFirestore db;
+    /**
+     * Firebase Storage instance for poster uploads.
+     */
+    private FirebaseStorage storage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,6 +115,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
 
         try {
             db = FirebaseFirestore.getInstance();
+            storage = FirebaseStorage.getInstance();
         } catch (Exception e) {
             Log.e(TAG, "Firebase initialization failed", e);
             Toast.makeText(this, "Service Unavailable", Toast.LENGTH_SHORT).show();
@@ -215,19 +225,13 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
 
             String posterUri = event.getPosterUri();
             if (posterUri != null && !posterUri.isEmpty() && ivPosterPreview != null) {
-                try {
-                    selectedPosterUri = Uri.parse(posterUri);
-                    ivPosterPreview.setImageURI(selectedPosterUri);
-                    ivPosterPreview.setVisibility(View.VISIBLE);
-                    tvPosterStatus.setText("Poster selected");
-                    tvPosterStatus.setTextColor(getResources().getColor(R.color.primary_blue));
-                    btnOpenUploadDialog.setText(R.string.update_poster);
-                } catch (SecurityException e) {
-                    Log.e(TAG, "Failed to load event poster", e);
-                    selectedPosterUri = null;
-                    ivPosterPreview.setVisibility(View.GONE);
-                    tvPosterStatus.setText("Poster unavailable");
-                }
+                existingPosterUri = posterUri;
+                selectedPosterUri = Uri.parse(posterUri);
+                PosterImageLoader.load(ivPosterPreview, posterUri, R.drawable.event_placeholder);
+                ivPosterPreview.setVisibility(View.VISIBLE);
+                tvPosterStatus.setText("Poster selected");
+                tvPosterStatus.setTextColor(ContextCompat.getColor(this, R.color.primary_blue));
+                btnOpenUploadDialog.setText(R.string.update_poster);
             }
 
             this.qrCodeContent = event.getQrCodeContent();
@@ -267,54 +271,16 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                 return;
             }
 
-            selectedPosterUri = Uri.parse(saveImageToInternalStorage(Uri.parse(uriString)));
+            selectedPosterUri = Uri.parse(uriString);
             tvPosterStatus.setText("Poster selected");
-            tvPosterStatus.setTextColor(getResources().getColor(R.color.primary_blue));
+            tvPosterStatus.setTextColor(ContextCompat.getColor(this, R.color.primary_blue));
             btnOpenUploadDialog.setText(R.string.update_poster);
 
             if (ivPosterPreview != null) {
-                ivPosterPreview.setImageURI(selectedPosterUri);
+                PosterImageLoader.load(ivPosterPreview, selectedPosterUri, R.drawable.event_placeholder);
                 ivPosterPreview.setVisibility(View.VISIBLE);
             }
         });
-    }
-
-    /**
-     * Copies the selected image to internal storage to ensure persistent access.
-     *
-     * @param uri The URI of the image to save.
-     * @return The internal URI of the saved image.
-     */
-    private String saveImageToInternalStorage(Uri uri) {
-        try {
-            if (uri == null) {
-                return "";
-            }
-            if ("file".equals(uri.getScheme())) {
-                return uri.toString();
-            }
-
-            String fileName = "poster_" + UUID.randomUUID() + ".jpg";
-            File file = new File(getFilesDir(), fileName);
-
-            InputStream inputStream = getContentResolver().openInputStream(uri);
-            FileOutputStream outputStream = new FileOutputStream(file);
-            byte[] buffer = new byte[1024];
-            int read;
-            while (inputStream != null && (read = inputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, read);
-            }
-
-            outputStream.close();
-            if (inputStream != null) {
-                inputStream.close();
-            }
-
-            return Uri.fromFile(file).toString();
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to save image locally", e);
-            return uri.toString();
-        }
     }
 
     /**
@@ -453,16 +419,70 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                                     Toast.LENGTH_LONG
                             ).show();
                         } else {
-                            saveEventToFirestore(title, capacityStr, details, finalWaitingListLimit);
+                            persistEvent(title, capacityStr, details, finalWaitingListLimit);
                         }
                     })
                     .addOnFailureListener(e -> {
                         Log.e(TAG, "Error checking entrants", e);
-                        saveEventToFirestore(title, capacityStr, details, finalWaitingListLimit);
+                        persistEvent(title, capacityStr, details, finalWaitingListLimit);
                     });
         } else {
-            saveEventToFirestore(title, capacityStr, details, finalWaitingListLimit);
+            persistEvent(title, capacityStr, details, finalWaitingListLimit);
         }
+    }
+
+    private void persistEvent(String title, String capacityStr, String details, Integer waitingListLimit) {
+        btnCreateEvent.setEnabled(false);
+
+        if (isLocalUri(selectedPosterUri)) {
+            uploadPosterAndSaveEvent(title, capacityStr, details, waitingListLimit, selectedPosterUri);
+            return;
+        }
+
+        String posterUriToSave = selectedPosterUri != null ? selectedPosterUri.toString() : "";
+        saveEventToFirestore(title, capacityStr, details, waitingListLimit, posterUriToSave);
+    }
+
+    private boolean isLocalUri(Uri uri) {
+        if (uri == null) {
+            return false;
+        }
+        String scheme = uri.getScheme();
+        return "content".equalsIgnoreCase(scheme) || "file".equalsIgnoreCase(scheme);
+    }
+
+    private void uploadPosterAndSaveEvent(String title,
+                                          String capacityStr,
+                                          String details,
+                                          Integer waitingListLimit,
+                                          Uri posterUri) {
+        StorageReference posterRef = storage.getReference()
+                .child("event_posters/" + eventId + "/" + UUID.randomUUID() + ".jpg");
+
+        posterRef.putFile(posterUri)
+                .continueWithTask(task -> {
+                    if (!task.isSuccessful()) {
+                        Exception exception = task.getException();
+                        if (exception != null) {
+                            throw exception;
+                        }
+                        throw new IllegalStateException("Poster upload failed");
+                    }
+                    return posterRef.getDownloadUrl();
+                })
+                .addOnSuccessListener(downloadUri ->
+                        saveEventToFirestore(
+                                title,
+                                capacityStr,
+                                details,
+                                waitingListLimit,
+                                downloadUri.toString()
+                        ))
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to upload poster", e);
+                    btnCreateEvent.setEnabled(true);
+                    Toast.makeText(this, "Failed to upload poster", Toast.LENGTH_SHORT).show();
+                });
     }
 
     /**
@@ -473,13 +493,16 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
      * @param details          The detailed description of the event.
      * @param waitingListLimit The limit for the waiting list (null for unlimited).
      */
-    private void saveEventToFirestore(String title, String capacityStr, String details, Integer waitingListLimit) {
+    private void saveEventToFirestore(String title,
+                                      String capacityStr,
+                                      String details,
+                                      Integer waitingListLimit,
+                                      String posterUriToSave) {
         if (qrCodeContent.isEmpty()) {
             qrCodeContent = QRCodeUtils.generateUniqueQrContent(eventId);
         }
 
         int maxCapacity = capacityStr.isEmpty() ? 0 : Integer.parseInt(capacityStr);
-        String posterUriToSave = selectedPosterUri != null ? selectedPosterUri.toString() : "";
         boolean requireLocation = swRequireLocation.isChecked();
 
         Event event = new Event(
@@ -502,13 +525,35 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         db.collection("events").document(eventId)
                 .set(event)
                 .addOnSuccessListener(aVoid -> {
+                    deleteReplacedPosterIfNeeded(posterUriToSave);
                     String msg = isEditMode ? "Event Updated Successfully!" : "Event Launched Successfully!";
                     Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
                     finish();
                 })
                 .addOnFailureListener(e -> {
                     Log.w(TAG, "Error writing document", e);
+                    btnCreateEvent.setEnabled(true);
                     Toast.makeText(this, "Failed to save event", Toast.LENGTH_SHORT).show();
                 });
+    }
+
+    private void deleteReplacedPosterIfNeeded(String newPosterUri) {
+        if (existingPosterUri == null || existingPosterUri.isEmpty()) {
+            return;
+        }
+        if (existingPosterUri.equals(newPosterUri)) {
+            return;
+        }
+
+        try {
+            if (existingPosterUri.startsWith("gs://")
+                    || existingPosterUri.contains("firebasestorage.googleapis.com")) {
+                FirebaseStorage.getInstance().getReferenceFromUrl(existingPosterUri)
+                        .delete()
+                        .addOnFailureListener(e -> Log.w(TAG, "Failed to delete replaced poster", e));
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "Could not parse existing poster URI for cleanup", e);
+        }
     }
 }

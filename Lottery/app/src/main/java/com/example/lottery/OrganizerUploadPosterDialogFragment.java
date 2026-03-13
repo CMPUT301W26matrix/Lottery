@@ -1,6 +1,7 @@
 package com.example.lottery;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,6 +15,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
+
+import com.example.lottery.util.PosterImageLoader;
 
 /**
  * DialogFragment for handling event poster selection and preview.
@@ -59,7 +62,7 @@ public class OrganizerUploadPosterDialogFragment extends DialogFragment {
     /**
      * Launcher for the GetContent activity result contract to pick an image.
      */
-    private ActivityResultLauncher<String> pickerLauncher;
+    private ActivityResultLauncher<String[]> pickerLauncher;
 
     /**
      * Initializes the ActivityResultLauncher for picking images from the device storage.
@@ -69,9 +72,13 @@ public class OrganizerUploadPosterDialogFragment extends DialogFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Initialize the image picker launcher
-        pickerLauncher = registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
+        // Use OpenDocument so the app can persist read access across activities and restarts.
+        pickerLauncher = registerForActivityResult(new ActivityResultContracts.OpenDocument(), uri -> {
             if (uri != null) {
+                requireContext().getContentResolver().takePersistableUriPermission(
+                        uri,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION
+                );
                 tempUri = uri;
                 updatePreviewLayout(uri);
             }
@@ -99,7 +106,7 @@ public class OrganizerUploadPosterDialogFragment extends DialogFragment {
         tvHint = view.findViewById(R.id.tvPreviewHint);
 
         // Browse button click listener
-        btnBrowse.setOnClickListener(v -> pickerLauncher.launch("image/*"));
+        btnBrowse.setOnClickListener(v -> pickerLauncher.launch(new String[]{"image/*"}));
 
         // Cancel button click listener
         btnCancel.setOnClickListener(v -> dismiss());
@@ -134,7 +141,7 @@ public class OrganizerUploadPosterDialogFragment extends DialogFragment {
      * @param uri The URI of the image to display in the preview.
      */
     private void updatePreviewLayout(Uri uri) {
-        ivPreview.setImageURI(uri);
+        PosterImageLoader.load(ivPreview, uri, R.drawable.event_placeholder);
         // Enable visual feedback and selection button
         tvHint.setVisibility(View.VISIBLE);
         btnSelect.setEnabled(true);
@@ -148,7 +155,7 @@ public class OrganizerUploadPosterDialogFragment extends DialogFragment {
      */
     private void showEnlargedPreview(Uri uri) {
         ImageView enlargedIv = new ImageView(requireContext());
-        enlargedIv.setImageURI(uri);
+        PosterImageLoader.load(enlargedIv, uri, R.drawable.event_placeholder);
         enlargedIv.setAdjustViewBounds(true);
         enlargedIv.setPadding(32, 32, 32, 32);
 

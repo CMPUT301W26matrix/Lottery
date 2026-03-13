@@ -1,7 +1,6 @@
 package com.example.lottery;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -17,6 +16,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.lottery.model.Event;
+import com.example.lottery.util.PosterImageLoader;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
@@ -201,17 +201,6 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         }
 
         String posterUriString = event.getPosterUri();
-        if (posterUriString != null && !posterUriString.isEmpty()) {
-            try {
-                Uri posterUri = Uri.parse(posterUriString);
-                ivEventPoster.setImageURI(null);
-                ivEventPoster.setImageURI(posterUri);
-            } catch (Exception e) {
-                Log.e(TAG, "Failed to load event poster", e);
-                ivEventPoster.setImageResource(R.drawable.event_placeholder);
-            }
-        } else {
-            ivEventPoster.setImageResource(R.drawable.event_placeholder);
-        }
+        PosterImageLoader.load(ivEventPoster, posterUriString, R.drawable.event_placeholder);
     }
 }
