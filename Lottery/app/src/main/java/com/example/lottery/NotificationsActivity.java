@@ -196,7 +196,7 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
     /**
      * Updates the entrant status for a specific event in Firestore.
      *
-     * @param eventId the event for which the status should be updated
+     * @param eventId  the event for which the status should be updated
      * @param response the notification response value (e.g., ACCEPTED or REJECTED)
      */
     private void updateUserStatusForEvent(String eventId, String response) {
