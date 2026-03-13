@@ -4,9 +4,11 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
@@ -59,6 +61,10 @@ public class InvitedListAdapter extends RecyclerView.Adapter<InvitedListAdapter.
         Entrant entrant = mData.get(position);
         holder.tvEntrantName.setText(entrant.getEntrant_name());
         holder.tvEntrantStatus.setText("");
+        holder.btnViewDetails.setOnClickListener(v->{
+            EntrantDetailsFragment entrantDetailsFragment = EntrantDetailsFragment.newInstance(entrant);
+            entrantDetailsFragment.show(((AppCompatActivity)context).getSupportFragmentManager(),"Entrant Details");
+        });
     }
 
     /**
@@ -77,6 +83,7 @@ public class InvitedListAdapter extends RecyclerView.Adapter<InvitedListAdapter.
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView tvEntrantName;
         TextView tvEntrantStatus;
+        Button btnViewDetails;
 
         /**
          * initialize ViewHolder
@@ -86,6 +93,7 @@ public class InvitedListAdapter extends RecyclerView.Adapter<InvitedListAdapter.
             super(itemView);
             tvEntrantName = itemView.findViewById(R.id.tvEntrantName);
             tvEntrantStatus = itemView.findViewById(R.id.tvEntrantStatus);
+            btnViewDetails = itemView.findViewById(R.id.viewDetailsButton);
             itemView.setOnClickListener(this);
         }
 

@@ -22,15 +22,26 @@ import java.util.Objects;
  * </p>
  */
 public class SampleFragment extends DialogFragment {
+    /**
+     * interface for the activity who want to use the sample fragment to implement, like a communication channel
+     */
     interface SamplingListener {
         void sampling(String size);
     }
     private SamplingListener listener;
 
+    /**
+     * initialize a new fragment
+     * @return initialized SampleFragment
+     */
     public static SampleFragment newInstance(){
         return new SampleFragment();
     }
 
+    /**
+     * check whether implemented the communication channel or not
+     * @param context
+     */
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -42,6 +53,13 @@ public class SampleFragment extends DialogFragment {
         }
     }
 
+    /**
+     * assemble the fragment
+     * @param savedInstanceState The last saved instance state of the Fragment,
+     * or null if this is a freshly created Fragment.
+     * get text from user
+     * @return a built fragment which can prompt user to enter a number for sampling
+     */
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {

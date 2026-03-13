@@ -1,14 +1,17 @@
 package com.example.lottery;
 
+import android.app.AppComponentFactory;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -74,6 +77,10 @@ public class WaitedListedListAdapter extends RecyclerView.Adapter<WaitedListedLi
         Entrant entrant = mData.get(position);
         holder.tvEntrantName.setText(entrant.getEntrant_name());
         holder.tvEntrantStatus.setText("");
+        holder.btnViewDetails.setOnClickListener(v->{
+            EntrantDetailsFragment entrantDetailsFragment = EntrantDetailsFragment.newInstance(entrant);
+            entrantDetailsFragment.show(((AppCompatActivity)context).getSupportFragmentManager(),"Entrant Details");
+        });
     }
 
     /**
@@ -92,6 +99,7 @@ public class WaitedListedListAdapter extends RecyclerView.Adapter<WaitedListedLi
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView tvEntrantName;
         TextView tvEntrantStatus;
+        Button btnViewDetails;
 
         /**
          * initialize ViewHolder
@@ -101,6 +109,7 @@ public class WaitedListedListAdapter extends RecyclerView.Adapter<WaitedListedLi
             super(itemView);
             tvEntrantName = itemView.findViewById(R.id.tvEntrantName);
             tvEntrantStatus = itemView.findViewById(R.id.tvEntrantStatus);
+            btnViewDetails = itemView.findViewById(R.id.viewDetailsButton);
             itemView.setOnClickListener(this);
         }
 
