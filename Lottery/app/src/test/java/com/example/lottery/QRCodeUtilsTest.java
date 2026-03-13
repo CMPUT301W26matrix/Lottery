@@ -71,4 +71,27 @@ public class QRCodeUtilsTest {
         assertNotNull(qrContent);
         assertTrue(qrContent.startsWith(eventId));
     }
+
+    /**
+     * Verifies that the original event ID can be recovered from generated QR content.
+     */
+    @Test
+    public void testExtractEventIdReturnsOriginalId() {
+        String eventId = "event_123";
+        String qrContent = QRCodeUtils.generateUniqueQrContent(eventId);
+
+        assertEquals(eventId, QRCodeUtils.extractEventId(qrContent));
+    }
+
+    /**
+     * Verifies malformed QR content returns null instead of truncating the ID.
+     */
+    @Test
+    public void testExtractEventIdReturnsNullForMalformedContent() {
+        assertEquals(null, QRCodeUtils.extractEventId(null));
+        assertEquals(null, QRCodeUtils.extractEventId(""));
+        assertEquals(null, QRCodeUtils.extractEventId("eventOnly"));
+        assertEquals(null, QRCodeUtils.extractEventId("_suffixOnly"));
+        assertEquals(null, QRCodeUtils.extractEventId("event_"));
+    }
 }
