@@ -76,5 +76,38 @@ public class EventValidationUtilsTest {
 
         // Invalid case: Negative number
         assertFalse(EventValidationUtils.isWaitingListLimitValid(-1));
+
+        // Boundary case: Very large integer
+        assertTrue(EventValidationUtils.isWaitingListLimitValid(Integer.MAX_VALUE));
+        
+        // Boundary case: Smallest valid positive integer
+        assertTrue(EventValidationUtils.isWaitingListLimitValid(1));
+    }
+
+    @Test
+    public void testRegistrationDeadlineMillisecondPrecision() {
+        long now = System.currentTimeMillis();
+        Date eventDate = new Date(now);
+        Date deadline = new Date(now - 1); // Exactly 1ms before
+
+        assertTrue("1ms before should be valid",
+                EventValidationUtils.isRegistrationDeadlineValid(deadline, eventDate));
+
+        Date exactlySame = new Date(now);
+        assertFalse("Exactly same millisecond should be invalid",
+                EventValidationUtils.isRegistrationDeadlineValid(exactlySame, eventDate));
+    }
+
+    @Test
+    public void testDifferentYearsValidation() {
+        Calendar cal = Calendar.getInstance();
+        cal.set(2023, 11, 31, 23, 59);
+        Date deadline = cal.getTime();
+
+        cal.set(2024, 0, 1, 0, 1);
+        Date eventDate = cal.getTime();
+
+        assertTrue("Deadline in previous year should be valid",
+                EventValidationUtils.isRegistrationDeadlineValid(deadline, eventDate));
     }
 }

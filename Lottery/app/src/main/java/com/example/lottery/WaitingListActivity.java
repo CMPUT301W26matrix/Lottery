@@ -1,12 +1,18 @@
 package com.example.lottery;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.example.lottery.model.User;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -22,6 +28,7 @@ public class WaitingListActivity extends AppCompatActivity {
 
     private ListView waitingListView;
     private TextView emptyMessage;
+    private ImageButton backButton;
 
     private ArrayList<User> entrants;
     private EntrantAdapter entrantAdapter;
@@ -32,10 +39,18 @@ public class WaitingListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_waiting_list);
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
 
         waitingListView = findViewById(R.id.waitingListView);
         emptyMessage = findViewById(R.id.emptyMessage);
+        backButton = findViewById(R.id.btnBack);
 
         db = FirebaseFirestore.getInstance();
         entrants = new ArrayList<>();
@@ -50,10 +65,31 @@ public class WaitingListActivity extends AppCompatActivity {
             return;
         }
 
+        backButton.setOnClickListener(v -> finish());
+        setupNavigation();
         loadWaitingList();
     }
 
-    /*
+    private void setupNavigation() {
+        findViewById(R.id.nav_home).setOnClickListener(v -> {
+            Intent intent = new Intent(this, OrganizerBrowseEventsActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+        });
+
+        findViewById(R.id.nav_profile).setOnClickListener(v -> {
+            startActivity(new Intent(this, OrganizerProfileActivity.class));
+        });
+
+        View btnCreate = findViewById(R.id.nav_create_container);
+        if (btnCreate != null) {
+            btnCreate.setOnClickListener(v ->
+                    startActivity(new Intent(this, OrganizerCreateEventActivity.class))
+            );
+        }
+    }
+
+    /**
      * Loads entrant IDs from:
      * events/{eventId}/entrants
      *
@@ -121,7 +157,7 @@ public class WaitingListActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> Toast.makeText(this, "Failed to load waiting list", Toast.LENGTH_SHORT).show());
     }
 
-    /*
+    /**
      * Shows the empty message if no entrants exist.
      */
     private void showEmptyState() {
@@ -129,7 +165,7 @@ public class WaitingListActivity extends AppCompatActivity {
         waitingListView.setVisibility(View.GONE);
     }
 
-    /*
+    /**
      * Updates the screen after Firestore data finishes loading.
      */
     private void updateListState() {

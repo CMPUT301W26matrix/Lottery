@@ -11,28 +11,46 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Lottery">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".NotificationsActivity"
             android:exported="false" />
         <activity
             android:name=".EntrantEventDetailsActivity"
             android:exported="false" />
-        <activity android:name=".WaitingListActivity" />
         <activity
-            android:name=".MainActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".EntrantRegistrationActivity" />
-        <activity android:name=".OrganizerRegistrationActivity" />
-        <activity android:name=".AdminSignInActivity" />
-        <activity android:name=".GeneralSignInActivity" />
-        <activity android:name=".EntrantMainActivity" />
+            android:name=".WaitingListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".EntrantRegistrationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".OrganizerRegistrationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AdminSignInActivity"
+            android:exported="false" />
+        <activity
+            android:name=".GeneralSignInActivity"
+            android:exported="false" />
+        <activity
+            android:name=".EntrantMainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".EntrantProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".BrowseProfilesActivity"
+            android:exported="false" />
         <activity android:name=".AdminBrowseProfilesActivity" />
         <activity
             android:name=".OrganizerCreateEventActivity"
@@ -41,24 +59,25 @@
             android:name=".OrganizerBrowseEventsActivity"
             android:exported="false"
             android:label="@string/organizer_dashboard" />
-
         <activity
             android:name=".AdminBrowseEventsActivity"
             android:exported="false"
             android:label="@string/admin_all_events_title"
             android:parentActivityName=".MainActivity" />
-
         <activity
             android:name=".AdminEventDetailsActivity"
             android:exported="false"
             android:label="@string/admin_event_details_title"
             android:parentActivityName=".AdminBrowseEventsActivity" />
-
         <activity
             android:name=".OrganizerEventDetailsActivity"
             android:exported="false"
             android:label="@string/event_details_title"
             android:parentActivityName=".OrganizerBrowseEventsActivity" />
+        <activity
+            android:name=".OrganizerProfileActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>

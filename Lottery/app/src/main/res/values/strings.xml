@@ -123,6 +123,23 @@
     <string name="back">Back</string>
     <string name="unlimited">Unlimited</string>
 
+    <!-- Profile Screen Strings -->
+    <string name="profile_name">Taocheng Wang</string>
+    <string name="profile_email">taocheng@ualberta.ca</string>
+    <string name="role_organizer">Organizer</string>
+    <string name="section_account">ACCOUNT</string>
+    <string name="menu_edit_profile">Edit Profile</string>
+    <string name="menu_change_password">Change Password</string>
+    <string name="menu_notification_settings">Notification Settings</string>
+    <string name="section_organizer_tools">ORGANIZER TOOLS</string>
+    <string name="menu_my_events">My Events</string>
+    <string name="menu_event_history">Event History</string>
+    <string name="menu_manage_waiting_lists">Manage Waiting Lists</string>
+    <string name="section_app_settings">APP SETTINGS</string>
+    <string name="menu_help_support">Help &amp; Support</string>
+    <string name="menu_about_lottery">About Lottery App</string>
+    <string name="btn_log_out">Log Out</string>
+
     <!-- EntrantEventDetailsActivity -->
     <string name="missing_event_or_user_info">Missing event or user information</string>
     <string name="registration_period_range">Registration Period: %1$s to %2$s</string>
@@ -150,6 +167,33 @@
     <string name="notification_response">Response: %1$s</string>
     <string name="notification_new_badge">NEW</string>
     <string name="settings">Settings</string>
+
+    <!-- Entrant Main Screen Strings -->
+    <string name="your_wait_listed_events">Your Wait-Listed Events</string>
+    <string name="your_invited_events">Your Invited Events</string>
+    <string name="your_signed_up_events">Your Signed-Up Events</string>
+
+    <!-- Empty State Messages -->
+    <string name="no_wait_listed_events">You have no events in your wait list</string>
+    <string name="no_invited_events">You have no pending invitations</string>
+    <string name="no_signed_up_events">You haven\'t signed up for any events yet</string>
+    <string name="join_events_to_see_them_here">Join events to see them here</string>
+    <string name="wait_for_lottery_to_see_invites">Wait for lottery results to see invitations here</string>
+    <string name="accept_invites_to_see_signed_up">Accept invitations to see signed-up events here</string>
+
+    <!-- Event Item/Details Strings -->
+    <string name="wait_listed">WAIT-LISTED</string>
+    <string name="invited">INVITED</string>
+    <string name="signed_up">SIGNED-UP</string>
+    <string name="accept">Accept</string>
+    <string name="decline">Decline</string>
+    <string name="cancel_membership">Cancel Membership</string>
+    <string name="registration_period_template">Registration Period: %1$s - %2$s</string>
+    <string name="people_in_waitlist_template">People in Waitlist: %1$d</string>
+    <string name="event_description_placeholder">Event description will appear here...</string>
+    <string name="view_details">View Details</string>
+    <string name="event_details">Event Details</string>
+    <string name="no_event_description">No event description available.</string>
     <string name="browse_profiles">Browse Profiles</string>
     <string name="view_user_profiles">View user profiles</string>
     <string name="there_are_no_user_profiles_in_the_system">There are no user profiles in the system.</string>
