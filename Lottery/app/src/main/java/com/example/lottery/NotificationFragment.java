@@ -21,7 +21,6 @@ import androidx.fragment.app.DialogFragment;
  * </ul>
  * </p>
  */
-
 public class NotificationFragment extends DialogFragment {
     private NotificationListener listener;
 
