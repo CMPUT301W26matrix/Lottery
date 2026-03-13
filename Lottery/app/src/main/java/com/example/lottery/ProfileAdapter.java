@@ -14,8 +14,7 @@ import com.example.lottery.model.User;
 
 import java.util.ArrayList;
 
-/*
- * ProfileAdapter
+/**
  * Displays user profiles in the admin browse profiles list.
  */
 public class ProfileAdapter extends ArrayAdapter<User> {
@@ -23,12 +22,26 @@ public class ProfileAdapter extends ArrayAdapter<User> {
     private final Context context;
     private final ArrayList<User> users;
 
+    /**
+     * Creates an adapter for displaying a list of users.
+     *
+     * @param context the context used to inflate views
+     * @param users the users to display
+     */
     public ProfileAdapter(Context context, ArrayList<User> users) {
         super(context, 0, users);
         this.context = context;
         this.users = users;
     }
 
+    /**
+     * Returns a view for the user at the given position.
+     *
+     * @param position the position of the user in the list
+     * @param convertView the recycled view to reuse if available
+     * @param parent the parent view group
+     * @return the view displaying the user information
+     */
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
