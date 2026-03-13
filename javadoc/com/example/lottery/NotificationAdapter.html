@@ -85,14 +85,14 @@ loadScripts(document, 'script');</script>
 <h1 title="Class NotificationAdapter" class="title">Class NotificationAdapter</h1>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
-<div class="inheritance">androidx.recyclerview.widget.RecyclerView.Adapter&lt;com.example.lottery.NotificationAdapter.NotificationViewHolder&gt;
+<div class="inheritance">androidx.recyclerview.widget.RecyclerView.Adapter&lt;<a href="NotificationAdapter.NotificationViewHolder.html" title="class in com.example.lottery">NotificationAdapter.NotificationViewHolder</a>&gt;
 <div class="inheritance">com.example.lottery.NotificationAdapter</div>
 </div>
 </div>
 <section class="class-description" id="class-description">
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">NotificationAdapter</span>
-<span class="extends-implements">extends androidx.recyclerview.widget.RecyclerView.Adapter&lt;com.example.lottery.NotificationAdapter.NotificationViewHolder&gt;</span></div>
+<span class="extends-implements">extends androidx.recyclerview.widget.RecyclerView.Adapter&lt;<a href="NotificationAdapter.NotificationViewHolder.html" title="class in com.example.lottery">NotificationAdapter.NotificationViewHolder</a>&gt;</span></div>
 <div class="block">Adapter used to display notifications in a RecyclerView.
 
  <p>This adapter binds <a href="model/NotificationItem.html" title="class in com.example.lottery.model"><code>NotificationItem</code></a> objects to the
@@ -114,9 +114,14 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Class</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code>static interface&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="NotificationAdapter.OnNotificationClickListener.html" class="type-name-link" title="interface in com.example.lottery">NotificationAdapter.OnNotificationClickListener</a></code></div>
+<div class="col-first even-row-color"><code>static class&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="NotificationAdapter.NotificationViewHolder.html" class="type-name-link" title="class in com.example.lottery">NotificationAdapter.NotificationViewHolder</a></code></div>
 <div class="col-last even-row-color">
+<div class="block">ViewHolder representing a single notification item in the RecyclerView.</div>
+</div>
+<div class="col-first odd-row-color"><code>static interface&nbsp;</code></div>
+<div class="col-second odd-row-color"><code><a href="NotificationAdapter.OnNotificationClickListener.html" class="type-name-link" title="interface in com.example.lottery">NotificationAdapter.OnNotificationClickListener</a></code></div>
+<div class="col-last odd-row-color">
 <div class="block">Listener interface used to handle notification click events.</div>
 </div>
 </div>
@@ -158,12 +163,12 @@ loadScripts(document, 'script');</script>
 <div class="block">Returns the total number of notifications.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onBindViewHolder(com.example.lottery.NotificationAdapter.NotificationViewHolder,int)" class="member-name-link">onBindViewHolder</a><wbr>(com.example.lottery.NotificationAdapter.NotificationViewHolder&nbsp;holder,
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onBindViewHolder(com.example.lottery.NotificationAdapter.NotificationViewHolder,int)" class="member-name-link">onBindViewHolder</a><wbr>(<a href="NotificationAdapter.NotificationViewHolder.html" title="class in com.example.lottery">NotificationAdapter.NotificationViewHolder</a>&nbsp;holder,
  int&nbsp;position)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Binds notification data to the ViewHolder.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.example.lottery.NotificationAdapter.NotificationViewHolder</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="NotificationAdapter.NotificationViewHolder.html" title="class in com.example.lottery">NotificationAdapter.NotificationViewHolder</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onCreateViewHolder(android.view.ViewGroup,int)" class="member-name-link">onCreateViewHolder</a><wbr>(android.view.ViewGroup&nbsp;parent,
  int&nbsp;viewType)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
@@ -214,18 +219,18 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="onCreateViewHolder(android.view.ViewGroup,int)">
 <h3>onCreateViewHolder</h3>
 <div class="member-signature"><span class="annotations">@NonNull
-</span><span class="modifiers">public</span>&nbsp;<span class="return-type">com.example.lottery.NotificationAdapter.NotificationViewHolder</span>&nbsp;<span class="element-name">onCreateViewHolder</span><wbr><span class="parameters">(@NonNull
+</span><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="NotificationAdapter.NotificationViewHolder.html" title="class in com.example.lottery">NotificationAdapter.NotificationViewHolder</a></span>&nbsp;<span class="element-name">onCreateViewHolder</span><wbr><span class="parameters">(@NonNull
  android.view.ViewGroup&nbsp;parent,
  int&nbsp;viewType)</span></div>
 <div class="block">Creates a new ViewHolder for notification items.</div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code>onCreateViewHolder</code>&nbsp;in class&nbsp;<code>androidx.recyclerview.widget.RecyclerView.Adapter&lt;com.example.lottery.NotificationAdapter.NotificationViewHolder&gt;</code></dd>
+<dd><code>onCreateViewHolder</code>&nbsp;in class&nbsp;<code>androidx.recyclerview.widget.RecyclerView.Adapter&lt;<a href="NotificationAdapter.NotificationViewHolder.html" title="class in com.example.lottery">NotificationAdapter.NotificationViewHolder</a>&gt;</code></dd>
 <dt>Parameters:</dt>
 <dd><code>parent</code> - the parent view group</dd>
 <dd><code>viewType</code> - the view type</dd>
 <dt>Returns:</dt>
-<dd>a new <code>NotificationAdapter.NotificationViewHolder</code></dd>
+<dd>a new <a href="NotificationAdapter.NotificationViewHolder.html" title="class in com.example.lottery"><code>NotificationAdapter.NotificationViewHolder</code></a></dd>
 </dl>
 </section>
 </li>
@@ -233,12 +238,12 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="onBindViewHolder(com.example.lottery.NotificationAdapter.NotificationViewHolder,int)">
 <h3>onBindViewHolder</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onBindViewHolder</span><wbr><span class="parameters">(@NonNull
- com.example.lottery.NotificationAdapter.NotificationViewHolder&nbsp;holder,
+ <a href="NotificationAdapter.NotificationViewHolder.html" title="class in com.example.lottery">NotificationAdapter.NotificationViewHolder</a>&nbsp;holder,
  int&nbsp;position)</span></div>
 <div class="block">Binds notification data to the ViewHolder.</div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code>onBindViewHolder</code>&nbsp;in class&nbsp;<code>androidx.recyclerview.widget.RecyclerView.Adapter&lt;com.example.lottery.NotificationAdapter.NotificationViewHolder&gt;</code></dd>
+<dd><code>onBindViewHolder</code>&nbsp;in class&nbsp;<code>androidx.recyclerview.widget.RecyclerView.Adapter&lt;<a href="NotificationAdapter.NotificationViewHolder.html" title="class in com.example.lottery">NotificationAdapter.NotificationViewHolder</a>&gt;</code></dd>
 <dt>Parameters:</dt>
 <dd><code>holder</code> - the ViewHolder representing the item</dd>
 <dd><code>position</code> - position of the notification in the list</dd>
@@ -252,7 +257,7 @@ loadScripts(document, 'script');</script>
 <div class="block">Returns the total number of notifications.</div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code>getItemCount</code>&nbsp;in class&nbsp;<code>androidx.recyclerview.widget.RecyclerView.Adapter&lt;com.example.lottery.NotificationAdapter.NotificationViewHolder&gt;</code></dd>
+<dd><code>getItemCount</code>&nbsp;in class&nbsp;<code>androidx.recyclerview.widget.RecyclerView.Adapter&lt;<a href="NotificationAdapter.NotificationViewHolder.html" title="class in com.example.lottery">NotificationAdapter.NotificationViewHolder</a>&gt;</code></dd>
 <dt>Returns:</dt>
 <dd>number of notifications in the list</dd>
 </dl>
