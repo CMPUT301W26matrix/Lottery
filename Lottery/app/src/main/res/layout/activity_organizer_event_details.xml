@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:fillViewport="true"
-        app:layout_constraintBottom_toTopOf="@id/bottom_action_container"
+        app:layout_constraintBottom_toTopOf="@id/bottom_nav_container"
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
@@ -276,30 +276,21 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <Button
+                android:id="@+id/btnViewWaitingList"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="24dp"
+                android:backgroundTint="@color/primary_blue"
+                android:text="View Waiting List"
+                android:textAllCaps="false"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:cornerRadius="12dp" />
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-
-    <LinearLayout
-        android:id="@+id/bottom_action_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/card_background"
-        android:elevation="8dp"
-        android:orientation="vertical"
-        android:padding="16dp"
-        app:layout_constraintBottom_toTopOf="@id/bottom_nav_container">
-
-        <Button
-            android:id="@+id/btnViewWaitingList"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="12dp"
-            android:backgroundTint="@color/primary_blue"
-            android:text="View Waiting List"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            app:cornerRadius="12dp" />
-    </LinearLayout>
 
     <FrameLayout
         android:id="@+id/bottom_nav_container"
