@@ -13,6 +13,17 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
+/**
+ * Adapter for invited entrants RecyclerView to display a list of entrants that have been invited to the specific event
+ *
+ * <p>Responsibilities:
+ * <ul>
+ *   <li>bind data to invited entrants recyclerview</li>
+ *   <li>render each piece of data</li>
+ *   <li>handle user interaction</li>
+ * </ul>
+ * </p>
+ */
 public class InvitedListAdapter extends RecyclerView.Adapter<InvitedListAdapter.ViewHolder> {
     /**
      * data we will manipulate to display

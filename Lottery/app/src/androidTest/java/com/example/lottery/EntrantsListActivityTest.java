@@ -18,8 +18,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * UI tests for US 02.03.01 - Optionally Limit Waiting List Size.
- * Verifies that the organizer can toggle the limit and that validation is performed.
+ * UI tests for EntrantsListActivity.
+ * Verifies that the organizer can switch between entrant list tabs and interact with fragments.
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
