@@ -26,51 +26,73 @@ import java.util.Map;
 
 /**
  * EntrantRegistrationActivity handles the registration process for entrant users.
- * 
+ *
  * <p>It provides two registration options:
  * <ul>
- *     <li><b>Full Registration:</b> Creates a persistent account with email and password 
+ *     <li><b>Full Registration:</b> Creates a persistent account with email and password
  *         using Firebase Authentication. User profiles are stored in Firestore.</li>
- *     <li><b>Anonymous Registration:</b> Identifies the user solely by their device using 
- *         Firebase Installation ID (FID). This allows immediate app access without 
+ *     <li><b>Anonymous Registration:</b> Identifies the user solely by their device using
+ *         Firebase Installation ID (FID). This allows immediate app access without
  *         manual input (aligned with device-based identification requirements).</li>
  * </ul>
  * </p>
  *
- * <p>This activity handles input validation, Firebase interaction, Firestore document 
+ * <p>This activity handles input validation, Firebase interaction, Firestore document
  * creation, and local session management via SharedPreferences.</p>
  *
  * @see EntrantMainActivity
  * @see MainActivity
  */
 public class EntrantRegistrationActivity extends AppCompatActivity {
-    /** Preference key for storing the user's unique ID. */
+    /**
+     * Preference key for storing the user's unique ID.
+     */
     private static final String KEY_USER_ID = "userId";
-    /** Preference key for storing the user's role (always "entrant" in this activity). */
+    /**
+     * Preference key for storing the user's role (always "entrant" in this activity).
+     */
     private static final String KEY_USER_ROLE = "userRole";
-    /** Preference key for storing the user's display name. */
+    /**
+     * Preference key for storing the user's display name.
+     */
     private static final String KEY_USER_NAME = "userName";
-    /** Preference key indicating if the current session is anonymous. */
+    /**
+     * Preference key indicating if the current session is anonymous.
+     */
     private static final String KEY_IS_ANONYMOUS = "isAnonymous";
-    /** Preference key for storing the Firebase Installation ID. */
+    /**
+     * Preference key for storing the Firebase Installation ID.
+     */
     private static final String KEY_FID = "fid";
-    
-    /** Firebase Firestore instance for database operations. */
+
+    /**
+     * Firebase Firestore instance for database operations.
+     */
     private FirebaseFirestore db;
-    /** UI components for user input. */
+    /**
+     * UI components for user input.
+     */
     private EditText entrantName, entrantEmail, entrantPassword, entrantPassword2, entrantPhone;
-    /** Buttons for triggering registration actions. */
+    /**
+     * Buttons for triggering registration actions.
+     */
     private Button continueButton, anonContinueButton;
-    /** Button to return to the previous screen. */
+    /**
+     * Button to return to the previous screen.
+     */
     private ImageButton backButton;
-    /** Firebase Auth instance for managing authenticated user accounts. */
+    /**
+     * Firebase Auth instance for managing authenticated user accounts.
+     */
     private FirebaseAuth mAuth;
-    /** SharedPreferences for local session persistence. */
+    /**
+     * SharedPreferences for local session persistence.
+     */
     private SharedPreferences sharedPreferences;
 
     /**
      * Initializes the activity, sets up the layout, and configures UI components.
-     * 
+     *
      * @param savedInstanceState the previously saved state of the activity.
      */
     @Override
@@ -123,9 +145,9 @@ public class EntrantRegistrationActivity extends AppCompatActivity {
 
     /**
      * Performs anonymous registration by retrieving the Firebase Installation ID (FID).
-     * 
-     * <p>If the device is already associated with an anonymous account in local preferences, 
-     * it navigates directly to the main screen. Otherwise, it creates a new "anon_" prefixed 
+     *
+     * <p>If the device is already associated with an anonymous account in local preferences,
+     * it navigates directly to the main screen. Otherwise, it creates a new "anon_" prefixed
      * user document in Firestore and updates local session data.</p>
      */
     private void registerAnonymousUser() {
@@ -200,8 +222,8 @@ public class EntrantRegistrationActivity extends AppCompatActivity {
 
     /**
      * Registers a new user with email and password via Firebase Authentication.
-     * 
-     * <p>Upon successful account creation, the user's additional profile data 
+     *
+     * <p>Upon successful account creation, the user's additional profile data
      * (name, email, phone) is persisted to Firestore.</p>
      */
     private void registerUser() {
@@ -232,7 +254,7 @@ public class EntrantRegistrationActivity extends AppCompatActivity {
 
     /**
      * Persists entrant profile data to the Firestore "users" collection.
-     * 
+     *
      * @param userId The unique Firebase Auth UID.
      * @param name   The user's display name.
      * @param email  The user's registered email address.
@@ -276,9 +298,9 @@ public class EntrantRegistrationActivity extends AppCompatActivity {
 
     /**
      * Validates user input fields for full registration.
-     * 
+     *
      * <p>Checks for non-empty name, valid email format, and password criteria (min 8 chars, matching re-entry).</p>
-     * 
+     *
      * @return true if all validations pass, false otherwise.
      */
     private boolean validateRegistration() {
@@ -338,7 +360,7 @@ public class EntrantRegistrationActivity extends AppCompatActivity {
 
     /**
      * Navigates to the entrant's main activity after successful registration.
-     * 
+     *
      * @param userId      The unique ID assigned to the user.
      * @param userName    The display name of the user.
      * @param userEmail   The email address of the user (null for anonymous).

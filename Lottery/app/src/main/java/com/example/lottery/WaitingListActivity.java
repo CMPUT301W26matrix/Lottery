@@ -92,7 +92,7 @@ public class WaitingListActivity extends AppCompatActivity {
     /**
      * Loads entrant IDs from:
      * events/{eventId}/entrants
-     *
+     * <p>
      * Then loads each user's personal info from:
      * users
      */

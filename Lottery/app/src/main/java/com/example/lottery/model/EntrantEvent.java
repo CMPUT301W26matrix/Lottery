@@ -8,18 +8,6 @@ import com.google.firebase.Timestamp;
  */
 public class EntrantEvent {
 
-    /**
-     * Enum representing the possible statuses of an entrant for an event.
-     */
-    public enum Status {
-        WAITLISTED,
-        INVITED,
-        ACCEPTED,
-        DECLINED,
-        SELECTED,
-        CANCELLED
-    }
-
     private String relationId;           // Composite ID: entrantId_eventId
     private String entrantId;
     private String eventId;
@@ -53,30 +41,87 @@ public class EntrantEvent {
     }
 
     // Getters and Setters
-    public String getRelationId() { return relationId; }
-    public void setRelationId(String relationId) { this.relationId = relationId; }
+    public String getRelationId() {
+        return relationId;
+    }
 
-    public String getEntrantId() { return entrantId; }
-    public void setEntrantId(String entrantId) { this.entrantId = entrantId; }
+    public void setRelationId(String relationId) {
+        this.relationId = relationId;
+    }
 
-    public String getEventId() { return eventId; }
-    public void setEventId(String eventId) { this.eventId = eventId; }
+    public String getEntrantId() {
+        return entrantId;
+    }
 
-    public Status getStatus() { return status; }
-    public void setStatus(Status status) { this.status = status; }
+    public void setEntrantId(String entrantId) {
+        this.entrantId = entrantId;
+    }
 
-    public Timestamp getJoinedAt() { return joinedAt; }
-    public void setJoinedAt(Timestamp joinedAt) { this.joinedAt = joinedAt; }
+    public String getEventId() {
+        return eventId;
+    }
 
-    public Timestamp getInvitedAt() { return invitedAt; }
-    public void setInvitedAt(Timestamp invitedAt) { this.invitedAt = invitedAt; }
+    public void setEventId(String eventId) {
+        this.eventId = eventId;
+    }
 
-    public Timestamp getRespondedAt() { return respondedAt; }
-    public void setRespondedAt(Timestamp respondedAt) { this.respondedAt = respondedAt; }
+    public Status getStatus() {
+        return status;
+    }
 
-    public int getWaitlistPosition() { return waitlistPosition; }
-    public void setWaitlistPosition(int waitlistPosition) { this.waitlistPosition = waitlistPosition; }
+    public void setStatus(Status status) {
+        this.status = status;
+    }
 
-    public boolean isNotificationSent() { return notificationSent; }
-    public void setNotificationSent(boolean notificationSent) { this.notificationSent = notificationSent; }
+    public Timestamp getJoinedAt() {
+        return joinedAt;
+    }
+
+    public void setJoinedAt(Timestamp joinedAt) {
+        this.joinedAt = joinedAt;
+    }
+
+    public Timestamp getInvitedAt() {
+        return invitedAt;
+    }
+
+    public void setInvitedAt(Timestamp invitedAt) {
+        this.invitedAt = invitedAt;
+    }
+
+    public Timestamp getRespondedAt() {
+        return respondedAt;
+    }
+
+    public void setRespondedAt(Timestamp respondedAt) {
+        this.respondedAt = respondedAt;
+    }
+
+    public int getWaitlistPosition() {
+        return waitlistPosition;
+    }
+
+    public void setWaitlistPosition(int waitlistPosition) {
+        this.waitlistPosition = waitlistPosition;
+    }
+
+    public boolean isNotificationSent() {
+        return notificationSent;
+    }
+
+    public void setNotificationSent(boolean notificationSent) {
+        this.notificationSent = notificationSent;
+    }
+
+    /**
+     * Enum representing the possible statuses of an entrant for an event.
+     */
+    public enum Status {
+        WAITLISTED,
+        INVITED,
+        ACCEPTED,
+        DECLINED,
+        SELECTED,
+        CANCELLED
+    }
 }

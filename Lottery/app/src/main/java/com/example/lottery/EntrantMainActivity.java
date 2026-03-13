@@ -27,9 +27,9 @@ import java.util.List;
  */
 public class EntrantMainActivity extends AppCompatActivity {
 
+    private final List<Event> eventList = new ArrayList<>();
     private RecyclerView rvEvents;
     private EntrantEventAdapter adapter;
-    private final List<Event> eventList = new ArrayList<>();
     private View emptyStateContainer;
     private TextView tvActiveCount, tvJoinedCount;
     private FirebaseFirestore db;
@@ -39,8 +39,8 @@ public class EntrantMainActivity extends AppCompatActivity {
      * Initializes the activity, setting up the UI and loading data.
      *
      * @param savedInstanceState If the activity is being re-initialized after
-     *     previously being shut down then this Bundle contains the data it most
-     *     recently supplied in onSaveInstanceState(Bundle). Note: Otherwise it is null.
+     *                           previously being shut down then this Bundle contains the data it most
+     *                           recently supplied in onSaveInstanceState(Bundle). Note: Otherwise it is null.
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,12 +86,12 @@ public class EntrantMainActivity extends AppCompatActivity {
             // Already home
         });
 
-        findViewById(R.id.nav_history).setOnClickListener(v -> 
-            Toast.makeText(this, "History coming soon", Toast.LENGTH_SHORT).show()
+        findViewById(R.id.nav_history).setOnClickListener(v ->
+                Toast.makeText(this, "History coming soon", Toast.LENGTH_SHORT).show()
         );
 
-        findViewById(R.id.nav_qr_scan).setOnClickListener(v -> 
-            Toast.makeText(this, "QR Scan coming soon", Toast.LENGTH_SHORT).show()
+        findViewById(R.id.nav_qr_scan).setOnClickListener(v ->
+                Toast.makeText(this, "QR Scan coming soon", Toast.LENGTH_SHORT).show()
         );
 
         findViewById(R.id.nav_profile).setOnClickListener(v -> {

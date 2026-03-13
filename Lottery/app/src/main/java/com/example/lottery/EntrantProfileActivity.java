@@ -18,7 +18,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 /**
  * EntrantProfileActivity displays and manages the personal profile of an entrant user.
- * 
+ *
  * <p>Key Responsibilities:
  * <ul>
  *   <li>Displays the entrant's name and email retrieved from Firestore.</li>
@@ -30,22 +30,34 @@ import com.google.firebase.firestore.FirebaseFirestore;
  */
 public class EntrantProfileActivity extends AppCompatActivity {
 
-    /** TextView for displaying the entrant's name. */
+    /**
+     * TextView for displaying the entrant's name.
+     */
     private TextView tvName;
-    /** TextView for displaying the entrant's email. */
+    /**
+     * TextView for displaying the entrant's email.
+     */
     private TextView tvEmail;
-    /** Button used to trigger the logout process. */
+    /**
+     * Button used to trigger the logout process.
+     */
     private Button btnLogout;
-    /** Firebase Firestore instance for database operations. */
+    /**
+     * Firebase Firestore instance for database operations.
+     */
     private FirebaseFirestore db;
-    /** Firebase Auth instance for handling user sessions. */
+    /**
+     * Firebase Auth instance for handling user sessions.
+     */
     private FirebaseAuth mAuth;
-    /** The unique identifier for the current user. */
+    /**
+     * The unique identifier for the current user.
+     */
     private String userId;
 
     /**
      * Initializes the activity, sets up the layout, and configures UI components.
-     * 
+     *
      * @param savedInstanceState the previously saved state of the activity.
      */
     @Override
@@ -75,7 +87,7 @@ public class EntrantProfileActivity extends AppCompatActivity {
             mAuth.signOut();
             SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
             prefs.edit().clear().apply();
-            
+
             Intent intent = new Intent(this, MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
@@ -85,7 +97,7 @@ public class EntrantProfileActivity extends AppCompatActivity {
         findViewById(R.id.rl_edit_profile).setOnClickListener(v -> {
             Toast.makeText(this, "Edit profile coming soon", Toast.LENGTH_SHORT).show();
         });
-        
+
         findViewById(R.id.rl_notification_settings).setOnClickListener(v -> {
             Toast.makeText(this, "Notification settings coming soon", Toast.LENGTH_SHORT).show();
         });
@@ -97,7 +109,7 @@ public class EntrantProfileActivity extends AppCompatActivity {
      */
     private void loadUserProfile() {
         if (userId == null) return;
-        
+
         db.collection("users").document(userId).get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
                 tvName.setText(documentSnapshot.getString("name"));
@@ -118,12 +130,12 @@ public class EntrantProfileActivity extends AppCompatActivity {
             finish();
         });
 
-        findViewById(R.id.nav_history).setOnClickListener(v -> 
-            Toast.makeText(this, "History coming soon", Toast.LENGTH_SHORT).show()
+        findViewById(R.id.nav_history).setOnClickListener(v ->
+                Toast.makeText(this, "History coming soon", Toast.LENGTH_SHORT).show()
         );
 
-        findViewById(R.id.nav_qr_scan).setOnClickListener(v -> 
-            Toast.makeText(this, "QR Scan coming soon", Toast.LENGTH_SHORT).show()
+        findViewById(R.id.nav_qr_scan).setOnClickListener(v ->
+                Toast.makeText(this, "QR Scan coming soon", Toast.LENGTH_SHORT).show()
         );
 
         findViewById(R.id.nav_profile).setOnClickListener(v -> {

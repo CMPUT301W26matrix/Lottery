@@ -21,13 +21,6 @@ import java.util.Locale;
  */
 public class EntrantEventAdapter extends RecyclerView.Adapter<EntrantEventAdapter.EntrantEventViewHolder> {
 
-    /**
-     * Listener interface used to notify when an event item is clicked.
-     */
-    public interface OnEventClickListener {
-        void onEventClick(Event event);
-    }
-
     private final List<Event> eventList;
     private final OnEventClickListener listener;
     private final SimpleDateFormat dateFormat =
@@ -37,7 +30,7 @@ public class EntrantEventAdapter extends RecyclerView.Adapter<EntrantEventAdapte
      * Constructs an EntrantEventAdapter.
      *
      * @param eventList list of events to display
-     * @param listener listener that handles event selection
+     * @param listener  listener that handles event selection
      */
     public EntrantEventAdapter(List<Event> eventList, OnEventClickListener listener) {
         this.eventList = eventList;
@@ -79,6 +72,13 @@ public class EntrantEventAdapter extends RecyclerView.Adapter<EntrantEventAdapte
     @Override
     public int getItemCount() {
         return eventList.size();
+    }
+
+    /**
+     * Listener interface used to notify when an event item is clicked.
+     */
+    public interface OnEventClickListener {
+        void onEventClick(Event event);
     }
 
     static class EntrantEventViewHolder extends RecyclerView.ViewHolder {

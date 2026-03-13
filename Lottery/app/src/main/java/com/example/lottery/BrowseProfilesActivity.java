@@ -78,7 +78,7 @@ public class BrowseProfilesActivity extends AppCompatActivity {
             TextView tvHome = btnHome.findViewById(android.R.id.text1); // This might be wrong, checking layout
             // Looking at layout_bottom_nav_admin.xml, it doesn't use IDs for text/icons internally except the containers.
             // I should use the IDs from the layout.
-            
+
             btnHome.setOnClickListener(v -> {
                 Intent intent = new Intent(this, AdminBrowseEventsActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -93,7 +93,7 @@ public class BrowseProfilesActivity extends AppCompatActivity {
             ImageView ivProfiles = btnProfiles.findViewById(R.id.nav_profile); // Wait, IDs are not in the layout for children.
             // Let me re-read layout_bottom_nav_admin.xml
         }
-        
+
         // Let's just set the listeners first as they are in AdminBrowseEventsActivity
         if (btnProfiles != null) {
             btnProfiles.setOnClickListener(v ->
@@ -111,7 +111,7 @@ public class BrowseProfilesActivity extends AppCompatActivity {
             btnLogs.setOnClickListener(v ->
                     Toast.makeText(this, R.string.admin_logs_coming_soon, Toast.LENGTH_SHORT).show());
         }
-        
+
         // Manual highlighting since we are not using a real BottomNavigationView
         highlightCurrentTab();
     }

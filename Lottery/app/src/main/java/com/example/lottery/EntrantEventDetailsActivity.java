@@ -99,7 +99,9 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     // private LinearLayout navQrScan;  --> implement later
     // private LinearLayout navSettings; --> implement later
 
-    /** Button used to close the activity. */
+    /**
+     * Button used to close the activity.
+     */
     private ImageButton btnClose;
     /**
      * Displays the event poster image.
