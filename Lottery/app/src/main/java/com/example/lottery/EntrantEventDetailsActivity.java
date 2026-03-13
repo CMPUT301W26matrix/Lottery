@@ -17,9 +17,12 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.lottery.util.InvitationFlowUtil;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
@@ -34,11 +37,9 @@ import java.util.Map;
  *     <li>View event information such as title, description, and registration period</li>
  *     <li>View the current number of entrants in the waitlist</li>
  *     <li>Join or leave the event waitlist</li>
+ *     <li>Accept or decline event invitations (when user has won the lottery)</li>
  *     <li>View notifications related to the entrant</li>
  * </ul>
- *
- * <p>The activity retrieves event information from Firebase Firestore and updates
- * the UI accordingly.</p>
  *
  * <p>The activity expects two intent extras:
  * <ul>
@@ -88,6 +89,22 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
      */
     private Button btnWaitlistAction;
     /**
+     * Container for the accept/decline invitation buttons
+     */
+    private LinearLayout invitationButtonsContainer;
+    /**
+     * Button used to accept an event invitation
+     */
+    private Button btnAcceptInvite;
+    /**
+     * Button used to decline an event invitation
+     */
+    private Button btnDeclineInvite;
+    /**
+     * Container for the registration period ended message
+     */
+    private LinearLayout registrationEndedContainer;
+    /**
      * Button used to open the notifications screen.
      */
     private ImageButton btnNotifications;
@@ -127,6 +144,18 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
      * Number of entrants currently in the waitlist.
      */
     private int waitlistCount = 0;
+    /**
+     * Indicates whether the user has been invited to the event (won the lottery)
+     */
+    private boolean isInvited = false;
+    /**
+     * Indicates whether the user has accepted the invitation
+     */
+    private boolean hasAcceptedInvite = false;
+    /**
+     * Indicates whether the user has declined the invitation
+     */
+    private boolean hasDeclinedInvite = false;
 
     /**
      * Initializes the activity, retrieves intent data, binds UI components,
@@ -154,8 +183,14 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         tvNotificationBadge = findViewById(R.id.tvNotificationBadge);
         tvEventDescription = findViewById(R.id.tvEventDescription);
         btnWaitlistAction = findViewById(R.id.btnWaitlistAction);
-//        btnNotifications = findViewById(R.id.nav_notifications);  // CHANGED: btnNotifications -> nav_notifications
-        navHome = findViewById(R.id.nav_home);  // ADDED: home button in bottom navigation bar returns to entrant main screen
+
+        // NEW: Initialize invitation buttons and containers
+        invitationButtonsContainer = findViewById(R.id.invitationButtonsContainer);
+        btnAcceptInvite = findViewById(R.id.btnAcceptInvite);
+        btnDeclineInvite = findViewById(R.id.btnDeclineInvite);
+        registrationEndedContainer = findViewById(R.id.registrationEndedContainer);
+
+        navHome = findViewById(R.id.nav_home);
         btnClose = findViewById(R.id.btnBack);
         ivEventPoster = findViewById(R.id.ivEventPoster);
 
@@ -165,38 +200,35 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         }
 
         loadEventDetails();
-        checkWaitlistStatus();
+        checkUserEventStatus();
         loadWaitlistCount();
         checkUnreadNotifications();
 
+        // NEW: Set up invitation button click listeners
+        btnAcceptInvite.setOnClickListener(v -> acceptInvitation());
+        btnDeclineInvite.setOnClickListener(v -> declineInvitation());
+
         btnWaitlistAction.setOnClickListener(v -> {
-            if (isInWaitlist) {
+            if (hasAcceptedInvite) {
+                cancelAcceptedInvitation();
+            } else if (isInWaitlist) {
                 leaveWaitlist();
             } else {
                 joinWaitlist();
             }
         });
-//
-//        btnNotifications.setOnClickListener(v -> {
-//            Intent intent = new Intent(this, NotificationsActivity.class);
-//            intent.putExtra(NotificationsActivity.EXTRA_USER_ID, userId);
-//            startActivity(intent);
-//        });
 
-        // ADDED: Home navigation to aEntrantMainActivity (entrant's main screen)
         navHome.setOnClickListener(v -> {
             Intent intent = new Intent(this, EntrantMainActivity.class);
             intent.putExtra("userId", userId);
-            intent.putExtra("isAnonymous", false); // You might want to pass actual value
+            intent.putExtra("isAnonymous", false);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
             finish();
         });
 
         btnClose.setOnClickListener(v -> finish());
-
     }
-
 
     /**
      * Refreshes event data whenever the activity resumes.
@@ -209,7 +241,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         }
 
         loadEventDetails();
-        checkWaitlistStatus();
+        checkUserEventStatus();
         loadWaitlistCount();
         checkUnreadNotifications();
     }
@@ -241,8 +273,6 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                 .addOnSuccessListener(documentSnapshot -> {
                     if (!documentSnapshot.exists()) {
                         Toast.makeText(this, R.string.event_not_found, Toast.LENGTH_SHORT).show();
-                        // Removed finish() to prevent activity from closing immediately during tests
-                        // or when network issues/missing data occur, providing better UX.
                         return;
                     }
 
@@ -341,24 +371,256 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * Checks whether the current entrant is already in the event waitlist.
+     * Checks the user's relationship with the event (waitlisted, invited, accepted, declined)
      */
-    private void checkWaitlistStatus() {
+    private void checkUserEventStatus() {
         DocumentReference entrantRef = db.collection("events")
                 .document(eventId)
                 .collection("entrants")
                 .document(userId);
 
         entrantRef.get().addOnSuccessListener(documentSnapshot -> {
-            if (documentSnapshot.exists()
-                    && "waiting".equalsIgnoreCase(documentSnapshot.getString("status"))) {
-                isInWaitlist = true;
-                btnWaitlistAction.setText(R.string.leave_wait_list);
+            if (documentSnapshot.exists()) {
+                String status = InvitationFlowUtil.normalizeEntrantStatus(documentSnapshot.getString("status"));
+
+                // Check if user is invited (won the lottery)
+                if (InvitationFlowUtil.STATUS_INVITED.equals(status)) {
+                    isInWaitlist = false;
+                    isInvited = true;
+                    hasAcceptedInvite = false;
+                    hasDeclinedInvite = false;
+                    showInvitationButtons();
+                }
+                // Check if user has accepted the invitation
+                else if (InvitationFlowUtil.STATUS_ACCEPTED.equals(status)) {
+                    isInWaitlist = false;
+                    isInvited = false;
+                    hasAcceptedInvite = true;
+                    hasDeclinedInvite = false;
+                    showAcceptedState();
+                }
+                // Check if user has declined the invitation
+                else if (InvitationFlowUtil.STATUS_DECLINED.equals(status)) {
+                    isInWaitlist = false;
+                    isInvited = false;
+                    hasAcceptedInvite = false;
+                    hasDeclinedInvite = true;
+                    showDeclinedState();
+                }
+                // Check if user is in waitlist
+                else if (InvitationFlowUtil.STATUS_WAITING.equals(status)) {
+                    isInWaitlist = true;
+                    isInvited = false;
+                    hasAcceptedInvite = false;
+                    hasDeclinedInvite = false;
+                    showWaitlistButton();
+                } else {
+                    // User has no special status
+                    resetToDefaultState();
+                }
             } else {
-                isInWaitlist = false;
-                btnWaitlistAction.setText(R.string.join_wait_list);
+                // User is not in the entrants collection at all
+                resetToDefaultState();
             }
+        }).addOnFailureListener(e -> {
+            // On failure, reset to default state
+            resetToDefaultState();
         });
+    }
+
+    /**
+     * Shows the invitation buttons (Accept/Decline) and hides the waitlist button
+     */
+    private void showInvitationButtons() {
+        btnWaitlistAction.setVisibility(View.GONE);
+        invitationButtonsContainer.setVisibility(View.VISIBLE);
+        registrationEndedContainer.setVisibility(View.GONE);
+
+        // Ensure the event details are at full opacity
+        findViewById(R.id.scrollView).setAlpha(1.0f);
+    }
+
+    /**
+     * Shows the accepted state with "Cancel Event Membership" button
+     */
+    private void showAcceptedState() {
+        invitationButtonsContainer.setVisibility(View.GONE);
+        registrationEndedContainer.setVisibility(View.GONE);
+        btnWaitlistAction.setVisibility(View.VISIBLE);
+        btnWaitlistAction.setText(R.string.cancel_event_membership);
+
+        // Ensure the event details are at full opacity
+        findViewById(R.id.scrollView).setAlpha(1.0f);
+    }
+
+    /**
+     * Shows the declined state with dimmed opacity and registration ended message
+     */
+    private void showDeclinedState() {
+        invitationButtonsContainer.setVisibility(View.GONE);
+        btnWaitlistAction.setVisibility(View.GONE);
+        registrationEndedContainer.setVisibility(View.VISIBLE);
+
+        // Dim the event details
+        findViewById(R.id.scrollView).setAlpha(0.5f);
+    }
+
+    /**
+     * Shows the waitlist join/leave button
+     */
+    private void showWaitlistButton() {
+        invitationButtonsContainer.setVisibility(View.GONE);
+        registrationEndedContainer.setVisibility(View.GONE);
+        btnWaitlistAction.setVisibility(View.VISIBLE);
+
+        if (isInWaitlist) {
+            btnWaitlistAction.setText(R.string.leave_wait_list);
+        } else {
+            btnWaitlistAction.setText(R.string.join_wait_list);
+        }
+
+        // Ensure the event details are at full opacity
+        findViewById(R.id.scrollView).setAlpha(1.0f);
+    }
+
+    /**
+     * Resets to default state (no special relationship with event)
+     */
+    private void resetToDefaultState() {
+        isInWaitlist = false;
+        isInvited = false;
+        hasAcceptedInvite = false;
+        hasDeclinedInvite = false;
+
+        invitationButtonsContainer.setVisibility(View.GONE);
+        registrationEndedContainer.setVisibility(View.GONE);
+        btnWaitlistAction.setVisibility(View.VISIBLE);
+        btnWaitlistAction.setText(R.string.join_wait_list);
+
+        // Ensure the event details are at full opacity
+        findViewById(R.id.scrollView).setAlpha(1.0f);
+    }
+
+    /**
+     * Accepts the event invitation
+     */
+    private void acceptInvitation() {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("status", InvitationFlowUtil.STATUS_ACCEPTED);
+        updates.put("responseTime", Timestamp.now());
+
+        db.collection("events")
+                .document(eventId)
+                .collection("entrants")
+                .document(userId)
+                .update(updates)
+                .addOnSuccessListener(unused -> {
+                    isInWaitlist = false;
+                    isInvited = false;
+                    hasAcceptedInvite = true;
+                    hasDeclinedInvite = false;
+                    showAcceptedState();
+                    syncWinningNotificationDecision(InvitationFlowUtil.RESPONSE_ACCEPTED);
+                    Toast.makeText(this, R.string.invitation_accepted, Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, R.string.failed_to_accept_invitation, Toast.LENGTH_SHORT).show()
+                );
+    }
+
+    /**
+     * Declines the event invitation
+     */
+    private void declineInvitation() {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("status", InvitationFlowUtil.STATUS_DECLINED);
+        updates.put("responseTime", Timestamp.now());
+
+        db.collection("events")
+                .document(eventId)
+                .collection("entrants")
+                .document(userId)
+                .update(updates)
+                .addOnSuccessListener(unused -> {
+                    isInWaitlist = false;
+                    isInvited = false;
+                    hasAcceptedInvite = false;
+                    hasDeclinedInvite = true;
+                    showDeclinedState();
+                    syncWinningNotificationDecision(InvitationFlowUtil.RESPONSE_REJECTED);
+                    Toast.makeText(this, R.string.invitation_declined, Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, R.string.failed_to_decline_invitation, Toast.LENGTH_SHORT).show()
+                );
+    }
+
+    /**
+     * Removes an accepted entrant from the event.
+     */
+    private void cancelAcceptedInvitation() {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("status", InvitationFlowUtil.STATUS_DECLINED);
+        updates.put("responseTime", Timestamp.now());
+
+        db.collection("events")
+                .document(eventId)
+                .collection("entrants")
+                .document(userId)
+                .update(updates)
+                .addOnSuccessListener(unused -> {
+                    isInWaitlist = false;
+                    isInvited = false;
+                    hasAcceptedInvite = false;
+                    hasDeclinedInvite = true;
+                    showDeclinedState();
+                    syncWinningNotificationDecision(InvitationFlowUtil.RESPONSE_CANCELLED);
+                    Toast.makeText(this, R.string.membership_cancelled, Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, R.string.failed_to_cancel_membership, Toast.LENGTH_SHORT).show()
+                );
+    }
+
+    /**
+     * Syncs win notifications so the notification inbox reflects decisions made in event details.
+     *
+     * @param response handled response value
+     */
+    private void syncWinningNotificationDecision(String response) {
+        db.collection("users")
+                .document(userId)
+                .collection("notifications")
+                .whereEqualTo("eventId", eventId)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    WriteBatch batch = db.batch();
+                    boolean hasWinningNotifications = false;
+                    Map<String, Object> updates = InvitationFlowUtil.buildHandledNotificationUpdate(response);
+
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        if (!"win".equalsIgnoreCase(document.getString("type"))) {
+                            continue;
+                        }
+
+                        batch.update(document.getReference(), updates);
+                        hasWinningNotifications = true;
+                    }
+
+                    if (!hasWinningNotifications) {
+                        checkUnreadNotifications();
+                        return;
+                    }
+
+                    batch.commit()
+                            .addOnSuccessListener(unused -> checkUnreadNotifications())
+                            .addOnFailureListener(e ->
+                                    Toast.makeText(this, R.string.failed_to_update_notification, Toast.LENGTH_SHORT).show()
+                            );
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, R.string.failed_to_update_notification, Toast.LENGTH_SHORT).show()
+                );
     }
 
     /**

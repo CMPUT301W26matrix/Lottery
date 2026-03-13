@@ -197,4 +197,18 @@
     <string name="there_are_no_user_profiles_in_the_system">There are no user profiles in the system.</string>
     <string name="no_user_profiles_in_the_system">No user profiles in the system</string>
     <string name="failed_to_load_profiles">Failed to load profiles</string>
+
+    <!-- Invitation strings -->
+    <string name="decline_invite">Decline Invite</string>
+    <string name="invitation_accepted">Invitation accepted! You are now signed up for this event.</string>
+    <string name="invitation_declined">Invitation declined</string>
+    <string name="failed_to_accept_invitation">Failed to accept invitation. Please try again.</string>
+    <string name="failed_to_decline_invitation">Failed to decline invitation. Please try again.</string>
+    <string name="failed_to_cancel_membership">Failed to cancel membership. Please try again.</string>
+    <string name="cancel_event_membership">Cancel Event Membership</string>
+    <string name="membership_cancelled">Event membership cancelled.</string>
+
+    <!-- Registration period ended strings -->
+    <string name="registration_period_ended">Registration Period Over</string>
+    <string name="cannot_join_event_lottery_drawn">You can no longer join this event as the lottery has already been drawn.</string>
 </resources>

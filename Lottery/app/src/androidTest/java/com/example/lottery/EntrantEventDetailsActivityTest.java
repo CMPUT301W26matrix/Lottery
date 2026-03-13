@@ -2,7 +2,9 @@ package com.example.lottery;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.Visibility.GONE;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
@@ -44,5 +46,19 @@ public class EntrantEventDetailsActivityTest {
     public void testBottomNavigationIsDisplayed() {
         onView(withId(R.id.bottomNav)).check(matches(isDisplayed()));
         onView(withId(R.id.nav_home)).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void testInvitationUiElementsExist() {
+        onView(withId(R.id.btnAcceptInvite)).check(matches(withText(R.string.accept_invite)));
+        onView(withId(R.id.btnDeclineInvite)).check(matches(withText(R.string.decline_invite)));
+        onView(withId(R.id.invitationButtonsContainer)).check(matches(withEffectiveVisibility(GONE)));
+        onView(withId(R.id.registrationEndedContainer)).check(matches(withEffectiveVisibility(GONE)));
+    }
+
+    @Test
+    public void testWaitlistActionButtonIsVisibleByDefault() {
+        onView(withId(R.id.btnWaitlistAction)).check(matches(isDisplayed()));
+        onView(withId(R.id.btnWaitlistAction)).check(matches(withText(R.string.join_wait_list)));
     }
 }

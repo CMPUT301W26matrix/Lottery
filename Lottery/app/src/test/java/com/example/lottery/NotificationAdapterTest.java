@@ -68,4 +68,29 @@ public class NotificationAdapterTest {
         assertEquals(View.GONE, holder.tvNew.getVisibility());
         assertEquals(View.VISIBLE, holder.tvResponse.getVisibility());
     }
+
+    @Test
+    public void testOnBindViewHolder_showsCancelledResponse() {
+        notifications.clear();
+        notifications.add(new NotificationItem(
+                "id3",
+                "Title 3",
+                "Message 3",
+                "win",
+                "event3",
+                true,
+                true,
+                "CANCELLED"
+        ));
+
+        adapter = new NotificationAdapter(notifications, item -> {});
+
+        FrameLayout parent = new FrameLayout(context);
+        NotificationAdapter.NotificationViewHolder holder = adapter.onCreateViewHolder(parent, 0);
+
+        adapter.onBindViewHolder(holder, 0);
+
+        assertEquals(View.VISIBLE, holder.tvResponse.getVisibility());
+        assertEquals("Response: CANCELLED", holder.tvResponse.getText().toString());
+    }
 }
