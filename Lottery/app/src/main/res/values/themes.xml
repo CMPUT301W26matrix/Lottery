@@ -15,9 +15,9 @@
     </style>
 
     <style name="Theme.Lottery" parent="Base.Theme.Lottery" />
-    // Source - https://stackoverflow.com/a/57843956
-    // Posted by Gabriele Mariotti
-    // Retrieved 2026-03-09, License - CC BY-SA 4.0
+    <!-- Source: https://stackoverflow.com/a/57843956 -->
+    <!-- Posted by Gabriele Mariotti -->
+    <!-- Retrieved 2026-03-09, License: CC BY-SA 4.0 -->
 
     <style name="RoundedImageStyle">
         <item name="cornerSize">12dp</item>

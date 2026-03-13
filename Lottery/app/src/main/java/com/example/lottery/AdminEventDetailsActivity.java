@@ -10,8 +10,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.example.lottery.model.Event;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -74,7 +78,14 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_admin_event_details);
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content), (v, insets) -> {
+            Insets in = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(in.left, in.top, in.right, in.bottom);
+            return insets;
+        });
 
         db = FirebaseFirestore.getInstance();
 
@@ -129,8 +140,12 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
 
         View btnProfiles = findViewById(R.id.nav_profiles);
         if (btnProfiles != null) {
-            btnProfiles.setOnClickListener(v ->
-                    Toast.makeText(this, R.string.admin_profiles_coming_soon, Toast.LENGTH_SHORT).show());
+            btnProfiles.setOnClickListener(v -> {
+                Intent intent = new Intent(this, AdminBrowseProfilesActivity.class);
+                intent.putExtra("role", "admin");
+                startActivity(intent);
+                finish();
+            });
         }
 
         View btnImages = findViewById(R.id.nav_images);

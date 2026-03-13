@@ -5,6 +5,7 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.hasErrorText;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
@@ -20,6 +21,8 @@ public class GeneralSignInActivityTest {
 
     @Test
     public void testAllViewsAreDisplayed() {
+        onView(withId(R.id.btnBack)).check(matches(isDisplayed()));
+        onView(withId(R.id.tvRegisterTitle)).check(matches(isDisplayed()));
         onView(withId(R.id.etEmail)).check(matches(isDisplayed()));
         onView(withId(R.id.etPassword)).check(matches(isDisplayed()));
         onView(withId(R.id.btnContinue)).check(matches(isDisplayed()));
@@ -30,8 +33,16 @@ public class GeneralSignInActivityTest {
         onView(withId(R.id.etPassword)).perform(typeText("password123"), closeSoftKeyboard());
         onView(withId(R.id.btnContinue)).perform(click());
 
-        // Activity should still be displayed (no navigation)
-        onView(withId(R.id.etEmail)).check(matches(isDisplayed()));
+        onView(withId(R.id.etEmail)).check(matches(hasErrorText("Email is required")));
+    }
+
+    @Test
+    public void testInvalidEmailShowsError() {
+        onView(withId(R.id.etEmail)).perform(typeText("invalid-email"), closeSoftKeyboard());
+        onView(withId(R.id.etPassword)).perform(typeText("password123"), closeSoftKeyboard());
+        onView(withId(R.id.btnContinue)).perform(click());
+
+        onView(withId(R.id.etEmail)).check(matches(hasErrorText("Invalid email address")));
     }
 
     @Test
@@ -39,14 +50,14 @@ public class GeneralSignInActivityTest {
         onView(withId(R.id.etEmail)).perform(typeText("test@example.com"), closeSoftKeyboard());
         onView(withId(R.id.btnContinue)).perform(click());
 
-        onView(withId(R.id.etPassword)).check(matches(isDisplayed()));
+        onView(withId(R.id.etPassword)).check(matches(hasErrorText("Password is required")));
     }
 
     @Test
     public void testSignInButtonIsClickable() {
         onView(withId(R.id.btnContinue)).check(matches(isDisplayed()));
+        // Just verify navigation logic doesn't crash on incomplete data
         onView(withId(R.id.btnContinue)).perform(click());
-        // Test passes if no exception
     }
 
     @Test
@@ -57,8 +68,7 @@ public class GeneralSignInActivityTest {
         onView(withId(R.id.etEmail)).perform(typeText(testEmail), closeSoftKeyboard());
         onView(withId(R.id.etPassword)).perform(typeText(testPassword), closeSoftKeyboard());
 
-        // Just verify the button is still there and clickable
-        onView(withId(R.id.btnContinue)).check(matches(isDisplayed()));
         onView(withId(R.id.btnContinue)).perform(click());
+        // Validation passes, moves to Firebase logic (which we don't test here)
     }
 }

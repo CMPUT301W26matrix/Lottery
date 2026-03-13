@@ -11,6 +11,9 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -53,6 +56,12 @@ public class GeneralSignInActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_general_sign_in);
 
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
+
         // Initialize firebase
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
@@ -68,7 +77,10 @@ public class GeneralSignInActivity extends AppCompatActivity {
 
         // Set on click listeners for buttons
         backButton.setOnClickListener(view -> {
-            finish(); // just close this activity, automatically returning to MainActivity
+            Intent intent = new Intent(GeneralSignInActivity.this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+            finish();
         });
 
         continueButton.setOnClickListener(view -> {
@@ -227,6 +239,4 @@ public class GeneralSignInActivity extends AppCompatActivity {
         }
 
     }
-
-
 }

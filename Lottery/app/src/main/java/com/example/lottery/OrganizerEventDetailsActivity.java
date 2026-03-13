@@ -3,6 +3,7 @@ package com.example.lottery;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -10,7 +11,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.example.lottery.model.Event;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -37,8 +43,8 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
     private ImageView ivEventPoster;
     private TextView tvEventTitle, tvScheduledDate, tvEventEndDate, tvRegistrationStart,
             tvRegistrationDeadline, tvDrawDate, tvEventDetails, tvLocationRequirement;
-    private TextView tvWaitingListCapacity;
-
+    private TextView tvFullMessage, tvWaitingListCapacity;
+    private Button btnEditEvent;
     private FirebaseFirestore db;
     /**
      * The current event being displayed.
@@ -49,7 +55,14 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_organizer_event_details);
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
 
         ivEventPoster = findViewById(R.id.ivEventPoster);
         tvEventTitle = findViewById(R.id.tvEventTitle);
@@ -101,7 +114,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         View btnHome = findViewById(R.id.nav_home);
         if (btnHome != null) {
             btnHome.setOnClickListener(v -> {
-                Intent intent = new Intent(this, MainActivity.class);
+                Intent intent = new Intent(this, OrganizerBrowseEventsActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
                 finish();
@@ -110,7 +123,9 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
 
         View btnCreate = findViewById(R.id.nav_create_container);
         if (btnCreate != null) {
-            btnCreate.setOnClickListener(v -> startActivity(new Intent(this, OrganizerCreateEventActivity.class)));
+            btnCreate.setOnClickListener(v -> {
+                startActivity(new Intent(this, OrganizerCreateEventActivity.class));
+            });
         }
 
         View btnHistory = findViewById(R.id.nav_calendar);
@@ -180,7 +195,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
 
         if (tvLocationRequirement != null) {
             if (event.isRequireLocation()) {
-                tvLocationRequirement.setText(getString(R.string.location_verification_required));
+                tvLocationRequirement.setText("Location Verification Required");
                 tvLocationRequirement.setVisibility(View.VISIBLE);
             } else {
                 tvLocationRequirement.setVisibility(View.GONE);

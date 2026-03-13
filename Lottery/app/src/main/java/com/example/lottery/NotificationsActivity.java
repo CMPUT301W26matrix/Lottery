@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lottery.model.NotificationItem;
+import com.example.lottery.util.InvitationFlowUtil;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
@@ -195,15 +196,21 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
     /**
      * Updates the entrant status for a specific event in Firestore.
      *
-     * @param eventId the event for which the status should be updated
-     * @param status  the new status value (e.g., ACCEPTED or REJECTED)
+     * @param eventId  the event for which the status should be updated
+     * @param response the notification response value (e.g., ACCEPTED or REJECTED)
      */
-    private void updateUserStatusForEvent(String eventId, String status) {
+    private void updateUserStatusForEvent(String eventId, String response) {
+        String normalizedStatus = InvitationFlowUtil.entrantStatusFromNotificationResponse(response);
+        if (normalizedStatus.isEmpty()) {
+            Toast.makeText(this, R.string.failed_to_update_status, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         db.collection("events")
                 .document(eventId)
                 .collection("entrants")
                 .document(userId)
-                .update("status", status)
+                .update("status", normalizedStatus)
                 .addOnFailureListener(e ->
                         Toast.makeText(this, R.string.failed_to_update_status, Toast.LENGTH_SHORT).show()
                 );
@@ -261,13 +268,13 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
         if ("win".equalsIgnoreCase(item.getType()) && !item.isActionTaken()) {
 
             builder.setPositiveButton(R.string.accept_invite, (dialog, which) -> {
-                updateUserStatusForEvent(item.getEventId(), "ACCEPTED");
-                markActionTaken(item, "ACCEPTED");
+                updateUserStatusForEvent(item.getEventId(), InvitationFlowUtil.RESPONSE_ACCEPTED);
+                markActionTaken(item, InvitationFlowUtil.RESPONSE_ACCEPTED);
             });
 
             builder.setNegativeButton(R.string.reject, (dialog, which) -> {
-                updateUserStatusForEvent(item.getEventId(), "REJECTED");
-                markActionTaken(item, "REJECTED");
+                updateUserStatusForEvent(item.getEventId(), InvitationFlowUtil.RESPONSE_REJECTED);
+                markActionTaken(item, InvitationFlowUtil.RESPONSE_REJECTED);
             });
 
             builder.setNeutralButton(R.string.close, (dialog, which) -> dialog.dismiss());

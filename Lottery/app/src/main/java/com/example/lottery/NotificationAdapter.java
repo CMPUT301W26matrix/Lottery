@@ -126,7 +126,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     /**
      * ViewHolder representing a single notification item in the RecyclerView.
      */
-    static class NotificationViewHolder extends RecyclerView.ViewHolder {
+    public static class NotificationViewHolder extends RecyclerView.ViewHolder {
 
         /**
          * Displays the notification title.
