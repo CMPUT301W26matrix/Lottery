@@ -35,8 +35,11 @@ public class User {
         this.phoneNumber = phoneNumber;
     }
 
-    // Getters
-
+    /**
+     * Returns the ID of the user.
+     *
+     * @return The user's ID.
+     */
     public String getUserId() {
         return userId;
     }
