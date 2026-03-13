@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
-import android.text.Layout;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -31,7 +30,7 @@ public class EntrantDetailsFragment extends DialogFragment {
      * @param entrant the entrant we will display
      * @return initialized fragment
      */
-    public static EntrantDetailsFragment newInstance(Entrant entrant){
+    public static EntrantDetailsFragment newInstance(Entrant entrant) {
         EntrantDetailsFragment entrantDetailsFragment = new EntrantDetailsFragment();
         entrantDetailsFragment.entrant = entrant;
         return entrantDetailsFragment;
@@ -39,9 +38,9 @@ public class EntrantDetailsFragment extends DialogFragment {
 
     /**
      * set up component for rendering the entrant details fragment
-     * @param savedInstanceState The last saved instance state of the Fragment,
-     * or null if this is a freshly created Fragment.
      *
+     * @param savedInstanceState The last saved instance state of the Fragment,
+     *                           or null if this is a freshly created Fragment.
      * @return Dialog a built fragment
      */
     @SuppressLint("SetTextI18n")
@@ -60,17 +59,17 @@ public class EntrantDetailsFragment extends DialogFragment {
 
         tvName.setText(entrant.getEntrant_name());
         tvId.setText(entrant.getEntrant_id());
-        tvLocation.setText("("+entrant.getLocation().getLatitude()+","+entrant.getLocation().getLongitude()+")");
+        tvLocation.setText("(" + entrant.getLocation().getLatitude() + "," + entrant.getLocation().getLongitude() + ")");
         tvRegistrationTime.setText(entrant.getRegistration_time().toDate().toString());
-        if(entrant.getInvited_time()!=null){
+        if (entrant.getInvited_time() != null) {
             tvInvitedTime.setText(entrant.getInvited_time().toDate().toString());
             llInvitedTime.setVisibility(View.VISIBLE);
         }
-        if(entrant.getCancelled_time()!=null){
+        if (entrant.getCancelled_time() != null) {
             tvCancelledTime.setText(entrant.getCancelled_time().toDate().toString());
             llCancelledTime.setVisibility(View.VISIBLE);
         }
-        if(entrant.getSigned_up_time()!=null){
+        if (entrant.getSigned_up_time() != null) {
             tvSignedUpTime.setText(entrant.getSigned_up_time().toDate().toString());
             llSignedUpTime.setVisibility(View.VISIBLE);
         }
@@ -78,6 +77,6 @@ public class EntrantDetailsFragment extends DialogFragment {
         return builder
                 .setView(view)
                 .setNegativeButton("Cancel", null)
-                .setPositiveButton("Ok",null).create();
+                .setPositiveButton("Ok", null).create();
     }
 }

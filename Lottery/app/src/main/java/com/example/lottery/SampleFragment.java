@@ -6,10 +6,11 @@ import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
-import java.util.Objects;
+
 /**
  * fragment for user to enter the number of invitations they want to send
  *
@@ -22,42 +23,38 @@ import java.util.Objects;
  * </p>
  */
 public class SampleFragment extends DialogFragment {
-    /**
-     * interface for the activity who want to use the sample fragment to implement, like a communication channel
-     */
-    interface SamplingListener {
-        void sampling(String size);
-    }
     private SamplingListener listener;
 
     /**
      * initialize a new fragment
+     *
      * @return initialized SampleFragment
      */
-    public static SampleFragment newInstance(){
+    public static SampleFragment newInstance() {
         return new SampleFragment();
     }
 
     /**
      * check whether implemented the communication channel or not
+     *
      * @param context
      */
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        if (context instanceof SamplingListener){
+        if (context instanceof SamplingListener) {
             listener = (SamplingListener) context;
-        }
-        else {
+        } else {
             throw new RuntimeException("Implement listener");
         }
     }
 
     /**
      * assemble the fragment
+     *
      * @param savedInstanceState The last saved instance state of the Fragment,
-     * or null if this is a freshly created Fragment.
-     * get text from user
+     *                           or null if this is a freshly created Fragment.
+     *                           get text from user
      * @return a built fragment which can prompt user to enter a number for sampling
      */
     @NonNull
@@ -76,5 +73,12 @@ public class SampleFragment extends DialogFragment {
                     }
                 })
                 .create();
+    }
+
+    /**
+     * interface for the activity who want to use the sample fragment to implement, like a communication channel
+     */
+    interface SamplingListener {
+        void sampling(String size);
     }
 }

@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
+
 /**
  * DialogFragment for handling event poster selection and preview.
  * Provides functionality to browse the device for images, preview selected images,

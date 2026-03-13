@@ -31,11 +31,12 @@ public class Entrant {
 
     /**
      * constructor for cancelled_collections entrants
-     * @param entrant_name entrant's name
-     * @param location entrant's location
-     * @param entrant_id entrant's id
-     * @param cancelled_time entrant's cancelled time
-     * @param invited_time entrant's invited time
+     *
+     * @param entrant_name      entrant's name
+     * @param location          entrant's location
+     * @param entrant_id        entrant's id
+     * @param cancelled_time    entrant's cancelled time
+     * @param invited_time      entrant's invited time
      * @param registration_time entrant's registration time
      */
     public Entrant(String entrant_name, GeoPoint location, String entrant_id, Timestamp cancelled_time, Timestamp invited_time, Timestamp registration_time) {
@@ -49,11 +50,12 @@ public class Entrant {
 
     /**
      * constructor for signed_up_collections entrants
-     * @param entrant_name entrant's name
-     * @param location entrant's location
-     * @param entrant_id entrant's id
-     * @param signed_up_time entrant's cancelled time
-     * @param invited_time entrant's invited time
+     *
+     * @param entrant_name      entrant's name
+     * @param location          entrant's location
+     * @param entrant_id        entrant's id
+     * @param signed_up_time    entrant's cancelled time
+     * @param invited_time      entrant's invited time
      * @param registration_time entrant's registration time
      */
     public Entrant(String entrant_name, String entrant_id, Timestamp invited_time, Timestamp registration_time, GeoPoint location, Timestamp signed_up_time) {
@@ -67,9 +69,10 @@ public class Entrant {
 
     /**
      * constructor for waited_listed_collections entrants
-     * @param entrant_name entrant's name
-     * @param location entrant's location
-     * @param entrant_id entrant's id
+     *
+     * @param entrant_name      entrant's name
+     * @param location          entrant's location
+     * @param entrant_id        entrant's id
      * @param registration_time entrant's registration time
      */
     public Entrant(String entrant_name, String entrant_id, Timestamp registration_time, GeoPoint location) {
@@ -81,10 +84,10 @@ public class Entrant {
 
     /**
      *
-     * @param invited_time timestamp that entrants get invitation
-     * @param entrant_name entrant's name
-     * @param location entrant's location
-     * @param entrant_id entrant's id
+     * @param invited_time      timestamp that entrants get invitation
+     * @param entrant_name      entrant's name
+     * @param location          entrant's location
+     * @param entrant_id        entrant's id
      * @param registration_time entrant's registration time
      */
     public Entrant(Timestamp invited_time, String entrant_name, String entrant_id, Timestamp registration_time, GeoPoint location) {
@@ -99,17 +102,18 @@ public class Entrant {
         return signed_up_time;
     }
 
-    public void setLocation(com.google.firebase.firestore.GeoPoint location) {
-        this.location = location;
+    public void setSigned_up_time(Timestamp signed_up_time) {
+        this.signed_up_time = signed_up_time;
     }
 
     public com.google.firebase.firestore.GeoPoint getLocation() {
         return location;
     }
 
-    public void setSigned_up_time(Timestamp signed_up_time) {
-        this.signed_up_time = signed_up_time;
+    public void setLocation(com.google.firebase.firestore.GeoPoint location) {
+        this.location = location;
     }
+
     public String getEntrant_name() {
         return entrant_name;
     }

@@ -6,27 +6,24 @@ import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 public class NotificationFragment extends DialogFragment {
-    interface NotificationListener {
-        void sendNotification(String content);
-    }
     private NotificationListener listener;
 
-    public static NotificationFragment newInstance(){
+    public static NotificationFragment newInstance() {
         return new NotificationFragment();
     }
 
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        if (context instanceof NotificationListener){
+        if (context instanceof NotificationListener) {
             listener = (NotificationListener) context;
-        }
-        else {
+        } else {
             throw new RuntimeException("Implement listener");
         }
     }
@@ -48,5 +45,9 @@ public class NotificationFragment extends DialogFragment {
                     }
                 })
                 .create();
+    }
+
+    interface NotificationListener {
+        void sendNotification(String content);
     }
 }

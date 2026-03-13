@@ -1,4 +1,5 @@
 package com.example.lottery;
+
 /**
  * Activity to display the details of a specific event and handle registration.
  *
@@ -30,7 +31,7 @@ public class User {
         this.username = username;
     }
 
-    public User(){
+    public User() {
 
     }
 
