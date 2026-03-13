@@ -16,6 +16,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Lottery">
+        <!-- Source - https://stackoverflow.com/a/50794266
+        // Posted by jeff, modified by community. See post 'Timeline' for change history
+        // Retrieved 2026-03-13, License - CC BY-SA 4.0-->
+        <uses-library android:name="org.apache.http.legacy" android:required="false"/>
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBQ7iqhDezLQYBFeZf6nwlaqifkHkrrvGA"/>
 
         <activity
             android:name=".MainActivity"
@@ -69,6 +77,9 @@
             android:exported="false"
             android:label="@string/admin_all_events_title"
             android:parentActivityName=".MainActivity" />
+        <activity android:name=".EntrantsListActivity"
+            android:exported="false"/>
+
         <activity
             android:name=".AdminEventDetailsActivity"
             android:exported="false"

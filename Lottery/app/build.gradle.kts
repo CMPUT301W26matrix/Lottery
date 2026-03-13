@@ -8,6 +8,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
+        manifestPlaceholders += mapOf("mapsApiKey" to "AIzaSyBQ7iqhDezLQYBFeZf6nwlaqifkHkrrvGA")
         applicationId = "com.example.lottery"
         minSdk = 24
         targetSdk = 36
@@ -42,25 +43,33 @@ dependencies {
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
+    implementation(libs.play.services.maps)
     implementation(libs.ext.junit)
     implementation(libs.espresso.core)
     implementation(libs.firebase.installations)
+
     testImplementation(libs.junit)
     testImplementation(libs.mockito.core)
     testImplementation(libs.robolectric)
+    testImplementation("androidx.test:core:1.5.0")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.0.1")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.0.1")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.9.2")
+
+    androidTestImplementation("androidx.test:core:1.5.0")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation("androidx.test.espresso:espresso-intents:3.6.1")
 
+    androidTestImplementation(libs.ext.junit)
+    androidTestImplementation(libs.espresso.core)
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:34.9.0"))
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-auth")
 
-    // ZXing for QR Code generation (US 02.01.01)
+    // ZXing for QR Code generation
     implementation("com.google.zxing:core:3.5.3")
 
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")

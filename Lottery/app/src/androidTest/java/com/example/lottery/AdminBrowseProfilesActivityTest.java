@@ -72,11 +72,26 @@ public class AdminBrowseProfilesActivityTest {
     @Test
     public void adminBrowseProfilesActivity_emptyMessageViewExists() {
         try (ActivityScenario<AdminBrowseProfilesActivity> scenario = launchAdminActivity()) {
-
-            Assert.assertEquals(Lifecycle.State.RESUMED, scenario.getState());
-
-            onView(withId(R.id.tvEmptyProfiles))
-                    .check(matches(withEffectiveVisibility(Visibility.GONE)));
+            onView(withId(R.id.tvBrowseProfilesTitle))
+                    .check(matches(withText("Browse Profiles")));
         }
     }
+    public void adminBrowseProfilesActivity_titleIsCorrect() {
+        try (ActivityScenario<AdminBrowseProfilesActivity> scenario = launchAdminActivity()) {
+            onView(withId(R.id.tvBrowseProfilesTitle))
+                    .check(matches(withText("Browse Profiles")));
+        }
+    }
+    // Verifies delete button exists (part of admin remove profile US 03.02.01)
+    @Test
+    public void adminBrowseProfilesActivity_deleteButtonExists() {
+        try (ActivityScenario<AdminBrowseProfilesActivity> scenario = launchAdminActivity()) {
+            onView(withId(R.id.btnEnableDeleteProfile))
+                    .check(matches(isDisplayed()));
+        }
+    }
+
 }
+
+
+

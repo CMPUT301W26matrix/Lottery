@@ -9,15 +9,29 @@ import static androidx.test.espresso.matcher.ViewMatchers.hasErrorText;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
+import androidx.test.core.app.ActivityScenario;
 
-import org.junit.Rule;
+import com.google.firebase.auth.FirebaseAuth;
+
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 public class GeneralSignInActivityTest {
-    @Rule
-    public ActivityScenarioRule<GeneralSignInActivity> activityRule =
-            new ActivityScenarioRule<>(GeneralSignInActivity.class);
+    private ActivityScenario<GeneralSignInActivity> scenario;
+
+    @Before
+    public void setUp() {
+        FirebaseAuth.getInstance().signOut();
+        scenario = ActivityScenario.launch(GeneralSignInActivity.class);
+    }
+
+    @After
+    public void tearDown() {
+        if (scenario != null) {
+            scenario.close();
+        }
+    }
 
     @Test
     public void testAllViewsAreDisplayed() {

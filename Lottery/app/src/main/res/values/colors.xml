@@ -3,12 +3,9 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <!-- Legacy Blue -->
-    <color name="primary_blue_old">#0052FF</color>
-    <!-- New Design Blue -->
-    <color name="primary_blue">#2563EB</color>
+    <color name="primary_blue">#0052FF</color>
+    <color name="accent_blue">#0047DB</color>
     <color name="primary_light_blue">#EEF3FF</color>
-    <color name="primary_gradient_start">#60A5FA</color>
 
     <color name="card_background">#FFFFFF</color>
     <color name="page_background">#F5F6FA</color>
@@ -22,5 +19,4 @@
     <color name="divider_gray">#EEF2F7</color>
 
     <color name="error_red">#EF4444</color>
-    <color name="error_red_light">#FEE2E2</color>
 </resources>

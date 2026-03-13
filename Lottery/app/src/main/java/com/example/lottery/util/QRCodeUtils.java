@@ -67,10 +67,13 @@ public class QRCodeUtils {
             return null;
         }
 
-        String[] parts = qrContent.split("_");
-        return parts.length > 0 ? parts[0] : null;
+        int separatorIndex = qrContent.lastIndexOf('_');
+        if (separatorIndex <= 0 || separatorIndex == qrContent.length() - 1) {
+            return null;
+        }
+
+        return qrContent.substring(0, separatorIndex);
     }
 
 }
-
 
