@@ -106,8 +106,21 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
         }
         View btnHome = findViewById(R.id.nav_home);
         if (btnHome != null) {
-            btnHome.setOnClickListener(v -> Toast.makeText(this, "Home", Toast.LENGTH_SHORT).show());
+            btnHome.setOnClickListener(v -> Toast.makeText(this, "Already on Home", Toast.LENGTH_SHORT).show());
         }
+        
+        View btnHistory = findViewById(R.id.nav_calendar);
+        if (btnHistory != null) {
+            btnHistory.setOnClickListener(v -> Toast.makeText(this, "History Coming Soon", Toast.LENGTH_SHORT).show());
+        }
+
+        View btnQr = findViewById(R.id.nav_qr_code);
+        if (btnQr != null) {
+            btnQr.setOnClickListener(v -> {
+                startActivity(new Intent(OrganizerBrowseEventsActivity.this, OrganizerQrEventListActivity.class));
+            });
+        }
+
         View btnProfile = findViewById(R.id.nav_profile);
         if (btnProfile != null) {
             btnProfile.setOnClickListener(v -> {

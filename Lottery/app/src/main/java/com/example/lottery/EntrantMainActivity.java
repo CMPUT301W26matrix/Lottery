@@ -8,18 +8,15 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.core.graphics.Insets;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lottery.model.Event;
-import com.example.lottery.util.QRCodeUtils;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -93,53 +90,18 @@ public class EntrantMainActivity extends AppCompatActivity {
                 Toast.makeText(this, "History coming soon", Toast.LENGTH_SHORT).show()
         );
 
-        findViewById(R.id.nav_qr_scan).setOnClickListener(v -> startQRScanner());
+        // Fixed QR Scan click listener
+        findViewById(R.id.nav_qr_scan).setOnClickListener(v -> {
+            Toast.makeText(this, "Opening QR Event List...", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, OrganizerQrEventListActivity.class);
+            startActivity(intent);
+        });
 
         findViewById(R.id.nav_profile).setOnClickListener(v -> {
             Intent intent = new Intent(this, EntrantProfileActivity.class);
             intent.putExtra("userId", userId);
             startActivity(intent);
         });
-    }
-
-    /**
-     * Starts the QR scanner.
-     */
-    private void startQRScanner() {
-        IntentIntegrator integrator = new IntentIntegrator(this);
-        integrator.setPrompt("Scan Event QR Code");
-        integrator.setBeepEnabled(true);
-        integrator.setOrientationLocked(true);
-        integrator.initiateScan();
-    }
-
-    /**
-     * Handles the QR scan result.
-     */
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-
-        if (result != null) {
-            if (result.getContents() == null) {
-                Toast.makeText(this, "Scan cancelled", Toast.LENGTH_SHORT).show();
-            } else {
-                String scannedContent = result.getContents();
-                String eventId = QRCodeUtils.extractEventId(scannedContent);
-
-                if (eventId == null || eventId.isEmpty()) {
-                    Toast.makeText(this, "Invalid QR code", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                Intent intent = new Intent(this, EntrantEventDetailsActivity.class);
-                intent.putExtra(EntrantEventDetailsActivity.EXTRA_EVENT_ID, eventId);
-                intent.putExtra(EntrantEventDetailsActivity.EXTRA_USER_ID, userId);
-                startActivity(intent);
-            }
-        } else {
-            super.onActivityResult(requestCode, resultCode, data);
-        }
     }
 
     /**

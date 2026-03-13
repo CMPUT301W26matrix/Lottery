@@ -94,6 +94,16 @@
             android:name=".OrganizerProfileActivity"
             android:exported="false" />
 
+        <!-- New QR Code Flow Activities -->
+        <activity
+            android:name=".OrganizerQrEventListActivity"
+            android:exported="false"
+            android:label="Select Event for QR" />
+        <activity
+            android:name=".OrganizerQrCodeDetailActivity"
+            android:exported="false"
+            android:label="Event QR Code" />
+
     </application>
 
 </manifest>

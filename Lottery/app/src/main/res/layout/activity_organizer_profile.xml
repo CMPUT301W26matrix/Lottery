@@ -6,38 +6,37 @@
     android:layout_height="match_parent"
     android:background="@color/page_background">
 
-    <!-- 1. Scrollable Content Area -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/profile_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:fillViewport="true"
-        app:layout_constraintBottom_toTopOf="@id/bottom_nav_container"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottom_nav_container">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- 2. Profile Header Section -->
+            <!-- Top divider -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@color/divider_gray" />
 
+            <!-- Profile Header -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/white"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:paddingTop="48dp"
-                android:paddingBottom="32dp"
                 android:paddingLeft="24dp"
-                android:paddingRight="24dp">
+                android:paddingTop="48dp"
+                android:paddingRight="24dp"
+                android:paddingBottom="32dp">
 
-                <!-- Avatar with Gradient -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="96dp"
                     android:layout_height="96dp"
@@ -49,7 +48,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@android:drawable/screen_background_light" />
-                    <!-- Note: In a real app, we'd use a ShapeDrawable or LayerList for the gradient #60A5FA -> #2563EB -->
+
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -93,7 +92,7 @@
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- 3. Account Card Section -->
+            <!-- Account Section -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -125,6 +124,7 @@
                         android:layout_height="56dp"
                         android:background="?attr/selectableItemBackground"
                         android:paddingHorizontal="16dp">
+
                         <ImageView
                             android:id="@+id/icon_edit"
                             android:layout_width="20dp"
@@ -132,6 +132,7 @@
                             android:layout_centerVertical="true"
                             android:src="@android:drawable/ic_menu_edit"
                             app:tint="@color/primary_blue" />
+
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -141,6 +142,7 @@
                             android:text="@string/menu_edit_profile"
                             android:textColor="@color/text_primary"
                             android:textSize="16sp" />
+
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
@@ -150,7 +152,11 @@
                             app:tint="@color/text_light" />
                     </RelativeLayout>
 
-                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider_gray" android:layout_marginHorizontal="16dp"/>
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginHorizontal="16dp"
+                        android:background="@color/divider_gray" />
 
                     <!-- Change Password -->
                     <RelativeLayout
@@ -158,6 +164,7 @@
                         android:layout_height="56dp"
                         android:background="?attr/selectableItemBackground"
                         android:paddingHorizontal="16dp">
+
                         <ImageView
                             android:id="@+id/icon_lock"
                             android:layout_width="20dp"
@@ -165,6 +172,7 @@
                             android:layout_centerVertical="true"
                             android:src="@android:drawable/ic_lock_idle_lock"
                             app:tint="@color/primary_blue" />
+
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -174,6 +182,7 @@
                             android:text="@string/menu_change_password"
                             android:textColor="@color/text_primary"
                             android:textSize="16sp" />
+
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
@@ -183,7 +192,11 @@
                             app:tint="@color/text_light" />
                     </RelativeLayout>
 
-                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider_gray" android:layout_marginHorizontal="16dp"/>
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginHorizontal="16dp"
+                        android:background="@color/divider_gray" />
 
                     <!-- Notification Settings -->
                     <RelativeLayout
@@ -191,6 +204,7 @@
                         android:layout_height="56dp"
                         android:background="?attr/selectableItemBackground"
                         android:paddingHorizontal="16dp">
+
                         <ImageView
                             android:id="@+id/icon_bell"
                             android:layout_width="20dp"
@@ -198,6 +212,7 @@
                             android:layout_centerVertical="true"
                             android:src="@android:drawable/ic_popup_reminder"
                             app:tint="@color/primary_blue" />
+
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -207,6 +222,7 @@
                             android:text="@string/menu_notification_settings"
                             android:textColor="@color/text_primary"
                             android:textSize="16sp" />
+
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
@@ -215,227 +231,11 @@
                             android:src="@android:drawable/ic_media_next"
                             app:tint="@color/text_light" />
                     </RelativeLayout>
+
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- 4. Organizer Tools Section -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="24dp"
-                android:layout_marginTop="24dp"
-                android:text="@string/section_organizer_tools"
-                android:textColor="@color/text_light"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="8dp"
-                app:cardBackgroundColor="@color/white"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                app:strokeWidth="0dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <!-- My Events -->
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="56dp"
-                        android:background="?attr/selectableItemBackground"
-                        android:paddingHorizontal="16dp">
-                        <ImageView
-                            android:id="@+id/icon_events"
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:layout_centerVertical="true"
-                            android:src="@android:drawable/ic_menu_my_calendar"
-                            app:tint="@color/primary_blue" />
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerVertical="true"
-                            android:layout_toRightOf="@id/icon_events"
-                            android:layout_marginLeft="12dp"
-                            android:text="@string/menu_my_events"
-                            android:textColor="@color/text_primary"
-                            android:textSize="16sp" />
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:layout_alignParentEnd="true"
-                            android:layout_centerVertical="true"
-                            android:src="@android:drawable/ic_media_next"
-                            app:tint="@color/text_light" />
-                    </RelativeLayout>
-
-                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider_gray" android:layout_marginHorizontal="16dp"/>
-
-                    <!-- Event History -->
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="56dp"
-                        android:background="?attr/selectableItemBackground"
-                        android:paddingHorizontal="16dp">
-                        <ImageView
-                            android:id="@+id/icon_history"
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:layout_centerVertical="true"
-                            android:src="@android:drawable/ic_menu_recent_history"
-                            app:tint="@color/primary_blue" />
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerVertical="true"
-                            android:layout_toRightOf="@id/icon_history"
-                            android:layout_marginLeft="12dp"
-                            android:text="@string/menu_event_history"
-                            android:textColor="@color/text_primary"
-                            android:textSize="16sp" />
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:layout_alignParentEnd="true"
-                            android:layout_centerVertical="true"
-                            android:src="@android:drawable/ic_media_next"
-                            app:tint="@color/text_light" />
-                    </RelativeLayout>
-
-                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider_gray" android:layout_marginHorizontal="16dp"/>
-
-                    <!-- Manage Waiting Lists -->
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="56dp"
-                        android:background="?attr/selectableItemBackground"
-                        android:paddingHorizontal="16dp">
-                        <ImageView
-                            android:id="@+id/icon_list"
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:layout_centerVertical="true"
-                            android:src="@android:drawable/ic_menu_sort_by_size"
-                            app:tint="@color/primary_blue" />
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerVertical="true"
-                            android:layout_toRightOf="@id/icon_list"
-                            android:layout_marginLeft="12dp"
-                            android:text="@string/menu_manage_waiting_lists"
-                            android:textColor="@color/text_primary"
-                            android:textSize="16sp" />
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:layout_alignParentEnd="true"
-                            android:layout_centerVertical="true"
-                            android:src="@android:drawable/ic_media_next"
-                            app:tint="@color/text_light" />
-                    </RelativeLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- 5. App Settings Section -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="24dp"
-                android:layout_marginTop="24dp"
-                android:text="@string/section_app_settings"
-                android:textColor="@color/text_light"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="8dp"
-                app:cardBackgroundColor="@color/white"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                app:strokeWidth="0dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <!-- Help & Support -->
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="56dp"
-                        android:background="?attr/selectableItemBackground"
-                        android:paddingHorizontal="16dp">
-                        <ImageView
-                            android:id="@+id/icon_help"
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:layout_centerVertical="true"
-                            android:src="@android:drawable/ic_menu_help"
-                            app:tint="@color/primary_blue" />
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerVertical="true"
-                            android:layout_toRightOf="@id/icon_help"
-                            android:layout_marginLeft="12dp"
-                            android:text="@string/menu_help_support"
-                            android:textColor="@color/text_primary"
-                            android:textSize="16sp" />
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:layout_alignParentEnd="true"
-                            android:layout_centerVertical="true"
-                            android:src="@android:drawable/ic_media_next"
-                            app:tint="@color/text_light" />
-                    </RelativeLayout>
-
-                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider_gray" android:layout_marginHorizontal="16dp"/>
-
-                    <!-- About Lottery App -->
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="56dp"
-                        android:background="?attr/selectableItemBackground"
-                        android:paddingHorizontal="16dp">
-                        <ImageView
-                            android:id="@+id/icon_info"
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:layout_centerVertical="true"
-                            android:src="@android:drawable/ic_menu_info_details"
-                            app:tint="@color/primary_blue" />
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerVertical="true"
-                            android:layout_toRightOf="@id/icon_info"
-                            android:layout_marginLeft="12dp"
-                            android:text="@string/menu_about_lottery"
-                            android:textColor="@color/text_primary"
-                            android:textSize="16sp" />
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:layout_alignParentEnd="true"
-                            android:layout_centerVertical="true"
-                            android:src="@android:drawable/ic_media_next"
-                            app:tint="@color/text_light" />
-                    </RelativeLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- 6. Log Out Button -->
+            <!-- Log Out Button -->
             <Button
                 android:id="@+id/btn_log_out"
                 style="@style/Widget.Material3.Button.OutlinedButton"
@@ -453,7 +253,6 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- 7. Bottom Navigation Bar Container -->
     <FrameLayout
         android:id="@+id/bottom_nav_container"
         android:layout_width="match_parent"

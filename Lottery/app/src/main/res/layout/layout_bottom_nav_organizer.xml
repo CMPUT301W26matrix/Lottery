@@ -73,7 +73,7 @@
                 android:layout_weight="1" />
 
             <LinearLayout
-                android:id="@+id/nav_notifications"
+                android:id="@+id/nav_qr_code"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -83,13 +83,13 @@
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@android:drawable/btn_star_big_off"
+                    android:src="@android:drawable/ic_menu_zoom"
                     app:tint="@color/text_gray" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/nav_favorites"
+                    android:text="QR Scan"
                     android:textColor="@color/text_gray"
                     android:textSize="11sp" />
             </LinearLayout>
