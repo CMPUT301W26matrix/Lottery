@@ -96,7 +96,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         btnRegister.setOnClickListener(v -> handleRegistration());
         btnEditEvent.setOnClickListener(v -> handleEditEvent());
         btnViewWaitingList.setOnClickListener(v -> {
-            Intent intent = new Intent(this, WaitingListActivity.class);
+            Intent intent = new Intent(this, EntrantsListActivity.class);
             intent.putExtra("eventId", eventId); // pass event ID
             startActivity(intent);
         });

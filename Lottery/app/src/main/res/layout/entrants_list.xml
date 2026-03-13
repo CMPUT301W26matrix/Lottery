@@ -19,32 +19,48 @@
                 android:textColor="@color/primary_blue"
                 android:textSize="28sp"
                 android:textStyle="bold" />
-            <com.google.android.material.button.MaterialButtonToggleGroup
-                android:id="@+id/entrants_list_toggle_button_group"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-                <com.google.android.material.button.MaterialButton
-                    style="?attr/materialButtonOutlinedStyle"
-                    android:id="@+id/entrants_list_waited_list_btn"
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none">
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:cornerRadius="8dp"
-                    android:text="@string/entrants_list_toggle_button_group_waited_list_button_text"/>
-                <com.google.android.material.button.MaterialButton
-                    style="?attr/materialButtonOutlinedStyle"
-                    android:id="@+id/entrants_list_signed_up_btn"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:cornerRadius="8dp"
-                    android:text="@string/entrants_list_toggle_button_group_signed_up_button_text"/>
-                <com.google.android.material.button.MaterialButton
-                    style="?attr/materialButtonOutlinedStyle"
-                    android:id="@+id/entrants_list_cancelled_btn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:cornerRadius="8dp"
-                    android:text="@string/entrants_list_toggle_button_group_cancelled_button_text"/>
-            </com.google.android.material.button.MaterialButtonToggleGroup>
+                    android:orientation="horizontal">
+                    <com.google.android.material.button.MaterialButton
+                        style="?attr/materialButtonOutlinedStyle"
+                        android:id="@+id/entrants_list_waited_list_btn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/black"
+                        app:cornerRadius="0dp"
+                        android:text="@string/entrants_list_toggle_button_group_waited_list_button_text"/>
+                    <com.google.android.material.button.MaterialButton
+                        style="?attr/materialButtonOutlinedStyle"
+                        android:id="@+id/entrants_list_signed_up_btn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/black"
+                        app:cornerRadius="0dp"
+                        android:text="@string/entrants_list_toggle_button_group_signed_up_button_text"/>
+                    <com.google.android.material.button.MaterialButton
+                        style="?attr/materialButtonOutlinedStyle"
+                        android:id="@+id/entrants_list_cancelled_btn"
+                        android:layout_width="wrap_content"
+                        android:textColor="@color/black"
+                        android:layout_height="wrap_content"
+                        app:cornerRadius="0dp"
+                        android:text="@string/entrants_list_toggle_button_group_cancelled_button_text"/>
+                    <com.google.android.material.button.MaterialButton
+                        style="?attr/materialButtonOutlinedStyle"
+                        android:id="@+id/entrants_list_invited_btn"
+                        android:layout_width="wrap_content"
+                        android:textColor="@color/black"
+                        android:layout_height="wrap_content"
+                        app:cornerRadius="0dp"
+                        android:text="@string/entrants_list_toggle_button_group_invited_button_text"/>
+                </LinearLayout>
+            </HorizontalScrollView>
             <!-- 2. Date and Time -->
             <LinearLayout
                 android:layout_width="match_parent"
@@ -93,10 +109,23 @@
                 android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:visibility="visible"
-                android:id="@+id/waited_list_entrants_list_layout"
+                android:id="@+id/signed_up_entrants_list_layout"
                 android:layout_height="match_parent">
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/waited_list_events_view"
+                    android:id="@+id/signed_up_events_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    tools:listitem="@layout/entrant_list_item" />
+            </LinearLayout>
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:visibility="gone"
+                android:id="@+id/invited_entrants_list_layout"
+                android:layout_height="match_parent">
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/invited_events_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
@@ -106,11 +135,11 @@
                 android:layout_width="match_parent"
                 android:visibility="visible"
                 android:layout_height="match_parent"
-                android:id="@+id/signed_up_entrants_list_layout"
+                android:id="@+id/waited_list_entrants_list_layout"
                 android:orientation="vertical"
                 app:layout_constraintEnd_toEndOf="parent">
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/signed_up_events_view"
+                    android:id="@+id/waited_list_events_view"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="1"

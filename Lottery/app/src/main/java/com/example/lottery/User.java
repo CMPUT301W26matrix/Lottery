@@ -1,5 +1,18 @@
 package com.example.lottery;
-
+/**
+ * Activity to display the details of a specific event and handle registration.
+ *
+ * <p>Responsibilities:
+ * <ul>
+ *   <li>Fetch the event record from Firestore using the supplied event ID.</li>
+ *   <li>Render the poster, title, schedule, deadline, and description.</li>
+ *   <li>Surface organizer-configured requirements such as geolocation.</li>
+ *   <li>Enforce US 02.03.01: Disables registration when waiting list is full.</li>
+ *   <li>Writes registration data to Firestore 'entrants' sub-collection (US 02.01.01).</li>
+ *   <li>Keep the custom bottom navigation active on the details screen.</li>
+ * </ul>
+ * </p>
+ */
 public class User {
     private String device_info;
     private String password;
@@ -69,3 +82,4 @@ public class User {
         this.username = username;
     }
 }
+

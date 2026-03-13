@@ -51,7 +51,7 @@
             android:exported="false"
             android:label="@string/admin_all_events_title"
             android:parentActivityName=".MainActivity" />
-        <activity android:name=".EntrantsListView"
+        <activity android:name=".EntrantsListActivity"
             android:exported="false"/>
 
         <activity

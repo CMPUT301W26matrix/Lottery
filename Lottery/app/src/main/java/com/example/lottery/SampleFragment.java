@@ -10,7 +10,17 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import java.util.Objects;
-
+/**
+ * fragment for user to enter the number of invitations they want to send
+ *
+ * <p>Responsibilities:
+ * <ul>
+ *   <li>ask user to input a number and then call sampling in the EntrantsListActivity to sample entrants</li>
+ *   <li>implement US 02.05.02 Be able to sample number of attendees to register for the event</li>
+ *   <li>Keep the custom bottom navigation active on the details screen.</li>
+ * </ul>
+ * </p>
+ */
 public class SampleFragment extends DialogFragment {
     interface SamplingListener {
         void sampling(String size);
@@ -40,7 +50,6 @@ public class SampleFragment extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         return builder
                 .setView(view)
-                .setTitle("City Details")
                 .setNegativeButton("Cancel", null)
                 .setPositiveButton("Ok", (dialog, which) -> {
                     String size = input.getText().toString();

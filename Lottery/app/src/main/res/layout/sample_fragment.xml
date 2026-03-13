@@ -16,6 +16,8 @@
         android:layout_height="wrap_content"
         android:text="@string/sub_header_sample_fragment"/>
     <EditText
+        android:inputType="number"
+        android:padding="12dp"
         android:id="@+id/input_sampling_size"
         android:hint="@string/sample_fragment_hint"
         android:layout_width="match_parent"

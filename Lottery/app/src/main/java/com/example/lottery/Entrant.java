@@ -1,113 +1,152 @@
 package com.example.lottery;
 
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.GeoPoint;
 
+/**
+ * Activity to display the details of a specific event and handle registration.
+ *
+ * <p>Responsibilities:
+ * <ul>
+ *   <li>Fetch the event record from Firestore using the supplied event ID.</li>
+ *   <li>Render the poster, title, schedule, deadline, and description.</li>
+ *   <li>Surface organizer-configured requirements such as geolocation.</li>
+ *   <li>Enforce US 02.03.01: Disables registration when waiting list is full.</li>
+ *   <li>Writes registration data to Firestore 'entrants' sub-collection (US 02.01.01).</li>
+ *   <li>Keep the custom bottom navigation active on the details screen.</li>
+ * </ul>
+ * </p>
+ */
 public class Entrant {
-    private Timestamp accepted_timestamp;
-    private Timestamp cancelled_timestamp;
-    private String event_id;
-    private String user_name;
-
-    public String getUser_name() {
-        return user_name;
-    }
-
-    public void setUser_name(String user_name) {
-        this.user_name = user_name;
-    }
-
-    private Timestamp invitation_timestamp;
-    private String referrer_id;
-    private Timestamp register_timestamp;
-    private String user_id;
-    private String entrant_status;
+    private String entrant_name;
+    private String entrant_id;
+    private Timestamp cancelled_time;
+    private Timestamp invited_time;
+    private Timestamp registration_time;
+    private Timestamp signed_up_time;
     private com.google.firebase.firestore.GeoPoint location;
 
-    public com.google.firebase.firestore.GeoPoint getLocation() {
-        return location;
+    public Entrant() {
+    }
+
+    /**
+     * constructor for cancelled_collections entrants
+     * @param entrant_name entrant's name
+     * @param location entrant's location
+     * @param entrant_id entrant's id
+     * @param cancelled_time entrant's cancelled time
+     * @param invited_time entrant's invited time
+     * @param registration_time entrant's registration time
+     */
+    public Entrant(String entrant_name, GeoPoint location, String entrant_id, Timestamp cancelled_time, Timestamp invited_time, Timestamp registration_time) {
+        this.entrant_name = entrant_name;
+        this.location = location;
+        this.entrant_id = entrant_id;
+        this.cancelled_time = cancelled_time;
+        this.invited_time = invited_time;
+        this.registration_time = registration_time;
+    }
+
+    /**
+     * constructor for signed_up_collections entrants
+     * @param entrant_name entrant's name
+     * @param location entrant's location
+     * @param entrant_id entrant's id
+     * @param signed_up_time entrant's cancelled time
+     * @param invited_time entrant's invited time
+     * @param registration_time entrant's registration time
+     */
+    public Entrant(String entrant_name, String entrant_id, Timestamp invited_time, Timestamp registration_time, GeoPoint location, Timestamp signed_up_time) {
+        this.entrant_name = entrant_name;
+        this.entrant_id = entrant_id;
+        this.invited_time = invited_time;
+        this.registration_time = registration_time;
+        this.location = location;
+        this.signed_up_time = signed_up_time;
+    }
+
+    /**
+     * constructor for waited_listed_collections entrants
+     * @param entrant_name entrant's name
+     * @param location entrant's location
+     * @param entrant_id entrant's id
+     * @param registration_time entrant's registration time
+     */
+    public Entrant(String entrant_name, String entrant_id, Timestamp registration_time, GeoPoint location) {
+        this.entrant_name = entrant_name;
+        this.entrant_id = entrant_id;
+        this.registration_time = registration_time;
+        this.location = location;
+    }
+
+    /**
+     *
+     * @param invited_time timestamp that entrants get invitation
+     * @param entrant_name entrant's name
+     * @param location entrant's location
+     * @param entrant_id entrant's id
+     * @param registration_time entrant's registration time
+     */
+    public Entrant(Timestamp invited_time, String entrant_name, String entrant_id, Timestamp registration_time, GeoPoint location) {
+        this.invited_time = invited_time;
+        this.entrant_name = entrant_name;
+        this.entrant_id = entrant_id;
+        this.registration_time = registration_time;
+        this.location = location;
+    }
+
+    public Timestamp getSigned_up_time() {
+        return signed_up_time;
     }
 
     public void setLocation(com.google.firebase.firestore.GeoPoint location) {
         this.location = location;
     }
 
-    public String getEntrant_status() {
-        return entrant_status;
+    public com.google.firebase.firestore.GeoPoint getLocation() {
+        return location;
     }
 
-    public void setEntrant_status(String entrant_status) {
-        this.entrant_status = entrant_status;
+    public void setSigned_up_time(Timestamp signed_up_time) {
+        this.signed_up_time = signed_up_time;
+    }
+    public String getEntrant_name() {
+        return entrant_name;
     }
 
-    public Entrant() {
+    public void setEntrant_name(String entrant_name) {
+        this.entrant_name = entrant_name;
     }
 
-    public Entrant(Timestamp accepted_timestamp, Timestamp cancelled_timestamp, String event_id, Timestamp invitation_timestamp, String referrer_id, Timestamp register_timestamp, String user_id, String entrant_status, com.google.firebase.firestore.GeoPoint location, String user_name) {
-        this.accepted_timestamp = accepted_timestamp;
-        this.cancelled_timestamp = cancelled_timestamp;
-        this.event_id = event_id;
-        this.invitation_timestamp = invitation_timestamp;
-        this.referrer_id = referrer_id;
-        this.register_timestamp = register_timestamp;
-        this.user_id = user_id;
-        this.entrant_status = entrant_status;
-        this.location = location;
-        this.user_name = user_name;
+    public String getEntrant_id() {
+        return entrant_id;
     }
 
-    public Timestamp getAccepted_timestamp() {
-        return accepted_timestamp;
+    public void setEntrant_id(String entrant_id) {
+        this.entrant_id = entrant_id;
     }
 
-    public void setAccepted_timestamp(Timestamp accepted_timestamp) {
-        this.accepted_timestamp = accepted_timestamp;
+    public Timestamp getCancelled_time() {
+        return cancelled_time;
     }
 
-    public Timestamp getCancelled_timestamp() {
-        return cancelled_timestamp;
+    public void setCancelled_time(Timestamp cancelled_time) {
+        this.cancelled_time = cancelled_time;
     }
 
-    public void setCancelled_timestamp(Timestamp cancelled_timestamp) {
-        this.cancelled_timestamp = cancelled_timestamp;
+    public Timestamp getInvited_time() {
+        return invited_time;
     }
 
-    public String getEvent_id() {
-        return event_id;
+    public void setInvited_time(Timestamp invited_time) {
+        this.invited_time = invited_time;
     }
 
-    public void setEvent_id(String event_id) {
-        this.event_id = event_id;
+    public Timestamp getRegistration_time() {
+        return registration_time;
     }
 
-    public Timestamp getInvitation_timestamp() {
-        return invitation_timestamp;
-    }
-
-    public void setInvitation_timestamp(Timestamp invitation_timestamp) {
-        this.invitation_timestamp = invitation_timestamp;
-    }
-
-    public String getReferrer_id() {
-        return referrer_id;
-    }
-
-    public void setReferrer_id(String referrer_id) {
-        this.referrer_id = referrer_id;
-    }
-
-    public Timestamp getRegister_timestamp() {
-        return register_timestamp;
-    }
-
-    public void setRegister_timestamp(Timestamp register_timestamp) {
-        this.register_timestamp = register_timestamp;
-    }
-
-    public String getUser_id() {
-        return user_id;
-    }
-
-    public void setUser_id(String user_id) {
-        this.user_id = user_id;
+    public void setRegistration_time(Timestamp registration_time) {
+        this.registration_time = registration_time;
     }
 }

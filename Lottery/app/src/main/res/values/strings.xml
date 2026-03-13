@@ -88,10 +88,11 @@
     <string name="welcome_to_lottery_app">Welcome to Lottery App</string>
     <string name="create_event">Create Event</string>
     <string name="view_events">View Events</string>
-    <string name="cancelled_entrants_list_header_text">List Of Event Entrants</string>
-    <string name="entrants_list_toggle_button_group_waited_list_button_text">Waited Listed</string>
-    <string name="entrants_list_toggle_button_group_signed_up_button_text">Signed Up</string>
+    <string name="cancelled_entrants_list_header_text">Entrants</string>
+    <string name="entrants_list_toggle_button_group_waited_list_button_text">Waited</string>
+    <string name="entrants_list_toggle_button_group_signed_up_button_text">Accepted</string>
     <string name="entrants_list_toggle_button_group_cancelled_button_text">Cancelled</string>
+    <string name="entrants_list_toggle_button_group_invited_button_text">Invited</string>
     <string name="entrants_list_function_toggle_button_group_send_notification_text">Send Notification</string>
     <string name="entrants_list_function_toggle_button_group_view_location_text">View Location</string>
     <string name="entrants_list_sample_button">Sample Winners</string>
@@ -166,4 +167,6 @@
     <string name="notification_response">Response: %1$s</string>
     <string name="notification_new_badge">NEW</string>
     <string name="settings">Settings</string>
+    <string name="entrant_details_header">Entrant Details</string>
+    <string name="registration_time">Registration Time</string>
 </resources>

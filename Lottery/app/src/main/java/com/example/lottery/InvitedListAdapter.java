@@ -4,34 +4,14 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.w3c.dom.Text;
-
-import java.util.ArrayList;
 import java.util.List;
-/**
- * Adapter for signed up entrants RecyclerView to display a list of entrants that signed up the specific event
- *
- * <p>Responsibilities:
- * <ul>
- *   <li>bind data to signed up entrants recyclerview</li>
- *   <li>render each piece of data </li>
- *   <li>handle user interaction</li>
- *   <li>implement US 02.06.01 Be able to view all chosen entrants</li>
- * </ul>
- * </p>
- */
-// Source - https://stackoverflow.com/a/40584425
-// Posted by Suragch, modified by community. See post 'Timeline' for change history
-// Retrieved 2026-03-10, License - CC BY-SA 4.0
-public class SignedUpListAdapter extends RecyclerView.Adapter<SignedUpListAdapter.ViewHolder> {
 
+public class InvitedListAdapter extends RecyclerView.Adapter<InvitedListAdapter.ViewHolder> {
     /**
      * data we will manipulate to display
      */
@@ -43,14 +23,14 @@ public class SignedUpListAdapter extends RecyclerView.Adapter<SignedUpListAdapte
     /**
      * method for handling user click
      */
-    private SignedUpListAdapter.ItemClickListener mClickListener;
+    private InvitedListAdapter.ItemClickListener mClickListener;
 
     /**
      * data is passed into the constructor
      * @param context context we want to interact
      * @param data data we will manipulate to display
      */
-    SignedUpListAdapter(Context context, List<Entrant> data) {
+    InvitedListAdapter(Context context, List<Entrant> data) {
         this.context = context;
         this.mData = data;
     }
@@ -64,23 +44,27 @@ public class SignedUpListAdapter extends RecyclerView.Adapter<SignedUpListAdapte
      */
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public InvitedListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.entrant_list_item, parent, false);
-        return new ViewHolder(view);
+        return new InvitedListAdapter.ViewHolder(view);
+    }
+
+    /**
+     * binds the data to the TextView in each row
+     * @param holder the view we want to set
+     * @param position index to get data from the arraylist
+     */
+    @Override
+    public void onBindViewHolder(InvitedListAdapter.ViewHolder holder, int position) {
+        Entrant entrant = mData.get(position);
+        holder.tvEntrantName.setText(entrant.getEntrant_name());
+        holder.tvEntrantStatus.setText("");
     }
 
     /**
      * get total number of rows
      * @return size of mData(rows number)
      */
-    @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        Entrant entrant = mData.get(position);
-        holder.tvEntrantName.setText(entrant.getEntrant_name());
-        holder.tvEntrantStatus.setText("");
-    }
-
-    // total number of rows
     @Override
     public int getItemCount() {
         return mData.size();
@@ -125,10 +109,10 @@ public class SignedUpListAdapter extends RecyclerView.Adapter<SignedUpListAdapte
     }
 
     /**
-     * allows clicks events to be caught
+     *  allows clicks events to be caught
      * @param itemClickListener the click listener we want to bind to the adapter
      */
-    void setClickListener(ItemClickListener itemClickListener) {
+    void setClickListener(InvitedListAdapter.ItemClickListener itemClickListener) {
         this.mClickListener = itemClickListener;
     }
 
