@@ -13,22 +13,31 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 /**
- * MainActivity is the entry point of the application. It displays the role selection screen
- * where users can choose to register or sign in as an Entrant, Organizer, or Admin.
- * It also handles automatic login for anonymous users who have previously used the app
- * without registering.
+ * MainActivity is the entry point of the application.
+ * It shows the role selection screen where users can:
+ * - Register or continue as an Entrant
+ * - Register or continue as an Organizer
+ * - Sign in as an Admin
+ * - Use the general sign-in screen
+ *
+ * It also checks whether an anonymous entrant session already exists
+ * and redirects that user automatically to EntrantMainActivity.
  */
 public class MainActivity extends AppCompatActivity {
+
     private static final String KEY_IS_ANONYMOUS = "isAnonymous";
     private static final String KEY_USER_ID = "userId";
     private static final String KEY_USER_NAME = "userName";
     private static final String KEY_FID = "fid";
+
     private Button signInButton;
     private Button entrantButton;
     private Button organizerButton;
     private Button adminButton;
+
     private TextView chooseRoleText;
     private TextView signInPrompt;
+
     private SharedPreferences sharedPreferences;
 
     @Override
@@ -38,9 +47,14 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (view, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            view.setPadding(
+                    systemBars.left,
+                    systemBars.top,
+                    systemBars.right,
+                    systemBars.bottom
+            );
             return insets;
         });
 
@@ -54,17 +68,25 @@ public class MainActivity extends AppCompatActivity {
         chooseRoleText = findViewById(R.id.tvChooseRole);
         signInPrompt = findViewById(R.id.tvSignInHint);
 
-        entrantButton.setOnClickListener(view ->
-                startActivity(new Intent(MainActivity.this, EntrantRegistrationActivity.class)));
+        entrantButton.setOnClickListener(view -> {
+            Intent intent = new Intent(MainActivity.this, EntrantRegistrationActivity.class);
+            startActivity(intent);
+        });
 
-        organizerButton.setOnClickListener(view ->
-                startActivity(new Intent(MainActivity.this, OrganizerRegistrationActivity.class)));
+        organizerButton.setOnClickListener(view -> {
+            Intent intent = new Intent(MainActivity.this, OrganizerRegistrationActivity.class);
+            startActivity(intent);
+        });
 
-        adminButton.setOnClickListener(view ->
-                startActivity(new Intent(MainActivity.this, AdminSignInActivity.class)));
+        adminButton.setOnClickListener(view -> {
+            Intent intent = new Intent(MainActivity.this, AdminSignInActivity.class);
+            startActivity(intent);
+        });
 
-        signInButton.setOnClickListener(view ->
-                startActivity(new Intent(MainActivity.this, GeneralSignInActivity.class)));
+        signInButton.setOnClickListener(view -> {
+            Intent intent = new Intent(MainActivity.this, GeneralSignInActivity.class);
+            startActivity(intent);
+        });
     }
 
     @Override
@@ -73,6 +95,10 @@ public class MainActivity extends AppCompatActivity {
         checkAnonymousSession();
     }
 
+    /**
+     * Checks whether an anonymous entrant session exists in SharedPreferences.
+     * If so, automatically redirects the user to EntrantMainActivity.
+     */
     private void checkAnonymousSession() {
         boolean isAnonymous = sharedPreferences.getBoolean(KEY_IS_ANONYMOUS, false);
         String userId = sharedPreferences.getString(KEY_USER_ID, null);
@@ -84,6 +110,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Navigates to EntrantMainActivity and passes the saved entrant session info.
+     *
+     * @param userId       the stored user id
+     * @param userName     the stored user name
+     * @param isAnonymous  whether the user is anonymous
+     */
     private void navigateToEntrantMain(String userId, String userName, boolean isAnonymous) {
         Intent intent = new Intent(MainActivity.this, EntrantMainActivity.class);
         intent.putExtra("userId", userId);
