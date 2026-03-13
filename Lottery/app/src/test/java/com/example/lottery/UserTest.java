@@ -38,4 +38,17 @@ public class UserTest {
         assertEquals("bob@email.com", user.getEmail());
         assertEquals("", user.getPhoneNumber());
     }
+
+    /**
+     * Test that the constructor overload correctly stores the firestore userId as well.
+     */
+    @Test
+    public void constructor_storesUserIdNameEmailAndPhoneCorrectly() {
+        User user = new User("user-123", "Alice", "alice@email.com", "7801234567");
+
+        assertEquals("user-123", user.getUserId());
+        assertEquals("Alice", user.getName());
+        assertEquals("alice@email.com", user.getEmail());
+        assertEquals("7801234567", user.getPhoneNumber());
+    }
 }

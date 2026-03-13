@@ -2,6 +2,7 @@ package com.example.lottery;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.matcher.ViewMatchers.Visibility.GONE;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
@@ -60,5 +61,10 @@ public class EntrantEventDetailsActivityTest {
     public void testWaitlistActionButtonIsVisibleByDefault() {
         onView(withId(R.id.btnWaitlistAction)).check(matches(isDisplayed()));
         onView(withId(R.id.btnWaitlistAction)).check(matches(withText(R.string.join_wait_list)));
+    }
+
+    @Test
+    public void testEntrantScreenDoesNotExposeOrganizerEditButton() {
+        onView(withId(R.id.btnEditEvent)).check(doesNotExist());
     }
 }

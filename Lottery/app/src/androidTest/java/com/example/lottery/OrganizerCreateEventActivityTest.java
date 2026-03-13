@@ -9,6 +9,10 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.not;
 
+import android.content.Intent;
+
+import androidx.test.core.app.ActivityScenario;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -65,5 +69,24 @@ public class OrganizerCreateEventActivityTest {
 
         // Should be hidden again
         onView(withId(R.id.tilWaitingListLimit)).check(matches(not(isDisplayed())));
+    }
+
+    /**
+     * Verifies that supplying an eventId launches the screen in edit mode immediately,
+     * before any asynchronous Firestore load completes.
+     */
+    @Test
+    public void testEditModeIntentUpdatesHeaderAndActionText() {
+        Intent intent = new Intent(
+                ApplicationProvider.getApplicationContext(),
+                OrganizerCreateEventActivity.class
+        );
+        intent.putExtra("eventId", "existing_event_id");
+
+        try (ActivityScenario<OrganizerCreateEventActivity> scenario = ActivityScenario.launch(intent)) {
+            onView(withId(R.id.tvHeader)).check(matches(withText("Edit Event")));
+            onView(withId(R.id.btnCreateEvent)).perform(scrollTo())
+                    .check(matches(withText("Update Event")));
+        }
     }
 }

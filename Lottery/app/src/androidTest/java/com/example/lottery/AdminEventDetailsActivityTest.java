@@ -48,6 +48,35 @@ public class AdminEventDetailsActivityTest {
             onView(withId(R.id.btnDeleteEvent)).perform(scrollTo(), click());
             onView(withText("Confirm Deletion")).check(matches(isDisplayed()));
             onView(withText("Do you confirm the deletion of this event?")).check(matches(isDisplayed()));
+            onView(withText("Delete")).check(matches(isDisplayed()));
+            onView(withText("Cancel")).check(matches(isDisplayed()));
+        }
+    }
+
+    @Test
+    public void testDeleteConfirmationCancelDismissesDialog() {
+        Context context = ApplicationProvider.getApplicationContext();
+        Intent intent = new Intent(context, AdminEventDetailsActivity.class);
+        intent.putExtra("eventId", "admin_event_id");
+
+        try (ActivityScenario<AdminEventDetailsActivity> ignored = ActivityScenario.launch(intent)) {
+            onView(withId(R.id.btnDeleteEvent)).perform(scrollTo(), click());
+            onView(withText("Cancel")).perform(click());
+
+            onView(withText("Confirm Deletion")).check(doesNotExist());
+            onView(withText("Do you confirm the deletion of this event?")).check(doesNotExist());
+            onView(withId(R.id.btnDeleteEvent)).perform(scrollTo()).check(matches(isDisplayed()));
+        }
+    }
+
+    @Test
+    public void testAdminScreenDoesNotExposeOrganizerEditButton() {
+        Context context = ApplicationProvider.getApplicationContext();
+        Intent intent = new Intent(context, AdminEventDetailsActivity.class);
+        intent.putExtra("eventId", "admin_event_id");
+
+        try (ActivityScenario<AdminEventDetailsActivity> ignored = ActivityScenario.launch(intent)) {
+            onView(withId(R.id.btnEditEvent)).check(doesNotExist());
         }
     }
 }
