@@ -3,21 +3,19 @@ package com.example.lottery;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.GeoPoint;
 
+import java.io.Serializable;
+
 /**
- * Activity to display the details of a specific event and handle registration.
+ * Data model representing an entrant in an event.
  *
  * <p>Responsibilities:
  * <ul>
- *   <li>Fetch the event record from Firestore using the supplied event ID.</li>
- *   <li>Render the poster, title, schedule, deadline, and description.</li>
- *   <li>Surface organizer-configured requirements such as geolocation.</li>
- *   <li>Enforce US 02.03.01: Disables registration when waiting list is full.</li>
- *   <li>Writes registration data to Firestore 'entrants' sub-collection (US 02.01.01).</li>
- *   <li>Keep the custom bottom navigation active on the details screen.</li>
+ *   <li>Store entrant identity and status timestamps for all 4 states: waited-listed, invited, signed-up, cancelled.</li>
+ *   <li>Store the entrant's geolocation at the time of registration.</li>
  * </ul>
  * </p>
  */
-public class Entrant {
+public class Entrant implements Serializable {
     private String entrant_name;
     private String entrant_id;
     private Timestamp cancelled_time;

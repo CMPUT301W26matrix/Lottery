@@ -38,10 +38,6 @@ public class SignedUpListAdapter extends RecyclerView.Adapter<SignedUpListAdapte
      * context we want to interact
      */
     private final Context context;
-    /**
-     * method for handling user click
-     */
-    private SignedUpListAdapter.ItemClickListener mClickListener;
 
     /**
      * data is passed into the constructor
@@ -92,35 +88,9 @@ public class SignedUpListAdapter extends RecyclerView.Adapter<SignedUpListAdapte
     }
 
     /**
-     * convenience method for getting data at click position
-     *
-     * @param id
-     * @return data in the row
-     */
-    Entrant getItem(int id) {
-        return mData.get(id);
-    }
-
-    /**
-     * allows clicks events to be caught
-     *
-     * @param itemClickListener the click listener we want to bind to the adapter
-     */
-    void setClickListener(ItemClickListener itemClickListener) {
-        this.mClickListener = itemClickListener;
-    }
-
-    /**
-     * parent activity will implement this method to respond to click events
-     */
-    public interface ItemClickListener {
-        void onItemClick(View view, int position);
-    }
-
-    /**
      * stores and recycles views as they are scrolled off screen
      */
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvEntrantName;
         TextView tvEntrantStatus;
         Button btnViewDetails;
@@ -135,17 +105,6 @@ public class SignedUpListAdapter extends RecyclerView.Adapter<SignedUpListAdapte
             tvEntrantName = itemView.findViewById(R.id.tvEntrantName);
             tvEntrantStatus = itemView.findViewById(R.id.tvEntrantStatus);
             btnViewDetails = itemView.findViewById(R.id.viewDetailsButton);
-            itemView.setOnClickListener(this);
-        }
-
-        /**
-         * implemented onClick for the view
-         *
-         * @param view The view that was clicked.
-         */
-        @Override
-        public void onClick(View view) {
-            if (mClickListener != null) mClickListener.onItemClick(view, getAdapterPosition());
         }
     }
 }

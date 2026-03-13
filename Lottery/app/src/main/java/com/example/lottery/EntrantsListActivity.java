@@ -26,6 +26,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
@@ -50,24 +51,24 @@ import java.util.Map;
  * </p>
  */
 public class EntrantsListActivity extends AppCompatActivity implements NotificationFragment.NotificationListener, SampleFragment.SamplingListener, OnMapReadyCallback {
-    private static final String TAG = "CreateEventActivity";
-    private final int FINE_PERMISSION_CODE = 1;
+    private static final String TAG = "EntrantsListActivity";
     private Button btnSwitchSignedUp, btnSwitchCancelled, btnSwitchWaitedList, btnSendNotification, btnViewLocation, btnSampleWinners, btnSwitchInvited;
     private FirebaseFirestore db;
     private ArrayList<Entrant> entrantSignedUpArrayList;
     private ArrayList<Entrant> entrantInvitedArrayList;
     private ArrayList<Entrant> entrantCancelledArrayList;
     private ArrayList<Entrant> entrantWaitedListArrayList;
-    private SignedUpListAdapter SignedUpListAdapter;
-    private CancelledListAdapter CancelledListAdapter;
-    private WaitedListedListAdapter WaitedListedListAdapter;
-    private InvitedListAdapter InvitedListAdapter;
+    private SignedUpListAdapter signedUpAdapter;
+    private CancelledListAdapter cancelledAdapter;
+    private WaitedListedListAdapter waitedListAdapter;
+    private InvitedListAdapter invitedAdapter;
     private LinearLayout invitedEntrantsListLayout, cancelledEntrantsListLayout, signedUpEntrantsListLayout, waitedListEntrantsListLayout, viewLocationLayout;
     private RecyclerView invitedEventsView, signedUpEventsView, waitedListEventsView, cancelledEntrantsView;
     private GoogleMap googleMap;
     private MapView mapView;
     private String eventId;
-    private long maxCapacity, maxSampleSize, invitedSize;
+    private long maxCapacity, maxSampleSize;
+    private ListenerRegistration waitedListReg, invitedReg, cancelledReg, signedUpReg;
 
     /**
      * Initializes the activity, sets up Firebase, bind views,
@@ -106,40 +107,23 @@ public class EntrantsListActivity extends AppCompatActivity implements Notificat
         entrantCancelledArrayList = new ArrayList<>();
         entrantWaitedListArrayList = new ArrayList<>();
         entrantInvitedArrayList = new ArrayList<>();
-        SignedUpListAdapter = new SignedUpListAdapter(this, entrantSignedUpArrayList);
-        CancelledListAdapter = new CancelledListAdapter(this, entrantCancelledArrayList);
-        WaitedListedListAdapter = new WaitedListedListAdapter(this, entrantWaitedListArrayList);
-        InvitedListAdapter = new InvitedListAdapter(this, entrantInvitedArrayList);
-        signedUpEventsView.setAdapter(SignedUpListAdapter);
-        waitedListEventsView.setAdapter(WaitedListedListAdapter);
-        cancelledEntrantsView.setAdapter(CancelledListAdapter);
-        invitedEventsView.setAdapter(InvitedListAdapter);
-        showWaitedListLayout();
+        signedUpAdapter = new SignedUpListAdapter(this, entrantSignedUpArrayList);
+        cancelledAdapter = new CancelledListAdapter(this, entrantCancelledArrayList);
+        waitedListAdapter = new WaitedListedListAdapter(this, entrantWaitedListArrayList);
+        invitedAdapter = new InvitedListAdapter(this, entrantInvitedArrayList);
+        signedUpEventsView.setAdapter(signedUpAdapter);
+        waitedListEventsView.setAdapter(waitedListAdapter);
+        cancelledEntrantsView.setAdapter(cancelledAdapter);
+        invitedEventsView.setAdapter(invitedAdapter);
+        showLayout(waitedListEntrantsListLayout);
 
         /**
          * switch to signed up component to display the entrants list that have signed up
          */
-        btnSwitchSignedUp.setOnClickListener(v -> {
-            // Source - https://stackoverflow.com/a/12125545
-            // Posted by nandeesh
-            // Retrieved 2026-03-10, License - CC BY-SA 3.0
-            showSignedUpListLayout();
-        });
-
-        /**
-         * switch to signed up component to display the entrants list that have signed up
-         */
-        btnSwitchCancelled.setOnClickListener(v -> {
-            showCancelledListLayout();
-        });
-
-
-        /**
-         * switch to signed up component to display the entrants list that have signed up
-         */
-        btnSwitchWaitedList.setOnClickListener(v -> {
-            showWaitedListLayout();
-        });
+        btnSwitchSignedUp.setOnClickListener(v -> showLayout(signedUpEntrantsListLayout));
+        btnSwitchCancelled.setOnClickListener(v -> showLayout(cancelledEntrantsListLayout));
+        btnSwitchWaitedList.setOnClickListener(v -> showLayout(waitedListEntrantsListLayout));
+        btnSwitchInvited.setOnClickListener(view -> showLayout(invitedEntrantsListLayout));
 
         /**
          *display send notification fragment
@@ -160,9 +144,6 @@ public class EntrantsListActivity extends AppCompatActivity implements Notificat
         /**
          * switch to invited component to display the entrants list that have invited by the organizer
          */
-        btnSwitchInvited.setOnClickListener(view -> {
-            showInvitedListLayout();
-        });
 
         /**
          * switch to view location component to display the entrants on the map
@@ -171,118 +152,115 @@ public class EntrantsListActivity extends AppCompatActivity implements Notificat
             if (googleMap != null) {
                 if (waitedListEntrantsListLayout.getVisibility() == View.VISIBLE) {
                     insertMarkers(entrantWaitedListArrayList);
-                }
-                if (signedUpEntrantsListLayout.getVisibility() == View.VISIBLE) {
+                } else if (signedUpEntrantsListLayout.getVisibility() == View.VISIBLE) {
                     insertMarkers(entrantSignedUpArrayList);
-                }
-                if (cancelledEntrantsListLayout.getVisibility() == View.VISIBLE) {
+                } else if (cancelledEntrantsListLayout.getVisibility() == View.VISIBLE) {
                     insertMarkers(entrantCancelledArrayList);
-                }
-                if (invitedEntrantsListLayout.getVisibility() == View.VISIBLE) {
+                } else if (invitedEntrantsListLayout.getVisibility() == View.VISIBLE) {
                     insertMarkers(entrantInvitedArrayList);
                 }
             }
-            viewLocationLayout.setVisibility(View.VISIBLE);
-            cancelledEntrantsListLayout.setVisibility(View.GONE);
-            waitedListEntrantsListLayout.setVisibility(View.GONE);
-            signedUpEntrantsListLayout.setVisibility(View.GONE);
-            invitedEntrantsListLayout.setVisibility(View.GONE);
+            showLayout(viewLocationLayout);
         });
 
         /**
          * set waited_listed arraylist
          */
-        db.collection("events").document(eventId).collection("waited_listed_collections").addSnapshotListener((querySnapshot, firebaseFirestoreException) -> {
+        waitedListReg = db.collection("events").document(eventId).collection("waited_listed_collections").addSnapshotListener((querySnapshot, firebaseFirestoreException) -> {
             if (firebaseFirestoreException != null) {
-                Log.e("Firebase error:", firebaseFirestoreException.toString());
+                Log.e(TAG, "waited_listed listener error", firebaseFirestoreException);
+                return;
             }
             entrantWaitedListArrayList.clear();
             if (querySnapshot != null) {
                 for (QueryDocumentSnapshot snapshot : querySnapshot) {
-                    String entrant_id = snapshot.getString("entrant_id");
-                    Timestamp registration_time = snapshot.getTimestamp("registration_time");
+                    String entrantId = snapshot.getString("entrant_id");
+                    Timestamp registrationTime = snapshot.getTimestamp("registration_time");
                     GeoPoint location = snapshot.getGeoPoint("location");
                     String name = snapshot.getString("entrant_name");
-                    Entrant new_entrant = new Entrant(name, entrant_id, registration_time, location);
-                    entrantWaitedListArrayList.add(new_entrant);
+                    Entrant newEntrant = new Entrant(name, entrantId, registrationTime, location);
+                    entrantWaitedListArrayList.add(newEntrant);
                 }
-                WaitedListedListAdapter.notifyDataSetChanged();
+                waitedListAdapter.notifyDataSetChanged();
             }
         });
 
         /**
          * set invited arraylist
          */
-        db.collection("events").document(eventId).collection("invited_collections").addSnapshotListener((querySnapshot, firebaseFirestoreException) -> {
+        invitedReg = db.collection("events").document(eventId).collection("invited_collections").addSnapshotListener((querySnapshot, firebaseFirestoreException) -> {
             if (firebaseFirestoreException != null) {
-                Log.e("Firebase error:", firebaseFirestoreException.toString());
+                Log.e(TAG, "invited listener error", firebaseFirestoreException);
+                return;
             }
             entrantInvitedArrayList.clear();
             if (querySnapshot != null) {
                 for (QueryDocumentSnapshot snapshot : querySnapshot) {
-                    String entrant_id = snapshot.getString("entrant_id");
-                    Timestamp registration_time = snapshot.getTimestamp("registration_time");
+                    String entrantId = snapshot.getString("entrant_id");
+                    Timestamp registrationTime = snapshot.getTimestamp("registration_time");
                     GeoPoint location = snapshot.getGeoPoint("location");
-                    Timestamp invited_time = snapshot.getTimestamp("invited_time");
+                    Timestamp invitedTime = snapshot.getTimestamp("invited_time");
                     String name = snapshot.getString("entrant_name");
-                    Entrant new_entrant = new Entrant(invited_time, name, entrant_id, registration_time, location);
-                    entrantInvitedArrayList.add(new_entrant);
+                    Entrant newEntrant = new Entrant(invitedTime, name, entrantId, registrationTime, location);
+                    entrantInvitedArrayList.add(newEntrant);
                 }
-                InvitedListAdapter.notifyDataSetChanged();
+                invitedAdapter.notifyDataSetChanged();
             }
         });
 
         /**
          * set cancelled arraylist
          */
-        db.collection("events").document(eventId).collection("cancelled_collections").addSnapshotListener((querySnapshot, firebaseFirestoreException) -> {
+        cancelledReg = db.collection("events").document(eventId).collection("cancelled_collections").addSnapshotListener((querySnapshot, firebaseFirestoreException) -> {
             if (firebaseFirestoreException != null) {
-                Log.e("Firebase error:", firebaseFirestoreException.toString());
+                Log.e(TAG, "cancelled listener error", firebaseFirestoreException);
+                return;
             }
             entrantCancelledArrayList.clear();
             if (querySnapshot != null) {
                 for (QueryDocumentSnapshot snapshot : querySnapshot) {
-                    String entrant_id = snapshot.getString("entrant_id");
-                    Timestamp registration_time = snapshot.getTimestamp("registration_time");
+                    String entrantId = snapshot.getString("entrant_id");
+                    Timestamp registrationTime = snapshot.getTimestamp("registration_time");
                     GeoPoint location = snapshot.getGeoPoint("location");
-                    Timestamp cancelled_time = snapshot.getTimestamp("cancelled_time");
-                    Timestamp invited_time = snapshot.getTimestamp("invited_time");
+                    Timestamp cancelledTime = snapshot.getTimestamp("cancelled_time");
+                    Timestamp invitedTime = snapshot.getTimestamp("invited_time");
                     String name = snapshot.getString("entrant_name");
-                    Entrant new_entrant = new Entrant(name, location, entrant_id, cancelled_time, invited_time, registration_time);
-                    entrantCancelledArrayList.add(new_entrant);
+                    Entrant newEntrant = new Entrant(name, location, entrantId, cancelledTime, invitedTime, registrationTime);
+                    entrantCancelledArrayList.add(newEntrant);
                 }
-                CancelledListAdapter.notifyDataSetChanged();
+                cancelledAdapter.notifyDataSetChanged();
             }
         });
 
         /**
          * set signed up arraylist
          */
-        db.collection("events").document(eventId).collection("signed_up_collections").addSnapshotListener((querySnapshot, firebaseFirestoreException) -> {
+        signedUpReg = db.collection("events").document(eventId).collection("signed_up_collections").addSnapshotListener((querySnapshot, firebaseFirestoreException) -> {
             if (firebaseFirestoreException != null) {
-                Log.e("Firebase error:", firebaseFirestoreException.toString());
+                Log.e(TAG, "signed_up listener error", firebaseFirestoreException);
+                return;
             }
             entrantSignedUpArrayList.clear();
             if (querySnapshot != null) {
                 for (QueryDocumentSnapshot snapshot : querySnapshot) {
-                    String entrant_id = snapshot.getString("entrant_id");
-                    Timestamp registration_time = snapshot.getTimestamp("registration_time");
+                    String entrantId = snapshot.getString("entrant_id");
+                    Timestamp registrationTime = snapshot.getTimestamp("registration_time");
                     GeoPoint location = snapshot.getGeoPoint("location");
-                    Timestamp signed_up_time = snapshot.getTimestamp("signed_up_time");
-                    Timestamp invited_time = snapshot.getTimestamp("invited_time");
+                    Timestamp signedUpTime = snapshot.getTimestamp("signed_up_time");
+                    Timestamp invitedTime = snapshot.getTimestamp("invited_time");
                     String name = snapshot.getString("entrant_name");
-                    Entrant new_entrant = new Entrant(name, entrant_id, invited_time, registration_time, location, signed_up_time);
-                    entrantSignedUpArrayList.add(new_entrant);
+                    Entrant newEntrant = new Entrant(name, entrantId, invitedTime, registrationTime, location, signedUpTime);
+                    entrantSignedUpArrayList.add(newEntrant);
                 }
-                SignedUpListAdapter.notifyDataSetChanged();
+                signedUpAdapter.notifyDataSetChanged();
             }
         });
 
         //get the max capacity of the event
         db.collection("events").document(eventId).get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
-                maxCapacity = documentSnapshot.getLong("maxCapacity");
-            } else {
+                Long cap = documentSnapshot.getLong("maxCapacity");
+                maxCapacity = cap != null ? cap : 0L;
             }
         });
     }
@@ -302,7 +280,7 @@ public class EntrantsListActivity extends AppCompatActivity implements Notificat
             Toast.makeText(this, "ERROR: sample size must be an integer", Toast.LENGTH_LONG).show();
             return;
         }
-        int sample_size = Integer.parseInt(size);
+        int sampleSize = Integer.parseInt(size);
         DocumentReference eventRef = db.collection("events").document(eventId);
         eventRef.collection("waited_listed_collections").get().addOnSuccessListener(queryDocumentSnapshots -> {
             if (queryDocumentSnapshots.isEmpty()) {
@@ -313,15 +291,14 @@ public class EntrantsListActivity extends AppCompatActivity implements Notificat
             Collections.shuffle(data);
             maxSampleSize = min(maxCapacity - entrantSignedUpArrayList.size() - entrantInvitedArrayList.size(), entrantWaitedListArrayList.size());
             Log.d(TAG, "sampling: shuffle succeeds");
-            if (maxSampleSize < sample_size || sample_size <= 0) {
-                String error_message = String.format("ERROR: check failed: 0 < sample size < %d", maxSampleSize);
-                // 0 < sample size < max sample size
-                Toast.makeText(this, error_message, Toast.LENGTH_LONG).show();
+            if (maxSampleSize < sampleSize || sampleSize <= 0) {
+                String errorMessage = String.format("ERROR: check failed: 0 < sample size < %d", maxSampleSize);
+                Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
                 return;
             }
 
             WriteBatch batch = db.batch();
-            for (int i = 0; i < sample_size; i++) {
+            for (int i = 0; i < sampleSize; i++) {
                 DocumentSnapshot documentSnapshot = data.get(i);
                 Map<String, Object> newData = new HashMap<>();
                 newData.put("entrant_id", documentSnapshot.getString("entrant_id"));
@@ -334,7 +311,6 @@ public class EntrantsListActivity extends AppCompatActivity implements Notificat
                 }
                 DocumentReference newRef = eventRef.collection("invited_collections").document();
                 batch.set(newRef, newData);
-                WaitedListedListAdapter.notifyDataSetChanged();
 
                 //delete the document in the waited_listed since it's belong to invited collections now
                 batch.delete(documentSnapshot.getReference());
@@ -350,7 +326,6 @@ public class EntrantsListActivity extends AppCompatActivity implements Notificat
      */
     @Override
     public void sendNotification(String content) {
-        System.out.print("true");
     }
 
     /**
@@ -395,7 +370,7 @@ public class EntrantsListActivity extends AppCompatActivity implements Notificat
         boolean hasLocations = false;
         for (int i = 0; i < list.size(); i++) {
             Entrant entrant = list.get(i);
-            com.google.firebase.firestore.GeoPoint geoLocation = entrant.getLocation();
+            GeoPoint geoLocation = entrant.getLocation();
             if (geoLocation == null) {
                 continue;
             }
@@ -411,36 +386,12 @@ public class EntrantsListActivity extends AppCompatActivity implements Notificat
         }
     }
 
-    private void showSignedUpListLayout() {
-        signedUpEntrantsListLayout.setVisibility(View.VISIBLE);
-        cancelledEntrantsListLayout.setVisibility(View.GONE);
-        waitedListEntrantsListLayout.setVisibility(View.GONE);
-        viewLocationLayout.setVisibility(View.GONE);
-        invitedEntrantsListLayout.setVisibility(View.GONE);
-    }
-
-    private void showCancelledListLayout() {
-        cancelledEntrantsListLayout.setVisibility(View.VISIBLE);
-        signedUpEntrantsListLayout.setVisibility(View.GONE);
-        waitedListEntrantsListLayout.setVisibility(View.GONE);
-        viewLocationLayout.setVisibility(View.GONE);
-        invitedEntrantsListLayout.setVisibility(View.GONE);
-    }
-
-    private void showWaitedListLayout() {
-        waitedListEntrantsListLayout.setVisibility(View.VISIBLE);
-        cancelledEntrantsListLayout.setVisibility(View.GONE);
-        signedUpEntrantsListLayout.setVisibility(View.GONE);
-        viewLocationLayout.setVisibility(View.GONE);
-        invitedEntrantsListLayout.setVisibility(View.GONE);
-    }
-
-    private void showInvitedListLayout() {
-        invitedEntrantsListLayout.setVisibility(View.VISIBLE);
-        waitedListEntrantsListLayout.setVisibility(View.GONE);
-        cancelledEntrantsListLayout.setVisibility(View.GONE);
-        signedUpEntrantsListLayout.setVisibility(View.GONE);
-        viewLocationLayout.setVisibility(View.GONE);
+    private void showLayout(LinearLayout target) {
+        signedUpEntrantsListLayout.setVisibility(signedUpEntrantsListLayout == target ? View.VISIBLE : View.GONE);
+        cancelledEntrantsListLayout.setVisibility(cancelledEntrantsListLayout == target ? View.VISIBLE : View.GONE);
+        waitedListEntrantsListLayout.setVisibility(waitedListEntrantsListLayout == target ? View.VISIBLE : View.GONE);
+        invitedEntrantsListLayout.setVisibility(invitedEntrantsListLayout == target ? View.VISIBLE : View.GONE);
+        viewLocationLayout.setVisibility(viewLocationLayout == target ? View.VISIBLE : View.GONE);
     }
 
 
@@ -501,6 +452,10 @@ public class EntrantsListActivity extends AppCompatActivity implements Notificat
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if (waitedListReg != null) waitedListReg.remove();
+        if (invitedReg != null) invitedReg.remove();
+        if (cancelledReg != null) cancelledReg.remove();
+        if (signedUpReg != null) signedUpReg.remove();
         mapView.onDestroy();
     }
 

@@ -23,7 +23,7 @@ import androidx.fragment.app.DialogFragment;
  * </p>
  */
 public class EntrantDetailsFragment extends DialogFragment {
-    private Entrant entrant;
+    private static final String ARG_ENTRANT = "entrant";
 
     /**
      *
@@ -31,9 +31,11 @@ public class EntrantDetailsFragment extends DialogFragment {
      * @return initialized fragment
      */
     public static EntrantDetailsFragment newInstance(Entrant entrant) {
-        EntrantDetailsFragment entrantDetailsFragment = new EntrantDetailsFragment();
-        entrantDetailsFragment.entrant = entrant;
-        return entrantDetailsFragment;
+        EntrantDetailsFragment fragment = new EntrantDetailsFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(ARG_ENTRANT, entrant);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     /**
@@ -45,6 +47,7 @@ public class EntrantDetailsFragment extends DialogFragment {
      */
     @SuppressLint("SetTextI18n")
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+        Entrant entrant = (Entrant) requireArguments().getSerializable(ARG_ENTRANT);
         View view = getLayoutInflater().inflate(R.layout.entrant_details_fragment, null);
         TextView tvName = view.findViewById(R.id.details_name);
         TextView tvId = view.findViewById(R.id.details_id);
@@ -59,8 +62,16 @@ public class EntrantDetailsFragment extends DialogFragment {
 
         tvName.setText(entrant.getEntrant_name());
         tvId.setText(entrant.getEntrant_id());
-        tvLocation.setText("(" + entrant.getLocation().getLatitude() + "," + entrant.getLocation().getLongitude() + ")");
-        tvRegistrationTime.setText(entrant.getRegistration_time().toDate().toString());
+        if (entrant.getLocation() != null) {
+            tvLocation.setText("(" + entrant.getLocation().getLatitude() + "," + entrant.getLocation().getLongitude() + ")");
+        } else {
+            tvLocation.setText("N/A");
+        }
+        if (entrant.getRegistration_time() != null) {
+            tvRegistrationTime.setText(entrant.getRegistration_time().toDate().toString());
+        } else {
+            tvRegistrationTime.setText("N/A");
+        }
         if (entrant.getInvited_time() != null) {
             tvInvitedTime.setText(entrant.getInvited_time().toDate().toString());
             llInvitedTime.setVisibility(View.VISIBLE);
