@@ -45,27 +45,6 @@
                     android:text="@string/nav_home"
                     android:textColor="@color/primary_blue"
                     android:textSize="11sp" />
-
-                <TextView
-                    android:id="@+id/tvNotificationBadge"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="top|end"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="12dp"
-                    android:background="#D32F2F"
-                    android:minWidth="20dp"
-                    android:minHeight="20dp"
-                    android:gravity="center"
-                    android:paddingLeft="4dp"
-                    android:paddingTop="2dp"
-                    android:paddingRight="4dp"
-                    android:paddingBottom="2dp"
-                    android:text="NEW"
-                    android:textColor="@android:color/white"
-                    android:textSize="10sp"
-                    android:textStyle="bold"
-                    android:visibility="gone" />
             </LinearLayout>
 
             <LinearLayout
@@ -82,7 +61,7 @@
                     android:id="@+id/iv_nav_history"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@android:drawable/ic_menu_recent_history"
+                    android:src="@android:drawable/ic_lock_idle_alarm"
                     app:tint="@color/text_gray" />
                 <TextView
                     android:id="@+id/tv_nav_history"
@@ -91,6 +70,27 @@
                     android:text="@string/nav_history"
                     android:textColor="@color/text_gray"
                     android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/tvNotificationBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|end"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="12dp"
+                    android:background="#D32F2F"
+                    android:minWidth="20dp"
+                    android:minHeight="20dp"
+                    android:gravity="center"
+                    android:paddingLeft="4dp"
+                    android:paddingTop="2dp"
+                    android:paddingRight="4dp"
+                    android:paddingBottom="2dp"
+                    android:text="@string/notification_new_badge"
+                    android:textColor="@android:color/white"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
             </LinearLayout>
 
             <LinearLayout

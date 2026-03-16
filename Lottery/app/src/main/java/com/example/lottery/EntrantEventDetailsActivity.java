@@ -113,6 +113,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
      */
 
     private LinearLayout navHome;
+    private LinearLayout navNotifications;
     // private LinearLayout navQrScan;  --> implement later
     // private LinearLayout navSettings; --> implement later
 
@@ -191,6 +192,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         registrationEndedContainer = findViewById(R.id.registrationEndedContainer);
 
         navHome = findViewById(R.id.nav_home);
+        navNotifications = findViewById(R.id.nav_history);
         btnClose = findViewById(R.id.btnBack);
         ivEventPoster = findViewById(R.id.ivEventPoster);
 
@@ -225,6 +227,12 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
             finish();
+        });
+
+        navNotifications.setOnClickListener(v -> {
+            Intent intent = new Intent(this, NotificationsActivity.class);
+            intent.putExtra(NotificationsActivity.EXTRA_USER_ID, userId);
+            startActivity(intent);
         });
 
         btnClose.setOnClickListener(v -> finish());

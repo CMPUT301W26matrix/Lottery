@@ -130,9 +130,11 @@ public class EntrantProfileActivity extends AppCompatActivity {
             finish();
         });
 
-        findViewById(R.id.nav_history).setOnClickListener(v ->
-                Toast.makeText(this, "History coming soon", Toast.LENGTH_SHORT).show()
-        );
+        findViewById(R.id.nav_history).setOnClickListener(v -> {
+            Intent intent = new Intent(this, NotificationsActivity.class);
+            intent.putExtra(NotificationsActivity.EXTRA_USER_ID, userId);
+            startActivity(intent);
+        });
 
         findViewById(R.id.nav_qr_scan).setOnClickListener(v ->
                 Toast.makeText(this, "QR Scan coming soon", Toast.LENGTH_SHORT).show()
