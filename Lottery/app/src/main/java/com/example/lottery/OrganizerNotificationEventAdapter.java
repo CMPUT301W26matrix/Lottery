@@ -43,7 +43,7 @@ public class OrganizerNotificationEventAdapter extends RecyclerView.Adapter<Orga
         holder.tvEventTitle.setText(event.getTitle());
         
         if (event.getScheduledDateTime() != null) {
-            holder.tvEventDate.setText(dateFormat.format(event.getScheduledDateTime()));
+            holder.tvEventDate.setText(dateFormat.format(event.getScheduledDateTime().toDate()));
         } else {
             holder.tvEventDate.setText("No date set");
         }
