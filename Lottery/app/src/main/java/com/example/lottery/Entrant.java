@@ -16,139 +16,263 @@ import java.io.Serializable;
  * </p>
  */
 public class Entrant implements Serializable {
-    private String entrant_name;
-    private String entrant_id;
-    private Timestamp cancelled_time;
-    private Timestamp invited_time;
-    private Timestamp registration_time;
-    private Timestamp signed_up_time;
-    private com.google.firebase.firestore.GeoPoint location;
 
+    /**
+     * Preferred unified fields.
+     */
+    private String userId;
+    private String userName;
+    private String status;
+
+    private Timestamp registeredAt;
+    private Timestamp waitlistedAt;
+    private Timestamp invitedAt;
+    private Timestamp acceptedAt;
+    private Timestamp declinedAt;
+    private Timestamp cancelledAt;
+
+    private GeoPoint location;
+
+    /**
+     * Default constructor required for Firestore / serialization.
+     */
     public Entrant() {
     }
 
     /**
-     * constructor for cancelled_collections entrants
-     *
-     * @param entrant_name      entrant's name
-     * @param location          entrant's location
-     * @param entrant_id        entrant's id
-     * @param cancelled_time    entrant's cancelled time
-     * @param invited_time      entrant's invited time
-     * @param registration_time entrant's registration time
+     * Full constructor using the new unified structure.
      */
-    public Entrant(String entrant_name, GeoPoint location, String entrant_id, Timestamp cancelled_time, Timestamp invited_time, Timestamp registration_time) {
-        this.entrant_name = entrant_name;
-        this.location = location;
-        this.entrant_id = entrant_id;
-        this.cancelled_time = cancelled_time;
-        this.invited_time = invited_time;
-        this.registration_time = registration_time;
-    }
-
-    /**
-     * constructor for signed_up_collections entrants
-     *
-     * @param entrant_name      entrant's name
-     * @param location          entrant's location
-     * @param entrant_id        entrant's id
-     * @param signed_up_time    entrant's cancelled time
-     * @param invited_time      entrant's invited time
-     * @param registration_time entrant's registration time
-     */
-    public Entrant(String entrant_name, String entrant_id, Timestamp invited_time, Timestamp registration_time, GeoPoint location, Timestamp signed_up_time) {
-        this.entrant_name = entrant_name;
-        this.entrant_id = entrant_id;
-        this.invited_time = invited_time;
-        this.registration_time = registration_time;
-        this.location = location;
-        this.signed_up_time = signed_up_time;
-    }
-
-    /**
-     * constructor for waited_listed_collections entrants
-     *
-     * @param entrant_name      entrant's name
-     * @param location          entrant's location
-     * @param entrant_id        entrant's id
-     * @param registration_time entrant's registration time
-     */
-    public Entrant(String entrant_name, String entrant_id, Timestamp registration_time, GeoPoint location) {
-        this.entrant_name = entrant_name;
-        this.entrant_id = entrant_id;
-        this.registration_time = registration_time;
+    public Entrant(String userId,
+                   String userName,
+                   String status,
+                   Timestamp registeredAt,
+                   Timestamp waitlistedAt,
+                   Timestamp invitedAt,
+                   Timestamp acceptedAt,
+                   Timestamp declinedAt,
+                   Timestamp cancelledAt,
+                   GeoPoint location) {
+        this.userId = userId;
+        this.userName = userName;
+        this.status = status;
+        this.registeredAt = registeredAt;
+        this.waitlistedAt = waitlistedAt;
+        this.invitedAt = invitedAt;
+        this.acceptedAt = acceptedAt;
+        this.declinedAt = declinedAt;
+        this.cancelledAt = cancelledAt;
         this.location = location;
     }
 
     /**
-     *
-     * @param invited_time      timestamp that entrants get invitation
-     * @param entrant_name      entrant's name
-     * @param location          entrant's location
-     * @param entrant_id        entrant's id
-     * @param registration_time entrant's registration time
+     * Constructor for waitlisted entrant display.
      */
-    public Entrant(Timestamp invited_time, String entrant_name, String entrant_id, Timestamp registration_time, GeoPoint location) {
-        this.invited_time = invited_time;
-        this.entrant_name = entrant_name;
-        this.entrant_id = entrant_id;
-        this.registration_time = registration_time;
+    public Entrant(String userName, String userId, Timestamp registeredAt, GeoPoint location) {
+        this.userName = userName;
+        this.userId = userId;
+        this.registeredAt = registeredAt;
+        this.waitlistedAt = registeredAt;
         this.location = location;
+        this.status = "waitlisted";
     }
 
-    public Timestamp getSigned_up_time() {
-        return signed_up_time;
+    /**
+     * Constructor for invited entrant display.
+     */
+    public Entrant(Timestamp invitedAt, String userName, String userId, Timestamp registeredAt, GeoPoint location) {
+        this.invitedAt = invitedAt;
+        this.userName = userName;
+        this.userId = userId;
+        this.registeredAt = registeredAt;
+        this.location = location;
+        this.status = "invited";
     }
 
-    public void setSigned_up_time(Timestamp signed_up_time) {
-        this.signed_up_time = signed_up_time;
+    /**
+     * Constructor for accepted/signed-up entrant display.
+     */
+    public Entrant(String userName, String userId, Timestamp invitedAt, Timestamp registeredAt,
+                   GeoPoint location, Timestamp acceptedAt) {
+        this.userName = userName;
+        this.userId = userId;
+        this.invitedAt = invitedAt;
+        this.registeredAt = registeredAt;
+        this.location = location;
+        this.acceptedAt = acceptedAt;
+        this.status = "accepted";
     }
 
-    public com.google.firebase.firestore.GeoPoint getLocation() {
+    /**
+     * Constructor for cancelled/declined entrant display.
+     */
+    public Entrant(String userName, GeoPoint location, String userId,
+                   Timestamp cancelledAt, Timestamp invitedAt, Timestamp registeredAt) {
+        this.userName = userName;
+        this.location = location;
+        this.userId = userId;
+        this.cancelledAt = cancelledAt;
+        this.invitedAt = invitedAt;
+        this.registeredAt = registeredAt;
+        this.status = "cancelled";
+    }
+
+    // -------------------------------------------------------------------------
+    // Preferred getters / setters
+    // -------------------------------------------------------------------------
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Timestamp getRegisteredAt() {
+        return registeredAt;
+    }
+
+    public void setRegisteredAt(Timestamp registeredAt) {
+        this.registeredAt = registeredAt;
+    }
+
+    public Timestamp getWaitlistedAt() {
+        return waitlistedAt;
+    }
+
+    public void setWaitlistedAt(Timestamp waitlistedAt) {
+        this.waitlistedAt = waitlistedAt;
+    }
+
+    public Timestamp getInvitedAt() {
+        return invitedAt;
+    }
+
+    public void setInvitedAt(Timestamp invitedAt) {
+        this.invitedAt = invitedAt;
+    }
+
+    public Timestamp getAcceptedAt() {
+        return acceptedAt;
+    }
+
+    public void setAcceptedAt(Timestamp acceptedAt) {
+        this.acceptedAt = acceptedAt;
+    }
+
+    public Timestamp getDeclinedAt() {
+        return declinedAt;
+    }
+
+    public void setDeclinedAt(Timestamp declinedAt) {
+        this.declinedAt = declinedAt;
+    }
+
+    public Timestamp getCancelledAt() {
+        return cancelledAt;
+    }
+
+    public void setCancelledAt(Timestamp cancelledAt) {
+        this.cancelledAt = cancelledAt;
+    }
+
+    public GeoPoint getLocation() {
         return location;
     }
 
-    public void setLocation(com.google.firebase.firestore.GeoPoint location) {
+    public void setLocation(GeoPoint location) {
         this.location = location;
     }
 
-    public String getEntrant_name() {
-        return entrant_name;
-    }
-
-    public void setEntrant_name(String entrant_name) {
-        this.entrant_name = entrant_name;
-    }
+    // -------------------------------------------------------------------------
+    // Backward-compatible aliases for existing old code
+    // -------------------------------------------------------------------------
 
     public String getEntrant_id() {
-        return entrant_id;
+        return userId;
     }
 
     public void setEntrant_id(String entrant_id) {
-        this.entrant_id = entrant_id;
+        this.userId = entrant_id;
     }
 
-    public Timestamp getCancelled_time() {
-        return cancelled_time;
+    public String getEntrant_name() {
+        return userName;
     }
 
-    public void setCancelled_time(Timestamp cancelled_time) {
-        this.cancelled_time = cancelled_time;
-    }
-
-    public Timestamp getInvited_time() {
-        return invited_time;
-    }
-
-    public void setInvited_time(Timestamp invited_time) {
-        this.invited_time = invited_time;
+    public void setEntrant_name(String entrant_name) {
+        this.userName = entrant_name;
     }
 
     public Timestamp getRegistration_time() {
-        return registration_time;
+        return registeredAt;
     }
 
     public void setRegistration_time(Timestamp registration_time) {
-        this.registration_time = registration_time;
+        this.registeredAt = registration_time;
+    }
+
+    public Timestamp getInvited_time() {
+        return invitedAt;
+    }
+
+    public void setInvited_time(Timestamp invited_time) {
+        this.invitedAt = invited_time;
+    }
+
+    public Timestamp getSigned_up_time() {
+        return acceptedAt;
+    }
+
+    public void setSigned_up_time(Timestamp signed_up_time) {
+        this.acceptedAt = signed_up_time;
+    }
+
+    public Timestamp getCancelled_time() {
+        return cancelledAt;
+    }
+
+    public void setCancelled_time(Timestamp cancelled_time) {
+        this.cancelledAt = cancelled_time;
+    }
+
+    // -------------------------------------------------------------------------
+    // Helpful status checks
+    // -------------------------------------------------------------------------
+
+    public boolean isWaitlisted() {
+        return "waitlisted".equalsIgnoreCase(status);
+    }
+
+    public boolean isInvited() {
+        return "invited".equalsIgnoreCase(status);
+    }
+
+    public boolean isAccepted() {
+        return "accepted".equalsIgnoreCase(status);
+    }
+
+    public boolean isDeclined() {
+        return "declined".equalsIgnoreCase(status);
+    }
+
+    public boolean isCancelled() {
+        return "cancelled".equalsIgnoreCase(status);
     }
 }

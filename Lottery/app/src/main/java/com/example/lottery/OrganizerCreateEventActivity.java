@@ -28,6 +28,7 @@ import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -235,11 +236,11 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             }
 
             this.qrCodeContent = event.getQrCodeContent();
-            this.eventStartDate = event.getScheduledDateTime();
-            this.eventEndDate = event.getEventEndDate();
-            this.regStartDate = event.getRegistrationStartDate();
-            this.regEndDate = event.getRegistrationDeadline();
-            this.drawDate = event.getDrawDate();
+            this.eventStartDate = event.getScheduledDateTime() != null ? event.getScheduledDateTime().toDate() : null;
+            this.eventEndDate = event.getEventEndDate() != null ? event.getEventEndDate().toDate() : null;
+            this.regStartDate = event.getRegistrationStartDate() != null ? event.getRegistrationStartDate().toDate() : null;
+            this.regEndDate = event.getRegistrationDeadline() != null ? event.getRegistrationDeadline().toDate() : null;
+            this.drawDate = event.getDrawDate() != null ? event.getDrawDate().toDate() : null;
 
             SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm", Locale.getDefault());
             if (eventStartDate != null) {
@@ -508,18 +509,18 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         Event event = new Event(
                 eventId,
                 title,
-                eventStartDate,
-                eventEndDate,
-                regStartDate,
-                regEndDate,
-                drawDate,
-                maxCapacity,
                 details,
+                eventStartDate != null ? new Timestamp(eventStartDate) : null,
+                eventEndDate != null ? new Timestamp(eventEndDate) : null,
+                regStartDate != null ? new Timestamp(regStartDate) : null,
+                regEndDate != null ? new Timestamp(regEndDate) : null,
+                drawDate != null ? new Timestamp(drawDate) : null,
+                maxCapacity,
+                waitingListLimit,
+                requireLocation,
                 posterUriToSave,
                 qrCodeContent,
-                "organizer_current_user",
-                requireLocation,
-                waitingListLimit
+                "organizer_current_user"
         );
 
         db.collection("events").document(eventId)

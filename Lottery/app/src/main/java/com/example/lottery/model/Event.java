@@ -1,321 +1,419 @@
 package com.example.lottery.model;
 
-import java.util.Date;
+import com.google.firebase.Timestamp;
 
 /**
- * Model class representing an Event.
+ * Model class representing an event.
  *
- * <p>Key Responsibilities:
- * <ul>
- *   <li>Encapsulates all metadata for an event, including titles, dates, and descriptions.</li>
- *   <li>Stores references to promotional assets like poster URIs and QR code content.</li>
- *   <li>Acts as a Data Transfer Object (DTO) for Firebase Firestore serialization.</li>
- * </ul>
- * </p>
+ * Recommended Firestore path:
+ * events/{eventId}
  *
- * <p>Satisfies requirements for:
- * US 02.01.01: Event creation with promotional QR code.
- * US 02.01.04: Registration deadline management.
- * US 02.04.01: Event poster support.
- * US 02.02.03: Geolocation requirement toggle.
- * US 02.02.02: Waiting List Limit.
- * </p>
+ * This model stores:
+ * - core event metadata
+ * - registration window
+ * - draw timing
+ * - capacity and waiting list settings
+ * - poster / QR assets
+ * - organizer ownership
+ * - timestamps for creation and last update
+ *
+ * Notes:
+ * - Keep field names consistent with Firestore documents.
+ * - Use Timestamp for consistency with Firestore and other models.
  */
 public class Event {
+
     /**
-     * Unique identifier for the event, used as the Firestore document ID.
+     * Unique identifier for the event.
+     * Usually also used as the Firestore document ID.
      */
     private String eventId;
+
     /**
-     * The title of the event.
+     * Human-readable event title.
      */
     private String title;
+
     /**
-     * The scheduled start date and time for the event.
-     */
-    private Date scheduledDateTime;
-    /**
-     * The scheduled end date and time for the event.
-     */
-    private Date eventEndDate;
-    /**
-     * The date and time when registration opens for the event.
-     */
-    private Date registrationStartDate;
-    /**
-     * The deadline by which entrants must register for the event.
-     */
-    private Date registrationDeadline;
-    /**
-     * The date and time when the lottery draw is held for the event.
-     */
-    private Date drawDate;
-    /**
-     * The maximum number of participants allowed for the event.
-     */
-    private Integer maxCapacity;
-    /**
-     * A detailed description of the event.
+     * Detailed event description.
      */
     private String details;
+
     /**
-     * URI or download URL pointing to the event's promotional poster image.
+     * Scheduled start date/time of the event.
      */
-    private String posterUri;
+    private Timestamp scheduledDateTime;
+
     /**
-     * The content encoded within the event's promotional QR code.
+     * Scheduled end date/time of the event.
      */
-    private String qrCodeContent;
+    private Timestamp eventEndDate;
+
     /**
-     * Unique identifier of the organizer who created the event.
+     * Registration opening time.
      */
-    private String organizerId;
+    private Timestamp registrationStartDate;
+
     /**
-     * Whether geolocation verification is required for this event.
+     * Registration deadline.
      */
-    private boolean requireLocation;
+    private Timestamp registrationDeadline;
+
     /**
-     * US 02.02.02: Optional limit for the waiting list. null means unlimited.
+     * Lottery draw date/time.
+     */
+    private Timestamp drawDate;
+
+    /**
+     * Maximum number of accepted participants allowed.
+     */
+    private Integer maxCapacity;
+
+    /**
+     * Optional waiting list limit.
+     * null means unlimited.
      */
     private Integer waitingListLimit;
 
     /**
-     * Default no-argument constructor required for Firebase Firestore serialization.
+     * Whether geolocation verification is required.
+     */
+    private boolean requireLocation;
+
+    /**
+     * URI or download URL of the poster image.
+     */
+    private String posterUri;
+
+    /**
+     * QR code payload/content for event registration or lookup.
+     */
+    private String qrCodeContent;
+
+    /**
+     * ID of the organizer who created/owns this event.
+     */
+    private String organizerId;
+
+    /**
+     * When this event document was first created.
+     */
+    private Timestamp createdAt;
+
+    /**
+     * When this event document was last updated.
+     */
+    private Timestamp updatedAt;
+
+    /**
+     * Default constructor required for Firestore.
      */
     public Event() {
     }
 
     /**
-     * Constructs a new Event with all metadata.
+     * Full constructor.
      *
-     * @param eventId               The unique ID of the event.
-     * @param title                 The title of the event.
-     * @param scheduledDateTime     The date and time the event starts.
-     * @param eventEndDate          The date and time the event ends.
-     * @param registrationStartDate The date and time registration opens.
-     * @param registrationDeadline  The deadline for entrant registration.
-     * @param drawDate              The date and time when the event draw is held.
-     * @param maxCapacity           The maximum participant capacity.
-     * @param details               The event description.
-     * @param posterUri             The URI of the event poster.
-     * @param qrCodeContent         The content of the promotional QR code.
-     * @param organizerId           The ID of the event organizer.
-     * @param requireLocation       Whether geolocation verification is required.
-     * @param waitingListLimit      The optional limit for the waiting list.
+     * @param eventId               event ID
+     * @param title                 event title
+     * @param details               event description
+     * @param scheduledDateTime     event start time
+     * @param eventEndDate          event end time
+     * @param registrationStartDate registration opening time
+     * @param registrationDeadline  registration closing time
+     * @param drawDate              lottery draw time
+     * @param maxCapacity           max accepted participants
+     * @param waitingListLimit      optional waitlist limit, null = unlimited
+     * @param requireLocation       whether geolocation is required
+     * @param posterUri             poster URI
+     * @param qrCodeContent         QR content
+     * @param organizerId           organizer user ID
+     * @param createdAt             creation timestamp
+     * @param updatedAt             last update timestamp
      */
-    public Event(String eventId, String title, Date scheduledDateTime, Date eventEndDate,
-                 Date registrationStartDate, Date registrationDeadline, Date drawDate,
-                 Integer maxCapacity, String details, String posterUri, String qrCodeContent,
-                 String organizerId, boolean requireLocation, Integer waitingListLimit) {
+    public Event(String eventId,
+                 String title,
+                 String details,
+                 Timestamp scheduledDateTime,
+                 Timestamp eventEndDate,
+                 Timestamp registrationStartDate,
+                 Timestamp registrationDeadline,
+                 Timestamp drawDate,
+                 Integer maxCapacity,
+                 Integer waitingListLimit,
+                 boolean requireLocation,
+                 String posterUri,
+                 String qrCodeContent,
+                 String organizerId,
+                 Timestamp createdAt,
+                 Timestamp updatedAt) {
         this.eventId = eventId;
         this.title = title;
+        this.details = details;
         this.scheduledDateTime = scheduledDateTime;
         this.eventEndDate = eventEndDate;
         this.registrationStartDate = registrationStartDate;
         this.registrationDeadline = registrationDeadline;
         this.drawDate = drawDate;
         this.maxCapacity = maxCapacity;
-        this.details = details;
+        this.waitingListLimit = waitingListLimit;
+        this.requireLocation = requireLocation;
         this.posterUri = posterUri;
         this.qrCodeContent = qrCodeContent;
         this.organizerId = organizerId;
-        this.requireLocation = requireLocation;
-        this.waitingListLimit = waitingListLimit;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
     /**
-     * @return The unique identifier of the event.
+     * Convenience constructor for newly created events.
+     * Automatically sets createdAt and updatedAt to now.
      */
+    public Event(String eventId,
+                 String title,
+                 String details,
+                 Timestamp scheduledDateTime,
+                 Timestamp eventEndDate,
+                 Timestamp registrationStartDate,
+                 Timestamp registrationDeadline,
+                 Timestamp drawDate,
+                 Integer maxCapacity,
+                 Integer waitingListLimit,
+                 boolean requireLocation,
+                 String posterUri,
+                 String qrCodeContent,
+                 String organizerId) {
+        this(eventId,
+                title,
+                details,
+                scheduledDateTime,
+                eventEndDate,
+                registrationStartDate,
+                registrationDeadline,
+                drawDate,
+                maxCapacity,
+                waitingListLimit,
+                requireLocation,
+                posterUri,
+                qrCodeContent,
+                organizerId,
+                Timestamp.now(),
+                Timestamp.now());
+    }
+
     public String getEventId() {
         return eventId;
     }
 
-    /**
-     * @param eventId The unique identifier to set for the event.
-     */
     public void setEventId(String eventId) {
         this.eventId = eventId;
     }
 
-    /**
-     * @return The title of the event.
-     */
     public String getTitle() {
         return title;
     }
 
-    /**
-     * @param title The title to set for the event.
-     */
     public void setTitle(String title) {
         this.title = title;
+        touch();
     }
 
-    /**
-     * @return The scheduled date and time of the event.
-     */
-    public Date getScheduledDateTime() {
-        return scheduledDateTime;
-    }
-
-    /**
-     * @param scheduledDateTime The scheduled date and time to set for the event.
-     */
-    public void setScheduledDateTime(Date scheduledDateTime) {
-        this.scheduledDateTime = scheduledDateTime;
-    }
-
-    /**
-     * @return The scheduled end date and time of the event.
-     */
-    public Date getEventEndDate() {
-        return eventEndDate;
-    }
-
-    /**
-     * @param eventEndDate The scheduled end date and time to set for the event.
-     */
-    public void setEventEndDate(Date eventEndDate) {
-        this.eventEndDate = eventEndDate;
-    }
-
-    /**
-     * @return The date and time when registration opens for the event.
-     */
-    public Date getRegistrationStartDate() {
-        return registrationStartDate;
-    }
-
-    /**
-     * @param registrationStartDate The date and time when registration opens to set for the event.
-     */
-    public void setRegistrationStartDate(Date registrationStartDate) {
-        this.registrationStartDate = registrationStartDate;
-    }
-
-    /**
-     * @return The registration deadline for the event.
-     */
-    public Date getRegistrationDeadline() {
-        return registrationDeadline;
-    }
-
-    /**
-     * @param registrationDeadline The registration deadline to set for the event.
-     */
-    public void setRegistrationDeadline(Date registrationDeadline) {
-        this.registrationDeadline = registrationDeadline;
-    }
-
-    /**
-     * @return The date and time when the lottery draw is held for the event.
-     */
-    public Date getDrawDate() {
-        return drawDate;
-    }
-
-    /**
-     * @param drawDate The date and time when the lottery draw is held to set for the event.
-     */
-    public void setDrawDate(Date drawDate) {
-        this.drawDate = drawDate;
-    }
-
-    /**
-     * @return The maximum participant capacity.
-     */
-    public Integer getMaxCapacity() {
-        return maxCapacity;
-    }
-
-    /**
-     * @param maxCapacity The maximum participant capacity to set.
-     */
-    public void setMaxCapacity(Integer maxCapacity) {
-        this.maxCapacity = maxCapacity;
-    }
-
-    /**
-     * @return The detailed description of the event.
-     */
     public String getDetails() {
         return details;
     }
 
-    /**
-     * @param details The detailed description to set.
-     */
     public void setDetails(String details) {
         this.details = details;
+        touch();
     }
 
-    /**
-     * @return The URI of the event poster.
-     */
-    public String getPosterUri() {
-        return posterUri;
+    public Timestamp getScheduledDateTime() {
+        return scheduledDateTime;
     }
 
-    /**
-     * @param posterUri The URI of the event poster to set.
-     */
-    public void setPosterUri(String posterUri) {
-        this.posterUri = posterUri;
+    public void setScheduledDateTime(Timestamp scheduledDateTime) {
+        this.scheduledDateTime = scheduledDateTime;
+        touch();
     }
 
-    /**
-     * @return The content of the promotional QR code.
-     */
-    public String getQrCodeContent() {
-        return qrCodeContent;
+    public Timestamp getEventEndDate() {
+        return eventEndDate;
     }
 
-    /**
-     * @param qrCodeContent The QR code content to set.
-     */
-    public void setQrCodeContent(String qrCodeContent) {
-        this.qrCodeContent = qrCodeContent;
+    public void setEventEndDate(Timestamp eventEndDate) {
+        this.eventEndDate = eventEndDate;
+        touch();
     }
 
-    /**
-     * @return The identifier of the event organizer.
-     */
-    public String getOrganizerId() {
-        return organizerId;
+    public Timestamp getRegistrationStartDate() {
+        return registrationStartDate;
     }
 
-    /**
-     * @param organizerId The identifier of the event organizer to set.
-     */
-    public void setOrganizerId(String organizerId) {
-        this.organizerId = organizerId;
+    public void setRegistrationStartDate(Timestamp registrationStartDate) {
+        this.registrationStartDate = registrationStartDate;
+        touch();
     }
 
-    /**
-     * @return Whether geolocation verification is required for this event.
-     */
-    public boolean isRequireLocation() {
-        return requireLocation;
+    public Timestamp getRegistrationDeadline() {
+        return registrationDeadline;
     }
 
-    /**
-     * @param requireLocation Sets whether geolocation verification is required.
-     */
-    public void setRequireLocation(boolean requireLocation) {
-        this.requireLocation = requireLocation;
+    public void setRegistrationDeadline(Timestamp registrationDeadline) {
+        this.registrationDeadline = registrationDeadline;
+        touch();
     }
 
-    /**
-     * @return The optional limit for the waiting list. null means unlimited.
-     */
+    public Timestamp getDrawDate() {
+        return drawDate;
+    }
+
+    public void setDrawDate(Timestamp drawDate) {
+        this.drawDate = drawDate;
+        touch();
+    }
+
+    public Integer getMaxCapacity() {
+        return maxCapacity;
+    }
+
+    public void setMaxCapacity(Integer maxCapacity) {
+        this.maxCapacity = maxCapacity;
+        touch();
+    }
+
     public Integer getWaitingListLimit() {
         return waitingListLimit;
     }
 
-    /**
-     * @param waitingListLimit The optional limit to set for the waiting list.
-     */
     public void setWaitingListLimit(Integer waitingListLimit) {
         this.waitingListLimit = waitingListLimit;
+        touch();
+    }
+
+    public boolean isRequireLocation() {
+        return requireLocation;
+    }
+
+    public void setRequireLocation(boolean requireLocation) {
+        this.requireLocation = requireLocation;
+        touch();
+    }
+
+    public String getPosterUri() {
+        return posterUri;
+    }
+
+    public void setPosterUri(String posterUri) {
+        this.posterUri = posterUri;
+        touch();
+    }
+
+    public String getQrCodeContent() {
+        return qrCodeContent;
+    }
+
+    public void setQrCodeContent(String qrCodeContent) {
+        this.qrCodeContent = qrCodeContent;
+        touch();
+    }
+
+    public String getOrganizerId() {
+        return organizerId;
+    }
+
+    public void setOrganizerId(String organizerId) {
+        this.organizerId = organizerId;
+        touch();
+    }
+
+    public Timestamp getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Timestamp getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Timestamp updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    /**
+     * Returns true if registration has opened.
+     */
+    public boolean hasRegistrationStarted() {
+        return registrationStartDate != null
+                && registrationStartDate.toDate().before(new java.util.Date());
+    }
+
+    /**
+     * Returns true if registration is still open.
+     */
+    public boolean isRegistrationOpen() {
+        java.util.Date now = new java.util.Date();
+
+        boolean afterStart = registrationStartDate == null || !registrationStartDate.toDate().after(now);
+        boolean beforeDeadline = registrationDeadline == null || !registrationDeadline.toDate().before(now);
+
+        return afterStart && beforeDeadline;
+    }
+
+    /**
+     * Returns true if the registration deadline has passed.
+     */
+    public boolean isRegistrationClosed() {
+        return registrationDeadline != null
+                && registrationDeadline.toDate().before(new java.util.Date());
+    }
+
+    /**
+     * Returns true if the draw time has passed.
+     */
+    public boolean isDrawTimeReached() {
+        return drawDate != null
+                && !drawDate.toDate().after(new java.util.Date());
+    }
+
+    /**
+     * Returns true if the event has ended.
+     */
+    public boolean isEventEnded() {
+        return eventEndDate != null
+                && eventEndDate.toDate().before(new java.util.Date());
+    }
+
+    /**
+     * Returns true if the waiting list has no explicit limit.
+     */
+    public boolean hasUnlimitedWaitingList() {
+        return waitingListLimit == null;
+    }
+
+    /**
+     * Returns true if the waiting list limit is enabled.
+     */
+    public boolean hasWaitingListLimit() {
+        return waitingListLimit != null;
+    }
+
+    /**
+     * Returns true if max capacity is valid and positive.
+     */
+    public boolean hasCapacityLimit() {
+        return maxCapacity != null && maxCapacity > 0;
+    }
+
+    /**
+     * Updates the updatedAt timestamp to now.
+     */
+    public void touch() {
+        this.updatedAt = Timestamp.now();
+        if (this.createdAt == null) {
+            this.createdAt = this.updatedAt;
+        }
     }
 }

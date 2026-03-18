@@ -399,7 +399,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                     showDeclinedState();
                 }
                 // Check if user is in waitlist
-                else if (InvitationFlowUtil.STATUS_WAITING.equals(status)) {
+                else if (InvitationFlowUtil.STATUS_WAITLISTED.equals(status)) {
                     isInWaitlist = true;
                     isInvited = false;
                     hasAcceptedInvite = false;
@@ -496,9 +496,10 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
      * Accepts the event invitation
      */
     private void acceptInvitation() {
-        Map<String, Object> updates = new HashMap<>();
-        updates.put("status", InvitationFlowUtil.STATUS_ACCEPTED);
-        updates.put("responseTime", Timestamp.now());
+        Map<String, Object> updates =
+                InvitationFlowUtil.buildEntrantStatusUpdateFromResponse(
+                        InvitationFlowUtil.RESPONSE_ACCEPTED
+                );
 
         db.collection("events")
                 .document(eventId)
@@ -523,9 +524,10 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
      * Declines the event invitation
      */
     private void declineInvitation() {
-        Map<String, Object> updates = new HashMap<>();
-        updates.put("status", InvitationFlowUtil.STATUS_DECLINED);
-        updates.put("responseTime", Timestamp.now());
+        Map<String, Object> updates =
+                InvitationFlowUtil.buildEntrantStatusUpdateFromResponse(
+                        InvitationFlowUtil.RESPONSE_DECLINED
+                );
 
         db.collection("events")
                 .document(eventId)
@@ -538,7 +540,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                     hasAcceptedInvite = false;
                     hasDeclinedInvite = true;
                     showDeclinedState();
-                    syncWinningNotificationDecision(InvitationFlowUtil.RESPONSE_REJECTED);
+                    syncWinningNotificationDecision(InvitationFlowUtil.RESPONSE_DECLINED);
                     Toast.makeText(this, R.string.invitation_declined, Toast.LENGTH_SHORT).show();
                 })
                 .addOnFailureListener(e ->
@@ -550,9 +552,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
      * Removes an accepted entrant from the event.
      */
     private void cancelAcceptedInvitation() {
-        Map<String, Object> updates = new HashMap<>();
-        updates.put("status", InvitationFlowUtil.STATUS_DECLINED);
-        updates.put("responseTime", Timestamp.now());
+        Map<String, Object> updates = InvitationFlowUtil.buildCancelledEntrantUpdate();
 
         db.collection("events")
                 .document(eventId)
@@ -590,7 +590,15 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                     Map<String, Object> updates = InvitationFlowUtil.buildHandledNotificationUpdate(response);
 
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        if (!"win".equalsIgnoreCase(document.getString("type"))) {
+                        String type = document.getString("type");
+                        if (type == null) {
+                            continue;
+                        }
+
+                        String normalizedType = type.trim().toLowerCase(Locale.US);
+                        if (!normalizedType.equals("win")
+                                && !normalizedType.equals("invitation")
+                                && !normalizedType.equals("event_invitation")) {
                             continue;
                         }
 
@@ -621,7 +629,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         db.collection("events")
                 .document(eventId)
                 .collection("entrants")
-                .whereEqualTo("status", "waiting")
+                .whereEqualTo("status", InvitationFlowUtil.STATUS_WAITLISTED)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     waitlistCount = queryDocumentSnapshots.size();
@@ -652,9 +660,13 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
      */
     private void joinWaitlist() {
         Map<String, Object> entrantData = new HashMap<>();
+        Timestamp now = Timestamp.now();
+
         entrantData.put("userId", userId);
-        entrantData.put("status", "waiting");
-        entrantData.put("registrationTime", Timestamp.now());
+        entrantData.put("eventId", eventId);
+        entrantData.put("status", InvitationFlowUtil.STATUS_WAITLISTED);
+        entrantData.put("registeredAt", now);
+        entrantData.put("waitlistedAt", now);
 
         db.collection("events")
                 .document(eventId)

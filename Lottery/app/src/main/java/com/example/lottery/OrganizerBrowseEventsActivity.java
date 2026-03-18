@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lottery.model.Event;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -160,16 +161,16 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
                             // Compatibility fix: If new field is null, check if old field names exist
                             if (event.getScheduledDateTime() == null) {
                                 Date oldDate = document.getDate("eventDate");
-                                if (oldDate != null) event.setScheduledDateTime(oldDate);
+                                if (oldDate != null) event.setScheduledDateTime(new Timestamp(oldDate));
                             }
                             if (event.getRegistrationDeadline() == null) {
                                 Date oldDeadline = document.getDate("deadlineDate");
-                                if (oldDeadline != null) event.setRegistrationDeadline(oldDeadline);
+                                if (oldDeadline != null) event.setRegistrationDeadline(new Timestamp(oldDeadline));
                             }
 
                             eventList.add(event);
 
-                            if (event.getScheduledDateTime() != null && event.getScheduledDateTime().after(now)) {
+                            if (event.getScheduledDateTime() != null && event.getScheduledDateTime().toDate().after(now)) {
                                 active++;
                             } else {
                                 closed++;

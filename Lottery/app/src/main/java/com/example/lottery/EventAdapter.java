@@ -134,7 +134,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
          */
         public void bind(final Event event, final OnEventClickListener listener) {
             tvTitle.setText(event.getTitle());
-            tvDate.setText(event.getScheduledDateTime() != null ? dateFormat.format(event.getScheduledDateTime()) : "Date TBD");
+            tvDate.setText(event.getScheduledDateTime() != null ? dateFormat.format(event.getScheduledDateTime().toDate()) : "Date TBD");
 
             // 1. Clean Capacity Display: Just the Max Capacity (US 02.01.04)
             tvCapacity.setText(String.valueOf(event.getMaxCapacity()));
@@ -159,7 +159,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
             tvSelected.setText("0");
 
             // Dynamic status based on scheduled date
-            if (event.getScheduledDateTime() != null && event.getScheduledDateTime().after(new Date())) {
+            if (event.getScheduledDateTime() != null && event.getScheduledDateTime().toDate().after(new Date())) {
                 tvStatus.setText("ACTIVE");
                 tvStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.primary_blue));
                 tvStatus.setBackgroundTintList(ColorStateList.valueOf(

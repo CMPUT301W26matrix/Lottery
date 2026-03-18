@@ -30,6 +30,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
      * List of notifications to display.
      */
     private final List<NotificationItem> notifications;
+
     /**
      * Listener used to handle click events on notifications.
      */
@@ -56,7 +57,6 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     @NonNull
     @Override
     public NotificationViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_notification, parent, false);
 
@@ -71,14 +71,12 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
      */
     @Override
     public void onBindViewHolder(@NonNull NotificationViewHolder holder, int position) {
-
         NotificationItem item = notifications.get(position);
 
-        holder.tvTitle.setText(item.getTitle());
-        holder.tvType.setText(item.getType());
-        holder.tvMessage.setText(item.getMessage());
+        holder.tvTitle.setText(item.getTitle() != null ? item.getTitle() : "");
+        holder.tvType.setText(formatNotificationType(item));
+        holder.tvMessage.setText(item.getMessage() != null ? item.getMessage() : "");
 
-        // Highlight unread notifications
         if (!item.isRead()) {
             holder.tvNew.setVisibility(View.VISIBLE);
             holder.itemView.setBackgroundColor(Color.parseColor("#FFF3E0"));
@@ -87,16 +85,19 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             holder.itemView.setBackgroundColor(Color.WHITE);
         }
 
-        // Show response if the user has already acted on the notification
-        if (item.isActionTaken() && item.getResponse() != null && !item.getResponse().isEmpty()) {
+        if (item.isActionTaken() && item.getResponse() != null
+                && item.getResponse() != NotificationItem.Response.NONE) {
             holder.tvResponse.setVisibility(View.VISIBLE);
-            holder.tvResponse.setText(holder.itemView.getContext()
-                    .getString(R.string.notification_response, item.getResponse()));
+            holder.tvResponse.setText(
+                    holder.itemView.getContext().getString(
+                            R.string.notification_response,
+                            formatResponse(item)
+                    )
+            );
         } else {
             holder.tvResponse.setVisibility(View.GONE);
         }
 
-        // Handle click event
         holder.itemView.setOnClickListener(v -> listener.onNotificationClick(item));
     }
 
@@ -108,6 +109,50 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     @Override
     public int getItemCount() {
         return notifications.size();
+    }
+
+    /**
+     * Converts enum notification type into a readable label for the UI.
+     */
+    private String formatNotificationType(NotificationItem item) {
+        if (item == null || item.getType() == null) {
+            return "General";
+        }
+
+        switch (item.getType()) {
+            case EVENT_INVITATION:
+                return "Event Invitation";
+            case WAITLIST_PROMOTED:
+                return "Waitlist Update";
+            case DRAW_RESULT:
+                return "Draw Result";
+            case EVENT_CANCELLED:
+                return "Event Cancelled";
+            case GENERAL:
+            default:
+                return "General";
+        }
+    }
+
+    /**
+     * Converts enum response into a readable label for the UI.
+     */
+    private String formatResponse(NotificationItem item) {
+        if (item == null || item.getResponse() == null) {
+            return "None";
+        }
+
+        switch (item.getResponse()) {
+            case ACCEPTED:
+                return "Accepted";
+            case DECLINED:
+                return "Declined";
+            case DISMISSED:
+                return "Dismissed";
+            case NONE:
+            default:
+                return "None";
+        }
     }
 
     /**
