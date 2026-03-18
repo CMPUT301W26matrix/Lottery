@@ -86,13 +86,13 @@ public class EntrantMainActivity extends AppCompatActivity {
             // Already home
         });
 
+        // Fixed: Use nav_history for notifications as per common entrant nav mapping
         findViewById(R.id.nav_history).setOnClickListener(v -> {
             Intent intent = new Intent(this, NotificationsActivity.class);
             intent.putExtra(NotificationsActivity.EXTRA_USER_ID, userId);
             startActivity(intent);
         });
 
-        // Fixed QR Scan click listener
         findViewById(R.id.nav_qr_scan).setOnClickListener(v -> {
             Toast.makeText(this, "Opening QR Event List...", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(this, OrganizerQrEventListActivity.class);
