@@ -94,8 +94,8 @@ public class EntrantMainActivity extends AppCompatActivity {
         });
 
         findViewById(R.id.nav_qr_scan).setOnClickListener(v -> {
-            Toast.makeText(this, "Opening QR Event List...", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(this, OrganizerQrEventListActivity.class);
+            Intent intent = new Intent(this, EntrantQrScanActivity.class);
+            intent.putExtra("userId", userId);
             startActivity(intent);
         });
 
