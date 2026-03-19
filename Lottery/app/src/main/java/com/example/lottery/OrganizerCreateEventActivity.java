@@ -28,6 +28,8 @@ import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -498,6 +500,13 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                                       String details,
                                       Integer waitingListLimit,
                                       String posterUriToSave) {
+        String organizerId = organizerIdForUser(FirebaseAuth.getInstance().getCurrentUser());
+        if (organizerId == null) {
+            btnCreateEvent.setEnabled(true);
+            Toast.makeText(this, "Please sign in again before creating an event", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         if (qrCodeContent.isEmpty()) {
             qrCodeContent = QRCodeUtils.generateUniqueQrContent(eventId);
         }
@@ -517,7 +526,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                 details,
                 posterUriToSave,
                 qrCodeContent,
-                "organizer_current_user",
+                organizerId,
                 requireLocation,
                 waitingListLimit
         );
@@ -535,6 +544,15 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                     btnCreateEvent.setEnabled(true);
                     Toast.makeText(this, "Failed to save event", Toast.LENGTH_SHORT).show();
                 });
+    }
+
+    static String organizerIdForUser(FirebaseUser currentUser) {
+        if (currentUser == null) {
+            return null;
+        }
+
+        String uid = currentUser.getUid();
+        return uid.isEmpty() ? null : uid;
     }
 
     private void deleteReplacedPosterIfNeeded(String newPosterUri) {
