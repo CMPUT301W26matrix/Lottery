@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lottery.model.Event;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -86,8 +87,19 @@ public class OrganizerNotificationsActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Loads events owned by the current organizer to manage notifications.
+     */
     private void loadOrganizerEvents() {
+        // Ensure data isolation by filtering with current user's UID
+        String currentUserId = FirebaseAuth.getInstance().getUid();
+        if (currentUserId == null) {
+            Toast.makeText(this, "User not authenticated", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         db.collection("events")
+                .whereEqualTo("organizerId", currentUserId)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     eventList.clear();
