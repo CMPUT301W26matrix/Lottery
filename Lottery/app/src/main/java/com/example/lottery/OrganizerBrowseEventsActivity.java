@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lottery.model.Event;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -108,10 +109,12 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
         if (btnHome != null) {
             btnHome.setOnClickListener(v -> Toast.makeText(this, "Already on Home", Toast.LENGTH_SHORT).show());
         }
-        
-        View btnHistory = findViewById(R.id.nav_calendar);
-        if (btnHistory != null) {
-            btnHistory.setOnClickListener(v -> Toast.makeText(this, "History Coming Soon", Toast.LENGTH_SHORT).show());
+
+        View btnNotifications = findViewById(R.id.nav_notifications);
+        if (btnNotifications != null) {
+            btnNotifications.setOnClickListener(v -> {
+                startActivity(new Intent(OrganizerBrowseEventsActivity.this, OrganizerNotificationsActivity.class));
+            });
         }
 
         View btnQr = findViewById(R.id.nav_qr_code);
@@ -143,7 +146,16 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
      * After fetching, it updates the RecyclerView and the summary statistics UI.</p>
      */
     private void loadOrganizerEvents() {
+        // Obtain current UID from FirebaseAuth to ensure data isolation
+        String currentUserId = FirebaseAuth.getInstance().getUid();
+        if (currentUserId == null) {
+            Toast.makeText(this, "User not authenticated", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         db.collection("events")
+                // Filter events by current organizer's UID
+                .whereEqualTo("organizerId", currentUserId)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     eventList.clear();

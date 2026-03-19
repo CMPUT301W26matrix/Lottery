@@ -28,6 +28,7 @@ import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -498,6 +499,13 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                                       String details,
                                       Integer waitingListLimit,
                                       String posterUriToSave) {
+        String currentUserId = FirebaseAuth.getInstance().getUid();
+        if (currentUserId == null) {
+            btnCreateEvent.setEnabled(true);
+            Toast.makeText(this, "User not authenticated", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         if (qrCodeContent.isEmpty()) {
             qrCodeContent = QRCodeUtils.generateUniqueQrContent(eventId);
         }
@@ -517,7 +525,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                 details,
                 posterUriToSave,
                 qrCodeContent,
-                "organizer_current_user",
+                currentUserId,
                 requireLocation,
                 waitingListLimit
         );

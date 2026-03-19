@@ -113,7 +113,6 @@
     <string name="no_events_created_yet">No events created yet</string>
     <string name="nav_home">Home</string>
     <string name="nav_history">Notifications</string>
-    <string name="nav_favorites">Favorites</string>
     <string name="nav_profile">Profile</string>
     <string name="admin_event_browser_title">Lottery Admin</string>
     <string name="admin_event_browser_subtitle">Browse all published events</string>
@@ -142,13 +141,6 @@
     <string name="menu_edit_profile">Edit Profile</string>
     <string name="menu_change_password">Change Password</string>
     <string name="menu_notification_settings">Notification Settings</string>
-    <string name="section_organizer_tools">ORGANIZER TOOLS</string>
-    <string name="menu_my_events">My Events</string>
-    <string name="menu_event_history">Event History</string>
-    <string name="menu_manage_waiting_lists">Manage Waiting Lists</string>
-    <string name="section_app_settings">APP SETTINGS</string>
-    <string name="menu_help_support">Help &amp; Support</string>
-    <string name="menu_about_lottery">About Lottery App</string>
     <string name="btn_log_out">Log Out</string>
 
     <!-- EntrantEventDetailsActivity -->

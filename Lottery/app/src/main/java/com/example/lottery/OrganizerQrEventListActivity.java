@@ -2,7 +2,7 @@ package com.example.lottery;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lottery.model.Event;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -30,13 +31,17 @@ import java.util.List;
  */
 public class OrganizerQrEventListActivity extends AppCompatActivity {
 
-    /** RecyclerView for displaying event items. */
-    private RecyclerView rvEvents;
-    /** Adapter for binding event data to the RecyclerView. */
+    /**
+     * Adapter for binding event data to the RecyclerView.
+     */
     private OrganizerQrEventAdapter adapter;
-    /** Data source for the event list. */
+    /**
+     * Data source for the event list.
+     */
     private List<Event> eventList;
-    /** Firebase Firestore instance for database access. */
+    /**
+     * Firebase Firestore instance for database access.
+     */
     private FirebaseFirestore db;
 
     /**
@@ -60,7 +65,7 @@ public class OrganizerQrEventListActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(v -> finish());
 
         db = FirebaseFirestore.getInstance();
-        rvEvents = findViewById(R.id.rvQrEvents);
+        RecyclerView rvEvents = findViewById(R.id.rvQrEvents);
         eventList = new ArrayList<>();
 
         // Initialize adapter with click listener to open QR detail view
@@ -78,13 +83,22 @@ public class OrganizerQrEventListActivity extends AppCompatActivity {
     }
 
     /**
-     * Fetches the list of all events from Firestore.
-     * 
-     * <p>On success, the event list is updated and the adapter is notified. 
+     * Fetches the list of all events created by the current organizer from Firestore.
+     *
+     * <p>On success, the event list is updated and the adapter is notified.
      * If no events are found, a mock event is added for demonstration purposes.</p>
      */
     private void loadEvents() {
+        // Obtain current UID from FirebaseAuth to ensure the organizer only sees their own events
+        String currentUserId = FirebaseAuth.getInstance().getUid();
+        if (currentUserId == null) {
+            Toast.makeText(this, "User not authenticated", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         db.collection("events")
+                // Filter by organizerId to maintain data security and isolation
+                .whereEqualTo("organizerId", currentUserId)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     eventList.clear();
@@ -92,15 +106,6 @@ public class OrganizerQrEventListActivity extends AppCompatActivity {
                         Event event = document.toObject(Event.class);
                         eventList.add(event);
                     }
-                    
-                    // Fallback for empty database to ensure the list remains functional for testing
-                    if (eventList.isEmpty()) {
-                        Event fake = new Event();
-                        fake.setTitle("Test QR Event");
-                        fake.setQrCodeContent("TEST_QR_DATA_12345");
-                        eventList.add(fake);
-                    }
-                    
                     adapter.notifyDataSetChanged();
                 });
     }

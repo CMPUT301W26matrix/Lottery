@@ -72,7 +72,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         tvEventDetails = findViewById(R.id.tvEventDetails);
         tvLocationRequirement = findViewById(R.id.tvLocationRequirement);
         tvWaitingListCapacity = findViewById(R.id.tvWaitingListCapacity);
-        Button btnEditEvent = findViewById(R.id.btnEditEvent);
+        btnEditEvent = findViewById(R.id.btnEditEvent);
         Button btnViewWaitingList = findViewById(R.id.btnViewWaitingList);
         db = FirebaseFirestore.getInstance();
 
@@ -126,10 +126,10 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
             });
         }
 
-        View btnHistory = findViewById(R.id.nav_calendar);
+        View btnHistory = findViewById(R.id.nav_notifications);
         if (btnHistory != null) {
             btnHistory.setOnClickListener(v ->
-                    Toast.makeText(this, "History Coming Soon", Toast.LENGTH_SHORT).show());
+                    startActivity(new Intent(this, OrganizerNotificationsActivity.class)));
         }
     }
 

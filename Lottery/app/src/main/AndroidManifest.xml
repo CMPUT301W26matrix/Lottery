@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <queries>
+        <package android:name="com.google.android.gms" />
+        <intent>
+            <action android:name="com.google.android.gms.ads.identifier.service.START" />
+        </intent>
+    </queries>
+
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
@@ -61,10 +68,10 @@
         <activity
             android:name=".EntrantProfileActivity"
             android:exported="false" />
-        <activity
-            android:name=".BrowseProfilesActivity"
+        <activity android:name=".BrowseProfilesActivity"
             android:exported="false" />
-        <activity android:name=".AdminBrowseProfilesActivity" />
+        <activity android:name=".AdminBrowseProfilesActivity"
+            android:exported="false" />
         <activity
             android:name=".OrganizerCreateEventActivity"
             android:exported="false" />
@@ -72,6 +79,22 @@
             android:name=".OrganizerBrowseEventsActivity"
             android:exported="false"
             android:label="@string/organizer_dashboard" />
+        <activity
+            android:name=".OrganizerNotificationsActivity"
+            android:exported="false"
+            android:label="Notifications" />
+        <activity
+            android:name=".OrganizerQrEventListActivity"
+            android:exported="false"
+            android:label="Select Event for QR" />
+        <activity
+            android:name=".OrganizerQrCodeDetailActivity"
+            android:exported="false"
+            android:label="Event QR Code" />
+        <activity
+            android:name=".EntrantQrScanActivity"
+            android:exported="false"
+            android:label="QR Scan" />
         <activity
             android:name=".AdminBrowseEventsActivity"
             android:exported="false"
@@ -94,15 +117,6 @@
             android:name=".OrganizerProfileActivity"
             android:exported="false" />
 
-        <!-- New QR Code Flow Activities -->
-        <activity
-            android:name=".OrganizerQrEventListActivity"
-            android:exported="false"
-            android:label="Select Event for QR" />
-        <activity
-            android:name=".OrganizerQrCodeDetailActivity"
-            android:exported="false"
-            android:label="Event QR Code" />
 
     </application>
 

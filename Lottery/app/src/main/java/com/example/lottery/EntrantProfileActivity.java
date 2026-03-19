@@ -136,9 +136,11 @@ public class EntrantProfileActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        findViewById(R.id.nav_qr_scan).setOnClickListener(v ->
-                Toast.makeText(this, "QR Scan coming soon", Toast.LENGTH_SHORT).show()
-        );
+        findViewById(R.id.nav_qr_scan).setOnClickListener(v -> {
+            Intent intent = new Intent(this, EntrantQrScanActivity.class);
+            intent.putExtra("userId", userId);
+            startActivity(intent);
+        });
 
         findViewById(R.id.nav_profile).setOnClickListener(v -> {
             // Already here
