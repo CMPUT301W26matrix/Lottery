@@ -76,6 +76,18 @@
             android:textStyle="bold"
             app:cornerRadius="12dp" />
 
+        <Button
+            android:id="@+id/btnPickQrFromGallery"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="@color/primary_blue"
+            android:text="Choose QR from Gallery"
+            android:textAllCaps="false"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:cornerRadius="12dp" />
+
     </LinearLayout>
 
     <FrameLayout

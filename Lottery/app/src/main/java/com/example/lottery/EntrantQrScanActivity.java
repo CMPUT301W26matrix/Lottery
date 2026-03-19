@@ -1,36 +1,68 @@
 package com.example.lottery;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
-import android.widget.Button;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.lottery.util.QRCodeUtils;
+import com.google.zxing.BinaryBitmap;
+import com.google.zxing.LuminanceSource;
+import com.google.zxing.MultiFormatReader;
+import com.google.zxing.RGBLuminanceSource;
+import com.google.zxing.Result;
+import com.google.zxing.common.HybridBinarizer;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
+
+import java.io.InputStream;
 
 /**
  * Activity for entrants to scan promotional QR codes.
  *
- * <p>Satisfies US 01.06.01: As an entrant I want to view event details within the app by scanning the promotional QR code.</p>
+ * <p>Key Responsibilities:
+ * <ul>
+ *   <li>Supports camera-based scanning of QR codes.</li>
+ *   <li>Supports picking a QR code image from the device gallery.</li>
+ *   <li>Navigates to event details upon successful QR code detection.</li>
+ * </ul>
+ * </p>
  */
 public class EntrantQrScanActivity extends AppCompatActivity {
 
+    private static final String TAG = "EntrantQrScanActivity";
     private String userId;
 
+    /**
+     * Launcher for the camera-based QR code scanner.
+     */
     private final ActivityResultLauncher<ScanOptions> barcodeLauncher = registerForActivityResult(new ScanContract(),
             result -> {
                 if (result.getContents() == null) {
                     Toast.makeText(this, "Cancelled", Toast.LENGTH_SHORT).show();
                 } else {
                     handleScanResult(result.getContents());
+                }
+            });
+
+    /**
+     * Launcher for picking an image from the gallery.
+     */
+    private final ActivityResultLauncher<String> pickImageLauncher =
+            registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
+                if (uri != null) {
+                    decodeQrFromImage(uri);
                 }
             });
 
@@ -50,21 +82,62 @@ public class EntrantQrScanActivity extends AppCompatActivity {
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
         findViewById(R.id.btnOpenScanner).setOnClickListener(v -> openScanner());
+        findViewById(R.id.btnPickQrFromGallery).setOnClickListener(v -> pickImageLauncher.launch("image/*"));
 
         setupNavigation();
     }
 
+    /**
+     * Configures and opens the camera-based QR scanner.
+     */
     private void openScanner() {
         ScanOptions options = new ScanOptions();
         options.setDesiredBarcodeFormats(ScanOptions.QR_CODE);
         options.setPrompt("Scan a promotional QR code");
-        options.setCameraId(0);  // Use a specific camera of the device
+        options.setCameraId(0);
         options.setBeepEnabled(false);
         options.setBarcodeImageEnabled(true);
         options.setOrientationLocked(false);
         barcodeLauncher.launch(options);
     }
 
+    /**
+     * Decodes a QR code from a provided image Uri.
+     *
+     * @param imageUri The Uri of the image to decode.
+     */
+    private void decodeQrFromImage(Uri imageUri) {
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(imageUri);
+            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+            if (bitmap == null) {
+                Toast.makeText(this, "Failed to read image", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            int width = bitmap.getWidth();
+            int height = bitmap.getHeight();
+            int[] pixels = new int[width * height];
+            bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+
+            LuminanceSource source = new RGBLuminanceSource(width, height, pixels);
+            BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(source));
+            MultiFormatReader reader = new MultiFormatReader();
+
+            Result result = reader.decode(binaryBitmap);
+            handleScanResult(result.getText());
+
+        } catch (Exception e) {
+            Log.e(TAG, "QR Decoding failed", e);
+            Toast.makeText(this, "No QR code found in image", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * Processes the raw content from a QR code and navigates to the details page.
+     *
+     * @param contents The raw string content decoded from the QR code.
+     */
     private void handleScanResult(String contents) {
         String eventId = QRCodeUtils.extractEventId(contents);
         if (eventId != null) {
