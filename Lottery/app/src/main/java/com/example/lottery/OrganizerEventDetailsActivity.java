@@ -129,7 +129,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         View btnHistory = findViewById(R.id.nav_notifications);
         if (btnHistory != null) {
             btnHistory.setOnClickListener(v ->
-                    Toast.makeText(this, "History Coming Soon", Toast.LENGTH_SHORT).show());
+                    startActivity(new Intent(this, OrganizerNotificationsActivity.class)));
         }
     }
 
