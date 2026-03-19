@@ -18,7 +18,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.lottery.model.NotificationItem;
 import com.example.lottery.util.InvitationFlowUtil;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,60 +25,61 @@ import java.util.List;
 /**
  * Displays notifications for the currently logged-in entrant.
  *
- * <p>This activity retrieves notifications from Firestore and displays them
- * in a RecyclerView. Entrants can view notification details and respond to
- * certain notification types (such as winning an event draw).</p>
+ * <p>This activity always loads and shows notifications that already exist
+ * in Firestore for the current user. Notification opt-out should be enforced
+ * at notification creation time by organizers/admins, not by hiding previously
+ * stored notifications here.</p>
  *
- * <p>If the notification represents a winning invitation, the entrant can
- * either accept or reject the invite. The response updates both the user's
- * notification document and the entrant status within the corresponding
- * event in Firestore.</p>
- *
- * <p>This activity expects the following intent extra:</p>
- * <ul>
- *     <li>{@link #EXTRA_USER_ID} – the ID of the current user</li>
- * </ul>
+ * <p>If a notification represents a winning invitation and still requires
+ * a response, the entrant can accept or reject it from this screen.</p>
  */
 public class NotificationsActivity extends AppCompatActivity implements NotificationAdapter.OnNotificationClickListener {
 
     /**
-     * Intent extra used to pass the user ID to this activity.
+     * Intent extra used to pass the current user ID into this activity.
      */
     public static final String EXTRA_USER_ID = "userId";
+
     /**
-     * List storing all notifications retrieved from Firestore.
+     * In-memory list of notifications displayed in the RecyclerView.
      */
     private final List<NotificationItem> notificationList = new ArrayList<>();
+
     /**
-     * RecyclerView used to display notifications.
+     * RecyclerView used to display the notifications list.
      */
     private RecyclerView rvNotifications;
+
     /**
-     * TextView shown when there are no notifications.
+     * Empty-state message shown when no notifications exist.
      */
     private TextView tvNoNotifications;
+
     /**
-     * Button used to navigate back from the notifications screen.
+     * Back button used to leave the notifications screen.
      */
     private ImageButton btnBack;
+
     /**
-     * Firestore database instance used to retrieve notifications.
+     * Firestore database instance.
      */
     private FirebaseFirestore db;
+
     /**
-     * Adapter used to bind notification data to the RecyclerView.
+     * RecyclerView adapter for notifications.
      */
     private NotificationAdapter adapter;
+
     /**
      * ID of the currently logged-in user.
      */
     private String userId;
 
     /**
-     * Initializes the activity, binds UI components,
-     * retrieves the user ID from the intent, and loads notifications.
+     * Initializes the activity, binds the UI, reads the current user ID,
+     * and loads all stored notifications for that user.
      *
-     * @param savedInstanceState previously saved activity state
+     * @param savedInstanceState previously saved activity state, or null
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,8 +125,8 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
     }
 
     /**
-     * Reads the user ID from the intent that launched the activity.
-     * If the user ID is missing, the activity closes.
+     * Reads the current user ID from the launching intent.
+     * If the value is missing, the activity closes.
      */
     private void readIntentData() {
         userId = getIntent().getStringExtra(EXTRA_USER_ID);
@@ -139,14 +139,17 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
     }
 
     /**
-     * Retrieves notifications for the current user from Firestore and
-     * updates the RecyclerView.
+     * Loads all existing notifications from the current user's
+     * {@code users/{userId}/notifications} Firestore subcollection.
+     *
+     * <p>This screen intentionally does not check the user's
+     * {@code notificationsEnabled} toggle. Old notifications remain visible.
+     * The toggle should only block creation of new notifications.</p>
      */
     private void loadNotifications() {
         db.collection("users")
                 .document(userId)
                 .collection("notifications")
-                .orderBy("timestamp", Query.Direction.DESCENDING)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     notificationList.clear();
@@ -164,10 +167,10 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
 
                         NotificationItem item = new NotificationItem(
                                 id,
-                                title,
-                                message,
-                                type,
-                                eventId,
+                                title != null ? title : "Notification",
+                                message != null ? message : "",
+                                type != null ? type : "",
+                                eventId != null ? eventId : "",
                                 isRead,
                                 actionTaken,
                                 response
@@ -177,27 +180,35 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
                     });
 
                     adapter.notifyDataSetChanged();
-
-                    if (notificationList.isEmpty()) {
-                        tvNoNotifications.setVisibility(View.VISIBLE);
-                        rvNotifications.setVisibility(View.GONE);
-                    } else {
-                        tvNoNotifications.setVisibility(View.GONE);
-                        rvNotifications.setVisibility(View.VISIBLE);
-                    }
+                    updateEmptyState();
                 })
                 .addOnFailureListener(e -> {
                     tvNoNotifications.setVisibility(View.VISIBLE);
                     tvNoNotifications.setText(R.string.failed_to_load_notifications);
                     rvNotifications.setVisibility(View.GONE);
+                    Toast.makeText(this, "Failed to load notifications", Toast.LENGTH_SHORT).show();
                 });
     }
 
     /**
-     * Updates the entrant status for a specific event in Firestore.
+     * Updates the empty-state message depending on whether any notifications exist.
+     */
+    private void updateEmptyState() {
+        if (notificationList.isEmpty()) {
+            tvNoNotifications.setText("No notifications yet");
+            tvNoNotifications.setVisibility(View.VISIBLE);
+            rvNotifications.setVisibility(View.GONE);
+        } else {
+            tvNoNotifications.setVisibility(View.GONE);
+            rvNotifications.setVisibility(View.VISIBLE);
+        }
+    }
+
+    /**
+     * Updates the entrant's event status based on a notification response.
      *
-     * @param eventId  the event for which the status should be updated
-     * @param response the notification response value (e.g., ACCEPTED or REJECTED)
+     * @param eventId  the related event ID
+     * @param response the response string selected by the entrant
      */
     private void updateUserStatusForEvent(String eventId, String response) {
         String normalizedStatus = InvitationFlowUtil.entrantStatusFromNotificationResponse(response);
@@ -217,10 +228,10 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
     }
 
     /**
-     * Marks a notification as having an action taken (accept or reject).
+     * Marks a notification as actioned and stores the entrant's response.
      *
-     * @param item     the notification item being updated
-     * @param response the response value (ACCEPTED or REJECTED)
+     * @param item     the notification being updated
+     * @param response the entrant's response
      */
     private void markActionTaken(NotificationItem item, String response) {
         db.collection("users")
@@ -242,16 +253,16 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
     }
 
     /**
-     * Handles notification item clicks.
+     * Handles clicks on a notification item.
      *
-     * <p>If the notification represents a winning invitation,
-     * the entrant is given the option to accept or reject the invite.</p>
+     * <p>The notification is marked as read. If it is a win notification
+     * and still needs user action, the entrant may accept or reject it.
+     * Otherwise, the notification is shown in a simple dialog.</p>
      *
-     * @param item the clicked notification item
+     * @param item the clicked notification
      */
     @Override
     public void onNotificationClick(NotificationItem item) {
-
         db.collection("users")
                 .document(userId)
                 .collection("notifications")
@@ -266,7 +277,6 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
         builder.setMessage(item.getMessage());
 
         if ("win".equalsIgnoreCase(item.getType()) && !item.isActionTaken()) {
-
             builder.setPositiveButton(R.string.accept_invite, (dialog, which) -> {
                 updateUserStatusForEvent(item.getEventId(), InvitationFlowUtil.RESPONSE_ACCEPTED);
                 markActionTaken(item, InvitationFlowUtil.RESPONSE_ACCEPTED);
@@ -278,7 +288,6 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
             });
 
             builder.setNeutralButton(R.string.close, (dialog, which) -> dialog.dismiss());
-
         } else {
             builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
         }
