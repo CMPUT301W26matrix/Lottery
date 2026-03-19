@@ -103,6 +103,21 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
      */
     private FirebaseStorage storage;
 
+    /**
+     * Resolves the organizer identifier from the current Firebase-authenticated user.
+     *
+     * @param currentUser the currently signed-in Firebase user, or null when signed out
+     * @return the organizer UID, or null when no authenticated user is available
+     */
+    static String organizerIdForUser(FirebaseUser currentUser) {
+        if (currentUser == null) {
+            return null;
+        }
+
+        String uid = currentUser.getUid();
+        return uid.isEmpty() ? null : uid;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -544,15 +559,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                     btnCreateEvent.setEnabled(true);
                     Toast.makeText(this, "Failed to save event", Toast.LENGTH_SHORT).show();
                 });
-    }
-
-    static String organizerIdForUser(FirebaseUser currentUser) {
-        if (currentUser == null) {
-            return null;
-        }
-
-        String uid = currentUser.getUid();
-        return uid.isEmpty() ? null : uid;
     }
 
     private void deleteReplacedPosterIfNeeded(String newPosterUri) {
