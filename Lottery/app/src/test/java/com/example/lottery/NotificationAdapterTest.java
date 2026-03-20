@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNotNull;
 import android.content.Context;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.TextView;
 
 import androidx.test.core.app.ApplicationProvider;
 
@@ -35,8 +34,9 @@ public class NotificationAdapterTest {
         notifications = new ArrayList<>();
         notifications.add(new NotificationItem("id1", "Title 1", "Message 1", "type1", "event1", false, false, null));
         notifications.add(new NotificationItem("id2", "Title 2", "Message 2", "type2", "event2", true, true, "ACCEPTED"));
-        
-        adapter = new NotificationAdapter(notifications, item -> {});
+
+        adapter = new NotificationAdapter(notifications, item -> {
+        });
     }
 
     @Test
@@ -56,13 +56,13 @@ public class NotificationAdapterTest {
     public void testOnBindViewHolder() {
         FrameLayout parent = new FrameLayout(context);
         NotificationAdapter.NotificationViewHolder holder = adapter.onCreateViewHolder(parent, 0);
-        
+
         adapter.onBindViewHolder(holder, 0);
-        
+
         assertEquals("Title 1", holder.tvTitle.getText().toString());
         assertEquals("Message 1", holder.tvMessage.getText().toString());
         assertEquals(View.VISIBLE, holder.tvNew.getVisibility());
-        
+
         adapter.onBindViewHolder(holder, 1);
         assertEquals("Title 2", holder.tvTitle.getText().toString());
         assertEquals(View.GONE, holder.tvNew.getVisibility());
@@ -83,7 +83,8 @@ public class NotificationAdapterTest {
                 "CANCELLED"
         ));
 
-        adapter = new NotificationAdapter(notifications, item -> {});
+        adapter = new NotificationAdapter(notifications, item -> {
+        });
 
         FrameLayout parent = new FrameLayout(context);
         NotificationAdapter.NotificationViewHolder holder = adapter.onCreateViewHolder(parent, 0);

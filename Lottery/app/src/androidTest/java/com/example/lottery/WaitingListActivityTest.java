@@ -25,6 +25,7 @@ public class WaitingListActivityTest {
 
     // Use an Intent to provide the required "eventId" extra.
     static Intent intent;
+
     static {
         intent = new Intent(
                 ApplicationProvider.getApplicationContext(),

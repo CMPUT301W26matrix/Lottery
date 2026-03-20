@@ -19,7 +19,7 @@ import java.util.Locale;
 /**
  * Adapter for displaying events in the Organizer Notifications screen.
  * Each item allows the organizer to send notifications to different groups of entrants.
- * 
+ *
  * <p>Key Responsibilities:
  * <ul>
  *   <li>Binds event data to the list items in the notification screen.</li>
@@ -33,7 +33,7 @@ public class OrganizerNotificationEventAdapter extends RecyclerView.Adapter<Orga
      * List of events to be displayed.
      */
     private final List<Event> eventList;
-    
+
     /**
      * Date formatter for displaying event dates in a readable format.
      */
@@ -41,7 +41,7 @@ public class OrganizerNotificationEventAdapter extends RecyclerView.Adapter<Orga
 
     /**
      * Constructs a new OrganizerNotificationEventAdapter.
-     * 
+     *
      * @param eventList The list of events to display.
      */
     public OrganizerNotificationEventAdapter(List<Event> eventList) {
@@ -58,7 +58,7 @@ public class OrganizerNotificationEventAdapter extends RecyclerView.Adapter<Orga
 
     /**
      * Binds event data to the ViewHolder and sets up click listeners for notification buttons.
-     * 
+     *
      * @param holder   The ViewHolder to update.
      * @param position The position of the item in the event list.
      */
@@ -66,26 +66,26 @@ public class OrganizerNotificationEventAdapter extends RecyclerView.Adapter<Orga
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Event event = eventList.get(position);
         holder.tvEventTitle.setText(event.getTitle());
-        
+
         if (event.getScheduledDateTime() != null) {
             holder.tvEventDate.setText(dateFormat.format(event.getScheduledDateTime().toDate()));
         } else {
             holder.tvEventDate.setText("No date set");
         }
 
-        holder.btnNotifyWaiting.setOnClickListener(v -> 
-            Toast.makeText(v.getContext(), "Notifying Waiting List for: " + event.getTitle(), Toast.LENGTH_SHORT).show());
-        
-        holder.btnNotifySelected.setOnClickListener(v -> 
-            Toast.makeText(v.getContext(), "Notifying Selected Entrants for: " + event.getTitle(), Toast.LENGTH_SHORT).show());
-        
-        holder.btnNotifyCancelled.setOnClickListener(v -> 
-            Toast.makeText(v.getContext(), "Notifying Cancelled Entrants for: " + event.getTitle(), Toast.LENGTH_SHORT).show());
+        holder.btnNotifyWaiting.setOnClickListener(v ->
+                Toast.makeText(v.getContext(), "Notifying Waiting List for: " + event.getTitle(), Toast.LENGTH_SHORT).show());
+
+        holder.btnNotifySelected.setOnClickListener(v ->
+                Toast.makeText(v.getContext(), "Notifying Selected Entrants for: " + event.getTitle(), Toast.LENGTH_SHORT).show());
+
+        holder.btnNotifyCancelled.setOnClickListener(v ->
+                Toast.makeText(v.getContext(), "Notifying Cancelled Entrants for: " + event.getTitle(), Toast.LENGTH_SHORT).show());
     }
 
     /**
      * Returns the total number of events in the list.
-     * 
+     *
      * @return The size of the event list.
      */
     @Override
@@ -101,7 +101,7 @@ public class OrganizerNotificationEventAdapter extends RecyclerView.Adapter<Orga
          * TextViews for event title and date.
          */
         TextView tvEventTitle, tvEventDate;
-        
+
         /**
          * Buttons for triggering notifications to different entrant groups.
          */
@@ -109,7 +109,7 @@ public class OrganizerNotificationEventAdapter extends RecyclerView.Adapter<Orga
 
         /**
          * Initializes the ViewHolder by binding UI components from the item layout.
-         * 
+         *
          * @param itemView The root view of the list item layout.
          */
         public ViewHolder(@NonNull View itemView) {

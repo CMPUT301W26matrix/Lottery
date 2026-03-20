@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <queries>
+        <package android:name="com.google.android.gms" />
+        <intent>
+            <action android:name="com.google.android.gms.ads.identifier.service.START" />
+        </intent>
+    </queries>
+
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
@@ -19,11 +26,13 @@
         <!-- Source - https://stackoverflow.com/a/50794266
         // Posted by jeff, modified by community. See post 'Timeline' for change history
         // Retrieved 2026-03-13, License - CC BY-SA 4.0-->
-        <uses-library android:name="org.apache.http.legacy" android:required="false"/>
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBQ7iqhDezLQYBFeZf6nwlaqifkHkrrvGA"/>
+            android:value="AIzaSyBQ7iqhDezLQYBFeZf6nwlaqifkHkrrvGA" />
 
         <activity
             android:name=".MainActivity"
@@ -61,9 +70,11 @@
         <activity
             android:name=".EntrantProfileActivity"
             android:exported="false" />
-        <activity android:name=".BrowseProfilesActivity"
+        <activity
+            android:name=".BrowseProfilesActivity"
             android:exported="false" />
-        <activity android:name=".AdminBrowseProfilesActivity"
+        <activity
+            android:name=".AdminBrowseProfilesActivity"
             android:exported="false" />
         <activity
             android:name=".OrganizerCreateEventActivity"
@@ -93,8 +104,9 @@
             android:exported="false"
             android:label="@string/admin_all_events_title"
             android:parentActivityName=".MainActivity" />
-        <activity android:name=".EntrantsListActivity"
-            android:exported="false"/>
+        <activity
+            android:name=".EntrantsListActivity"
+            android:exported="false" />
 
         <activity
             android:name=".AdminEventDetailsActivity"

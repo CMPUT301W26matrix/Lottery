@@ -38,7 +38,7 @@
             android:textColor="@android:color/white"
             android:textSize="10sp"
             android:textStyle="bold"
-            android:visibility="gone"/>
+            android:visibility="gone" />
     </LinearLayout>
 
     <TextView
@@ -49,7 +49,7 @@
         android:text="WIN"
         android:textColor="#8E7AE6"
         android:textSize="12sp"
-        android:textStyle="bold"/>
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/tvNotificationMessage"
@@ -58,7 +58,7 @@
         android:layout_marginTop="8dp"
         android:text="You won the lottery for Swimming Lessons"
         android:textColor="#555555"
-        android:textSize="14sp"/>
+        android:textSize="14sp" />
 
     <TextView
         android:id="@+id/tvNotificationResponse"
@@ -69,6 +69,6 @@
         android:textColor="#2E7D32"
         android:textSize="12sp"
         android:textStyle="bold"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 
 </LinearLayout>

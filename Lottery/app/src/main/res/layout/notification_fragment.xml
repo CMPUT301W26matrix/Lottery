@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:layout_width="match_parent"
-    android:layout_height="match_parent"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/notification_fragment"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:orientation="vertical">
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="@string/send_notification_string"
         android:textColor="@color/accent_blue"
         android:textSize="36sp"
-        android:textStyle="bold"
-        android:text="@string/send_notification_string"/>
+        android:textStyle="bold" />
+
     <EditText
         android:id="@+id/input_sampling_size"
-        android:hint="@string/notification_input_hint"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:hint="@string/notification_input_hint" />
 </LinearLayout>
