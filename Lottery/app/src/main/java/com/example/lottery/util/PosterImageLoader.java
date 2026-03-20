@@ -18,8 +18,8 @@ public final class PosterImageLoader {
     /**
      * Loads a poster image into the provided ImageView using Glide with a placeholder fallback.
      *
-     * @param imageView The target ImageView.
-     * @param imageSource A remote URL, file/content URI string, or Uri instance.
+     * @param imageView        The target ImageView.
+     * @param imageSource      A remote URL, file/content URI string, or Uri instance.
      * @param placeholderResId Drawable used when no image is available or loading fails.
      */
     public static void load(ImageView imageView, Object imageSource, @DrawableRes int placeholderResId) {

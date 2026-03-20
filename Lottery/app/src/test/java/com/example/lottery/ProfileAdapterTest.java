@@ -36,7 +36,7 @@ public class ProfileAdapterTest {
         users.add(new User("John Doe", "john@example.com", "1234567890"));
         users.add(new User("Jane Smith", "jane@example.com", ""));
         users.add(new User("No Phone", "none@example.com", null));
-        
+
         adapter = new ProfileAdapter(context, users);
     }
 
@@ -60,13 +60,13 @@ public class ProfileAdapterTest {
     public void testGetViewPopulatesData() {
         ViewGroup parent = new FrameLayout(context);
         View view = adapter.getView(0, null, parent);
-        
+
         assertNotNull("View should not be null", view);
-        
+
         TextView tvName = view.findViewById(R.id.tvProfileName);
         TextView tvEmail = view.findViewById(R.id.tvProfileEmail);
         TextView tvPhone = view.findViewById(R.id.tvProfilePhone);
-        
+
         assertEquals("Name should be John Doe", "John Doe", tvName.getText().toString());
         assertEquals("Email should be john@example.com", "john@example.com", tvEmail.getText().toString());
         assertEquals("Phone should be 1234567890", "1234567890", tvPhone.getText().toString());
@@ -76,7 +76,7 @@ public class ProfileAdapterTest {
     public void testGetViewWithEmptyPhone() {
         ViewGroup parent = new FrameLayout(context);
         View view = adapter.getView(1, null, parent);
-        
+
         TextView tvPhone = view.findViewById(R.id.tvProfilePhone);
         assertEquals("Should display placeholder for empty phone", "No phone number", tvPhone.getText().toString());
     }
@@ -85,7 +85,7 @@ public class ProfileAdapterTest {
     public void testGetViewWithNullPhone() {
         ViewGroup parent = new FrameLayout(context);
         View view = adapter.getView(2, null, parent);
-        
+
         TextView tvPhone = view.findViewById(R.id.tvProfilePhone);
         assertEquals("Should display placeholder for null phone", "No phone number", tvPhone.getText().toString());
     }

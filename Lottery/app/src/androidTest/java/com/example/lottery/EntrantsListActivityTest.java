@@ -8,11 +8,14 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static org.hamcrest.Matchers.not;
+
 import android.content.Intent;
+
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,7 +32,7 @@ public class EntrantsListActivityTest {
      */
     @Rule
     public ActivityScenarioRule<EntrantsListActivity> activityRule =
-            new ActivityScenarioRule<>(new Intent(ApplicationProvider.getApplicationContext(),EntrantsListActivity.class).putExtra("eventId", "test_event_id"));
+            new ActivityScenarioRule<>(new Intent(ApplicationProvider.getApplicationContext(), EntrantsListActivity.class).putExtra("eventId", "test_event_id"));
 
     /**
      * test the layout visibility when the page is initialized
@@ -80,7 +83,7 @@ public class EntrantsListActivityTest {
     @Test
     public void testSwitchToSignedUpList() {
         // click signed up button, verify signed up entrants list visibility
-        onView(withId(R.id.entrants_list_signed_up_btn)).perform(scrollTo(),click());
+        onView(withId(R.id.entrants_list_signed_up_btn)).perform(scrollTo(), click());
         onView(withId(R.id.signed_up_entrants_list_layout)).check(matches(isDisplayed()));
 
         // other 4 linear layout must be invisible
@@ -128,7 +131,7 @@ public class EntrantsListActivityTest {
     @Test
     public void testSwitchToInvitedList() {
         // click invited button, verify invited entrants list visibility
-        onView(withId(R.id.entrants_list_invited_btn)).perform(scrollTo(),click());
+        onView(withId(R.id.entrants_list_invited_btn)).perform(scrollTo(), click());
         onView(withId(R.id.invited_entrants_list_layout)).check(matches(isDisplayed()));
 
         // other 4 linear layout must be invisible

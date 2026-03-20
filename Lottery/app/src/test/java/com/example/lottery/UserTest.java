@@ -8,7 +8,7 @@ import org.junit.Test;
 
 /**
  * Unit tests for the User model class.
- *
+ * <p>
  * These tests verify that the User object correctly stores
  * and returns the user’s name, email, and phone number.
  */

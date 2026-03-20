@@ -1,9 +1,9 @@
 package com.example.lottery;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
 
 import com.example.lottery.util.QRCodeUtils;
 
@@ -55,7 +55,7 @@ public class QRCodeUtilsTest {
     public void testGenerateUniqueQrContentWithEmptyId() {
         String eventId = "";
         String qrContent = QRCodeUtils.generateUniqueQrContent(eventId);
-        
+
         assertNotNull(qrContent);
         assertTrue(qrContent.startsWith("_"));
     }
@@ -67,7 +67,7 @@ public class QRCodeUtilsTest {
     public void testGenerateUniqueQrContentWithUnusualId() {
         String eventId = "!@#$%^&*()_+";
         String qrContent = QRCodeUtils.generateUniqueQrContent(eventId);
-        
+
         assertNotNull(qrContent);
         assertTrue(qrContent.startsWith(eventId));
     }

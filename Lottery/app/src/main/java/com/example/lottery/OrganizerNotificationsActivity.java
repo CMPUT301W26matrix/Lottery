@@ -50,14 +50,14 @@ public class OrganizerNotificationsActivity extends AppCompatActivity {
 
         rvEvents = findViewById(R.id.rvOrganizerEvents);
         tvNoEvents = findViewById(R.id.tvNoEvents);
-        
+
         eventList = new ArrayList<>();
         adapter = new OrganizerNotificationEventAdapter(eventList);
         rvEvents.setLayoutManager(new LinearLayoutManager(this));
         rvEvents.setAdapter(adapter);
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
-        
+
         setupNavigation();
         loadOrganizerEvents();
     }

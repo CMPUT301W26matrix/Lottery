@@ -39,6 +39,7 @@ public class AdminBrowseEventsActivityTest {
     public void tearDown() {
         Intents.release();
     }
+
     @Test
     public void testAdminBrowseEventsScreenIsDisplayed() {
         onView(withId(R.id.tvAppTitle)).perform(scrollTo()).check(matches(isDisplayed()));

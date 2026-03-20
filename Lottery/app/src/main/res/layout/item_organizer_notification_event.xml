@@ -44,45 +44,45 @@
             android:id="@+id/btnNotifyWaiting"
             android:layout_width="match_parent"
             android:layout_height="48dp"
+            android:backgroundTint="@android:color/white"
             android:text="Notify Waiting List"
             android:textAllCaps="false"
             android:textColor="@color/text_primary"
             android:textSize="15sp"
-            android:backgroundTint="@android:color/white"
             app:cornerRadius="10dp"
+            app:elevation="0dp"
             app:strokeColor="@color/divider_gray"
-            app:strokeWidth="1dp"
-            app:elevation="0dp" />
+            app:strokeWidth="1dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnNotifySelected"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_marginTop="10dp"
+            android:backgroundTint="@android:color/white"
             android:text="Notify Selected Entrants"
             android:textAllCaps="false"
             android:textColor="@color/text_primary"
             android:textSize="15sp"
-            android:backgroundTint="@android:color/white"
             app:cornerRadius="10dp"
+            app:elevation="0dp"
             app:strokeColor="@color/divider_gray"
-            app:strokeWidth="1dp"
-            app:elevation="0dp" />
+            app:strokeWidth="1dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnNotifyCancelled"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_marginTop="10dp"
+            android:backgroundTint="@android:color/white"
             android:text="Notify Cancelled Entrants"
             android:textAllCaps="false"
             android:textColor="@color/text_primary"
             android:textSize="15sp"
-            android:backgroundTint="@android:color/white"
             app:cornerRadius="10dp"
+            app:elevation="0dp"
             app:strokeColor="@color/divider_gray"
-            app:strokeWidth="1dp"
-            app:elevation="0dp" />
+            app:strokeWidth="1dp" />
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

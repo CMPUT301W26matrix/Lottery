@@ -25,22 +25,14 @@ import java.util.List;
  */
 public class OrganizerQrEventAdapter extends RecyclerView.Adapter<OrganizerQrEventAdapter.ViewHolder> {
 
-    /** The list of events to be displayed in the RecyclerView. */
-    private final List<Event> events;
-    /** The listener that handles click events on the event items. */
-    private final OnEventClickListener listener;
-
     /**
-     * Interface definition for a callback to be invoked when an event item is clicked.
+     * The list of events to be displayed in the RecyclerView.
      */
-    public interface OnEventClickListener {
-        /**
-         * Called when an event item has been clicked.
-         *
-         * @param event The Event object associated with the clicked item.
-         */
-        void onEventClick(Event event);
-    }
+    private final List<Event> events;
+    /**
+     * The listener that handles click events on the event items.
+     */
+    private final OnEventClickListener listener;
 
     /**
      * Constructs a new OrganizerQrEventAdapter.
@@ -75,12 +67,28 @@ public class OrganizerQrEventAdapter extends RecyclerView.Adapter<OrganizerQrEve
     }
 
     /**
+     * Interface definition for a callback to be invoked when an event item is clicked.
+     */
+    public interface OnEventClickListener {
+        /**
+         * Called when an event item has been clicked.
+         *
+         * @param event The Event object associated with the clicked item.
+         */
+        void onEventClick(Event event);
+    }
+
+    /**
      * ViewHolder class for holding and recycling event item views.
      */
     static class ViewHolder extends RecyclerView.ViewHolder {
-        /** TextView for displaying the event title. */
+        /**
+         * TextView for displaying the event title.
+         */
         TextView tvTitle;
-        /** TextView for displaying the event date. */
+        /**
+         * TextView for displaying the event date.
+         */
         TextView tvDate;
 
         /**

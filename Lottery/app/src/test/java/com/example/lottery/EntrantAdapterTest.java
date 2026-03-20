@@ -35,7 +35,7 @@ public class EntrantAdapterTest {
         entrants = new ArrayList<>();
         entrants.add(new User("Alice", "alice@example.com", "1112223333"));
         entrants.add(new User("Bob", "bob@example.com", "4445556666"));
-        
+
         adapter = new EntrantAdapter(context, entrants);
     }
 
@@ -48,7 +48,7 @@ public class EntrantAdapterTest {
     public void testGetView() {
         ViewGroup parent = new FrameLayout(context);
         View view = adapter.getView(0, null, parent);
-        
+
         assertNotNull(view);
         TextView tvName = view.findViewById(R.id.entrantName);
         assertEquals("Alice", tvName.getText().toString());

@@ -17,16 +17,16 @@
         android:id="@+id/tvProfileEmail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingTop="4dp"
         android:text="email@example.com"
-        android:textSize="14sp"
-        android:paddingTop="4dp" />
+        android:textSize="14sp" />
 
     <TextView
         android:id="@+id/tvProfilePhone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingTop="4dp"
         android:text="123-456-7890"
-        android:textSize="14sp"
-        android:paddingTop="4dp" />
+        android:textSize="14sp" />
 
 </LinearLayout>
