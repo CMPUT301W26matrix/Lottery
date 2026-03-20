@@ -87,7 +87,7 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_notifications);
+        setContentView(R.layout.activity_entrant_notifications);
 
         db = FirebaseFirestore.getInstance();
 
