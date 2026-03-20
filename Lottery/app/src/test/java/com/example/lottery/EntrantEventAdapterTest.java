@@ -16,7 +16,7 @@ import java.util.List;
 
 /**
  * Unit tests for the {@link EntrantEventAdapter} class.
- * 
+ *
  * <p>Validates the basic functionality of the adapter used for the entrant's event list,
  * including item count consistency and successful instantiation.</p>
  */
@@ -43,13 +43,13 @@ public class EntrantEventAdapterTest {
         eventList = new ArrayList<>();
         Event event1 = new Event();
         event1.setTitle("Test Event 1");
-        
+
         Event event2 = new Event();
         event2.setTitle("Test Event 2");
-        
+
         eventList.add(event1);
         eventList.add(event2);
-        
+
         adapter = new EntrantEventAdapter(eventList, event -> {
             // No-op click listener for tests
         });

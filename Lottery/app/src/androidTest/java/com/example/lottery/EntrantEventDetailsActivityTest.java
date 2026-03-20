@@ -1,8 +1,8 @@
 package com.example.lottery;
 
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.Visibility.GONE;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
@@ -21,6 +21,10 @@ import java.util.UUID;
 
 public class EntrantEventDetailsActivityTest {
 
+    @Rule
+    public ActivityScenarioRule<EntrantEventDetailsActivity> activityRule =
+            new ActivityScenarioRule<>(createIntent());
+
     // Using a factory method for the Intent to ensure it's fresh and has all required extras.
     private static Intent createIntent() {
         Intent intent = new Intent(ApplicationProvider.getApplicationContext(), EntrantEventDetailsActivity.class);
@@ -28,10 +32,6 @@ public class EntrantEventDetailsActivityTest {
         intent.putExtra(EntrantEventDetailsActivity.EXTRA_USER_ID, "test_user_id");
         return intent;
     }
-
-    @Rule
-    public ActivityScenarioRule<EntrantEventDetailsActivity> activityRule =
-            new ActivityScenarioRule<>(createIntent());
 
     @Test
     public void testInitialUIState() {

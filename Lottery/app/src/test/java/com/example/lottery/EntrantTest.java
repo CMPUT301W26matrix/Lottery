@@ -68,7 +68,7 @@ public class EntrantTest {
     @Test
     public void testSettersAndGetters() {
         Entrant entrant = new Entrant();
-        
+
         String name = "New Name";
         entrant.setEntrant_name(name);
         assertEquals(name, entrant.getEntrant_name());
@@ -80,7 +80,7 @@ public class EntrantTest {
         Timestamp signedUpTime = Timestamp.now();
         entrant.setSigned_up_time(signedUpTime);
         assertEquals(signedUpTime, entrant.getSigned_up_time());
-        
+
         GeoPoint location = new GeoPoint(10.0, 20.0);
         entrant.setLocation(location);
         assertEquals(location, entrant.getLocation());

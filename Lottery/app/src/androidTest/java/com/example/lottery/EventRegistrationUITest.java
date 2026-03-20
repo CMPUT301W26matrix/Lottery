@@ -25,7 +25,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class  EventRegistrationUITest {
+public class EventRegistrationUITest {
 
     @Rule
     public ActivityScenarioRule<OrganizerCreateEventActivity> activityRule =

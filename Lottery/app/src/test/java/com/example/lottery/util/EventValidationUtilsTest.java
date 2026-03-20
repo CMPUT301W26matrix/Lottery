@@ -79,7 +79,7 @@ public class EventValidationUtilsTest {
 
         // Boundary case: Very large integer
         assertTrue(EventValidationUtils.isWaitingListLimitValid(Integer.MAX_VALUE));
-        
+
         // Boundary case: Smallest valid positive integer
         assertTrue(EventValidationUtils.isWaitingListLimitValid(1));
     }

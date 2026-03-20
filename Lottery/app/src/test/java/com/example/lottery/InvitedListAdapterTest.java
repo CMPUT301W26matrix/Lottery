@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import android.content.Context;
+
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
@@ -30,16 +31,16 @@ public class InvitedListAdapterTest {
     public void setUp() {
         context = ApplicationProvider.getApplicationContext();
         entrantList = new ArrayList<>();
-        
+
         Entrant e1 = new Entrant();
         e1.setEntrant_name("Alice");
-        
+
         Entrant e2 = new Entrant();
         e2.setEntrant_name("Bob");
-        
+
         entrantList.add(e1);
         entrantList.add(e2);
-        
+
         adapter = new InvitedListAdapter(context, entrantList);
     }
 

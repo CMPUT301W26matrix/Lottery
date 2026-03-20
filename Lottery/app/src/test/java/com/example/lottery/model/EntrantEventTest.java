@@ -10,7 +10,7 @@ import org.junit.Test;
 
 /**
  * Unit tests for the {@link EntrantEvent} model class.
- * 
+ *
  * <p>Ensures that the entrant-event relationship object correctly manages
  * IDs, statuses, and timestamps used for tracking participation.</p>
  */
@@ -26,7 +26,7 @@ public class EntrantEventTest {
     }
 
     /**
-     * Verifies that the parameterized constructor correctly initializes 
+     * Verifies that the parameterized constructor correctly initializes
      * the entrant ID, event ID, and the composite relation ID.
      */
     @Test
@@ -48,7 +48,7 @@ public class EntrantEventTest {
     @Test
     public void testSettersAndGetters() {
         EntrantEvent entrantEvent = new EntrantEvent();
-        
+
         entrantEvent.setStatus(EntrantEvent.Status.INVITED);
         assertEquals(EntrantEvent.Status.INVITED, entrantEvent.getStatus());
 

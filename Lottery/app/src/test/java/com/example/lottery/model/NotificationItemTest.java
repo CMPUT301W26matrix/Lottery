@@ -8,7 +8,7 @@ import org.junit.Test;
 
 /**
  * Unit tests for the {@link NotificationItem} model class.
- * 
+ *
  * <p>Ensures that the notification model correctly stores information such as
  * the title, message, and action status needed for the entrant notification flow.</p>
  */
@@ -25,7 +25,7 @@ public class NotificationItemTest {
 
     /**
      * Verifies that the parameterized constructor correctly initializes all notification fields.
-     * 
+     *
      * @see NotificationItem#NotificationItem(String, String, String, String, String, boolean, boolean, String)
      */
     @Test

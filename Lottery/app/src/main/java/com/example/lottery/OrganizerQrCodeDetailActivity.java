@@ -23,9 +23,13 @@ import com.example.lottery.util.QRCodeUtils;
  */
 public class OrganizerQrCodeDetailActivity extends AppCompatActivity {
 
-    /** Intent extra key for the event title. */
+    /**
+     * Intent extra key for the event title.
+     */
     public static final String EXTRA_EVENT_TITLE = "extra_event_title";
-    /** Intent extra key for the QR code raw content. */
+    /**
+     * Intent extra key for the QR code raw content.
+     */
     public static final String EXTRA_QR_CONTENT = "extra_qr_content";
 
     /**
@@ -59,8 +63,8 @@ public class OrganizerQrCodeDetailActivity extends AppCompatActivity {
         tvTitle.setText(eventTitle != null ? eventTitle : "Event QR Code");
 
         // Prepare content to encode; fallback to a test string if content is missing
-        String contentToEncode = (qrContent != null && !qrContent.isEmpty()) 
-                ? qrContent 
+        String contentToEncode = (qrContent != null && !qrContent.isEmpty())
+                ? qrContent
                 : "Test QR Content for " + eventTitle;
 
         // Generate and display the QR Code

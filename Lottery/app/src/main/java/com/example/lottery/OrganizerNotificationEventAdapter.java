@@ -41,21 +41,21 @@ public class OrganizerNotificationEventAdapter extends RecyclerView.Adapter<Orga
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Event event = eventList.get(position);
         holder.tvEventTitle.setText(event.getTitle());
-        
+
         if (event.getScheduledDateTime() != null) {
             holder.tvEventDate.setText(dateFormat.format(event.getScheduledDateTime()));
         } else {
             holder.tvEventDate.setText("No date set");
         }
 
-        holder.btnNotifyWaiting.setOnClickListener(v -> 
-            Toast.makeText(v.getContext(), "Notifying Waiting List for: " + event.getTitle(), Toast.LENGTH_SHORT).show());
-        
-        holder.btnNotifySelected.setOnClickListener(v -> 
-            Toast.makeText(v.getContext(), "Notifying Selected Entrants for: " + event.getTitle(), Toast.LENGTH_SHORT).show());
-        
-        holder.btnNotifyCancelled.setOnClickListener(v -> 
-            Toast.makeText(v.getContext(), "Notifying Cancelled Entrants for: " + event.getTitle(), Toast.LENGTH_SHORT).show());
+        holder.btnNotifyWaiting.setOnClickListener(v ->
+                Toast.makeText(v.getContext(), "Notifying Waiting List for: " + event.getTitle(), Toast.LENGTH_SHORT).show());
+
+        holder.btnNotifySelected.setOnClickListener(v ->
+                Toast.makeText(v.getContext(), "Notifying Selected Entrants for: " + event.getTitle(), Toast.LENGTH_SHORT).show());
+
+        holder.btnNotifyCancelled.setOnClickListener(v ->
+                Toast.makeText(v.getContext(), "Notifying Cancelled Entrants for: " + event.getTitle(), Toast.LENGTH_SHORT).show());
     }
 
     @Override

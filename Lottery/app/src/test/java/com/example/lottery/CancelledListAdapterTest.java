@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import android.content.Context;
+
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
@@ -30,11 +31,11 @@ public class CancelledListAdapterTest {
     public void setUp() {
         context = ApplicationProvider.getApplicationContext();
         entrantList = new ArrayList<>();
-        
+
         Entrant e = new Entrant();
         e.setEntrant_name("Cancelled User");
         entrantList.add(e);
-        
+
         adapter = new CancelledListAdapter(context, entrantList);
     }
 

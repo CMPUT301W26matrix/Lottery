@@ -25,7 +25,8 @@ public class OrganizerQrEventAdapterTest {
         events.add(new Event());
         events.add(new Event());
 
-        OrganizerQrEventAdapter adapter = new OrganizerQrEventAdapter(events, event -> {});
+        OrganizerQrEventAdapter adapter = new OrganizerQrEventAdapter(events, event -> {
+        });
 
         assertEquals("Adapter item count should match the list size", 3, adapter.getItemCount());
     }
@@ -36,7 +37,8 @@ public class OrganizerQrEventAdapterTest {
     @Test
     public void testEmptyList() {
         List<Event> events = new ArrayList<>();
-        OrganizerQrEventAdapter adapter = new OrganizerQrEventAdapter(events, event -> {});
+        OrganizerQrEventAdapter adapter = new OrganizerQrEventAdapter(events, event -> {
+        });
 
         assertEquals("Adapter item count should be 0 for an empty list", 0, adapter.getItemCount());
     }
