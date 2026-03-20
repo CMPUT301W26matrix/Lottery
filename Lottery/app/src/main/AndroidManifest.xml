@@ -70,11 +70,9 @@
         <activity
             android:name=".EntrantProfileActivity"
             android:exported="false" />
-        <activity
-            android:name=".BrowseProfilesActivity"
+        <activity android:name=".BrowseProfilesActivity"
             android:exported="false" />
-        <activity
-            android:name=".AdminBrowseProfilesActivity"
+        <activity android:name=".AdminBrowseProfilesActivity"
             android:exported="false" />
         <activity
             android:name=".OrganizerCreateEventActivity"

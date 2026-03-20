@@ -29,6 +29,7 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -101,6 +102,21 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
      * Firebase Storage instance for poster uploads.
      */
     private FirebaseStorage storage;
+
+    /**
+     * Resolves the organizer identifier from the current Firebase-authenticated user.
+     *
+     * @param currentUser the currently signed-in Firebase user, or null when signed out
+     * @return the organizer UID, or null when no authenticated user is available
+     */
+    static String organizerIdForUser(FirebaseUser currentUser) {
+        if (currentUser == null) {
+            return null;
+        }
+
+        String uid = currentUser.getUid();
+        return uid.isEmpty() ? null : uid;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -499,10 +515,10 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                                       String details,
                                       Integer waitingListLimit,
                                       String posterUriToSave) {
-        String currentUserId = FirebaseAuth.getInstance().getUid();
-        if (currentUserId == null) {
+        String organizerId = organizerIdForUser(FirebaseAuth.getInstance().getCurrentUser());
+        if (organizerId == null) {
             btnCreateEvent.setEnabled(true);
-            Toast.makeText(this, "User not authenticated", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Please sign in again before creating an event", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -525,7 +541,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                 details,
                 posterUriToSave,
                 qrCodeContent,
-                currentUserId,
+                organizerId,
                 requireLocation,
                 waitingListLimit
         );
