@@ -20,7 +20,6 @@
     <string name="error_user_role_not_found">User role not found</string>
     <string name="error_user_profile_not_found">User profile not found</string>
     <string name="error_failed_to_get_user_data">Failed to get user data</string>
-    <string name="sign_in">Sign In</string>
     <string name="back_button_description">Back</string>
 
     <string name="create">Create</string>
@@ -115,7 +114,6 @@
     <string name="role_organizer">Organizer</string>
     <string name="section_account">ACCOUNT</string>
     <string name="menu_edit_profile">Edit Profile</string>
-    <string name="menu_change_password">Change Password</string>
     <string name="menu_notification_settings">Notification Settings</string>
     <string name="btn_log_out">Log Out</string>
 

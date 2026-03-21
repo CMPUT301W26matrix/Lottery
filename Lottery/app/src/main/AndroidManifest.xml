@@ -52,13 +52,7 @@
             android:name=".EntrantEventDetailsActivity"
             android:exported="false" />
         <activity
-            android:name=".WaitingListActivity"
-            android:exported="false" />
-        <activity
             android:name=".AdminSignInActivity"
-            android:exported="false" />
-        <activity
-            android:name=".GeneralSignInActivity"
             android:exported="false" />
         <activity
             android:name=".EntrantMainActivity"
