@@ -24,8 +24,8 @@ import java.util.Map;
 
 /**
  * MainActivity serves as the entry point where users choose their role.
- * Identification is based on the device's unique ID (FID).
- * All users are unified under a single device-based ID.
+ * Identification is based on the device's unique ID (FID) combined with the chosen role (role_FID).
+ * This ensures that a single device can maintain separate profiles for different roles.
  */
 public class MainActivity extends AppCompatActivity {
 
@@ -71,16 +71,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Handles login using the device's unique ID.
-     * If the user doesn't exist, a new profile is created.
+     * Handles login using the device's unique ID combined with the role (role_FID).
      * @param role The role chosen by the user ("entrant" or "organizer").
      */
     private void handleDeviceLogin(String role) {
         FirebaseInstallations.getInstance().getId().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 String fid = task.getResult();
-                // Unified userId: just use the device ID (FID)
-                String userId = fid;
+                // FIX: userId is now role-prefixed to allow multiple profiles per device
+                String userId = role + "_" + fid;
                 
                 db.collection(FirestorePaths.USERS).document(userId).get().addOnCompleteListener(userTask -> {
                     if (userTask.isSuccessful()) {
@@ -101,16 +100,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Creates a new user document in Firestore.
-     * New users are directed to complete their profile.
+     * Creates a new user document in Firestore with role isolation.
      */
     private void createNewUser(String userId, String role, String fid) {
         Map<String, Object> userData = new HashMap<>();
         Timestamp now = Timestamp.now();
 
         userData.put("userId", userId);
-        userData.put("deviceId", fid);
         userData.put("role", role);
+        userData.put("deviceId", fid); // Store raw FID as deviceId
         userData.put("name", ""); 
         userData.put("email", "");
         userData.put("phone", "");
@@ -127,16 +125,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Logs in an existing user.
-     * If profile information is missing, directs them to profile completion.
+     * Logs in an existing user and updates activity timestamp.
      */
     private void loginUser(DocumentSnapshot document, String role, String fid) {
         String userId = document.getId();
         String name = document.getString("name");
         String email = document.getString("email");
         
-        // Update role if it changed (optional, but keep consistent with selection)
-        db.collection(FirestorePaths.USERS).document(userId).update("role", role);
+        // Update last activity timestamp
+        db.collection(FirestorePaths.USERS).document(userId)
+                .update("updatedAt", Timestamp.now());
         
         saveSessionLocally(userId, role, fid, name);
 
@@ -147,11 +145,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Persists the current session details locally.
+     */
     private void saveSessionLocally(String userId, String role, String fid, String name) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(KEY_USER_ID, userId);
-        editor.putString(KEY_USER_ROLE, role);
-        editor.putString(KEY_FID, fid);
+        editor.putString(KEY_USER_ID, userId);   // Saves role_fid
+        editor.putString(KEY_USER_ROLE, role);   // Saves role
+        editor.putString(KEY_FID, fid);          // Saves raw fid
         editor.putString("userName", name);
         editor.apply();
     }
