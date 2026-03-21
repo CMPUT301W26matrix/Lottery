@@ -55,12 +55,6 @@ public class MainActivity extends AppCompatActivity {
         Button entrantButton = findViewById(R.id.entrant_login_button);
         Button organizerButton = findViewById(R.id.organizer_login_button);
         Button adminButton = findViewById(R.id.admin_login_button);
-        
-        // Hide legacy sign-in components if they exist
-        View signInPrompt = findViewById(R.id.tvSignInHint);
-        View signInButton = findViewById(R.id.btnSignIn);
-        if (signInPrompt != null) signInPrompt.setVisibility(View.GONE);
-        if (signInButton != null) signInButton.setVisibility(View.GONE);
 
         entrantButton.setOnClickListener(v -> handleDeviceLogin("entrant"));
         organizerButton.setOnClickListener(v -> handleDeviceLogin("organizer"));
