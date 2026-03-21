@@ -33,7 +33,8 @@ public class OrganizerNotificationEventAdapterTest {
         event2.setTitle("Event 2");
         eventList.add(event1);
         eventList.add(event2);
-        adapter = new OrganizerNotificationEventAdapter(eventList);
+        adapter = new OrganizerNotificationEventAdapter(eventList, (event, group) -> {
+        });
     }
 
     @Test

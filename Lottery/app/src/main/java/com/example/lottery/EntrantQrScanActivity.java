@@ -6,6 +6,9 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -16,7 +19,9 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.QRCodeUtils;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.LuminanceSource;
 import com.google.zxing.MultiFormatReader;
@@ -43,6 +48,8 @@ public class EntrantQrScanActivity extends AppCompatActivity {
 
     private static final String TAG = "EntrantQrScanActivity";
     private String userId;
+    private TextView tvNotificationBadge;
+    private FirebaseFirestore db;
 
     /**
      * Launcher for the camera-based QR code scanner.
@@ -72,7 +79,9 @@ public class EntrantQrScanActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_entrant_qr_scan);
 
+        db = FirebaseFirestore.getInstance();
         userId = getIntent().getStringExtra("userId");
+        tvNotificationBadge = findViewById(R.id.tvNotificationBadge);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -85,6 +94,13 @@ public class EntrantQrScanActivity extends AppCompatActivity {
         findViewById(R.id.btnPickQrFromGallery).setOnClickListener(v -> pickImageLauncher.launch("image/*"));
 
         setupNavigation();
+        checkUnreadNotifications();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        checkUnreadNotifications();
     }
 
     /**
@@ -174,5 +190,11 @@ public class EntrantQrScanActivity extends AppCompatActivity {
             intent.putExtra("userId", userId);
             startActivity(intent);
         });
+    }
+
+    private void checkUnreadNotifications() {
+        if (userId == null || tvNotificationBadge == null) return;
+        db.collection(FirestorePaths.userInbox(userId)).whereEqualTo("isRead", false).get()
+                .addOnSuccessListener(querySnapshot -> tvNotificationBadge.setVisibility(querySnapshot.isEmpty() ? View.GONE : View.VISIBLE));
     }
 }

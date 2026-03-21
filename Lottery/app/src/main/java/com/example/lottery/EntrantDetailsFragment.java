@@ -11,6 +11,11 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
+import com.example.lottery.model.Entrant;
+import com.example.lottery.model.EntrantEvent;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.example.lottery.util.FirestorePaths;
+
 /**
  * fragment for showing details of an entrant in an event
  *
@@ -24,18 +29,34 @@ import androidx.fragment.app.DialogFragment;
  */
 public class EntrantDetailsFragment extends DialogFragment {
     private static final String ARG_ENTRANT = "entrant";
+    private static final String ARG_REQUIRE_LOCATION = "requireLocation";
 
     /**
      *
      * @param entrant the entrant we will display
+     * @param requireLocation whether the event requires location
      * @return initialized fragment
      */
-    public static EntrantDetailsFragment newInstance(Entrant entrant) {
+    public static EntrantDetailsFragment newInstance(Entrant entrant, boolean requireLocation) {
         EntrantDetailsFragment fragment = new EntrantDetailsFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_ENTRANT, entrant);
+        args.putBoolean(ARG_REQUIRE_LOCATION, requireLocation);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    /**
+     * Overloaded method to support EntrantEvent as well if needed, 
+     * but internally we should probably unify on Entrant model for details view.
+     */
+    public static EntrantDetailsFragment newInstance(EntrantEvent entrantEvent, boolean requireLocation) {
+        Entrant entrant = new Entrant();
+        entrant.setEntrant_id(entrantEvent.getUserId());
+        entrant.setEntrant_name(entrantEvent.getUserName());
+        entrant.setLocation(entrantEvent.getLocation());
+        // Map other fields as necessary
+        return newInstance(entrant, requireLocation);
     }
 
     /**
@@ -48,42 +69,52 @@ public class EntrantDetailsFragment extends DialogFragment {
     @SuppressLint("SetTextI18n")
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         Entrant entrant = (Entrant) requireArguments().getSerializable(ARG_ENTRANT);
+        boolean requireLocation = requireArguments().getBoolean(ARG_REQUIRE_LOCATION, false);
+        
         View view = getLayoutInflater().inflate(R.layout.entrant_details_fragment, null);
         TextView tvName = view.findViewById(R.id.details_name);
-        TextView tvId = view.findViewById(R.id.details_id);
+        TextView tvEmail = view.findViewById(R.id.details_email);
         TextView tvLocation = view.findViewById(R.id.details_location);
-        TextView tvRegistrationTime = view.findViewById(R.id.details_registration_time);
-        TextView tvInvitedTime = view.findViewById(R.id.details_invited_time);
-        TextView tvCancelledTime = view.findViewById(R.id.details_cancelled_time);
-        TextView tvSignedUpTime = view.findViewById(R.id.details_signed_up_time);
-        LinearLayout llInvitedTime = view.findViewById(R.id.details_fragment_invited_time);
-        LinearLayout llCancelledTime = view.findViewById(R.id.details_fragment_cancelled_time);
-        LinearLayout llSignedUpTime = view.findViewById(R.id.details_fragment_signed_up_time);
+        
+        LinearLayout llLocation = view.findViewById(R.id.details_fragment_location);
 
         tvName.setText(entrant.getEntrant_name());
-        tvId.setText(entrant.getEntrant_id());
-        if (entrant.getLocation() != null) {
-            tvLocation.setText("(" + entrant.getLocation().getLatitude() + "," + entrant.getLocation().getLongitude() + ")");
+        
+        // Try to get email from Entrant object
+        if (entrant.getEmail() != null && !entrant.getEmail().isEmpty()) {
+            tvEmail.setText(entrant.getEmail());
         } else {
-            tvLocation.setText("N/A");
+            tvEmail.setText("Loading...");
+            // Fetch email from users collection if not present in Entrant
+            FirebaseFirestore.getInstance().collection(FirestorePaths.USERS)
+                    .document(entrant.getEntrant_id())
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            String email = documentSnapshot.getString("email");
+                            if (email != null) {
+                                tvEmail.setText(email);
+                                entrant.setEmail(email);
+                            } else {
+                                tvEmail.setText("N/A");
+                            }
+                        } else {
+                            tvEmail.setText("N/A");
+                        }
+                    });
         }
-        if (entrant.getRegistration_time() != null) {
-            tvRegistrationTime.setText(entrant.getRegistration_time().toDate().toString());
+        
+        if (requireLocation) {
+            llLocation.setVisibility(View.VISIBLE);
+            if (entrant.getLocation() != null) {
+                tvLocation.setText("(" + entrant.getLocation().getLatitude() + "," + entrant.getLocation().getLongitude() + ")");
+            } else {
+                tvLocation.setText("N/A");
+            }
         } else {
-            tvRegistrationTime.setText("N/A");
+            llLocation.setVisibility(View.GONE);
         }
-        if (entrant.getInvited_time() != null) {
-            tvInvitedTime.setText(entrant.getInvited_time().toDate().toString());
-            llInvitedTime.setVisibility(View.VISIBLE);
-        }
-        if (entrant.getCancelled_time() != null) {
-            tvCancelledTime.setText(entrant.getCancelled_time().toDate().toString());
-            llCancelledTime.setVisibility(View.VISIBLE);
-        }
-        if (entrant.getSigned_up_time() != null) {
-            tvSignedUpTime.setText(entrant.getSigned_up_time().toDate().toString());
-            llSignedUpTime.setVisibility(View.VISIBLE);
-        }
+
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         return builder
                 .setView(view)

@@ -8,6 +8,7 @@ import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.Matchers.not;
 
 import android.content.Context;
 
@@ -67,9 +68,10 @@ public class MainActivityTest {
     }
 
     @Test
-    public void testSignInButtonIsDisplayed() {
-        onView(withId(R.id.btnSignIn))
-                .check(matches(isDisplayed()));
+    public void testLegacySignInButtonsAreHidden() {
+        // The current MainActivity hides these legacy views in onCreate
+        onView(withId(R.id.btnSignIn)).check(matches(not(isDisplayed())));
+        onView(withId(R.id.tvSignInHint)).check(matches(not(isDisplayed())));
     }
 
     @Test
@@ -79,33 +81,8 @@ public class MainActivityTest {
     }
 
     @Test
-    public void testSignInHintAndButtonAreDisplayed() {
-        onView(withId(R.id.tvSignInHint)).check(matches(isDisplayed()));
-        onView(withId(R.id.tvSignInHint)).check(matches(withText(R.string.already_have_an_account)));
-    }
-
-    @Test
-    public void testSwitchToEntrantRegistrationActivity() {
-        onView(withId(R.id.entrant_login_button)).perform(click());
-        intended(hasComponent(EntrantRegistrationActivity.class.getName()));
-    }
-
-    @Test
-    public void testSwitchToOrganizerRegistrationActivity() {
-        onView(withId(R.id.organizer_login_button)).perform(click());
-        intended(hasComponent(OrganizerRegistrationActivity.class.getName()));
-    }
-
-    @Test
     public void testSwitchToAdminSignInActivity() {
         onView(withId(R.id.admin_login_button)).perform(click());
         intended(hasComponent(AdminSignInActivity.class.getName()));
     }
-
-    @Test
-    public void testSwitchToGeneralSignInActivity() {
-        onView(withId(R.id.btnSignIn)).perform(click());
-        intended(hasComponent(GeneralSignInActivity.class.getName()));
-    }
-
 }

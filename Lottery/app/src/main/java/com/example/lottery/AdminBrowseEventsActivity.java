@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lottery.model.Event;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -158,13 +159,13 @@ public class AdminBrowseEventsActivity extends AppCompatActivity implements Even
                             if (event.getScheduledDateTime() == null) {
                                 Date oldDate = document.getDate("eventDate");
                                 if (oldDate != null) {
-                                    event.setScheduledDateTime(oldDate);
+                                    event.setScheduledDateTime(new Timestamp(oldDate));
                                 }
                             }
                             if (event.getRegistrationDeadline() == null) {
                                 Date oldDeadline = document.getDate("deadlineDate");
                                 if (oldDeadline != null) {
-                                    event.setRegistrationDeadline(oldDeadline);
+                                    event.setRegistrationDeadline(new Timestamp(oldDeadline));
                                 }
                             }
 
@@ -172,11 +173,11 @@ public class AdminBrowseEventsActivity extends AppCompatActivity implements Even
 
                             if (event.getDrawDate() != null
                                     && event.getRegistrationDeadline() != null
-                                    && event.getRegistrationDeadline().before(now)
-                                    && event.getDrawDate().after(now)) {
+                                    && event.getRegistrationDeadline().toDate().before(now)
+                                    && event.getDrawDate().toDate().after(now)) {
                                 pending++;
                             } else if (event.getScheduledDateTime() != null
-                                    && event.getScheduledDateTime().after(now)) {
+                                    && event.getScheduledDateTime().toDate().after(now)) {
                                 active++;
                             } else {
                                 closed++;

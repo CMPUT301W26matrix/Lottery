@@ -4,7 +4,7 @@
     android:id="@+id/entrant_details_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="12dp">
+    android:padding="16dp">
 
     <TextView
         android:id="@+id/details_fragment_header"
@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:text="@string/entrant_details_header"
         android:textColor="@color/accent_blue"
-        android:textSize="24sp"
+        android:textSize="22sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -22,7 +22,7 @@
         android:id="@+id/details_fragment_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="20dp"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -31,20 +31,23 @@
         <TextView
             android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:text="Name"
-            android:textStyle="bold" />
+            android:text="Username"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary" />
 
         <TextView
             android:id="@+id/details_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="NAME" />
+            android:text="Name"
+            android:textColor="@color/text_primary" />
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/details_fragment_id"
+        android:id="@+id/details_fragment_email"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -53,126 +56,42 @@
         <TextView
             android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:text="ID"
-            android:textStyle="bold" />
+            android:text="Email"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary" />
 
         <TextView
-            android:id="@+id/details_id"
+            android:id="@+id/details_email"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Id" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/details_fragment_registration_time"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/details_fragment_id">
-
-        <TextView
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:text="@string/registration_time"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/details_registration_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="REG TIME" />
+            android:text="Email"
+            android:textColor="@color/text_primary" />
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/details_fragment_location"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
         android:orientation="horizontal"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/details_fragment_registration_time">
+        app:layout_constraintTop_toBottomOf="@id/details_fragment_email">
 
         <TextView
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:text="Location"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textColor="@color/text_primary" />
 
         <TextView
             android:id="@+id/details_location"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="" />
+            android:text="N/A"
+            android:textColor="@color/text_primary" />
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/details_fragment_invited_time"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/details_fragment_location">
-
-        <TextView
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:text="Invited Time"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/details_invited_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/details_fragment_cancelled_time"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/details_fragment_invited_time">
-
-        <TextView
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:text="Cancelled Time"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/details_cancelled_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Cancelled Time" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/details_fragment_signed_up_time"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/details_fragment_cancelled_time">
-
-        <TextView
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:text="Signed Up Time"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/details_signed_up_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Signed Up Time" />
-    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

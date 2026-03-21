@@ -2,6 +2,8 @@ package com.example.lottery;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -21,6 +23,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.lottery.model.Event;
+import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.EventValidationUtils;
 import com.example.lottery.util.PosterImageLoader;
 import com.example.lottery.util.QRCodeUtils;
@@ -28,8 +31,7 @@ import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -43,16 +45,6 @@ import java.util.UUID;
 
 /**
  * Activity for organizers to create or edit events.
- *
- * <p>Key Responsibilities:
- * <ul>
- *   <li>Provides UI for entering event details (Title, Date, Capacity, etc.).</li>
- *   <li>Handles both creation of new events and editing of existing ones.</li>
- *   <li>Enforces business rules such as registration deadline validation
- *       and waiting list limit enforcement.</li>
- *   <li>Manages promotional QR code generation and poster selection.</li>
- * </ul>
- * </p>
  */
 public class OrganizerCreateEventActivity extends AppCompatActivity {
 
@@ -68,55 +60,15 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
     private MaterialCardView cvQRCode;
     private SwitchMaterial swRequireLocation, swLimitWaitingList;
 
-    // Core data variables
-    /**
-     * Unique identifier for the event.
-     */
     private String eventId = UUID.randomUUID().toString();
-    /**
-     * Content encoded within the event's promotional QR code.
-     */
     private String qrCodeContent = "";
-    /**
-     * Date objects representing various event deadlines and scheduled times.
-     */
     private Date eventStartDate, eventEndDate, regStartDate, regEndDate, drawDate;
-    /**
-     * Flag indicating whether the activity is in edit mode for an existing event.
-     */
     private boolean isEditMode = false;
-
-    /**
-     * URI of the selected poster image.
-     */
     private Uri selectedPosterUri = null;
-    /**
-     * Current poster value loaded from Firestore. This may already be a remote download URL.
-     */
     private String existingPosterUri = "";
-    /**
-     * Firebase Firestore instance for database operations.
-     */
     private FirebaseFirestore db;
-    /**
-     * Firebase Storage instance for poster uploads.
-     */
     private FirebaseStorage storage;
-
-    /**
-     * Resolves the organizer identifier from the current Firebase-authenticated user.
-     *
-     * @param currentUser the currently signed-in Firebase user, or null when signed out
-     * @return the organizer UID, or null when no authenticated user is available
-     */
-    static String organizerIdForUser(FirebaseUser currentUser) {
-        if (currentUser == null) {
-            return null;
-        }
-
-        String uid = currentUser.getUid();
-        return uid.isEmpty() ? null : uid;
-    }
+    private String userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,12 +82,17 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             return insets;
         });
 
-        try {
-            db = FirebaseFirestore.getInstance();
-            storage = FirebaseStorage.getInstance();
-        } catch (Exception e) {
-            Log.e(TAG, "Firebase initialization failed", e);
-            Toast.makeText(this, "Service Unavailable", Toast.LENGTH_SHORT).show();
+        db = FirebaseFirestore.getInstance();
+        storage = FirebaseStorage.getInstance();
+        
+        SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
+        userId = getIntent().getStringExtra("userId");
+        if (userId == null) {
+            userId = prefs.getString("userId", null);
+        }
+
+        if (userId == null) {
+            Toast.makeText(this, "Session expired", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
@@ -165,18 +122,63 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         btnGenerateQRCode.setOnClickListener(v -> generateAndDisplayQRCode());
         btnCreateEvent.setOnClickListener(v -> validateAndSaveEvent());
 
-        // US 02.02.02: Handle waiting list limit toggle
         swLimitWaitingList.setOnCheckedChangeListener((buttonView, isChecked) -> {
             tilWaitingListLimit.setVisibility(isChecked ? View.VISIBLE : View.GONE);
             if (!isChecked) {
                 etWaitingListLimit.setText("");
             }
         });
+
+        setupNavigation();
     }
 
-    /**
-     * Initializes UI component references and sets up click listeners for date pickers.
-     */
+    private void setupNavigation() {
+        View btnHome = findViewById(R.id.nav_home);
+        if (btnHome != null) {
+            btnHome.setOnClickListener(v -> {
+                Intent intent = new Intent(this, OrganizerBrowseEventsActivity.class);
+                intent.putExtra("userId", userId);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
+                finish();
+            });
+        }
+
+        View btnNotifications = findViewById(R.id.nav_notifications);
+        if (btnNotifications != null) {
+            btnNotifications.setOnClickListener(v -> {
+                Intent intent = new Intent(this, OrganizerNotificationsActivity.class);
+                intent.putExtra("userId", userId);
+                startActivity(intent);
+            });
+        }
+
+        View btnQr = findViewById(R.id.nav_qr_code);
+        if (btnQr != null) {
+            btnQr.setOnClickListener(v -> {
+                Intent intent = new Intent(this, OrganizerQrEventListActivity.class);
+                intent.putExtra("userId", userId);
+                startActivity(intent);
+            });
+        }
+
+        View btnProfile = findViewById(R.id.nav_profile);
+        if (btnProfile != null) {
+            btnProfile.setOnClickListener(v -> {
+                Intent intent = new Intent(this, OrganizerProfileActivity.class);
+                intent.putExtra("userId", userId);
+                startActivity(intent);
+            });
+        }
+
+        View btnCreate = findViewById(R.id.nav_create_container);
+        if (btnCreate != null) {
+            btnCreate.setOnClickListener(v -> {
+                // Already on Create page
+            });
+        }
+    }
+
     private void initializeViews() {
         tvHeader = findViewById(R.id.tvHeader);
         etEventTitle = findViewById(R.id.etEventTitle);
@@ -212,28 +214,18 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         etWaitingListLimit = findViewById(R.id.etWaitingListLimit);
     }
 
-    /**
-     * Loads existing event data from Firestore and populates the UI fields.
-     *
-     * @param existingEventId The unique ID of the event to load.
-     */
     private void loadEventData(String existingEventId) {
-        db.collection("events").document(existingEventId).get().addOnSuccessListener(doc -> {
-            if (!doc.exists()) {
-                return;
-            }
+        db.collection(FirestorePaths.EVENTS).document(existingEventId).get().addOnSuccessListener(doc -> {
+            if (!doc.exists()) return;
 
             Event event = doc.toObject(Event.class);
-            if (event == null) {
-                return;
-            }
+            if (event == null) return;
 
             etEventTitle.setText(event.getTitle());
-            etMaxCapacity.setText(String.valueOf(event.getMaxCapacity()));
+            etMaxCapacity.setText(String.valueOf(event.getCapacity()));
             etEventDetails.setText(event.getDetails());
             swRequireLocation.setChecked(event.isRequireLocation());
 
-            // US 02.03.01: Load waiting list limit
             if (event.getWaitingListLimit() != null) {
                 swLimitWaitingList.setChecked(true);
                 etWaitingListLimit.setText(String.valueOf(event.getWaitingListLimit()));
@@ -252,41 +244,25 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             }
 
             this.qrCodeContent = event.getQrCodeContent();
-            this.eventStartDate = event.getScheduledDateTime();
-            this.eventEndDate = event.getEventEndDate();
-            this.regStartDate = event.getRegistrationStartDate();
-            this.regEndDate = event.getRegistrationDeadline();
-            this.drawDate = event.getDrawDate();
+            this.eventStartDate = event.getScheduledDateTime() != null ? event.getScheduledDateTime().toDate() : null;
+            this.eventEndDate = event.getEventEndDate() != null ? event.getEventEndDate().toDate() : null;
+            this.regStartDate = event.getRegistrationStartDate() != null ? event.getRegistrationStartDate().toDate() : null;
+            this.regEndDate = event.getRegistrationDeadline() != null ? event.getRegistrationDeadline().toDate() : null;
+            this.drawDate = event.getDrawDate() != null ? event.getDrawDate().toDate() : null;
 
             SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm", Locale.getDefault());
-            if (eventStartDate != null) {
-                etEventStart.setText(sdf.format(eventStartDate));
-            }
-            if (eventEndDate != null) {
-                etEventEnd.setText(sdf.format(eventEndDate));
-            }
-            if (regStartDate != null) {
-                etRegStart.setText(sdf.format(regStartDate));
-            }
-            if (regEndDate != null) {
-                etRegEnd.setText(sdf.format(regEndDate));
-            }
-            if (drawDate != null) {
-                etDrawDate.setText(sdf.format(drawDate));
-            }
-
+            if (eventStartDate != null) etEventStart.setText(sdf.format(eventStartDate));
+            if (eventEndDate != null) etEventEnd.setText(sdf.format(eventEndDate));
+            if (regStartDate != null) etRegStart.setText(sdf.format(regStartDate));
+            if (regEndDate != null) etRegEnd.setText(sdf.format(regEndDate));
+            if (drawDate != null) etDrawDate.setText(sdf.format(drawDate));
         });
     }
 
-    /**
-     * Sets up the fragment result listener for receiving poster image selection results.
-     */
     private void setupDialogCallback() {
         getSupportFragmentManager().setFragmentResultListener("posterRequest", this, (requestKey, bundle) -> {
             String uriString = bundle.getString("posterUri");
-            if (uriString == null) {
-                return;
-            }
+            if (uriString == null) return;
 
             selectedPosterUri = Uri.parse(uriString);
             tvPosterStatus.setText("Poster selected");
@@ -300,9 +276,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * Generates a unique QR code for the event and displays it in the UI.
-     */
     private void generateAndDisplayQRCode() {
         qrCodeContent = QRCodeUtils.generateUniqueQrContent(eventId);
         Bitmap qrBitmap = QRCodeUtils.generateQRCodeBitmap(qrCodeContent);
@@ -314,12 +287,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Displays a date and time picker dialog and updates the provided EditText with the selection.
-     *
-     * @param editText  The EditText to update with the formatted date string.
-     * @param fieldType The type of field being updated (e.g., "eventStart", "regEnd").
-     */
     private void showDateTimePicker(final TextInputEditText editText, final String fieldType) {
         final Calendar calendar = Calendar.getInstance();
         new DatePickerDialog(this, (view, year, month, day) ->
@@ -327,84 +294,43 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                     Calendar selected = Calendar.getInstance();
                     selected.set(year, month, day, hour, min);
                     Date date = selected.getTime();
-                    String formattedDate = String.format(
-                            Locale.getDefault(),
-                            "%02d/%02d/%04d %02d:%02d",
-                            month + 1,
-                            day,
-                            year,
-                            hour,
-                            min
-                    );
+                    String formattedDate = String.format(Locale.getDefault(), "%02d/%02d/%04d %02d:%02d", month + 1, day, year, hour, min);
                     editText.setText(formattedDate);
                     switch (fieldType) {
-                        case "eventStart":
-                            eventStartDate = date;
-                            break;
-                        case "eventEnd":
-                            eventEndDate = date;
-                            break;
-                        case "regStart":
-                            regStartDate = date;
-                            break;
-                        case "regEnd":
-                            regEndDate = date;
-                            break;
-                        case "drawDate":
-                            drawDate = date;
-                            break;
-                        default:
-                            break;
+                        case "eventStart": eventStartDate = date; break;
+                        case "eventEnd": eventEndDate = date; break;
+                        case "regStart": regStartDate = date; break;
+                        case "regEnd": regEndDate = date; break;
+                        case "drawDate": drawDate = date; break;
                     }
                 }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true).show(),
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
+                calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)
         ).show();
     }
 
-    /**
-     * Validates all input fields and business rules before saving the event to Firestore.
-     *
-     * <p>Rules enforced:
-     * <ul>
-     *   <li>Title, Start Date, and Registration End are required.</li>
-     *   <li>Registration must end before the event starts.</li>
-     *   <li>Waiting list limit must be a positive integer.</li>
-     *   <li>New limit cannot be less than the current number of entrants when editing.</li>
-     * </ul>
-     * </p>
-     */
     private void validateAndSaveEvent() {
         String title = Objects.requireNonNull(etEventTitle.getText()).toString().trim();
         String capacityStr = Objects.requireNonNull(etMaxCapacity.getText()).toString().trim();
         String details = Objects.requireNonNull(etEventDetails.getText()).toString().trim();
         String waitingLimitStr = Objects.requireNonNull(etWaitingListLimit.getText()).toString().trim();
 
-        // 1.1 Event must have title
         if (title.isEmpty()) {
             Toast.makeText(this, "Event title is required", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        // 1.2 Event must have start date and time
         if (eventStartDate == null) {
             Toast.makeText(this, "Event date and time are required", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        // 1.3 Event must have registration deadline
         if (regEndDate == null) {
             Toast.makeText(this, "Registration deadline is required", Toast.LENGTH_SHORT).show();
             return;
         }
-
         if (!EventValidationUtils.isRegistrationDeadlineValid(regEndDate, eventStartDate)) {
             Toast.makeText(this, "Registration must end before the event starts", Toast.LENGTH_LONG).show();
             return;
         }
 
-        // US 02.02.02: Validate waiting list limit
         Integer waitingListLimit = null;
         if (swLimitWaitingList.isChecked()) {
             if (waitingLimitStr.isEmpty()) {
@@ -425,24 +351,16 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
 
         final Integer finalWaitingListLimit = waitingListLimit;
 
-        // US 02.02.02: AC #3: Check if new limit is smaller than current entrants when editing
         if (isEditMode && finalWaitingListLimit != null) {
-            db.collection("events").document(eventId).collection("entrants").get()
+            db.collection(FirestorePaths.eventWaitingList(eventId)).get()
                     .addOnSuccessListener(snapshots -> {
                         if (snapshots.size() > finalWaitingListLimit) {
-                            Toast.makeText(
-                                    this,
-                                    "New limit (" + finalWaitingListLimit + ") cannot be less than current entrants (" + snapshots.size() + ")",
-                                    Toast.LENGTH_LONG
-                            ).show();
+                            Toast.makeText(this, "New limit cannot be less than current entrants", Toast.LENGTH_LONG).show();
                         } else {
                             persistEvent(title, capacityStr, details, finalWaitingListLimit);
                         }
                     })
-                    .addOnFailureListener(e -> {
-                        Log.e(TAG, "Error checking entrants", e);
-                        persistEvent(title, capacityStr, details, finalWaitingListLimit);
-                    });
+                    .addOnFailureListener(e -> persistEvent(title, capacityStr, details, finalWaitingListLimit));
         } else {
             persistEvent(title, capacityStr, details, finalWaitingListLimit);
         }
@@ -450,134 +368,78 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
 
     private void persistEvent(String title, String capacityStr, String details, Integer waitingListLimit) {
         btnCreateEvent.setEnabled(false);
-
         if (isLocalUri(selectedPosterUri)) {
             uploadPosterAndSaveEvent(title, capacityStr, details, waitingListLimit, selectedPosterUri);
             return;
         }
-
         String posterUriToSave = selectedPosterUri != null ? selectedPosterUri.toString() : "";
         saveEventToFirestore(title, capacityStr, details, waitingListLimit, posterUriToSave);
     }
 
     private boolean isLocalUri(Uri uri) {
-        if (uri == null) {
-            return false;
-        }
+        if (uri == null) return false;
         String scheme = uri.getScheme();
         return "content".equalsIgnoreCase(scheme) || "file".equalsIgnoreCase(scheme);
     }
 
-    private void uploadPosterAndSaveEvent(String title,
-                                          String capacityStr,
-                                          String details,
-                                          Integer waitingListLimit,
-                                          Uri posterUri) {
-        StorageReference posterRef = storage.getReference()
-                .child("event_posters/" + eventId + "/" + UUID.randomUUID() + ".jpg");
-
+    private void uploadPosterAndSaveEvent(String title, String capacityStr, String details, Integer waitingListLimit, Uri posterUri) {
+        StorageReference posterRef = storage.getReference().child("event_posters/" + eventId + "/" + UUID.randomUUID() + ".jpg");
         posterRef.putFile(posterUri)
                 .continueWithTask(task -> {
-                    if (!task.isSuccessful()) {
-                        Exception exception = task.getException();
-                        if (exception != null) {
-                            throw exception;
-                        }
-                        throw new IllegalStateException("Poster upload failed");
-                    }
+                    if (!task.isSuccessful()) throw task.getException() != null ? task.getException() : new IllegalStateException("Upload failed");
                     return posterRef.getDownloadUrl();
                 })
-                .addOnSuccessListener(downloadUri ->
-                        saveEventToFirestore(
-                                title,
-                                capacityStr,
-                                details,
-                                waitingListLimit,
-                                downloadUri.toString()
-                        ))
+                .addOnSuccessListener(downloadUri -> saveEventToFirestore(title, capacityStr, details, waitingListLimit, downloadUri.toString()))
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Failed to upload poster", e);
                     btnCreateEvent.setEnabled(true);
                     Toast.makeText(this, "Failed to upload poster", Toast.LENGTH_SHORT).show();
                 });
     }
 
-    /**
-     * Constructs an Event object and persists it to the Firestore database.
-     *
-     * @param title            The title of the event.
-     * @param capacityStr      The string representation of the maximum capacity.
-     * @param details          The detailed description of the event.
-     * @param waitingListLimit The limit for the waiting list (null for unlimited).
-     */
-    private void saveEventToFirestore(String title,
-                                      String capacityStr,
-                                      String details,
-                                      Integer waitingListLimit,
-                                      String posterUriToSave) {
-        String organizerId = organizerIdForUser(FirebaseAuth.getInstance().getCurrentUser());
-        if (organizerId == null) {
-            btnCreateEvent.setEnabled(true);
-            Toast.makeText(this, "Please sign in again before creating an event", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
+    private void saveEventToFirestore(String title, String capacityStr, String details, Integer waitingListLimit, String posterUriToSave) {
         if (qrCodeContent.isEmpty()) {
             qrCodeContent = QRCodeUtils.generateUniqueQrContent(eventId);
         }
 
-        int maxCapacity = capacityStr.isEmpty() ? 0 : Integer.parseInt(capacityStr);
+        int capacity = capacityStr.isEmpty() ? 0 : Integer.parseInt(capacityStr);
         boolean requireLocation = swRequireLocation.isChecked();
 
-        Event event = new Event(
-                eventId,
-                title,
-                eventStartDate,
-                eventEndDate,
-                regStartDate,
-                regEndDate,
-                drawDate,
-                maxCapacity,
-                details,
-                posterUriToSave,
-                qrCodeContent,
-                organizerId,
-                requireLocation,
-                waitingListLimit
-        );
+        Event event = new Event();
+        event.setEventId(eventId);
+        event.setTitle(title);
+        event.setDetails(details);
+        event.setOrganizerId(userId);
+        event.setCapacity(capacity);
+        event.setWaitingListLimit(waitingListLimit);
+        event.setQrCodeContent(qrCodeContent);
+        event.setScheduledDateTime(eventStartDate != null ? new Timestamp(eventStartDate) : null);
+        event.setEventEndDate(eventEndDate != null ? new Timestamp(eventEndDate) : null);
+        event.setRegistrationStartDate(regStartDate != null ? new Timestamp(regStartDate) : null);
+        event.setRegistrationDeadline(regEndDate != null ? new Timestamp(regEndDate) : null);
+        event.setDrawDate(drawDate != null ? new Timestamp(drawDate) : null);
+        event.setRequireLocation(requireLocation);
+        event.setPosterUri(posterUriToSave);
+        event.touch();
 
-        db.collection("events").document(eventId)
+        db.collection(FirestorePaths.EVENTS).document(eventId)
                 .set(event)
                 .addOnSuccessListener(aVoid -> {
                     deleteReplacedPosterIfNeeded(posterUriToSave);
-                    String msg = isEditMode ? "Event Updated Successfully!" : "Event Launched Successfully!";
-                    Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, isEditMode ? "Event Updated Successfully!" : "Event Launched Successfully!", Toast.LENGTH_SHORT).show();
                     finish();
                 })
                 .addOnFailureListener(e -> {
-                    Log.w(TAG, "Error writing document", e);
                     btnCreateEvent.setEnabled(true);
                     Toast.makeText(this, "Failed to save event", Toast.LENGTH_SHORT).show();
                 });
     }
 
     private void deleteReplacedPosterIfNeeded(String newPosterUri) {
-        if (existingPosterUri == null || existingPosterUri.isEmpty()) {
-            return;
-        }
-        if (existingPosterUri.equals(newPosterUri)) {
-            return;
-        }
-
+        if (existingPosterUri == null || existingPosterUri.isEmpty() || existingPosterUri.equals(newPosterUri)) return;
         try {
-            if (existingPosterUri.startsWith("gs://")
-                    || existingPosterUri.contains("firebasestorage.googleapis.com")) {
-                FirebaseStorage.getInstance().getReferenceFromUrl(existingPosterUri)
-                        .delete()
-                        .addOnFailureListener(e -> Log.w(TAG, "Failed to delete replaced poster", e));
+            if (existingPosterUri.startsWith("gs://") || existingPosterUri.contains("firebasestorage.googleapis.com")) {
+                FirebaseStorage.getInstance().getReferenceFromUrl(existingPosterUri).delete();
             }
-        } catch (Exception e) {
-            Log.w(TAG, "Could not parse existing poster URI for cleanup", e);
-        }
+        } catch (Exception ignored) {}
     }
 }

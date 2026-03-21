@@ -12,20 +12,19 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 /**
- * fragment for organizer sent notification to specific group of entrants(depending on status like waitedlisted signedup invited cancelled)
+ * DialogFragment used by Organizers to input a notification message.
  *
- * <p>Responsibilities:
- * <ul>
- *   <li>ask organizer to input a sequence of words and then call sendNotificaiton in the EntrantsListActivity to send notification</li>
- *   <li>not be implemented yet since no one takes it</li>
- * </ul>
- * </p>
+ * <p>This fragment handles the UI for composing a notification. The actual sending
+ * logic is handled by the listener (e.g., {@link EntrantsListActivity} or
+ * {@link OrganizerNotificationsActivity}) which will create entries in the global
+ * 'notifications' collection and individual user 'inbox' subcollections.</p>
  */
 public class NotificationFragment extends DialogFragment {
+
     private NotificationListener listener;
 
     /**
-     * initialize and return a new notification fragment
+     * Initializes and returns a new NotificationFragment.
      *
      * @return a new notification fragment
      */
@@ -34,9 +33,10 @@ public class NotificationFragment extends DialogFragment {
     }
 
     /**
-     * check if the caller implemented the communication protocol
+     * Attaches the fragment to its context and ensures it implements the {@link NotificationListener}.
      *
-     * @param context caller's context
+     * @param context The context to which the fragment is being attached.
+     * @throws RuntimeException if the context or parent fragment does not implement {@link NotificationListener}.
      */
     @Override
     public void onAttach(@NonNull Context context) {
@@ -44,26 +44,32 @@ public class NotificationFragment extends DialogFragment {
         if (context instanceof NotificationListener) {
             listener = (NotificationListener) context;
         } else {
-            throw new RuntimeException("Implement listener");
+            // Check if fragment is attached to a parent fragment that implements the listener
+            if (getParentFragment() instanceof NotificationListener) {
+                listener = (NotificationListener) getParentFragment();
+            } else {
+                throw new RuntimeException(context.toString() + " or parent fragment must implement NotificationListener");
+            }
         }
     }
 
     /**
-     * set up the dialog
+     * Creates and returns the notification composition dialog.
      *
      * @param savedInstanceState The last saved instance state of the Fragment,
      *                           or null if this is a freshly created Fragment.
-     * @return a built dialog which can sent the notification content to caller by the protocol
+     * @return A built {@link AlertDialog} for notification input.
      */
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         View view = getLayoutInflater().inflate(R.layout.notification_fragment, null);
         EditText input = view.findViewById(R.id.input_sampling_size);
+
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         return builder
                 .setView(view)
-                .setTitle("")
+                .setTitle("Compose Notification")
                 .setNegativeButton("Cancel", null)
                 .setPositiveButton("Send", (dialog, which) -> {
                     String content = input.getText().toString();
@@ -75,9 +81,14 @@ public class NotificationFragment extends DialogFragment {
     }
 
     /**
-     * a protocol interface for caller to implement
+     * Interface for components that handle the actual notification sending logic.
      */
-    interface NotificationListener {
+    public interface NotificationListener {
+        /**
+         * Called when the organizer clicks "Send" with the provided message content.
+         *
+         * @param content the notification message body
+         */
         void sendNotification(String content);
     }
 }

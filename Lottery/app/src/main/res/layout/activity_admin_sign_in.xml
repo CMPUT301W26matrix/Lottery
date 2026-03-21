@@ -19,14 +19,14 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp"
         android:hint="@string/admin_code"
-        android:inputType="textPassword" />
+        android:inputType="textVisiblePassword" />
 
     <Button
         android:id="@+id/btnSignIn"
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:layout_marginTop="24dp"
-        android:text="@string/sign_in"
+        android:text="Sign In"
         android:textSize="16sp" />
 
 </LinearLayout>

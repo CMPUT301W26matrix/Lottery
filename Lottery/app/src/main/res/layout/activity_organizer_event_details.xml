@@ -276,6 +276,17 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <TextView
+                android:id="@+id/tvEntrantCounts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:textColor="@color/text_gray"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:text="Waitlisted: 0 | Invited: 0 | Accepted: 0 | Cancelled: 0" />
+
             <Button
                 android:id="@+id/btnViewWaitingList"
                 android:layout_width="match_parent"

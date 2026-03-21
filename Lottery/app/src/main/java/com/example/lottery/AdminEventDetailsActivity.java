@@ -273,15 +273,15 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
         tvEventDetails.setText(event.getDetails());
 
         tvScheduledDate.setText(event.getScheduledDateTime() != null
-                ? dateFormat.format(event.getScheduledDateTime()) : "");
+                ? dateFormat.format(event.getScheduledDateTime().toDate()) : "");
         tvEventEndDate.setText(event.getEventEndDate() != null
-                ? dateFormat.format(event.getEventEndDate()) : "");
+                ? dateFormat.format(event.getEventEndDate().toDate()) : "");
         tvRegistrationStart.setText(event.getRegistrationStartDate() != null
-                ? dateFormat.format(event.getRegistrationStartDate()) : "");
+                ? dateFormat.format(event.getRegistrationStartDate().toDate()) : "");
         tvRegistrationDeadline.setText(event.getRegistrationDeadline() != null
-                ? dateFormat.format(event.getRegistrationDeadline()) : "");
+                ? dateFormat.format(event.getRegistrationDeadline().toDate()) : "");
         tvDrawDate.setText(event.getDrawDate() != null
-                ? dateFormat.format(event.getDrawDate()) : "");
+                ? dateFormat.format(event.getDrawDate().toDate()) : "");
 
         String capacityLabel = event.getWaitingListLimit() == null
                 ? getString(R.string.unlimited)

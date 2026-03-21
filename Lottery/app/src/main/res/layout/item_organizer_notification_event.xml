@@ -65,9 +65,9 @@
             android:textColor="@color/text_primary"
             android:textSize="15sp"
             app:cornerRadius="10dp"
-            app:elevation="0dp"
             app:strokeColor="@color/divider_gray"
-            app:strokeWidth="1dp" />
+            app:strokeWidth="1dp"
+            app:elevation="0dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnNotifyCancelled"

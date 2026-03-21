@@ -1,51 +1,26 @@
 <resources>
     <string name="app_name">Lottery</string>
     <string name="choose_your_role">Choose your role</string>
-    <string name="already_have_an_account">Already have an account?</string>
     <string name="i_m_an_entrant">I\'m an Entrant</string>
     <string name="i_m_an_organizer">I\'m an Organizer</string>
     <string name="i_m_an_admin">I\'m an Admin</string>
-    <string name="sign_in">Sign In</string>
     <string name="name">Name</string>
     <string name="email">Email</string>
     <string name="phone_number_optional">Phone Number (Optional)</string>
-    <string name="password">Password</string>
-    <string name="re_enter_password">Re-Enter Password</string>
     <string name="continue_text">Continue</string>
-    <string name="continue_without_registering">Continue Without Registering</string>
     <string name="admin_code">Admin Code</string>
-    <string name="error_password_mismatch">Passwords do not match</string>
-    <string name="error_invalid_email">Invalid email address</string>
-    <string name="error_email_required">Email is required</string>
-    <string name="error_name_required">Name is required</string>
-    <string name="error_password_required">Password is required</string>
-    <string name="error_invalid_password">Invalid password</string>
     <string name="error_admin_code_required">Admin code is required</string>
     <string name="error_incorrect_admin_code">Admin code is incorrect</string>
     <string name="error_admin_code_lookup_failed">Failed to verify admin code</string>
     <string name="error_admin_code_not_configured">Admin code is not configured</string>
     <string name="error_admin_code_inactive">Admin code is inactive</string>
-    <string name="back_button_description">Return to Role Selection</string>
-    <string name="sign_in_title">Sign In</string>
     <string name="admin_sign_in_title">Admin Sign In</string>
-    <string name="register_as_entrant">Register as an Entrant</string>
-    <string name="register_as_organizer">Register as an Organizer</string>
-    <string name="unregistered_user">Unregistered User</string>
-    <string name="continuing_as_anonymous_user">Continuing as anonymous user</string>
     <string name="error_prefix">Error: %1$s</string>
-    <string name="error_sign_in_failed">Sign in failed</string>
-    <string name="error_registration_failed">Registration failed</string>
-    <string name="error_failed_to_continue">Failed to continue: %1$s</string>
-    <string name="registration_successful">Registration successful!</string>
     <string name="error_failed_to_save_profile">Failed to save profile: %1$s</string>
     <string name="error_user_role_not_found">User role not found</string>
     <string name="error_user_profile_not_found">User profile not found</string>
     <string name="error_failed_to_get_user_data">Failed to get user data</string>
-    <string name="prompt_enter_valid_email">Please enter a valid email</string>
-    <string name="prompt_enter_your_name">Please enter your name</string>
-    <string name="prompt_enter_your_password">Please enter your password</string>
-    <string name="prompt_enter_a_password">Please enter a password</string>
-    <string name="prompt_password_min_length">Password must be at least 8 characters</string>
+    <string name="back_button_description">Back</string>
 
     <string name="create">Create</string>
     <string name="create_new_event">Create New Event</string>
@@ -139,7 +114,6 @@
     <string name="role_organizer">Organizer</string>
     <string name="section_account">ACCOUNT</string>
     <string name="menu_edit_profile">Edit Profile</string>
-    <string name="menu_change_password">Change Password</string>
     <string name="menu_notification_settings">Notification Settings</string>
     <string name="btn_log_out">Log Out</string>
 
@@ -205,4 +179,5 @@
     <!-- Registration period ended strings -->
     <string name="registration_period_ended">Registration Period Over</string>
     <string name="cannot_join_event_lottery_drawn">You can no longer join this event as the lottery has already been drawn.</string>
+    <string name="entrant_counts">Entrant Counts</string>
 </resources>

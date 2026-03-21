@@ -10,6 +10,7 @@ import android.widget.FrameLayout;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.example.lottery.model.NotificationItem;
+import com.google.firebase.Timestamp;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -32,8 +33,9 @@ public class NotificationAdapterTest {
     public void setUp() {
         context = ApplicationProvider.getApplicationContext();
         notifications = new ArrayList<>();
-        notifications.add(new NotificationItem("id1", "Title 1", "Message 1", "type1", "event1", false, false, null));
-        notifications.add(new NotificationItem("id2", "Title 2", "Message 2", "type2", "event2", true, true, "ACCEPTED"));
+        // Updated constructor: notificationId, title, message, type, eventId, eventTitle, senderId, senderRole, isRead, createdAt
+        notifications.add(new NotificationItem("id1", "Title 1", "Message 1", "type1", "event1", "Event Title 1", "sender1", "organizer", false, Timestamp.now()));
+        notifications.add(new NotificationItem("id2", "Title 2", "Message 2", "type2", "event2", "Event Title 2", "sender2", "organizer", true, Timestamp.now()));
 
         adapter = new NotificationAdapter(notifications, item -> {
         });
@@ -59,18 +61,18 @@ public class NotificationAdapterTest {
 
         adapter.onBindViewHolder(holder, 0);
 
-        assertEquals("Title 1", holder.tvTitle.getText().toString());
+        // In the new NotificationAdapter, if eventTitle is present, the title is formatted as "eventTitle: title"
+        assertEquals("Event Title 1: Title 1", holder.tvTitle.getText().toString());
         assertEquals("Message 1", holder.tvMessage.getText().toString());
         assertEquals(View.VISIBLE, holder.tvNew.getVisibility());
 
         adapter.onBindViewHolder(holder, 1);
-        assertEquals("Title 2", holder.tvTitle.getText().toString());
+        assertEquals("Event Title 2: Title 2", holder.tvTitle.getText().toString());
         assertEquals(View.GONE, holder.tvNew.getVisibility());
-        assertEquals(View.VISIBLE, holder.tvResponse.getVisibility());
     }
 
     @Test
-    public void testOnBindViewHolder_showsCancelledResponse() {
+    public void testOnBindViewHolder_noEventTitle() {
         notifications.clear();
         notifications.add(new NotificationItem(
                 "id3",
@@ -78,9 +80,11 @@ public class NotificationAdapterTest {
                 "Message 3",
                 "win",
                 "event3",
+                "", // Empty event title
+                "sender3",
+                "organizer",
                 true,
-                true,
-                "CANCELLED"
+                Timestamp.now()
         ));
 
         adapter = new NotificationAdapter(notifications, item -> {
@@ -91,7 +95,6 @@ public class NotificationAdapterTest {
 
         adapter.onBindViewHolder(holder, 0);
 
-        assertEquals(View.VISIBLE, holder.tvResponse.getVisibility());
-        assertEquals("Response: CANCELLED", holder.tvResponse.getText().toString());
+        assertEquals("Title 3", holder.tvTitle.getText().toString());
     }
 }
