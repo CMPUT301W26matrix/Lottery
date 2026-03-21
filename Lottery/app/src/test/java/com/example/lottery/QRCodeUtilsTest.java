@@ -3,6 +3,7 @@ package com.example.lottery;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import com.example.lottery.util.QRCodeUtils;
@@ -88,10 +89,10 @@ public class QRCodeUtilsTest {
      */
     @Test
     public void testExtractEventIdReturnsNullForMalformedContent() {
-        assertEquals(null, QRCodeUtils.extractEventId(null));
-        assertEquals(null, QRCodeUtils.extractEventId(""));
-        assertEquals(null, QRCodeUtils.extractEventId("eventOnly"));
-        assertEquals(null, QRCodeUtils.extractEventId("_suffixOnly"));
-        assertEquals(null, QRCodeUtils.extractEventId("event_"));
+        assertNull(QRCodeUtils.extractEventId(null));
+        assertNull(QRCodeUtils.extractEventId(""));
+        assertNull(QRCodeUtils.extractEventId("eventOnly"));
+        assertNull(QRCodeUtils.extractEventId("_suffixOnly"));
+        assertNull(QRCodeUtils.extractEventId("event_"));
     }
 }

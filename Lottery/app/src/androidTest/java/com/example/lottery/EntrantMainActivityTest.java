@@ -30,7 +30,7 @@ public class EntrantMainActivityTest {
                 EntrantMainActivity.class
         );
 
-        intent.putExtra("userId", "6xygP8FXpxATgAkKmj27");
+        intent.putExtra("userId", "test_user_id");
 
         try (ActivityScenario<EntrantMainActivity> scenario =
                      ActivityScenario.launch(intent)) {

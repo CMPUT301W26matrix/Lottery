@@ -113,7 +113,7 @@ public class EntrantRegistrationActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
 
         // Initialize SharedPreferences
-        sharedPreferences = getSharedPreferences("AppPrefs", MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences(LotteryApplication.PREFS_NAME, MODE_PRIVATE);
 
         // Initialize button views
         backButton = findViewById(R.id.btnBack);
