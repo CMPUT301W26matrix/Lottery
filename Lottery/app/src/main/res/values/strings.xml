@@ -20,6 +20,8 @@
     <string name="error_user_role_not_found">User role not found</string>
     <string name="error_user_profile_not_found">User profile not found</string>
     <string name="error_failed_to_get_user_data">Failed to get user data</string>
+    <string name="sign_in">Sign In</string>
+    <string name="back_button_description">Back</string>
 
     <string name="create">Create</string>
     <string name="create_new_event">Create New Event</string>
