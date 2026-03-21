@@ -55,12 +55,6 @@
             android:name=".WaitingListActivity"
             android:exported="false" />
         <activity
-            android:name=".EntrantRegistrationActivity"
-            android:exported="false" />
-        <activity
-            android:name=".OrganizerRegistrationActivity"
-            android:exported="false" />
-        <activity
             android:name=".AdminSignInActivity"
             android:exported="false" />
         <activity
