@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.example.lottery.model.User;
+import com.example.lottery.util.FirestorePaths;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -22,16 +23,19 @@ import java.util.ArrayList;
 
 /**
  * Allows administrators to browse all user profiles in the system.
+ * Includes a "one-shot" deletion mode for safety and UX consistency.
  */
 public class AdminBrowseProfilesActivity extends AppCompatActivity {
 
     private ListView lvProfiles;
     private TextView tvEmptyProfiles;
+    private Button btnEnableDeletion;
 
     private ArrayList<User> users;
     private ProfileAdapter profileAdapter;
 
     private FirebaseFirestore db;
+    private boolean isDeletionModeEnabled = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +44,7 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
 
         lvProfiles = findViewById(R.id.lvProfiles);
         tvEmptyProfiles = findViewById(R.id.tvEmptyProfiles);
-        Button enableDeletion = findViewById(R.id.btnEnableDeleteProfile);
+        btnEnableDeletion = findViewById(R.id.btnEnableDeleteProfile);
 
         db = FirebaseFirestore.getInstance();
 
@@ -58,25 +62,38 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
             return;
         }
 
-        final boolean[] isDeletionModeEnabled = {false};
-
         // When click button, enable deletion mode
-        enableDeletion.setOnClickListener(v -> {
-            isDeletionModeEnabled[0] = true;
-            Toast.makeText(this, "Click profiles to delete", Toast.LENGTH_SHORT).show();
-        });
+        btnEnableDeletion.setOnClickListener(v -> setDeleteMode(true));
 
         // ListView record the clicked item if in deletion mode start workflow
         lvProfiles.setOnItemClickListener((parent, view, position, id) -> {
-            if (!isDeletionModeEnabled[0]) {
+            if (!isDeletionModeEnabled) {
                 return;
             }
 
             User selectedUser = users.get(position);
-            showDeleteConfirmationDialog(selectedUser, isDeletionModeEnabled);
+            showDeleteConfirmationDialog(selectedUser);
         });
 
         loadProfiles();
+    }
+
+    /**
+     * Centralized method to update the deletion mode state and UI.
+     * @param enabled true to enter delete mode, false to return to normal mode.
+     */
+    private void setDeleteMode(boolean enabled) {
+        this.isDeletionModeEnabled = enabled;
+        if (enabled) {
+            btnEnableDeletion.setText("Deletion Active");
+            btnEnableDeletion.setBackgroundTintList(ColorStateList.valueOf(
+                    ContextCompat.getColor(this, android.R.color.holo_red_dark)));
+            Toast.makeText(this, "Click a profile to delete", Toast.LENGTH_SHORT).show();
+        } else {
+            btnEnableDeletion.setText("Enable Deletion");
+            btnEnableDeletion.setBackgroundTintList(ColorStateList.valueOf(
+                    ContextCompat.getColor(this, R.color.primary_blue)));
+        }
     }
 
     /**
@@ -145,7 +162,7 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
      * Loads all user profiles from Firestore
      */
     private void loadProfiles() {
-        db.collection("users")
+        db.collection(FirestorePaths.USERS)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     // Rebuild the list from the latest Firestore snapshot each time.
@@ -195,32 +212,31 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
     /**
      * Show AlertDialog with user's name and ask for confirmation.
      *
-     * @param selectedUser          user be clicked in ListView
-     * @param isDeletionModeEnabled status of deleteMode
+     * @param selectedUser user be clicked in ListView
      */
-    private void showDeleteConfirmationDialog(User selectedUser, boolean[] isDeletionModeEnabled) {
+    private void showDeleteConfirmationDialog(User selectedUser) {
         new AlertDialog.Builder(this)
                 .setTitle("Delete Profile")
                 .setMessage("Delete profile for " + selectedUser.getName() + "?")
-                .setPositiveButton("Confirm", (dialog, which) ->
-                        deleteProfile(selectedUser, isDeletionModeEnabled))
-                .setNegativeButton("Cancel", null)
+                .setPositiveButton("Confirm", (dialog, which) -> {
+                    deleteProfile(selectedUser);
+                    setDeleteMode(false);
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> setDeleteMode(false))
                 .show();
     }
 
     /**
      * Delete profile from firebase with query of UserId
      *
-     * @param selectedUser          user be clicked in ListView
-     * @param isDeletionModeEnabled status of deleteMode
+     * @param selectedUser user be clicked in ListView
      */
-    private void deleteProfile(User selectedUser, boolean[] isDeletionModeEnabled) {
-        db.collection("users")
+    private void deleteProfile(User selectedUser) {
+        db.collection(FirestorePaths.USERS)
                 .document(selectedUser.getUserId())
                 .delete()
                 .addOnSuccessListener(unused -> {
                     Toast.makeText(this, "Profile deleted", Toast.LENGTH_SHORT).show();
-                    isDeletionModeEnabled[0] = false;
                     loadProfiles();
                 })
                 .addOnFailureListener(e ->

@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.GeoPoint;
 
 import org.junit.Test;
 
@@ -26,40 +27,54 @@ public class EntrantEventTest {
     }
 
     /**
-     * Verifies that the parameterized constructor correctly initializes
-     * the entrant ID, event ID, and the composite relation ID.
+     * Verifies that the parameterized constructor correctly initializes properties.
      */
     @Test
     public void testParameterizedConstructor() {
-        String entrantId = "entrant123";
-        String eventId = "event456";
-        EntrantEvent entrantEvent = new EntrantEvent(entrantId, eventId);
+        String userId = "user123";
+        String userName = "John Doe";
+        String email = "john@example.com";
+        String status = "registered";
+        Timestamp joinedAt = Timestamp.now();
+        Timestamp selectedAt = Timestamp.now();
+        Timestamp respondedAt = Timestamp.now();
+        Timestamp cancelledAt = Timestamp.now();
+        Timestamp updatedAt = Timestamp.now();
+        GeoPoint location = new GeoPoint(45.0, -90.0);
 
-        assertEquals(entrantId, entrantEvent.getEntrantId());
-        assertEquals(eventId, entrantEvent.getEventId());
-        assertEquals(entrantId + "_" + eventId, entrantEvent.getRelationId());
-        assertEquals(EntrantEvent.Status.WAITLISTED, entrantEvent.getStatus());
-        assertNotNull(entrantEvent.getJoinedAt());
+        EntrantEvent entrantEvent = new EntrantEvent(
+                userId, userName, email, status, joinedAt, selectedAt, respondedAt, cancelledAt, updatedAt, location
+        );
+
+        assertEquals(userId, entrantEvent.getUserId());
+        assertEquals(userName, entrantEvent.getUserName());
+        assertEquals(email, entrantEvent.getEmail());
+        assertEquals(status, entrantEvent.getStatus());
+        assertEquals(joinedAt, entrantEvent.getJoinedAt());
+        assertEquals(selectedAt, entrantEvent.getSelectedAt());
+        assertEquals(respondedAt, entrantEvent.getRespondedAt());
+        assertEquals(cancelledAt, entrantEvent.getCancelledAt());
+        assertEquals(updatedAt, entrantEvent.getUpdatedAt());
+        assertEquals(location, entrantEvent.getLocation());
     }
 
     /**
-     * Verifies that setters and getters for status, timestamps, and position work as intended.
+     * Verifies that setters and getters work as intended.
      */
     @Test
     public void testSettersAndGetters() {
         EntrantEvent entrantEvent = new EntrantEvent();
 
-        entrantEvent.setStatus(EntrantEvent.Status.INVITED);
-        assertEquals(EntrantEvent.Status.INVITED, entrantEvent.getStatus());
+        String status = "selected";
+        entrantEvent.setStatus(status);
+        assertEquals(status, entrantEvent.getStatus());
 
         Timestamp invitedAt = Timestamp.now();
         entrantEvent.setInvitedAt(invitedAt);
         assertEquals(invitedAt, entrantEvent.getInvitedAt());
 
-        entrantEvent.setWaitlistPosition(5);
-        assertEquals(5, entrantEvent.getWaitlistPosition());
-
-        entrantEvent.setNotificationSent(true);
-        assertTrue(entrantEvent.isNotificationSent());
+        GeoPoint location = new GeoPoint(10.0, 20.0);
+        entrantEvent.setLocation(location);
+        assertEquals(location, entrantEvent.getLocation());
     }
 }

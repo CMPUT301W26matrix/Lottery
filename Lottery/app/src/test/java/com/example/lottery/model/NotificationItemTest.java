@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import com.google.firebase.Timestamp;
+
 import org.junit.Test;
 
 /**
@@ -25,8 +27,6 @@ public class NotificationItemTest {
 
     /**
      * Verifies that the parameterized constructor correctly initializes all notification fields.
-     *
-     * @see NotificationItem#NotificationItem(String, String, String, String, String, boolean, boolean, String)
      */
     @Test
     public void testParameterizedConstructor() {
@@ -35,24 +35,28 @@ public class NotificationItemTest {
         String message = "Test Message";
         String type = "EVENT_INVITATION";
         String eventId = "event456";
+        String eventTitle = "Event Title";
+        String senderId = "sender123";
+        String senderRole = "organizer";
         boolean isRead = false;
-        boolean actionTaken = false;
-        String response = "NONE";
+        Timestamp createdAt = Timestamp.now();
 
-        NotificationItem item = new NotificationItem(id, title, message, type, eventId, isRead, actionTaken, response);
+        NotificationItem item = new NotificationItem(id, title, message, type, eventId, eventTitle, senderId, senderRole, isRead, createdAt);
 
         assertEquals(id, item.getNotificationId());
         assertEquals(title, item.getTitle());
         assertEquals(message, item.getMessage());
         assertEquals(type, item.getType());
         assertEquals(eventId, item.getEventId());
+        assertEquals(eventTitle, item.getEventTitle());
+        assertEquals(senderId, item.getSenderId());
+        assertEquals(senderRole, item.getSenderRole());
         assertEquals(isRead, item.isRead());
-        assertEquals(actionTaken, item.isActionTaken());
-        assertEquals(response, item.getResponse());
+        assertEquals(createdAt, item.getCreatedAt());
     }
 
     /**
-     * Verifies that setters correctly update the read and action status of the notification.
+     * Verifies that setters correctly update properties.
      */
     @Test
     public void testSetters() {
@@ -61,11 +65,8 @@ public class NotificationItemTest {
         item.setRead(true);
         assertTrue(item.isRead());
 
-        item.setActionTaken(true);
-        assertTrue(item.isActionTaken());
-
-        String response = "ACCEPTED";
-        item.setResponse(response);
-        assertEquals(response, item.getResponse());
+        String newTitle = "New Title";
+        item.setTitle(newTitle);
+        assertEquals(newTitle, item.getTitle());
     }
 }

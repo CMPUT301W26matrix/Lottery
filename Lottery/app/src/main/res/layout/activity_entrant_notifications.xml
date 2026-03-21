@@ -47,7 +47,7 @@
         android:textColor="#666666"
         android:textSize="16sp"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottom_nav_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/headerBar" />
@@ -57,10 +57,19 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:padding="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottom_nav_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/headerBar"
         tools:listitem="@layout/item_notification" />
+
+    <FrameLayout
+        android:id="@+id/bottom_nav_container"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <include layout="@layout/layout_bottom_nav_entrant" />
+    </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

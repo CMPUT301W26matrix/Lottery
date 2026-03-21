@@ -16,6 +16,7 @@ import androidx.test.core.app.ApplicationProvider;
 
 import com.example.lottery.model.Event;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -30,7 +31,6 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @RunWith(RobolectricTestRunner.class)
@@ -58,10 +58,16 @@ public class EventAdapterTest {
         CollectionReference mockSubCollection = mock(CollectionReference.class);
         Task<QuerySnapshot> mockTask = mock(Task.class);
 
+        // Ensure every collection/document call returns a valid mock
         when(mockDb.collection(anyString())).thenReturn(mockCollection);
         when(mockCollection.document(anyString())).thenReturn(mockDocument);
         when(mockDocument.collection(anyString())).thenReturn(mockSubCollection);
+        
+        // Crucial: .get() must return a non-null Task to avoid NPE in bind()
+        when(mockCollection.get()).thenReturn(mockTask);
         when(mockSubCollection.get()).thenReturn(mockTask);
+        
+        // Mock Task fluent API
         when(mockTask.addOnSuccessListener(any())).thenReturn(mockTask);
         when(mockTask.addOnFailureListener(any())).thenReturn(mockTask);
 
@@ -69,8 +75,9 @@ public class EventAdapterTest {
         Event event = new Event();
         event.setEventId("event1");
         event.setTitle("Test Event");
-        event.setMaxCapacity(100);
-        event.setScheduledDateTime(new Date(System.currentTimeMillis() + 86400000)); // Future
+        event.setCapacity(100);
+        event.setStatus("open");
+        event.setScheduledDateTime(new Timestamp(new java.util.Date(System.currentTimeMillis() + 86400000))); // Future
         eventList.add(event);
 
         adapter = new EventAdapter(eventList, event1 -> {
@@ -110,6 +117,7 @@ public class EventAdapterTest {
 
         assertEquals("Test Event", tvTitle.getText().toString());
         assertEquals("100", tvCapacity.getText().toString());
-        assertEquals("ACTIVE", tvStatus.getText().toString());
+        // Updated from "ACTIVE" to "OPEN" to match EventAdapter.updateStatusUI logic
+        assertEquals("OPEN", tvStatus.getText().toString());
     }
 }

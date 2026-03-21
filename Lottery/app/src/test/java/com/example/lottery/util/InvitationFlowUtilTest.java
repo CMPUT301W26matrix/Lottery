@@ -25,37 +25,35 @@ public class InvitationFlowUtilTest {
     }
 
     @Test
-    public void normalizeEntrantStatus_mapsCancelledToCanonicalDeclined() {
-        assertEquals(InvitationFlowUtil.STATUS_DECLINED,
+    public void normalizeEntrantStatus_mapsCancelledToCanonicalCancelled() {
+        assertEquals(InvitationFlowUtil.STATUS_CANCELLED,
                 InvitationFlowUtil.normalizeEntrantStatus("CANCELLED"));
     }
 
     @Test
-    public void entrantStatusFromNotificationResponse_mapsAcceptedResponse() {
-        assertEquals(InvitationFlowUtil.STATUS_ACCEPTED,
-                InvitationFlowUtil.entrantStatusFromNotificationResponse(InvitationFlowUtil.RESPONSE_ACCEPTED));
+    public void normalizeNotificationResponse_mapsAcceptedResponse() {
+        assertEquals(InvitationFlowUtil.RESPONSE_ACCEPTED,
+                InvitationFlowUtil.normalizeNotificationResponse(InvitationFlowUtil.RESPONSE_ACCEPTED));
     }
 
     @Test
-    public void entrantStatusFromNotificationResponse_mapsRejectedResponse() {
-        assertEquals(InvitationFlowUtil.STATUS_DECLINED,
-                InvitationFlowUtil.entrantStatusFromNotificationResponse(InvitationFlowUtil.RESPONSE_REJECTED));
+    public void normalizeNotificationResponse_mapsDeclinedResponse() {
+        assertEquals(InvitationFlowUtil.RESPONSE_DECLINED,
+                InvitationFlowUtil.normalizeNotificationResponse(InvitationFlowUtil.RESPONSE_DECLINED));
     }
 
     @Test
-    public void entrantStatusFromNotificationResponse_mapsCancelledResponse() {
-        assertEquals(InvitationFlowUtil.STATUS_DECLINED,
-                InvitationFlowUtil.entrantStatusFromNotificationResponse(InvitationFlowUtil.RESPONSE_CANCELLED));
+    public void normalizeNotificationResponse_mapsCancelledResponse() {
+        assertEquals(InvitationFlowUtil.RESPONSE_CANCELLED,
+                InvitationFlowUtil.normalizeNotificationResponse(InvitationFlowUtil.RESPONSE_CANCELLED));
     }
 
     @Test
-    public void buildHandledNotificationUpdate_marksNotificationHandledAndRead() {
+    public void buildHandledNotificationUpdate_marksNotificationRead() {
         Map<String, Object> updates =
                 InvitationFlowUtil.buildHandledNotificationUpdate(InvitationFlowUtil.RESPONSE_ACCEPTED);
 
         assertEquals(Boolean.TRUE, updates.get("isRead"));
-        assertEquals(Boolean.TRUE, updates.get("actionTaken"));
-        assertEquals(InvitationFlowUtil.RESPONSE_ACCEPTED, updates.get("response"));
     }
 
     @Test
@@ -63,9 +61,7 @@ public class InvitationFlowUtilTest {
         Map<String, Object> updates =
                 InvitationFlowUtil.buildHandledNotificationUpdate(InvitationFlowUtil.RESPONSE_CANCELLED);
 
-        assertEquals(3, updates.size());
+        assertEquals(1, updates.size());
         assertTrue(updates.containsKey("isRead"));
-        assertTrue(updates.containsKey("actionTaken"));
-        assertTrue(updates.containsKey("response"));
     }
 }

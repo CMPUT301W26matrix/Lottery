@@ -15,6 +15,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.lottery.model.Entrant;
+import com.example.lottery.model.NotificationItem;
+import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.InvitationFlowUtil;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -23,33 +26,26 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Activity to display entrants of different status of a event by list and map and able to sample they
- *
- * <p>Responsibilities:
- * <ul>
- *   <li>Fetch the 4 different status entrant collections from Firestore</li>
- *   <li>Render the 4 different status entrant list and implement view location and sample winners functionality</li>
- *   <li>implement US 02.02.02 Be Able To See On A Map Where Entrants Joined My Event</li>
- *   <li>implement US 02.05.02 Be able to sample number of attendees to register for the event</li>
- *   <li>implement US 02.06.01 Be able to view all chosen entrants</li>
- *   <li>implement US 02.06.02 Be able to see a list of all the cancelled entrants</li>
- * </ul>
- * </p>
  */
 public class EntrantsListActivity extends AppCompatActivity implements
         NotificationFragment.NotificationListener,
@@ -82,9 +78,12 @@ public class EntrantsListActivity extends AppCompatActivity implements
     private MapView mapView;
 
     private String eventId;
+    private String eventTitle = "Event";
     private long maxCapacity, maxSampleSize;
+    private boolean requireLocation = false;
 
     private ListenerRegistration entrantsReg;
+    private String activeGroupStatus = InvitationFlowUtil.STATUS_WAITLISTED;
 
     @SuppressLint("NotifyDataSetChanged")
     @Override
@@ -92,14 +91,7 @@ public class EntrantsListActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.entrants_list);
 
-        try {
-            db = FirebaseFirestore.getInstance();
-        } catch (Exception e) {
-            Log.e(TAG, "Firebase initialization failed", e);
-            Toast.makeText(this, "Service Unavailable", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
+        db = FirebaseFirestore.getInstance();
 
         eventId = getIntent().getStringExtra("eventId");
         if (eventId == null) {
@@ -130,10 +122,22 @@ public class EntrantsListActivity extends AppCompatActivity implements
 
         showLayout(waitedListEntrantsListLayout);
 
-        btnSwitchSignedUp.setOnClickListener(v -> showLayout(signedUpEntrantsListLayout));
-        btnSwitchCancelled.setOnClickListener(v -> showLayout(cancelledEntrantsListLayout));
-        btnSwitchWaitedList.setOnClickListener(v -> showLayout(waitedListEntrantsListLayout));
-        btnSwitchInvited.setOnClickListener(v -> showLayout(invitedEntrantsListLayout));
+        btnSwitchSignedUp.setOnClickListener(v -> {
+            activeGroupStatus = InvitationFlowUtil.STATUS_ACCEPTED;
+            showLayout(signedUpEntrantsListLayout);
+        });
+        btnSwitchCancelled.setOnClickListener(v -> {
+            activeGroupStatus = InvitationFlowUtil.STATUS_CANCELLED;
+            showLayout(cancelledEntrantsListLayout);
+        });
+        btnSwitchWaitedList.setOnClickListener(v -> {
+            activeGroupStatus = InvitationFlowUtil.STATUS_WAITLISTED;
+            showLayout(waitedListEntrantsListLayout);
+        });
+        btnSwitchInvited.setOnClickListener(v -> {
+            activeGroupStatus = InvitationFlowUtil.STATUS_INVITED;
+            showLayout(invitedEntrantsListLayout);
+        });
 
         btnSendNotification.setOnClickListener(view -> {
             NotificationFragment notificationFragment = new NotificationFragment();
@@ -162,23 +166,29 @@ public class EntrantsListActivity extends AppCompatActivity implements
 
         listenToEntrants();
 
-        db.collection("events").document(eventId).get().addOnSuccessListener(documentSnapshot -> {
+        db.collection(FirestorePaths.EVENTS).document(eventId).get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
                 Long cap = documentSnapshot.getLong("maxCapacity");
                 maxCapacity = cap != null ? cap : 0L;
+                
+                String title = documentSnapshot.getString("title");
+                if (title != null) {
+                    eventTitle = title;
+                }
+
+                Boolean reqLoc = documentSnapshot.getBoolean("requireLocation");
+                requireLocation = reqLoc != null && reqLoc;
             }
         });
     }
 
-    /**
-     * Single-source listener for entrants under:
-     * events/{eventId}/entrants
-     */
+    public boolean isRequireLocation() {
+        return requireLocation;
+    }
+
     @SuppressLint("NotifyDataSetChanged")
     private void listenToEntrants() {
-        entrantsReg = db.collection("events")
-                .document(eventId)
-                .collection("entrants")
+        entrantsReg = db.collection(FirestorePaths.eventWaitingList(eventId))
                 .addSnapshotListener((querySnapshot, e) -> {
                     if (e != null) {
                         Log.e(TAG, "entrants listener error", e);
@@ -202,6 +212,8 @@ public class EntrantsListActivity extends AppCompatActivity implements
                                     snapshot.getString("entrant_name"),
                                     snapshot.getString("name")
                             );
+
+                            String email = snapshot.getString("email");
 
                             Timestamp registeredAt = getFirstNonNullTimestamp(
                                     snapshot.getTimestamp("registeredAt"),
@@ -242,16 +254,20 @@ public class EntrantsListActivity extends AppCompatActivity implements
 
                             if (InvitationFlowUtil.STATUS_WAITLISTED.equals(status)) {
                                 entrant = new Entrant(userName, userId, registeredAt, location);
+                                entrant.setEmail(email);
                                 entrantWaitedListArrayList.add(entrant);
                             } else if (InvitationFlowUtil.STATUS_INVITED.equals(status)) {
                                 entrant = new Entrant(invitedAt, userName, userId, registeredAt, location);
+                                entrant.setEmail(email);
                                 entrantInvitedArrayList.add(entrant);
                             } else if (InvitationFlowUtil.STATUS_ACCEPTED.equals(status)) {
                                 entrant = new Entrant(userName, userId, invitedAt, registeredAt, location, acceptedAt);
+                                entrant.setEmail(email);
                                 entrantSignedUpArrayList.add(entrant);
                             } else if (InvitationFlowUtil.STATUS_CANCELLED.equals(status)
                                     || InvitationFlowUtil.STATUS_DECLINED.equals(status)) {
                                 entrant = new Entrant(userName, location, userId, cancelledAt, invitedAt, registeredAt);
+                                entrant.setEmail(email);
                                 entrantCancelledArrayList.add(entrant);
                             }
                         }
@@ -275,9 +291,7 @@ public class EntrantsListActivity extends AppCompatActivity implements
 
         int sampleSize = Integer.parseInt(size);
 
-        db.collection("events")
-                .document(eventId)
-                .collection("entrants")
+        db.collection(FirestorePaths.eventWaitingList(eventId))
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     List<DocumentSnapshot> waitlistedDocs = new ArrayList<>();
@@ -330,9 +344,93 @@ public class EntrantsListActivity extends AppCompatActivity implements
                 });
     }
 
+    /**
+     * Sends a notification to the currently visible group of entrants.
+     * Follows the new structured notification format.
+     */
     @Override
     public void sendNotification(String content) {
-        // Leave this for the next step after data structure cleanup.
+        String currentUserId = FirebaseAuth.getInstance().getUid();
+        String notificationId = UUID.randomUUID().toString();
+        Timestamp now = Timestamp.now();
+
+        // 1. Create global notification log
+        Map<String, Object> globalNotif = new HashMap<>();
+        globalNotif.put("notificationId", notificationId);
+        globalNotif.put("title", "Update for " + eventTitle);
+        globalNotif.put("message", content);
+        globalNotif.put("type", "general");
+        globalNotif.put("eventId", eventId);
+        globalNotif.put("eventTitle", eventTitle);
+        globalNotif.put("group", activeGroupStatus);
+        globalNotif.put("senderId", currentUserId);
+        globalNotif.put("senderRole", "organizer");
+        globalNotif.put("createdAt", now);
+        globalNotif.put("recipientCount", 0);
+
+        db.collection(FirestorePaths.NOTIFICATIONS).document(notificationId)
+                .set(globalNotif)
+                .addOnSuccessListener(aVoid -> fetchRecipientsAndSend(notificationId, content, globalNotif));
+    }
+
+    private void fetchRecipientsAndSend(String notificationId, String content, Map<String, Object> globalNotif) {
+        Query query;
+        if (InvitationFlowUtil.STATUS_CANCELLED.equals(activeGroupStatus)) {
+            // Handle both CANCELLED and DECLINED statuses for the cancelled list
+            query = db.collection(FirestorePaths.eventWaitingList(eventId))
+                    .whereIn("status", Arrays.asList(InvitationFlowUtil.STATUS_CANCELLED, InvitationFlowUtil.STATUS_DECLINED));
+        } else {
+            query = db.collection(FirestorePaths.eventWaitingList(eventId))
+                    .whereEqualTo("status", activeGroupStatus);
+        }
+
+        query.get().addOnSuccessListener(querySnapshot -> {
+            WriteBatch batch = db.batch();
+            int count = 0;
+
+            for (QueryDocumentSnapshot doc : querySnapshot) {
+                String recipientUid = doc.getId();
+                count++;
+
+                // 2. Create recipient entry in global log
+                DocumentReference recipientRef = db.collection(FirestorePaths.notificationRecipients(notificationId))
+                        .document(recipientUid);
+                Map<String, Object> recData = new HashMap<>();
+                recData.put("userId", recipientUid);
+                recData.put("delivered", true);
+                recData.put("isRead", false);
+                recData.put("statusAtSendTime", activeGroupStatus);
+                recData.put("deliveredAt", Timestamp.now());
+                batch.set(recipientRef, recData);
+
+                // 3. Create inbox entry for the user
+                DocumentReference inboxRef = db.collection(FirestorePaths.userInbox(recipientUid))
+                        .document(notificationId);
+                
+                NotificationItem inboxItem = new NotificationItem(
+                        notificationId,
+                        (String) globalNotif.get("title"),
+                        content,
+                        "general",
+                        eventId,
+                        eventTitle,
+                        (String) globalNotif.get("senderId"),
+                        "organizer",
+                        false,
+                        (Timestamp) globalNotif.get("createdAt")
+                );
+                batch.set(inboxRef, inboxItem);
+            }
+
+            if (count > 0) {
+                batch.update(db.collection(FirestorePaths.NOTIFICATIONS).document(notificationId), "recipientCount", count);
+                final int finalCount = count;
+                batch.commit().addOnSuccessListener(unused -> 
+                    Toast.makeText(this, "Notification sent to " + finalCount + " entrants", Toast.LENGTH_SHORT).show());
+            } else {
+                Toast.makeText(this, "No entrants found in this group", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void initializeViews() {
@@ -362,11 +460,6 @@ public class EntrantsListActivity extends AppCompatActivity implements
         mapView = findViewById(R.id.mapView);
     }
 
-    /**
-     * Insert markers of entrants' locations into the map.
-     *
-     * @param list entrants whose locations will be shown
-     */
     private void insertMarkers(ArrayList<Entrant> list) {
         googleMap.clear();
 

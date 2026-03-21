@@ -11,10 +11,11 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lottery.model.Event;
+import com.example.lottery.util.FirestorePaths;
+import com.example.lottery.util.InvitationFlowUtil;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -24,41 +25,18 @@ import java.util.Locale;
  * <p>Key Responsibilities:
  * <ul>
  *   <li>Binds event metadata to RecyclerView items.</li>
- *   <li>Dynamically fetches and displays the current waiting list count from Firestore.</li>
- *   <li>Handles clicks on event items to navigate to detailed views.</li>
- *   <li>Visualizes event status (ACTIVE/CLOSED) based on scheduled date.</li>
+ *   <li>Dynamically fetches and displays counts from the 'waitingList' subcollection.</li>
+ *   <li>Visualizes event status (OPEN/CLOSED/CANCELLED) using the document 'status' field.</li>
  * </ul>
- * </p>
- *
- * <p>Satisfies requirement for:
- * US 02.03.01: Show the waiting list capacity.
  * </p>
  */
 public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHolder> {
 
-    /**
-     * List of events to be displayed.
-     */
     private final List<Event> eventList;
-    /**
-     * Listener for event click interactions.
-     */
     private final OnEventClickListener listener;
-    /**
-     * Date formatter for displaying event scheduled times.
-     */
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm", Locale.getDefault());
-    /**
-     * Firebase Firestore instance for data retrieval.
-     */
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    /**
-     * Constructs a new EventAdapter.
-     *
-     * @param eventList The list of events to display.
-     * @param listener  The listener to handle click events.
-     */
     public EventAdapter(List<Event> eventList, OnEventClickListener listener) {
         this.eventList = eventList;
         this.listener = listener;
@@ -82,37 +60,13 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         return eventList.size();
     }
 
-    /**
-     * Interface definition for a callback to be invoked when an event item is clicked.
-     */
     public interface OnEventClickListener {
-        /**
-         * Called when an event has been clicked.
-         *
-         * @param event The Event object associated with the clicked item.
-         */
         void onEventClick(Event event);
     }
 
-    /**
-     * ViewHolder class for holding and binding event item views.
-     */
     class EventViewHolder extends RecyclerView.ViewHolder {
-        /**
-         * TextViews for various event details.
-         */
-        private final TextView tvTitle;
-        private final TextView tvDate;
-        private final TextView tvStatus;
-        private final TextView tvCapacity;
-        private final TextView tvWaiting;
-        private final TextView tvSelected;
+        private final TextView tvTitle, tvDate, tvStatus, tvCapacity, tvWaiting, tvSelected;
 
-        /**
-         * Constructs an EventViewHolder.
-         *
-         * @param itemView The root view of the item layout.
-         */
         public EventViewHolder(@NonNull View itemView) {
             super(itemView);
             tvTitle = itemView.findViewById(R.id.tvEventTitle);
@@ -123,59 +77,78 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
             tvSelected = itemView.findViewById(R.id.tvSelectedValue);
         }
 
-        /**
-         * Binds event data to the view elements.
-         *
-         * <p>Note: This method triggers a Firestore query to fetch the current count
-         * of entrants in the waiting list sub-collection.</p>
-         *
-         * @param event    The event data to bind.
-         * @param listener The listener for click events.
-         */
         public void bind(final Event event, final OnEventClickListener listener) {
             tvTitle.setText(event.getTitle());
             tvDate.setText(event.getScheduledDateTime() != null ? dateFormat.format(event.getScheduledDateTime().toDate()) : "Date TBD");
 
-            // 1. Clean Capacity Display: Just the Max Capacity (US 02.01.04)
-            tvCapacity.setText(String.valueOf(event.getMaxCapacity()));
+            tvCapacity.setText(String.valueOf(event.getCapacity()));
 
-            // 2. Fetch and Format Waiting Column: "current / limit" (US 02.03.01)
-            db.collection("events").document(event.getEventId())
-                    .collection("entrants")
+            // Fetch summary counts from the waitingList subcollection
+            db.collection(FirestorePaths.eventWaitingList(event.getEventId()))
                     .get()
                     .addOnSuccessListener(queryDocumentSnapshots -> {
-                        int currentCount = queryDocumentSnapshots.size();
-                        if (event.getWaitingListLimit() != null) {
-                            // Format: "current / limit"
-                            tvWaiting.setText(String.format(Locale.getDefault(), "%d / %d",
-                                    currentCount, event.getWaitingListLimit()));
-                        } else {
-                            // Format: "current" (Unlimited)
-                            tvWaiting.setText(String.valueOf(currentCount));
+                        int waitlisted = 0;
+                        int selected = 0;
+
+                        for (com.google.firebase.firestore.DocumentSnapshot doc : queryDocumentSnapshots) {
+                            String status = InvitationFlowUtil.normalizeEntrantStatus(doc.getString("status"));
+                            if (InvitationFlowUtil.STATUS_WAITLISTED.equals(status)) {
+                                waitlisted++;
+                            } else if (InvitationFlowUtil.STATUS_INVITED.equals(status) 
+                                    || InvitationFlowUtil.STATUS_ACCEPTED.equals(status)) {
+                                selected++;
+                            }
                         }
+
+                        // Display "current / limit" for waiting list
+                        if (event.getWaitingListLimit() != null) {
+                            tvWaiting.setText(String.format(Locale.getDefault(), "%d / %d",
+                                    waitlisted, event.getWaitingListLimit()));
+                        } else {
+                            tvWaiting.setText(String.valueOf(waitlisted));
+                        }
+                        
+                        tvSelected.setText(String.valueOf(selected));
                     })
-                    .addOnFailureListener(e -> tvWaiting.setText("0"));
+                    .addOnFailureListener(e -> {
+                        tvWaiting.setText("0");
+                        tvSelected.setText("0");
+                    });
 
-            tvSelected.setText("0");
-
-            // Dynamic status based on scheduled date
-            if (event.getScheduledDateTime() != null && event.getScheduledDateTime().toDate().after(new Date())) {
-                tvStatus.setText("ACTIVE");
-                tvStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.primary_blue));
-                tvStatus.setBackgroundTintList(ColorStateList.valueOf(
-                        ContextCompat.getColor(itemView.getContext(), R.color.primary_light_blue)));
-            } else {
-                tvStatus.setText("CLOSED");
-                tvStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.text_secondary));
-                tvStatus.setBackgroundTintList(ColorStateList.valueOf(
-                        ContextCompat.getColor(itemView.getContext(), R.color.divider_gray)));
-            }
+            // Set visual status based on canonical 'status' field
+            updateStatusUI(event.getStatus());
 
             itemView.setOnClickListener(v -> {
-                if (listener != null) {
-                    listener.onEventClick(event);
-                }
+                if (listener != null) listener.onEventClick(event);
             });
+        }
+
+        private void updateStatusUI(String status) {
+            if (status == null) status = "open";
+            
+            switch (status.toLowerCase()) {
+                case "open":
+                    tvStatus.setText("OPEN");
+                    tvStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.primary_blue));
+                    tvStatus.setBackgroundTintList(ColorStateList.valueOf(
+                            ContextCompat.getColor(itemView.getContext(), R.color.primary_light_blue)));
+                    break;
+                case "closed":
+                    tvStatus.setText("CLOSED");
+                    tvStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.text_secondary));
+                    tvStatus.setBackgroundTintList(ColorStateList.valueOf(
+                            ContextCompat.getColor(itemView.getContext(), R.color.divider_gray)));
+                    break;
+                case "cancelled":
+                    tvStatus.setText("CANCELLED");
+                    tvStatus.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(itemView.getContext(), android.R.color.white)).getDefaultColor());
+                    tvStatus.setBackgroundTintList(ColorStateList.valueOf(
+                            ContextCompat.getColor(itemView.getContext(), android.R.color.holo_red_dark)));
+                    break;
+                default:
+                    tvStatus.setText(status.toUpperCase());
+                    break;
+            }
         }
     }
 }

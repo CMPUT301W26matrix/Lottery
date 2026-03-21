@@ -26,6 +26,7 @@
 
             <!-- Profile Header -->
             <LinearLayout
+                android:id="@+id/layout_profile_display"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/white"
@@ -46,11 +47,6 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@android:drawable/screen_background_light" />
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
                         android:background="@color/primary_blue" />
 
                     <ImageView
@@ -62,19 +58,30 @@
                 </com.google.android.material.card.MaterialCardView>
 
                 <TextView
+                    android:id="@+id/tv_profile_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="@string/profile_name"
+                    android:text="User Name"
                     android:textColor="@color/primary_blue"
                     android:textSize="24sp"
                     android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/tv_profile_email"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="@string/profile_email"
+                    android:text="user@example.com"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/tv_profile_phone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="No Phone Number"
                     android:textColor="@color/text_secondary"
                     android:textSize="14sp" />
 
@@ -85,10 +92,54 @@
                     android:background="@drawable/bg_status_badge"
                     android:paddingHorizontal="12dp"
                     android:paddingVertical="4dp"
-                    android:text="@string/role_organizer"
+                    android:text="Organizer"
                     android:textColor="@color/primary_blue"
                     android:textSize="12sp"
                     android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Edit Layout -->
+            <LinearLayout
+                android:id="@+id/layout_profile_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp"
+                android:visibility="gone">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Name">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_edit_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:hint="Email">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_edit_email"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textEmailAddress" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:hint="Phone (Optional)">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_edit_phone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="phone" />
+                </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
             <!-- Account Section -->
@@ -97,7 +148,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="24dp"
                 android:layout_marginTop="24dp"
-                android:text="@string/section_account"
+                android:text="ACTIONS"
                 android:textColor="@color/text_light"
                 android:textSize="12sp"
                 android:textStyle="bold" />
@@ -117,39 +168,13 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <!-- Edit Profile -->
-                    <RelativeLayout
+                    <Button
+                        android:id="@+id/btn_edit_save"
+                        style="@style/Widget.Material3.Button.TextButton"
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
-                        android:background="?attr/selectableItemBackground"
-                        android:paddingHorizontal="16dp">
-
-                        <ImageView
-                            android:id="@+id/icon_edit"
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:layout_centerVertical="true"
-                            android:src="@android:drawable/ic_menu_edit"
-                            app:tint="@color/primary_blue" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerVertical="true"
-                            android:layout_marginLeft="12dp"
-                            android:layout_toRightOf="@id/icon_edit"
-                            android:text="@string/menu_edit_profile"
-                            android:textColor="@color/text_primary"
-                            android:textSize="16sp" />
-
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:layout_alignParentEnd="true"
-                            android:layout_centerVertical="true"
-                            android:src="@android:drawable/ic_media_next"
-                            app:tint="@color/text_light" />
-                    </RelativeLayout>
+                        android:text="Edit Profile"
+                        android:textColor="@color/primary_blue" />
 
                     <View
                         android:layout_width="match_parent"
@@ -157,79 +182,14 @@
                         android:layout_marginHorizontal="16dp"
                         android:background="@color/divider_gray" />
 
-                    <!-- Change Password -->
-                    <RelativeLayout
+                    <Button
+                        android:id="@+id/btn_cancel_edit"
+                        style="@style/Widget.Material3.Button.TextButton"
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
-                        android:background="?attr/selectableItemBackground"
-                        android:paddingHorizontal="16dp">
-
-                        <ImageView
-                            android:id="@+id/icon_lock"
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:layout_centerVertical="true"
-                            android:src="@android:drawable/ic_lock_idle_lock"
-                            app:tint="@color/primary_blue" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerVertical="true"
-                            android:layout_marginLeft="12dp"
-                            android:layout_toRightOf="@id/icon_lock"
-                            android:text="@string/menu_change_password"
-                            android:textColor="@color/text_primary"
-                            android:textSize="16sp" />
-
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:layout_alignParentEnd="true"
-                            android:layout_centerVertical="true"
-                            android:src="@android:drawable/ic_media_next"
-                            app:tint="@color/text_light" />
-                    </RelativeLayout>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginHorizontal="16dp"
-                        android:background="@color/divider_gray" />
-
-                    <!-- Notification Settings -->
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="56dp"
-                        android:background="?attr/selectableItemBackground"
-                        android:paddingHorizontal="16dp">
-
-                        <ImageView
-                            android:id="@+id/icon_bell"
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:layout_centerVertical="true"
-                            android:src="@android:drawable/ic_popup_reminder"
-                            app:tint="@color/primary_blue" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerVertical="true"
-                            android:layout_marginLeft="12dp"
-                            android:layout_toRightOf="@id/icon_bell"
-                            android:text="@string/menu_notification_settings"
-                            android:textColor="@color/text_primary"
-                            android:textSize="16sp" />
-
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:layout_alignParentEnd="true"
-                            android:layout_centerVertical="true"
-                            android:src="@android:drawable/ic_media_next"
-                            app:tint="@color/text_light" />
-                    </RelativeLayout>
+                        android:text="Cancel"
+                        android:textColor="@color/text_secondary"
+                        android:visibility="gone" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -243,7 +203,7 @@
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="32dp"
                 android:layout_marginBottom="24dp"
-                android:text="@string/btn_log_out"
+                android:text="Log Out"
                 android:textColor="@color/error_red"
                 app:cornerRadius="12dp"
                 app:strokeColor="@color/error_red"

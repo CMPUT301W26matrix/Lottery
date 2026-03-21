@@ -1,6 +1,7 @@
 package com.example.lottery;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -16,55 +17,27 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lottery.model.Event;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.Timestamp;
+import com.example.lottery.util.FirestorePaths;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
  * OrganizerBrowseEventsActivity serves as the organizer event browser, displaying a summary of published events.
- *
- * <p>Key Responsibilities:
- * <ul>
- *   <li>Displays a list of events created by the organizer.</li>
- *   <li>Provides a summary of event statuses (Active, Closed, etc.).</li>
- *   <li>Handles navigation to the event creation screen and event detail screens.</li>
- *   <li>Fetches event data from Firestore on creation and resume.</li>
- * </ul>
- * </p>
  */
 public class OrganizerBrowseEventsActivity extends AppCompatActivity implements EventAdapter.OnEventClickListener {
 
-    private static final String TAG = "OrganizerBrowseEventsActivity";
+    private static final String TAG = "OrganizerBrowseEvents";
 
-    /**
-     * RecyclerView for displaying the list of events.
-     */
     private RecyclerView rvEvents;
-    /**
-     * Adapter for binding event data to the RecyclerView.
-     */
     private EventAdapter adapter;
-    /**
-     * List to hold the event objects fetched from Firestore.
-     */
     private List<Event> eventList;
-    /**
-     * TextView displayed when no events are found.
-     */
     private TextView tvNoEvents;
-    /**
-     * TextViews for displaying summary statistics of event statuses.
-     */
     private TextView tvActiveCount, tvClosedCount, tvPendingCount, tvTotalCount;
-    /**
-     * Firebase Firestore instance for database operations.
-     */
     private FirebaseFirestore db;
+    private String userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +52,19 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
         });
 
         db = FirebaseFirestore.getInstance();
+        
+        // Unified userId retrieval
+        userId = getIntent().getStringExtra("userId");
+        if (userId == null) {
+            SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
+            userId = prefs.getString("userId", null);
+        }
+
+        if (userId == null) {
+            Toast.makeText(this, "Session expired", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
         // Bind UI Components
         rvEvents = findViewById(R.id.rvEvents);
@@ -98,37 +84,47 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
         loadOrganizerEvents();
     }
 
-    /**
-     * Sets up click listeners for the organizer navigation elements.
-     */
     private void setupNavigation() {
         View btnCreate = findViewById(R.id.nav_create_container);
         if (btnCreate != null) {
-            btnCreate.setOnClickListener(v -> startActivity(new Intent(OrganizerBrowseEventsActivity.this, OrganizerCreateEventActivity.class)));
+            btnCreate.setOnClickListener(v -> {
+                Intent intent = new Intent(this, OrganizerCreateEventActivity.class);
+                intent.putExtra("userId", userId);
+                startActivity(intent);
+            });
         }
+        
         View btnHome = findViewById(R.id.nav_home);
         if (btnHome != null) {
-            btnHome.setOnClickListener(v -> Toast.makeText(this, "Already on Home", Toast.LENGTH_SHORT).show());
+            btnHome.setOnClickListener(v -> {
+                // Already home
+            });
         }
 
         View btnNotifications = findViewById(R.id.nav_notifications);
         if (btnNotifications != null) {
             btnNotifications.setOnClickListener(v -> {
-                startActivity(new Intent(OrganizerBrowseEventsActivity.this, OrganizerNotificationsActivity.class));
+                Intent intent = new Intent(this, OrganizerNotificationsActivity.class);
+                intent.putExtra("userId", userId);
+                startActivity(intent);
             });
         }
 
         View btnQr = findViewById(R.id.nav_qr_code);
         if (btnQr != null) {
             btnQr.setOnClickListener(v -> {
-                startActivity(new Intent(OrganizerBrowseEventsActivity.this, OrganizerQrEventListActivity.class));
+                Intent intent = new Intent(this, OrganizerQrEventListActivity.class);
+                intent.putExtra("userId", userId);
+                startActivity(intent);
             });
         }
 
         View btnProfile = findViewById(R.id.nav_profile);
         if (btnProfile != null) {
             btnProfile.setOnClickListener(v -> {
-                startActivity(new Intent(this, OrganizerProfileActivity.class));
+                Intent intent = new Intent(this, OrganizerProfileActivity.class);
+                intent.putExtra("userId", userId);
+                startActivity(intent);
             });
         }
     }
@@ -139,51 +135,31 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
         loadOrganizerEvents();
     }
 
-    /**
-     * Loads events from the Firestore 'events' collection.
-     *
-     * <p>This method clears the existing list, fetches all documents, and repopulates the list.
-     * It includes a compatibility fix to handle older documents that might use different field names for dates.
-     * After fetching, it updates the RecyclerView and the summary statistics UI.</p>
-     */
     private void loadOrganizerEvents() {
-        // Obtain current UID from FirebaseAuth to ensure data isolation
-        String currentUserId = FirebaseAuth.getInstance().getUid();
-        if (currentUserId == null) {
-            Toast.makeText(this, "User not authenticated", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        if (userId == null) return;
 
-        db.collection("events")
-                // Filter events by current organizer's UID
-                .whereEqualTo("organizerId", currentUserId)
+        db.collection(FirestorePaths.EVENTS)
+                .whereEqualTo("organizerId", userId)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     eventList.clear();
-                    int active = 0;
-                    int closed = 0;
-                    Date now = new Date();
+                    int openCount = 0;
+                    int closedCount = 0;
+                    int cancelledCount = 0;
 
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         try {
                             Event event = document.toObject(Event.class);
-
-                            // Compatibility fix: If new field is null, check if old field names exist
-                            if (event.getScheduledDateTime() == null) {
-                                Date oldDate = document.getDate("eventDate");
-                                if (oldDate != null) event.setScheduledDateTime(new Timestamp(oldDate));
-                            }
-                            if (event.getRegistrationDeadline() == null) {
-                                Date oldDeadline = document.getDate("deadlineDate");
-                                if (oldDeadline != null) event.setRegistrationDeadline(new Timestamp(oldDeadline));
-                            }
-
+                            event.setEventId(document.getId());
                             eventList.add(event);
 
-                            if (event.getScheduledDateTime() != null && event.getScheduledDateTime().toDate().after(now)) {
-                                active++;
-                            } else {
-                                closed++;
+                            String status = event.getStatus();
+                            if ("open".equalsIgnoreCase(status)) {
+                                openCount++;
+                            } else if ("closed".equalsIgnoreCase(status)) {
+                                closedCount++;
+                            } else if ("cancelled".equalsIgnoreCase(status)) {
+                                cancelledCount++;
                             }
                         } catch (Exception e) {
                             Log.e(TAG, "Error mapping document " + document.getId(), e);
@@ -191,7 +167,7 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
                     }
 
                     adapter.notifyDataSetChanged();
-                    updateSummaryStats(active, closed, 0, eventList.size());
+                    updateSummaryStats(openCount, closedCount, cancelledCount, eventList.size());
                     tvNoEvents.setVisibility(eventList.isEmpty() ? View.VISIBLE : View.GONE);
                 })
                 .addOnFailureListener(e -> {
@@ -200,14 +176,6 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
                 });
     }
 
-    /**
-     * Updates the summary statistic TextViews with the provided counts.
-     *
-     * @param active  The number of active events.
-     * @param closed  The number of closed events.
-     * @param pending The number of pending events.
-     * @param total   The total number of events.
-     */
     private void updateSummaryStats(int active, int closed, int pending, int total) {
         tvActiveCount.setText(String.valueOf(active));
         tvClosedCount.setText(String.valueOf(closed));
@@ -215,15 +183,11 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
         tvTotalCount.setText(String.valueOf(total));
     }
 
-    /**
-     * Handles clicks on individual event items in the RecyclerView.
-     *
-     * @param event The Event object that was clicked.
-     */
     @Override
     public void onEventClick(Event event) {
         Intent intent = new Intent(this, OrganizerEventDetailsActivity.class);
         intent.putExtra("eventId", event.getEventId());
+        intent.putExtra("userId", userId);
         startActivity(intent);
     }
 }

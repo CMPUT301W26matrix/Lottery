@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -13,71 +12,30 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.lottery.model.Event;
+import com.example.lottery.util.FirestorePaths;
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.installations.FirebaseInstallations;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * MainActivity serves as the main dashboard for organizers.
- *
- * <p>This activity retrieves event data from Firestore and displays it
- * in a RecyclerView. It also shows summary statistics for events
- * including active, closed, pending, and total events.</p>
- *
- * <p>The activity implements {@link EventAdapter.OnEventClickListener}
- * to respond when an event in the list is selected.</p>
+ * MainActivity serves as the entry point where users choose their role.
+ * Identification is based on the device's unique ID (FID).
+ * All users are unified under a single device-based ID.
  */
 public class MainActivity extends AppCompatActivity {
 
-    /**
-     * Log tag used for debugging.
-     */
-    private static final String TAG = "MainActivity";
-    private static final String KEY_IS_ANONYMOUS = "isAnonymous";
     private static final String KEY_USER_ID = "userId";
-    private static final String KEY_USER_NAME = "userName";
+    private static final String KEY_USER_ROLE = "userRole";
     private static final String KEY_FID = "fid";
-    /**
-     * RecyclerView displaying the list of events.
-     */
-    private RecyclerView rvEvents;
-    /**
-     * Adapter used to bind event data to the RecyclerView.
-     */
-    private EventAdapter adapter;
-    /**
-     * List storing events retrieved from Firestore.
-     */
-    private List<Event> eventList;
-    /**
-     * TextView shown when no events exist.
-     */
-    private TextView tvNoEvents;
-    /**
-     * TextViews displaying event statistics.
-     */
-    private TextView tvActiveCount, tvClosedCount, tvPendingCount, tvTotalCount;
-    /**
-     * Firestore database reference.
-     */
+
     private FirebaseFirestore db;
-    private Button signInButton;
-    private Button entrantButton;
-    private Button organizerButton;
-    private Button adminButton;
-    private TextView chooseRoleText;
-    private TextView signInPrompt;
     private SharedPreferences sharedPreferences;
 
-    /**
-     * Initializes the activity, sets up UI components,
-     * and loads events from Firestore.
-     *
-     * @param savedInstanceState the saved state of the activity
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,100 +49,136 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        db = FirebaseFirestore.getInstance();
         sharedPreferences = getSharedPreferences("AppPrefs", MODE_PRIVATE);
 
-        entrantButton = findViewById(R.id.entrant_login_button);
-        organizerButton = findViewById(R.id.organizer_login_button);
-        adminButton = findViewById(R.id.admin_login_button);
-        signInButton = findViewById(R.id.btnSignIn);
+        Button entrantButton = findViewById(R.id.entrant_login_button);
+        Button organizerButton = findViewById(R.id.organizer_login_button);
+        Button adminButton = findViewById(R.id.admin_login_button);
+        
+        // Hide legacy sign-in components if they exist
+        View signInPrompt = findViewById(R.id.tvSignInHint);
+        View signInButton = findViewById(R.id.btnSignIn);
+        if (signInPrompt != null) signInPrompt.setVisibility(View.GONE);
+        if (signInButton != null) signInButton.setVisibility(View.GONE);
 
-        setupNavigation();
+        entrantButton.setOnClickListener(v -> handleDeviceLogin("entrant"));
+        organizerButton.setOnClickListener(v -> handleDeviceLogin("organizer"));
+        adminButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, AdminSignInActivity.class);
+            startActivity(intent);
+        });
+    }
 
-        /*
-        -------------------------------------------------
-        TEMPORARY TEST CODE (USED DURING DEVELOPMENT)
-        -------------------------------------------------
-        This block was used to directly open the entrant
-        event details screen for testing waitlist and
-        notification functionality.
+    /**
+     * Handles login using the device's unique ID.
+     * If the user doesn't exist, a new profile is created.
+     * @param role The role chosen by the user ("entrant" or "organizer").
+     */
+    private void handleDeviceLogin(String role) {
+        FirebaseInstallations.getInstance().getId().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                String fid = task.getResult();
+                // Unified userId: just use the device ID (FID)
+                String userId = fid;
+                
+                db.collection(FirestorePaths.USERS).document(userId).get().addOnCompleteListener(userTask -> {
+                    if (userTask.isSuccessful()) {
+                        DocumentSnapshot document = userTask.getResult();
+                        if (document != null && document.exists()) {
+                            loginUser(document, role, fid);
+                        } else {
+                            createNewUser(userId, role, fid);
+                        }
+                    } else {
+                        Toast.makeText(this, "Login failed: " + userTask.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            } else {
+                Toast.makeText(this, "Could not get Device ID", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
-        It should remain commented in the main branch
-        and will be removed once full navigation flow
-        is implemented.
-        -------------------------------------------------
+    /**
+     * Creates a new user document in Firestore.
+     * New users are directed to complete their profile.
+     */
+    private void createNewUser(String userId, String role, String fid) {
+        Map<String, Object> userData = new HashMap<>();
+        Timestamp now = Timestamp.now();
 
-        Intent intent = new Intent(MainActivity.this, EntrantEventDetailsActivity.class);
-        intent.putExtra(EntrantEventDetailsActivity.EXTRA_EVENT_ID, "27f4180b-d282-41fc-a240-5d2675d4bf59");
-        intent.putExtra(EntrantEventDetailsActivity.EXTRA_USER_ID, "7EwFNDGwGyR89nPgfPzwD8wG6jq2");
+        userData.put("userId", userId);
+        userData.put("deviceId", fid);
+        userData.put("role", role);
+        userData.put("name", ""); 
+        userData.put("email", "");
+        userData.put("phone", "");
+        userData.put("createdAt", now);
+        userData.put("updatedAt", now);
+        userData.put("notificationsEnabled", true);
+
+        db.collection(FirestorePaths.USERS).document(userId).set(userData).addOnSuccessListener(aVoid -> {
+            saveSessionLocally(userId, role, fid, "");
+            navigateToProfileCompletion(role, userId);
+        }).addOnFailureListener(e -> {
+            Toast.makeText(this, "Failed to create account: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    /**
+     * Logs in an existing user.
+     * If profile information is missing, directs them to profile completion.
+     */
+    private void loginUser(DocumentSnapshot document, String role, String fid) {
+        String userId = document.getId();
+        String name = document.getString("name");
+        String email = document.getString("email");
+        
+        // Update role if it changed (optional, but keep consistent with selection)
+        db.collection(FirestorePaths.USERS).document(userId).update("role", role);
+        
+        saveSessionLocally(userId, role, fid, name);
+
+        if (name == null || name.trim().isEmpty() || email == null || email.trim().isEmpty()) {
+            navigateToProfileCompletion(role, userId);
+        } else {
+            navigateToRoleMain(role, userId, name, email);
+        }
+    }
+
+    private void saveSessionLocally(String userId, String role, String fid, String name) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(KEY_USER_ID, userId);
+        editor.putString(KEY_USER_ROLE, role);
+        editor.putString(KEY_FID, fid);
+        editor.putString("userName", name);
+        editor.apply();
+    }
+
+    private void navigateToProfileCompletion(String role, String userId) {
+        Intent intent;
+        if ("entrant".equals(role)) {
+            intent = new Intent(this, EntrantProfileActivity.class);
+        } else {
+            intent = new Intent(this, OrganizerProfileActivity.class);
+        }
+        intent.putExtra("userId", userId);
+        intent.putExtra("forceEdit", true); 
         startActivity(intent);
         finish();
-        */
     }
 
-    /**
-     * Sets up navigation actions for the bottom navigation bar.
-     */
-    private void setupNavigation() {
-
-        View btnCreate = findViewById(R.id.nav_create_container);
-
-        if (btnCreate != null) {
-            btnCreate.setOnClickListener(v ->
-                    startActivity(new Intent(MainActivity.this, OrganizerCreateEventActivity.class))
-            );
+    private void navigateToRoleMain(String role, String userId, String name, String email) {
+        Intent intent;
+        if ("entrant".equals(role)) {
+            intent = new Intent(this, EntrantMainActivity.class);
+        } else {
+            intent = new Intent(this, OrganizerBrowseEventsActivity.class);
         }
-
-        View btnHome = findViewById(R.id.nav_home);
-
-        if (btnHome != null) {
-            btnHome.setOnClickListener(v ->
-                    Toast.makeText(this, "Home", Toast.LENGTH_SHORT).show()
-            );
-        }
-        chooseRoleText = findViewById(R.id.tvChooseRole);
-        signInPrompt = findViewById(R.id.tvSignInHint);
-
-        entrantButton.setOnClickListener(view ->
-                startActivity(new Intent(MainActivity.this, EntrantRegistrationActivity.class)));
-
-        organizerButton.setOnClickListener(view ->
-                startActivity(new Intent(MainActivity.this, OrganizerRegistrationActivity.class)));
-
-        adminButton.setOnClickListener(view ->
-                startActivity(new Intent(MainActivity.this, AdminSignInActivity.class)));
-
-        signInButton.setOnClickListener(view ->
-                startActivity(new Intent(MainActivity.this, GeneralSignInActivity.class)));
-    }
-
-    /**
-     * Reloads event data whenever the activity resumes.
-     */
-    @Override
-    protected void onStart() {
-        super.onStart();
-        checkAnonymousSession();
-    }
-
-    private void checkAnonymousSession() {
-        boolean isAnonymous = sharedPreferences.getBoolean(KEY_IS_ANONYMOUS, false);
-        String userId = sharedPreferences.getString(KEY_USER_ID, null);
-        String userName = sharedPreferences.getString(KEY_USER_NAME, "Anonymous User");
-        String fid = sharedPreferences.getString(KEY_FID, null);
-
-        if (isAnonymous && userId != null && userId.startsWith("anon_") && fid != null) {
-            navigateToEntrantMain(userId, userName, true);
-        }
-    }
-
-    private void navigateToEntrantMain(String userId, String userName, boolean isAnonymous) {
-        Intent intent = new Intent(MainActivity.this, EntrantMainActivity.class);
         intent.putExtra("userId", userId);
-        intent.putExtra("userName", userName);
-        intent.putExtra("isRegistered", false);
-        intent.putExtra("isAnonymous", isAnonymous);
-        intent.putExtra("fid", sharedPreferences.getString(KEY_FID, ""));
-
+        intent.putExtra("userName", name);
+        intent.putExtra("userEmail", email);
         startActivity(intent);
         finish();
     }

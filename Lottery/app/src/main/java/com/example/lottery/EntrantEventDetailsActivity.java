@@ -1,6 +1,7 @@
 package com.example.lottery;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -16,153 +17,66 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.lottery.model.EntrantEvent;
+import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.InvitationFlowUtil;
 import com.example.lottery.util.PosterImageLoader;
 import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.WriteBatch;
 
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
 /**
- * Displays detailed information about a selected event for an entrant.
+ * Activity that displays detailed information about a specific event from an entrant's perspective.
  *
- * <p>This activity allows an entrant to:
+ * <p>Responsibilities:
  * <ul>
- *     <li>View event information such as title, description, and registration period</li>
- *     <li>View the current number of entrants in the waitlist</li>
- *     <li>Join or leave the event waitlist</li>
- *     <li>Accept or decline event invitations (when user has won the lottery)</li>
- *     <li>View notifications related to the entrant</li>
- * </ul>
- *
- * <p>The activity expects two intent extras:
- * <ul>
- *     <li>{@link #EXTRA_EVENT_ID} – the ID of the selected event</li>
- *     <li>{@link #EXTRA_USER_ID} – the ID of the current entrant</li>
+ *   <li>Fetch and display event metadata (title, description, registration period, poster).</li>
+ *   <li>Monitor and display the entrant's current status for the event (waitlisted, invited, accepted, etc.).</li>
+ *   <li>Provide UI actions for joining/leaving the waitlist or responding to invitations.</li>
+ *   <li>Manage navigation within the entrant's scope.</li>
  * </ul>
  * </p>
  */
 public class EntrantEventDetailsActivity extends AppCompatActivity {
 
     /**
-     * Intent extra key used to pass the event ID to this activity.
+     * Extra key for passing the Event ID.
      */
     public static final String EXTRA_EVENT_ID = "eventId";
-
     /**
-     * Intent extra key used to pass the user ID to this activity.
+     * Extra key for passing the User ID.
      */
     public static final String EXTRA_USER_ID = "userId";
-    /**
-     * Date format used to display registration dates.
-     */
-    private final SimpleDateFormat dateFormat =
-            new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
-    /**
-     * Displays the event title.
-     */
-    private TextView tvEventTitle;
-    /**
-     * Displays the event registration period.
-     */
-    private TextView tvRegistrationPeriod;
-    /**
-     * Displays the number of people currently in the waitlist.
-     */
-    private TextView tvWaitlistCount;
-    /**
-     * Notification badge indicating unread notifications.
-     */
-    private TextView tvNotificationBadge;
-    /**
-     * Displays the event description.
-     */
-    private TextView tvEventDescription;
-    /**
-     * Button used to join or leave the waitlist.
-     */
-    private Button btnWaitlistAction;
-    /**
-     * Container for the accept/decline invitation buttons
-     */
-    private LinearLayout invitationButtonsContainer;
-    /**
-     * Button used to accept an event invitation
-     */
-    private Button btnAcceptInvite;
-    /**
-     * Button used to decline an event invitation
-     */
-    private Button btnDeclineInvite;
-    /**
-     * Container for the registration period ended message
-     */
-    private LinearLayout registrationEndedContainer;
-    /**
-     * Button used to open the notifications screen.
-     */
-    private ImageButton btnNotifications;
-    /**
-     * Button used to close the activity.
-     */
 
-    private LinearLayout navHome;
-    private LinearLayout navNotifications;
-    // private LinearLayout navQrScan;  --> implement later
-    // private LinearLayout navSettings; --> implement later
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
 
-    /**
-     * Button used to close the activity.
-     */
+    private TextView tvEventTitle, tvRegistrationPeriod, tvWaitlistCount, tvNotificationBadge, tvEventDescription;
+    private Button btnWaitlistAction, btnAcceptInvite, btnDeclineInvite;
+    private LinearLayout invitationButtonsContainer, registrationEndedContainer;
+    private View navHome, navNotifications, navQrScan, navProfile;
     private ImageButton btnClose;
-    /**
-     * Displays the event poster image.
-     */
     private ImageView ivEventPoster;
-    /**
-     * Firestore database instance used to retrieve and update event data.
-     */
+
     private FirebaseFirestore db;
-    /**
-     * ID of the selected event.
-     */
     private String eventId;
-    /**
-     * ID of the current user (entrant).
-     */
     private String userId;
-    /**
-     * Indicates whether the current entrant is already in the waitlist.
-     */
+    private String userName;
+    private String userEmail;
+
     private boolean isInWaitlist = false;
-    /**
-     * Number of entrants currently in the waitlist.
-     */
     private int waitlistCount = 0;
-    /**
-     * Indicates whether the user has been invited to the event (won the lottery)
-     */
     private boolean isInvited = false;
-    /**
-     * Indicates whether the user has accepted the invitation
-     */
     private boolean hasAcceptedInvite = false;
-    /**
-     * Indicates whether the user has declined the invitation
-     */
     private boolean hasDeclinedInvite = false;
 
     /**
-     * Initializes the activity, retrieves intent data, binds UI components,
-     * and loads event information from Firestore.
+     * Initializes the activity, sets up view references, and triggers initial data loading.
      *
-     * @param savedInstanceState the previously saved state of the activity
+     * @param savedInstanceState If the activity is being re-initialized after
+     *     previously being shut down then this Bundle contains the data it most
+     *     recently supplied in {@link #onSaveInstanceState}.  <b>Note: Otherwise it is null.</b>
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -185,7 +99,6 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         tvEventDescription = findViewById(R.id.tvEventDescription);
         btnWaitlistAction = findViewById(R.id.btnWaitlistAction);
 
-        // NEW: Initialize invitation buttons and containers
         invitationButtonsContainer = findViewById(R.id.invitationButtonsContainer);
         btnAcceptInvite = findViewById(R.id.btnAcceptInvite);
         btnDeclineInvite = findViewById(R.id.btnDeclineInvite);
@@ -193,11 +106,25 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
 
         navHome = findViewById(R.id.nav_home);
         navNotifications = findViewById(R.id.nav_history);
+        navQrScan = findViewById(R.id.nav_qr_scan);
+        navProfile = findViewById(R.id.nav_profile);
+        
         btnClose = findViewById(R.id.btnBack);
         ivEventPoster = findViewById(R.id.ivEventPoster);
 
-        readIntentData();
+        SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
+        userId = getIntent().getStringExtra(EXTRA_USER_ID);
+        if (userId == null) {
+            userId = prefs.getString("userId", null);
+        }
+        userName = prefs.getString("userName", "");
+        userEmail = prefs.getString("userEmail", "");
+        
+        eventId = getIntent().getStringExtra(EXTRA_EVENT_ID);
+
         if (eventId == null || userId == null) {
+            Toast.makeText(this, R.string.missing_event_or_user_info, Toast.LENGTH_SHORT).show();
+            finish();
             return;
         }
 
@@ -206,7 +133,6 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         loadWaitlistCount();
         checkUnreadNotifications();
 
-        // NEW: Set up invitation button click listeners
         btnAcceptInvite.setOnClickListener(v -> acceptInvitation());
         btnDeclineInvite.setOnClickListener(v -> declineInvitation());
 
@@ -220,415 +146,191 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
             }
         });
 
-        navHome.setOnClickListener(v -> {
-            Intent intent = new Intent(this, EntrantMainActivity.class);
-            intent.putExtra("userId", userId);
-            intent.putExtra("isAnonymous", false);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(intent);
-            finish();
-        });
-
-        navNotifications.setOnClickListener(v -> {
-            Intent intent = new Intent(this, NotificationsActivity.class);
-            intent.putExtra(NotificationsActivity.EXTRA_USER_ID, userId);
-            startActivity(intent);
-        });
+        setupNavigation();
 
         btnClose.setOnClickListener(v -> finish());
     }
 
     /**
-     * Refreshes event data whenever the activity resumes.
+     * Sets up click listeners for the custom bottom navigation bar items.
+     */
+    private void setupNavigation() {
+        if (navHome != null) {
+            navHome.setOnClickListener(v -> {
+                Intent intent = new Intent(this, EntrantMainActivity.class);
+                intent.putExtra("userId", userId);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
+                finish();
+            });
+        }
+
+        if (navNotifications != null) {
+            navNotifications.setOnClickListener(v -> {
+                Intent intent = new Intent(this, NotificationsActivity.class);
+                intent.putExtra(NotificationsActivity.EXTRA_USER_ID, userId);
+                startActivity(intent);
+            });
+        }
+
+        if (navQrScan != null) {
+            navQrScan.setOnClickListener(v -> {
+                Intent intent = new Intent(this, EntrantQrScanActivity.class);
+                intent.putExtra("userId", userId);
+                startActivity(intent);
+            });
+        }
+
+        if (navProfile != null) {
+            navProfile.setOnClickListener(v -> {
+                Intent intent = new Intent(this, EntrantProfileActivity.class);
+                intent.putExtra("userId", userId);
+                startActivity(intent);
+            });
+        }
+        
+        updateNavigationSelection();
+    }
+
+    /**
+     * Resets the visual state of navigation items to ensure consistency.
+     */
+    private void updateNavigationSelection() {
+        resetNavItem(findViewById(R.id.iv_nav_home), findViewById(R.id.tv_nav_home));
+        resetNavItem(findViewById(R.id.iv_nav_history), findViewById(R.id.tv_nav_history));
+    }
+
+    /**
+     * Helper to reset the tint and color of a navigation item.
+     *
+     * @param iv The icon ImageView.
+     * @param tv The text label TextView.
+     */
+    private void resetNavItem(ImageView iv, TextView tv) {
+        if (iv != null) iv.setColorFilter(getResources().getColor(R.color.text_gray));
+        if (tv != null) tv.setTextColor(getResources().getColor(R.color.text_gray));
+    }
+
+    /**
+     * Refreshes data when the activity returns to the foreground.
      */
     @Override
     protected void onResume() {
         super.onResume();
-        if (eventId == null || userId == null) {
-            return;
-        }
-
-        loadEventDetails();
-        checkUserEventStatus();
-        loadWaitlistCount();
-        checkUnreadNotifications();
-    }
-
-    /**
-     * Reads event and user identifiers from the launching intent.
-     * If required data is missing, the activity closes.
-     */
-    private void readIntentData() {
-        Intent intent = getIntent();
-        eventId = intent.getStringExtra(EXTRA_EVENT_ID);
-        userId = intent.getStringExtra(EXTRA_USER_ID);
-
-        if (eventId == null || eventId.isEmpty() || userId == null || userId.isEmpty()) {
-            Toast.makeText(this, R.string.missing_event_or_user_info, Toast.LENGTH_SHORT).show();
-            eventId = null;
-            userId = null;
-            finish();
+        if (eventId != null && userId != null) {
+            loadEventDetails();
+            checkUserEventStatus();
+            loadWaitlistCount();
+            checkUnreadNotifications();
         }
     }
 
     /**
-     * Retrieves event details from Firestore and updates the UI.
+     * Fetches event metadata from Firestore and populates the UI.
      */
     private void loadEventDetails() {
-        db.collection("events")
-                .document(eventId)
-                .get()
+        db.collection(FirestorePaths.EVENTS).document(eventId).get()
                 .addOnSuccessListener(documentSnapshot -> {
-                    if (!documentSnapshot.exists()) {
-                        Toast.makeText(this, R.string.event_not_found, Toast.LENGTH_SHORT).show();
-                        return;
+                    if (!documentSnapshot.exists()) return;
+
+                    tvEventTitle.setText(documentSnapshot.getString("title"));
+                    tvEventDescription.setText(documentSnapshot.getString("details"));
+                    
+                    Timestamp start = documentSnapshot.getTimestamp("registrationStartDate");
+                    Timestamp end = documentSnapshot.getTimestamp("registrationDeadline");
+                    if (start != null && end != null) {
+                        tvRegistrationPeriod.setText(String.format("%s - %s", 
+                                dateFormat.format(start.toDate()), dateFormat.format(end.toDate())));
                     }
 
-                    String title = getFirstNonEmptyString(
-                            documentSnapshot.getString("title"),
-                            documentSnapshot.getString("eventTitle"),
-                            documentSnapshot.getString("name")
-                    );
-
-                    String details = getFirstNonEmptyString(
-                            documentSnapshot.getString("details"),
-                            documentSnapshot.getString("description")
-                    );
-
-                    Timestamp registrationStart = documentSnapshot.getTimestamp("registrationStartDate");
-                    Timestamp registrationDeadline = documentSnapshot.getTimestamp("registrationDeadline");
-                    Timestamp eventEndDate = documentSnapshot.getTimestamp("eventEndDate");
-                    Timestamp drawDate = documentSnapshot.getTimestamp("drawDate");
-
-                    String posterUri = documentSnapshot.getString("posterUri");
-
-                    if (title == null || title.isEmpty()) {
-                        title = getString(R.string.event_details_title);
-                    }
-
-                    if (details == null || details.isEmpty()) {
-                        details = getString(R.string.event_description_unavailable);
-                    }
-
-                    tvEventTitle.setText(title);
-                    tvEventDescription.setText(details);
-                    tvRegistrationPeriod.setText(
-                            buildRegistrationText(registrationStart, registrationDeadline, eventEndDate, drawDate)
-                    );
-
-                    loadPosterImage(posterUri);
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, R.string.failed_to_load_event_details, Toast.LENGTH_SHORT).show()
-                );
+                    PosterImageLoader.load(ivEventPoster, documentSnapshot.getString("posterUri"), android.R.drawable.ic_menu_gallery);
+                });
     }
 
     /**
-     * Builds a readable registration period string based on available timestamps.
-     */
-    private String buildRegistrationText(Timestamp start, Timestamp deadline, Timestamp endDate, Timestamp drawDate) {
-        if (start != null && deadline != null) {
-            return getString(R.string.registration_period_range,
-                    dateFormat.format(start.toDate()), dateFormat.format(deadline.toDate()));
-        } else if (deadline != null && drawDate != null) {
-            return getString(R.string.registration_closes_with_draw,
-                    dateFormat.format(deadline.toDate()), dateFormat.format(drawDate.toDate()));
-        } else if (deadline != null) {
-            return getString(R.string.registration_closes, dateFormat.format(deadline.toDate()));
-        } else if (endDate != null) {
-            return getString(R.string.event_ends, dateFormat.format(endDate.toDate()));
-        } else {
-            return getString(R.string.registration_details_unavailable);
-        }
-    }
-
-    /**
-     * Loads and displays the event poster image.
-     */
-    private void loadPosterImage(String posterUri) {
-        PosterImageLoader.load(ivEventPoster, posterUri, android.R.drawable.ic_menu_gallery);
-    }
-
-    /**
-     * Returns the first non-empty string from a list of possible values.
-     */
-    private String getFirstNonEmptyString(String... values) {
-        for (String value : values) {
-            if (value != null && !value.trim().isEmpty()) {
-                return value;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Checks the user's relationship with the event (waitlisted, invited, accepted, declined)
+     * Checks the user's specific participation record for this event in Firestore.
      */
     private void checkUserEventStatus() {
-        DocumentReference entrantRef = db.collection("events")
-                .document(eventId)
-                .collection("entrants")
-                .document(userId);
-
-        entrantRef.get().addOnSuccessListener(documentSnapshot -> {
-            if (documentSnapshot.exists()) {
-                String status = InvitationFlowUtil.normalizeEntrantStatus(documentSnapshot.getString("status"));
-
-                // Check if user is invited (won the lottery)
-                if (InvitationFlowUtil.STATUS_INVITED.equals(status)) {
-                    isInWaitlist = false;
-                    isInvited = true;
-                    hasAcceptedInvite = false;
-                    hasDeclinedInvite = false;
-                    showInvitationButtons();
-                }
-                // Check if user has accepted the invitation
-                else if (InvitationFlowUtil.STATUS_ACCEPTED.equals(status)) {
-                    isInWaitlist = false;
-                    isInvited = false;
-                    hasAcceptedInvite = true;
-                    hasDeclinedInvite = false;
-                    showAcceptedState();
-                }
-                // Check if user has declined the invitation
-                else if (InvitationFlowUtil.STATUS_DECLINED.equals(status)) {
-                    isInWaitlist = false;
-                    isInvited = false;
-                    hasAcceptedInvite = false;
-                    hasDeclinedInvite = true;
-                    showDeclinedState();
-                }
-                // Check if user is in waitlist
-                else if (InvitationFlowUtil.STATUS_WAITLISTED.equals(status)) {
-                    isInWaitlist = true;
-                    isInvited = false;
-                    hasAcceptedInvite = false;
-                    hasDeclinedInvite = false;
-                    showWaitlistButton();
-                } else {
-                    // User has no special status
-                    resetToDefaultState();
-                }
-            } else {
-                // User is not in the entrants collection at all
-                resetToDefaultState();
-            }
-        }).addOnFailureListener(e -> {
-            // On failure, reset to default state
-            resetToDefaultState();
-        });
+        db.collection(FirestorePaths.eventWaitingList(eventId)).document(userId).get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        String status = InvitationFlowUtil.normalizeEntrantStatus(doc.getString("status"));
+                        isInvited = InvitationFlowUtil.STATUS_INVITED.equals(status);
+                        hasAcceptedInvite = InvitationFlowUtil.STATUS_ACCEPTED.equals(status);
+                        hasDeclinedInvite = InvitationFlowUtil.STATUS_DECLINED.equals(status);
+                        isInWaitlist = InvitationFlowUtil.STATUS_WAITLISTED.equals(status);
+                        updateUIBasedOnStatus();
+                    } else {
+                        resetToDefaultState();
+                    }
+                });
     }
 
     /**
-     * Shows the invitation buttons (Accept/Decline) and hides the waitlist button
+     * Updates the visibility and text of action buttons based on the user's current event status.
      */
-    private void showInvitationButtons() {
-        btnWaitlistAction.setVisibility(View.GONE);
-        invitationButtonsContainer.setVisibility(View.VISIBLE);
-        registrationEndedContainer.setVisibility(View.GONE);
-
-        // Ensure the event details are at full opacity
-        findViewById(R.id.scrollView).setAlpha(1.0f);
-    }
-
-    /**
-     * Shows the accepted state with "Cancel Event Membership" button
-     */
-    private void showAcceptedState() {
-        invitationButtonsContainer.setVisibility(View.GONE);
-        registrationEndedContainer.setVisibility(View.GONE);
-        btnWaitlistAction.setVisibility(View.VISIBLE);
-        btnWaitlistAction.setText(R.string.cancel_event_membership);
-
-        // Ensure the event details are at full opacity
-        findViewById(R.id.scrollView).setAlpha(1.0f);
-    }
-
-    /**
-     * Shows the declined state with dimmed opacity and registration ended message
-     */
-    private void showDeclinedState() {
-        invitationButtonsContainer.setVisibility(View.GONE);
-        btnWaitlistAction.setVisibility(View.GONE);
-        registrationEndedContainer.setVisibility(View.VISIBLE);
-
-        // Dim the event details
-        findViewById(R.id.scrollView).setAlpha(0.5f);
-    }
-
-    /**
-     * Shows the waitlist join/leave button
-     */
-    private void showWaitlistButton() {
-        invitationButtonsContainer.setVisibility(View.GONE);
-        registrationEndedContainer.setVisibility(View.GONE);
-        btnWaitlistAction.setVisibility(View.VISIBLE);
-
-        if (isInWaitlist) {
-            btnWaitlistAction.setText(R.string.leave_wait_list);
+    private void updateUIBasedOnStatus() {
+        if (isInvited) {
+            btnWaitlistAction.setVisibility(View.GONE);
+            invitationButtonsContainer.setVisibility(View.VISIBLE);
+            registrationEndedContainer.setVisibility(View.GONE);
+        } else if (hasAcceptedInvite) {
+            invitationButtonsContainer.setVisibility(View.GONE);
+            btnWaitlistAction.setVisibility(View.VISIBLE);
+            btnWaitlistAction.setText(R.string.cancel_event_membership);
+        } else if (hasDeclinedInvite) {
+            invitationButtonsContainer.setVisibility(View.GONE);
+            btnWaitlistAction.setVisibility(View.GONE);
+            registrationEndedContainer.setVisibility(View.VISIBLE);
         } else {
-            btnWaitlistAction.setText(R.string.join_wait_list);
+            btnWaitlistAction.setVisibility(View.VISIBLE);
+            btnWaitlistAction.setText(isInWaitlist ? R.string.leave_wait_list : R.string.join_wait_list);
         }
-
-        // Ensure the event details are at full opacity
-        findViewById(R.id.scrollView).setAlpha(1.0f);
     }
 
     /**
-     * Resets to default state (no special relationship with event)
+     * Resets the local status flags to their default (not participating) values.
      */
     private void resetToDefaultState() {
         isInWaitlist = false;
         isInvited = false;
         hasAcceptedInvite = false;
         hasDeclinedInvite = false;
-
-        invitationButtonsContainer.setVisibility(View.GONE);
-        registrationEndedContainer.setVisibility(View.GONE);
-        btnWaitlistAction.setVisibility(View.VISIBLE);
-        btnWaitlistAction.setText(R.string.join_wait_list);
-
-        // Ensure the event details are at full opacity
-        findViewById(R.id.scrollView).setAlpha(1.0f);
+        updateUIBasedOnStatus();
     }
 
     /**
-     * Accepts the event invitation
+     * Performs the "Accept Invitation" action by updating the Firestore record.
      */
     private void acceptInvitation() {
-        Map<String, Object> updates =
-                InvitationFlowUtil.buildEntrantStatusUpdateFromResponse(
-                        InvitationFlowUtil.RESPONSE_ACCEPTED
-                );
-
-        db.collection("events")
-                .document(eventId)
-                .collection("entrants")
-                .document(userId)
-                .update(updates)
-                .addOnSuccessListener(unused -> {
-                    isInWaitlist = false;
-                    isInvited = false;
-                    hasAcceptedInvite = true;
-                    hasDeclinedInvite = false;
-                    showAcceptedState();
-                    syncWinningNotificationDecision(InvitationFlowUtil.RESPONSE_ACCEPTED);
-                    Toast.makeText(this, R.string.invitation_accepted, Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, R.string.failed_to_accept_invitation, Toast.LENGTH_SHORT).show()
-                );
+        db.collection(FirestorePaths.eventWaitingList(eventId)).document(userId)
+                .update(InvitationFlowUtil.buildEntrantStatusUpdateFromResponse(InvitationFlowUtil.RESPONSE_ACCEPTED))
+                .addOnSuccessListener(unused -> checkUserEventStatus());
     }
 
     /**
-     * Declines the event invitation
+     * Performs the "Decline Invitation" action by updating the Firestore record.
      */
     private void declineInvitation() {
-        Map<String, Object> updates =
-                InvitationFlowUtil.buildEntrantStatusUpdateFromResponse(
-                        InvitationFlowUtil.RESPONSE_DECLINED
-                );
-
-        db.collection("events")
-                .document(eventId)
-                .collection("entrants")
-                .document(userId)
-                .update(updates)
-                .addOnSuccessListener(unused -> {
-                    isInWaitlist = false;
-                    isInvited = false;
-                    hasAcceptedInvite = false;
-                    hasDeclinedInvite = true;
-                    showDeclinedState();
-                    syncWinningNotificationDecision(InvitationFlowUtil.RESPONSE_DECLINED);
-                    Toast.makeText(this, R.string.invitation_declined, Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, R.string.failed_to_decline_invitation, Toast.LENGTH_SHORT).show()
-                );
+        db.collection(FirestorePaths.eventWaitingList(eventId)).document(userId)
+                .update(InvitationFlowUtil.buildEntrantStatusUpdateFromResponse(InvitationFlowUtil.RESPONSE_DECLINED))
+                .addOnSuccessListener(unused -> checkUserEventStatus());
     }
 
     /**
-     * Removes an accepted entrant from the event.
+     * Performs the "Cancel Membership" action for a user who previously accepted an invite.
      */
     private void cancelAcceptedInvitation() {
-        Map<String, Object> updates = InvitationFlowUtil.buildCancelledEntrantUpdate();
-
-        db.collection("events")
-                .document(eventId)
-                .collection("entrants")
-                .document(userId)
-                .update(updates)
-                .addOnSuccessListener(unused -> {
-                    isInWaitlist = false;
-                    isInvited = false;
-                    hasAcceptedInvite = false;
-                    hasDeclinedInvite = true;
-                    showDeclinedState();
-                    syncWinningNotificationDecision(InvitationFlowUtil.RESPONSE_CANCELLED);
-                    Toast.makeText(this, R.string.membership_cancelled, Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, R.string.failed_to_cancel_membership, Toast.LENGTH_SHORT).show()
-                );
+        db.collection(FirestorePaths.eventWaitingList(eventId)).document(userId)
+                .update(InvitationFlowUtil.buildCancelledEntrantUpdate())
+                .addOnSuccessListener(unused -> checkUserEventStatus());
     }
 
     /**
-     * Syncs win notifications so the notification inbox reflects decisions made in event details.
-     *
-     * @param response handled response value
-     */
-    private void syncWinningNotificationDecision(String response) {
-        db.collection("users")
-                .document(userId)
-                .collection("notifications")
-                .whereEqualTo("eventId", eventId)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    WriteBatch batch = db.batch();
-                    boolean hasWinningNotifications = false;
-                    Map<String, Object> updates = InvitationFlowUtil.buildHandledNotificationUpdate(response);
-
-                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        String type = document.getString("type");
-                        if (type == null) {
-                            continue;
-                        }
-
-                        String normalizedType = type.trim().toLowerCase(Locale.US);
-                        if (!normalizedType.equals("win")
-                                && !normalizedType.equals("invitation")
-                                && !normalizedType.equals("event_invitation")) {
-                            continue;
-                        }
-
-                        batch.update(document.getReference(), updates);
-                        hasWinningNotifications = true;
-                    }
-
-                    if (!hasWinningNotifications) {
-                        checkUnreadNotifications();
-                        return;
-                    }
-
-                    batch.commit()
-                            .addOnSuccessListener(unused -> checkUnreadNotifications())
-                            .addOnFailureListener(e ->
-                                    Toast.makeText(this, R.string.failed_to_update_notification, Toast.LENGTH_SHORT).show()
-                            );
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, R.string.failed_to_update_notification, Toast.LENGTH_SHORT).show()
-                );
-    }
-
-    /**
-     * Retrieves the number of entrants currently in the waitlist.
+     * Retrieves the current count of people in the waitlist for this event.
      */
     private void loadWaitlistCount() {
-        db.collection("events")
-                .document(eventId)
-                .collection("entrants")
+        db.collection(FirestorePaths.eventWaitingList(eventId))
                 .whereEqualTo("status", InvitationFlowUtil.STATUS_WAITLISTED)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -638,62 +340,44 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * Checks whether the entrant has unread notifications.
+     * Checks if the user has any unread notifications in their inbox.
      */
     private void checkUnreadNotifications() {
-        db.collection("users")
-                .document(userId)
-                .collection("notifications")
-                .whereEqualTo("isRead", false)
-                .get()
+        db.collection(FirestorePaths.userInbox(userId)).whereEqualTo("isRead", false).get()
                 .addOnSuccessListener(querySnapshot -> {
-                    if (!querySnapshot.isEmpty()) {
-                        tvNotificationBadge.setVisibility(View.VISIBLE);
-                    } else {
-                        tvNotificationBadge.setVisibility(View.GONE);
+                    if (tvNotificationBadge != null) {
+                        tvNotificationBadge.setVisibility(querySnapshot.isEmpty() ? View.GONE : View.VISIBLE);
                     }
                 });
     }
 
     /**
-     * Adds the entrant to the event waitlist in Firestore.
+     * Logic for joining the waitlist for the event.
      */
     private void joinWaitlist() {
-        Map<String, Object> entrantData = new HashMap<>();
         Timestamp now = Timestamp.now();
-
-        entrantData.put("userId", userId);
-        entrantData.put("eventId", eventId);
-        entrantData.put("status", InvitationFlowUtil.STATUS_WAITLISTED);
-        entrantData.put("registeredAt", now);
-        entrantData.put("waitlistedAt", now);
-
-        db.collection("events")
-                .document(eventId)
-                .collection("entrants")
-                .document(userId)
-                .set(entrantData)
+        EntrantEvent record = new EntrantEvent(userId, userName, userEmail, InvitationFlowUtil.STATUS_WAITLISTED, now, null, null, null, now);
+        
+        db.collection(FirestorePaths.eventWaitingList(eventId)).document(userId)
+                .set(record)
                 .addOnSuccessListener(unused -> {
                     isInWaitlist = true;
-                    btnWaitlistAction.setText(R.string.leave_wait_list);
                     loadWaitlistCount();
+                    updateUIBasedOnStatus();
                     Toast.makeText(this, R.string.joined_waitlist, Toast.LENGTH_SHORT).show();
                 });
     }
 
     /**
-     * Removes the entrant from the event waitlist.
+     * Logic for leaving the waitlist for the event.
      */
     private void leaveWaitlist() {
-        db.collection("events")
-                .document(eventId)
-                .collection("entrants")
-                .document(userId)
+        db.collection(FirestorePaths.eventWaitingList(eventId)).document(userId)
                 .delete()
                 .addOnSuccessListener(unused -> {
                     isInWaitlist = false;
-                    btnWaitlistAction.setText(R.string.join_wait_list);
                     loadWaitlistCount();
+                    updateUIBasedOnStatus();
                     Toast.makeText(this, R.string.left_waitlist, Toast.LENGTH_SHORT).show();
                 });
     }

@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lottery.model.Event;
+import com.example.lottery.util.FirestorePaths;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -24,6 +25,9 @@ import java.util.List;
 /**
  * Main activity for the entrant user role.
  * Displays a list of events and user statistics.
+ *
+ * <p>Entrants primarily discover active events from the 'events' collection
+ * where status is 'open'.</p>
  */
 public class EntrantMainActivity extends AppCompatActivity {
 
@@ -31,17 +35,10 @@ public class EntrantMainActivity extends AppCompatActivity {
     private RecyclerView rvEvents;
     private EntrantEventAdapter adapter;
     private View emptyStateContainer;
-    private TextView tvActiveCount, tvJoinedCount;
+    private TextView tvActiveCount, tvJoinedCount, tvNotificationBadge;
     private FirebaseFirestore db;
     private String userId;
 
-    /**
-     * Initializes the activity, setting up the UI and loading data.
-     *
-     * @param savedInstanceState If the activity is being re-initialized after
-     *                           previously being shut down then this Bundle contains the data it most
-     *                           recently supplied in onSaveInstanceState(Bundle). Note: Otherwise it is null.
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,6 +65,7 @@ public class EntrantMainActivity extends AppCompatActivity {
         emptyStateContainer = findViewById(R.id.emptyStateContainer);
         tvActiveCount = findViewById(R.id.tvActiveCount);
         tvJoinedCount = findViewById(R.id.tvJoinedCount);
+        tvNotificationBadge = findViewById(R.id.tvNotificationBadge);
 
         adapter = new EntrantEventAdapter(eventList, this::openEventDetails);
         rvEvents.setLayoutManager(new LinearLayoutManager(this));
@@ -76,17 +74,21 @@ public class EntrantMainActivity extends AppCompatActivity {
         setupNavigation();
         loadEvents();
         loadStats();
+        checkUnreadNotifications();
     }
 
-    /**
-     * Sets up click listeners for the navigation buttons.
-     */
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadStats();
+        checkUnreadNotifications();
+    }
+
     private void setupNavigation() {
         findViewById(R.id.nav_home).setOnClickListener(v -> {
             // Already home
         });
 
-        // Fixed: Use nav_history for notifications as per common entrant nav mapping
         findViewById(R.id.nav_history).setOnClickListener(v -> {
             Intent intent = new Intent(this, NotificationsActivity.class);
             intent.putExtra(NotificationsActivity.EXTRA_USER_ID, userId);
@@ -107,10 +109,11 @@ public class EntrantMainActivity extends AppCompatActivity {
     }
 
     /**
-     * Loads events from the Firestore database.
+     * Loads active events from Firestore where status is 'open'.
      */
     private void loadEvents() {
-        db.collection("events")
+        db.collection(FirestorePaths.EVENTS)
+                .whereEqualTo("status", "open")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     eventList.clear();
@@ -126,18 +129,23 @@ public class EntrantMainActivity extends AppCompatActivity {
     }
 
     /**
-     * Loads user-specific statistics from the Firestore database.
+     * Loads user-specific statistics from Firestore.
+     * Active count reflects 'open' events.
+     * Joined count queries across all 'waitingList' subcollections for the current user.
      */
     private void loadStats() {
-        db.collection("events").get().addOnSuccessListener(queryDocumentSnapshots -> {
-            if (tvActiveCount != null) {
-                tvActiveCount.setText(String.valueOf(queryDocumentSnapshots.size()));
-            }
-        });
+        db.collection(FirestorePaths.EVENTS)
+                .whereEqualTo("status", "open")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (tvActiveCount != null) {
+                        tvActiveCount.setText(String.valueOf(queryDocumentSnapshots.size()));
+                    }
+                });
 
         if (userId != null) {
-            db.collectionGroup("entrants")
-                    .whereEqualTo("entrantId", userId)
+            db.collectionGroup(FirestorePaths.WAITING_LIST)
+                    .whereEqualTo("userId", userId)
                     .get()
                     .addOnSuccessListener(queryDocumentSnapshots -> {
                         if (tvJoinedCount != null) {
@@ -147,9 +155,6 @@ public class EntrantMainActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Updates the empty state view based on whether the event list is empty.
-     */
     private void updateEmptyState() {
         if (eventList.isEmpty()) {
             if (emptyStateContainer != null) emptyStateContainer.setVisibility(View.VISIBLE);
@@ -160,11 +165,12 @@ public class EntrantMainActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Handles the event click event.
-     *
-     * @param event The event that was clicked.
-     */
+    private void checkUnreadNotifications() {
+        if (userId == null || tvNotificationBadge == null) return;
+        db.collection(FirestorePaths.userInbox(userId)).whereEqualTo("isRead", false).get()
+                .addOnSuccessListener(querySnapshot -> tvNotificationBadge.setVisibility(querySnapshot.isEmpty() ? View.GONE : View.VISIBLE));
+    }
+
     private void openEventDetails(Event event) {
         Intent intent = new Intent(this, EntrantEventDetailsActivity.class);
         intent.putExtra(EntrantEventDetailsActivity.EXTRA_EVENT_ID, event.getEventId());

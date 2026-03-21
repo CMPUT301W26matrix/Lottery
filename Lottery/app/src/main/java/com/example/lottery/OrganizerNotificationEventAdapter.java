@@ -5,7 +5,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,29 +22,38 @@ import java.util.Locale;
  * <p>Key Responsibilities:
  * <ul>
  *   <li>Binds event data to the list items in the notification screen.</li>
- *   <li>Handles button clicks to notify specific entrant groups (Waiting, Selected, Cancelled).</li>
+ *   <li>Delegates button clicks to a listener to handle notification composition.</li>
  * </ul>
  * </p>
  */
 public class OrganizerNotificationEventAdapter extends RecyclerView.Adapter<OrganizerNotificationEventAdapter.ViewHolder> {
 
     /**
-     * List of events to be displayed.
+     * Listener interface for handling clicks on notification group buttons.
      */
-    private final List<Event> eventList;
+    public interface OnNotificationGroupClickListener {
+        /**
+         * Called when a specific group (Waitlist, Selected, or Cancelled) is clicked for an event.
+         *
+         * @param event The event associated with the notification.
+         * @param group The group identifier (e.g., "waitlisted", "selected", "cancelled").
+         */
+        void onGroupClick(Event event, String group);
+    }
 
-    /**
-     * Date formatter for displaying event dates in a readable format.
-     */
+    private final List<Event> eventList;
+    private final OnNotificationGroupClickListener listener;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
 
     /**
      * Constructs a new OrganizerNotificationEventAdapter.
      *
      * @param eventList The list of events to display.
+     * @param listener  The listener to handle group click events.
      */
-    public OrganizerNotificationEventAdapter(List<Event> eventList) {
+    public OrganizerNotificationEventAdapter(List<Event> eventList, OnNotificationGroupClickListener listener) {
         this.eventList = eventList;
+        this.listener = listener;
     }
 
     @NonNull
@@ -56,12 +64,6 @@ public class OrganizerNotificationEventAdapter extends RecyclerView.Adapter<Orga
         return new ViewHolder(view);
     }
 
-    /**
-     * Binds event data to the ViewHolder and sets up click listeners for notification buttons.
-     *
-     * @param holder   The ViewHolder to update.
-     * @param position The position of the item in the event list.
-     */
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Event event = eventList.get(position);
@@ -73,21 +75,20 @@ public class OrganizerNotificationEventAdapter extends RecyclerView.Adapter<Orga
             holder.tvEventDate.setText("No date set");
         }
 
-        holder.btnNotifyWaiting.setOnClickListener(v ->
-                Toast.makeText(v.getContext(), "Notifying Waiting List for: " + event.getTitle(), Toast.LENGTH_SHORT).show());
+        // Map UI buttons to backend status groups
+        holder.btnNotifyWaiting.setOnClickListener(v -> {
+            if (listener != null) listener.onGroupClick(event, "waitlisted");
+        });
 
-        holder.btnNotifySelected.setOnClickListener(v ->
-                Toast.makeText(v.getContext(), "Notifying Selected Entrants for: " + event.getTitle(), Toast.LENGTH_SHORT).show());
+        holder.btnNotifySelected.setOnClickListener(v -> {
+            if (listener != null) listener.onGroupClick(event, "selected");
+        });
 
-        holder.btnNotifyCancelled.setOnClickListener(v ->
-                Toast.makeText(v.getContext(), "Notifying Cancelled Entrants for: " + event.getTitle(), Toast.LENGTH_SHORT).show());
+        holder.btnNotifyCancelled.setOnClickListener(v -> {
+            if (listener != null) listener.onGroupClick(event, "cancelled");
+        });
     }
 
-    /**
-     * Returns the total number of events in the list.
-     *
-     * @return The size of the event list.
-     */
     @Override
     public int getItemCount() {
         return eventList.size();
@@ -97,21 +98,9 @@ public class OrganizerNotificationEventAdapter extends RecyclerView.Adapter<Orga
      * ViewHolder class for caching UI component references in each list item.
      */
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        /**
-         * TextViews for event title and date.
-         */
         TextView tvEventTitle, tvEventDate;
-
-        /**
-         * Buttons for triggering notifications to different entrant groups.
-         */
         Button btnNotifyWaiting, btnNotifySelected, btnNotifyCancelled;
 
-        /**
-         * Initializes the ViewHolder by binding UI components from the item layout.
-         *
-         * @param itemView The root view of the list item layout.
-         */
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvEventTitle = itemView.findViewById(R.id.tvEventTitle);

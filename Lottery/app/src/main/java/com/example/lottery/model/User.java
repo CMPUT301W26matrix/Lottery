@@ -1,32 +1,25 @@
 package com.example.lottery.model;
 
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.GeoPoint;
 
 /**
  * Model class representing a user in the system.
  *
- * Recommended Firestore path:
- * users/{userId}
- *
- * This model stores:
- * - user identity
- * - basic profile information
- * - user role
- * - notification preference
- * - creation/update timestamps
+ * Target Firestore path:
+ * users/{uid}
  */
 public class User {
 
     /**
-     * Unique user identifier.
-     * Usually also used as the Firestore document ID.
+     * Unique user identifier (Firebase Auth UID).
      */
-    private String userId;
+    private String uid;
 
     /**
-     * Display name of the user.
+     * Optional device identifier.
      */
-    private String name;
+    private String deviceId;
 
     /**
      * Email address of the user.
@@ -35,14 +28,23 @@ public class User {
 
     /**
      * Phone number of the user.
-     * Stored as "phone" in Firestore conceptually, but we keep backward-compatible accessors too.
      */
     private String phone;
+
+    /**
+     * Display name or username of the user.
+     */
+    private String username;
 
     /**
      * Role of the user in the system.
      */
     private Role role;
+
+    /**
+     * Geographic location of the user.
+     */
+    private GeoPoint location;
 
     /**
      * Whether this user has notifications enabled.
@@ -53,10 +55,6 @@ public class User {
      * When the user record was first created.
      */
     private Timestamp createdAt;
-
-    /**
-     * When the user record was last updated.
-     */
     private Timestamp updatedAt;
 
     /**
@@ -68,74 +66,76 @@ public class User {
     }
 
     /**
-     * Convenience constructor for a basic entrant user.
-     *
-     * @param name  user name
-     * @param email user email
-     * @param phone user phone
+     * Convenience constructor for basic profile information.
      */
-    public User(String name, String email, String phone) {
-        this(null, name, email, phone, Role.ENTRANT, true, Timestamp.now(), Timestamp.now());
+    public User(String username, String email, String phone) {
+        this();
+        this.username = username;
+        this.email = email;
+        this.phone = phone;
     }
 
     /**
-     * Convenience constructor with explicit user ID.
-     *
-     * @param userId user ID
-     * @param name   user name
-     * @param email  user email
-     * @param phone  user phone
+     * Convenience constructor for basic profile information with UID.
      */
-    public User(String userId, String name, String email, String phone) {
-        this(userId, name, email, phone, Role.ENTRANT, true, Timestamp.now(), Timestamp.now());
+    public User(String uid, String username, String email, String phone) {
+        this();
+        this.uid = uid;
+        this.username = username;
+        this.email = email;
+        this.phone = phone;
     }
 
     /**
      * Full constructor.
-     *
-     * @param userId               user ID
-     * @param name                 user display name
-     * @param email                user email
-     * @param phone                user phone
-     * @param role                 user role
-     * @param notificationsEnabled whether notifications are enabled
-     * @param createdAt            creation timestamp
-     * @param updatedAt            last update timestamp
      */
-    public User(String userId,
-                String name,
+    public User(String uid,
+                String deviceId,
                 String email,
                 String phone,
+                String username,
                 Role role,
+                GeoPoint location,
                 boolean notificationsEnabled,
                 Timestamp createdAt,
                 Timestamp updatedAt) {
-        this.userId = userId;
-        this.name = name;
+        this.uid = uid;
+        this.deviceId = deviceId;
         this.email = email;
         this.phone = phone;
+        this.username = username;
         this.role = role == null ? Role.ENTRANT : role;
+        this.location = location;
         this.notificationsEnabled = notificationsEnabled;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
 
+    // Getters and Setters
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
+    /** Backward compatibility alias for older code using userId */
     public String getUserId() {
-        return userId;
+        return uid;
     }
 
     public void setUserId(String userId) {
-        this.userId = userId;
-        touch();
+        this.uid = userId;
     }
 
-    public String getName() {
-        return name;
+    public String getDeviceId() {
+        return deviceId;
     }
 
-    public void setName(String name) {
-        this.name = name;
-        touch();
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
     }
 
     public String getEmail() {
@@ -144,37 +144,40 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
-        touch();
     }
 
-    /**
-     * Preferred phone getter.
-     */
     public String getPhone() {
         return phone;
     }
 
-    /**
-     * Preferred phone setter.
-     */
     public void setPhone(String phone) {
         this.phone = phone;
-        touch();
     }
 
-    /**
-     * Backward-compatible alias for older code still using phoneNumber.
-     */
+    /** Backward compatibility alias for older code using phoneNumber */
     public String getPhoneNumber() {
         return phone;
     }
 
-    /**
-     * Backward-compatible alias for older code still using phoneNumber.
-     */
     public void setPhoneNumber(String phoneNumber) {
         this.phone = phoneNumber;
-        touch();
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    /** Backward compatibility alias for older code using name */
+    public String getName() {
+        return username;
+    }
+
+    public void setName(String name) {
+        this.username = name;
     }
 
     public Role getRole() {
@@ -183,32 +186,14 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role == null ? Role.ENTRANT : role;
-        touch();
     }
 
-    /**
-     * Backward-compatible helper if some older code still uses String roles.
-     */
-    public void setRoleFromString(String role) {
-        if (role == null) {
-            this.role = Role.ENTRANT;
-            touch();
-            return;
-        }
+    public GeoPoint getLocation() {
+        return location;
+    }
 
-        switch (role.trim().toLowerCase()) {
-            case "admin":
-                this.role = Role.ADMIN;
-                break;
-            case "organizer":
-                this.role = Role.ORGANIZER;
-                break;
-            case "entrant":
-            default:
-                this.role = Role.ENTRANT;
-                break;
-        }
-        touch();
+    public void setLocation(GeoPoint location) {
+        this.location = location;
     }
 
     public boolean isNotificationsEnabled() {
@@ -217,7 +202,6 @@ public class User {
 
     public void setNotificationsEnabled(boolean notificationsEnabled) {
         this.notificationsEnabled = notificationsEnabled;
-        touch();
     }
 
     public Timestamp getCreatedAt() {
@@ -236,29 +220,22 @@ public class User {
         this.updatedAt = updatedAt;
     }
 
-    /**
-     * Returns true if the user is an entrant.
-     */
+    // Helpers
+
     public boolean isEntrant() {
         return role == Role.ENTRANT;
     }
 
-    /**
-     * Returns true if the user is an organizer.
-     */
     public boolean isOrganizer() {
         return role == Role.ORGANIZER;
     }
 
-    /**
-     * Returns true if the user is an admin.
-     */
     public boolean isAdmin() {
         return role == Role.ADMIN;
     }
 
     /**
-     * Updates the updatedAt timestamp to now.
+     * Updates the updatedAt timestamp. Should be called explicitly before Firestore writes.
      */
     public void touch() {
         this.updatedAt = Timestamp.now();

@@ -1,182 +1,81 @@
 package com.example.lottery.model;
 
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.GeoPoint;
 
 /**
- * Model class representing one entrant's relationship to one event.
+ * Model class representing an entrant's participation record in an event's waiting list.
  *
- * Recommended Firestore path:
- * events/{eventId}/entrants/{userId}
- *
- * This model stores:
- * - who the entrant is
- * - which event they belong to
- * - their current status in the event flow
- * - timestamps for important transitions
- * - waitlist position if applicable
- *
- * Notes:
- * - relationId is kept for backward compatibility with older code,
- *   but the preferred unique identity is the Firestore document path.
- * - notificationSent is retained temporarily, but a dedicated
- *   notifications collection should be used for real notification history.
+ * Target Firestore path:
+ * events/{eventId}/waitingList/{uid}
  */
 public class EntrantEvent {
 
-    /**
-     * Optional legacy composite identifier.
-     * Example: userId_eventId
-     *
-     * This is kept for compatibility with existing code,
-     * but should not be treated as the primary source of identity long-term.
-     */
-    private String relationId;
-
-    /**
-     * The user ID of the entrant.
-     */
     private String userId;
-
-    /**
-     * Optional display name cached for convenience in UI lists.
-     */
     private String userName;
-
-    /**
-     * The event ID this relationship belongs to.
-     */
-    private String eventId;
-
-    /**
-     * Current status of this entrant in this event.
-     */
-    private Status status;
-
-    /**
-     * When the entrant first registered for the event.
-     */
-    private Timestamp registeredAt;
-
-    /**
-     * When the entrant was placed on the waitlist.
-     * This may be the same as registeredAt if your flow always starts with waitlisting.
-     */
-    private Timestamp waitlistedAt;
-
-    /**
-     * When the entrant was invited/selected.
-     */
-    private Timestamp invitedAt;
-
-    /**
-     * When the entrant accepted the invitation.
-     */
-    private Timestamp acceptedAt;
-
-    /**
-     * When the entrant declined the invitation.
-     */
-    private Timestamp declinedAt;
-
-    /**
-     * When the entrant cancelled participation or was marked cancelled.
-     */
+    private String email;
+    private String status; // registered, selected, accepted, declined, cancelled, not_selected
+    private Timestamp joinedAt;
+    private Timestamp selectedAt;
+    private Timestamp respondedAt;
     private Timestamp cancelledAt;
+    private Timestamp updatedAt;
+    private GeoPoint location;
 
     /**
-     * Current waitlist position, if applicable.
-     * Use -1 when not on waitlist / not applicable.
-     */
-    private int waitlistPosition;
-
-    /**
-     * Temporary helper flag for simple notification workflows.
-     * Long-term, store actual notification records under:
-     * users/{userId}/notifications/{notificationId}
-     */
-    private boolean notificationSent;
-
-    /**
-     * Default constructor required by Firestore.
+     * Default constructor for Firestore serialization.
      */
     public EntrantEvent() {
-        this.waitlistPosition = -1;
-        this.notificationSent = false;
     }
 
     /**
-     * Constructs a new entrant-event relationship with default WAITLISTED state.
-     *
-     * @param userId  the entrant's user ID
-     * @param eventId the event ID
+     * Full constructor for an entrant-event relationship.
      */
-    public EntrantEvent(String userId, String eventId) {
+    public EntrantEvent(String userId,
+                        String userName,
+                        String email,
+                        String status,
+                        Timestamp joinedAt,
+                        Timestamp selectedAt,
+                        Timestamp respondedAt,
+                        Timestamp cancelledAt,
+                        Timestamp updatedAt,
+                        GeoPoint location) {
         this.userId = userId;
-        this.eventId = eventId;
-        this.relationId = buildRelationId(userId, eventId);
-        this.status = Status.WAITLISTED;
-
-        Timestamp now = Timestamp.now();
-        this.registeredAt = now;
-        this.waitlistedAt = now;
-
-        this.waitlistPosition = -1;
-        this.notificationSent = false;
-    }
-
-    /**
-     * Constructs a new entrant-event relationship with cached user name.
-     *
-     * @param userId   the entrant's user ID
-     * @param userName the entrant's display name
-     * @param eventId  the event ID
-     */
-    public EntrantEvent(String userId, String userName, String eventId) {
-        this(userId, eventId);
         this.userName = userName;
+        this.email = email;
+        this.status = status;
+        this.joinedAt = joinedAt;
+        this.selectedAt = selectedAt;
+        this.respondedAt = respondedAt;
+        this.cancelledAt = cancelledAt;
+        this.updatedAt = updatedAt;
+        this.location = location;
     }
 
     /**
-     * Utility method for building the legacy composite relation ID.
+     * Constructor without location for backward compatibility.
      */
-    public static String buildRelationId(String userId, String eventId) {
-        return userId + "_" + eventId;
+    public EntrantEvent(String userId,
+                        String userName,
+                        String email,
+                        String status,
+                        Timestamp joinedAt,
+                        Timestamp selectedAt,
+                        Timestamp respondedAt,
+                        Timestamp cancelledAt,
+                        Timestamp updatedAt) {
+        this(userId, userName, email, status, joinedAt, selectedAt, respondedAt, cancelledAt, updatedAt, null);
     }
 
-    public String getRelationId() {
-        return relationId;
-    }
-
-    public void setRelationId(String relationId) {
-        this.relationId = relationId;
-    }
+    // Getters and Setters
 
     public String getUserId() {
         return userId;
     }
 
-    /**
-     * Preferred setter.
-     * Also refreshes relationId when possible.
-     */
     public void setUserId(String userId) {
         this.userId = userId;
-        refreshRelationId();
-    }
-
-    /**
-     * Backward-compatible alias for older code still using entrantId naming.
-     */
-    public String getEntrantId() {
-        return userId;
-    }
-
-    /**
-     * Backward-compatible alias for older code still using entrantId naming.
-     */
-    public void setEntrantId(String entrantId) {
-        this.userId = entrantId;
-        refreshRelationId();
     }
 
     public String getUserName() {
@@ -187,61 +86,62 @@ public class EntrantEvent {
         this.userName = userName;
     }
 
-    public String getEventId() {
-        return eventId;
+    public String getEmail() {
+        return email;
     }
 
-    public void setEventId(String eventId) {
-        this.eventId = eventId;
-        refreshRelationId();
+    public void setEmail(String email) {
+        this.email = email;
     }
 
-    public Status getStatus() {
+    /** Backward compatibility alias for older code using entrantId */
+    public String getEntrantId() {
+        return userId;
+    }
+
+    public void setEntrantId(String entrantId) {
+        this.userId = entrantId;
+    }
+
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(Status status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 
-    public Timestamp getRegisteredAt() {
-        return registeredAt;
+    public Timestamp getJoinedAt() {
+        return joinedAt;
     }
 
-    public void setRegisteredAt(Timestamp registeredAt) {
-        this.registeredAt = registeredAt;
+    public void setJoinedAt(Timestamp joinedAt) {
+        this.joinedAt = joinedAt;
     }
 
-    public Timestamp getWaitlistedAt() {
-        return waitlistedAt;
+    public Timestamp getSelectedAt() {
+        return selectedAt;
     }
 
-    public void setWaitlistedAt(Timestamp waitlistedAt) {
-        this.waitlistedAt = waitlistedAt;
+    public void setSelectedAt(Timestamp selectedAt) {
+        this.selectedAt = selectedAt;
     }
 
+    /** Backward compatibility alias for older code using invitedAt */
     public Timestamp getInvitedAt() {
-        return invitedAt;
+        return selectedAt;
     }
 
     public void setInvitedAt(Timestamp invitedAt) {
-        this.invitedAt = invitedAt;
+        this.selectedAt = invitedAt;
     }
 
-    public Timestamp getAcceptedAt() {
-        return acceptedAt;
+    public Timestamp getRespondedAt() {
+        return respondedAt;
     }
 
-    public void setAcceptedAt(Timestamp acceptedAt) {
-        this.acceptedAt = acceptedAt;
-    }
-
-    public Timestamp getDeclinedAt() {
-        return declinedAt;
-    }
-
-    public void setDeclinedAt(Timestamp declinedAt) {
-        this.declinedAt = declinedAt;
+    public void setRespondedAt(Timestamp respondedAt) {
+        this.respondedAt = respondedAt;
     }
 
     public Timestamp getCancelledAt() {
@@ -252,108 +152,26 @@ public class EntrantEvent {
         this.cancelledAt = cancelledAt;
     }
 
-    public int getWaitlistPosition() {
-        return waitlistPosition;
+    public Timestamp getUpdatedAt() {
+        return updatedAt;
     }
 
-    public void setWaitlistPosition(int waitlistPosition) {
-        this.waitlistPosition = waitlistPosition;
+    public void setUpdatedAt(Timestamp updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
-    public boolean isNotificationSent() {
-        return notificationSent;
+    public GeoPoint getLocation() {
+        return location;
     }
 
-    public void setNotificationSent(boolean notificationSent) {
-        this.notificationSent = notificationSent;
-    }
-
-    /**
-     * Returns true if the entrant is currently on the waitlist.
-     */
-    public boolean isWaitlisted() {
-        return status == Status.WAITLISTED;
+    public void setLocation(GeoPoint location) {
+        this.location = location;
     }
 
     /**
-     * Returns true if the entrant has been invited.
+     * Updates the updatedAt timestamp. Should be called explicitly before Firestore writes.
      */
-    public boolean isInvited() {
-        return status == Status.INVITED;
-    }
-
-    /**
-     * Returns true if the entrant accepted the invitation.
-     */
-    public boolean isAccepted() {
-        return status == Status.ACCEPTED;
-    }
-
-    /**
-     * Returns true if the entrant declined the invitation.
-     */
-    public boolean isDeclined() {
-        return status == Status.DECLINED;
-    }
-
-    /**
-     * Returns true if the entrant is cancelled.
-     */
-    public boolean isCancelled() {
-        return status == Status.CANCELLED;
-    }
-
-    /**
-     * Marks this entrant as invited and records invitedAt.
-     */
-    public void markInvited() {
-        this.status = Status.INVITED;
-        this.invitedAt = Timestamp.now();
-    }
-
-    /**
-     * Marks this entrant as accepted and records acceptedAt.
-     */
-    public void markAccepted() {
-        this.status = Status.ACCEPTED;
-        this.acceptedAt = Timestamp.now();
-    }
-
-    /**
-     * Marks this entrant as declined and records declinedAt.
-     */
-    public void markDeclined() {
-        this.status = Status.DECLINED;
-        this.declinedAt = Timestamp.now();
-    }
-
-    /**
-     * Marks this entrant as cancelled and records cancelledAt.
-     */
-    public void markCancelled() {
-        this.status = Status.CANCELLED;
-        this.cancelledAt = Timestamp.now();
-    }
-
-    /**
-     * Refreshes the legacy relationId if both userId and eventId are present.
-     */
-    private void refreshRelationId() {
-        if (userId != null && !userId.isEmpty() && eventId != null && !eventId.isEmpty()) {
-            this.relationId = buildRelationId(userId, eventId);
-        }
-    }
-
-    /**
-     * Enum representing the valid event participation states.
-     *
-     * Keep this enum minimal and unambiguous.
-     */
-    public enum Status {
-        WAITLISTED,
-        INVITED,
-        ACCEPTED,
-        DECLINED,
-        CANCELLED
+    public void touch() {
+        this.updatedAt = Timestamp.now();
     }
 }

@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import com.example.lottery.model.Entrant;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.GeoPoint;
 

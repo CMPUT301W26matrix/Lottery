@@ -33,8 +33,17 @@
         android:layout_height="0dp"
         android:clipToPadding="false"
         android:paddingBottom="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottom_nav_container"
         app:layout_constraintTop_toBottomOf="@id/appBarLayout"
         tools:listitem="@layout/item_event_qr" />
+
+    <FrameLayout
+        android:id="@+id/bottom_nav_container"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <include layout="@layout/layout_bottom_nav_organizer" />
+    </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -7,19 +7,10 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * Shared invitation flow helpers used by entrant event details and notifications.
+ * Utility class that centralizes invitation status transitions and notification response handling.
  *
- * This utility centralizes:
- * - canonical entrant status values used in Firestore
- * - notification response normalization
- * - Firestore update payload builders for notifications and entrant-event records
- *
- * Recommended canonical entrant statuses in Firestore:
- * - waitlisted
- * - invited
- * - accepted
- * - declined
- * - cancelled
+ * <p>This class ensures consistent status names and Firestore update payloads across
+ * the entrant's event details and notification processing flows.</p>
  */
 public final class InvitationFlowUtil {
 
@@ -38,7 +29,7 @@ public final class InvitationFlowUtil {
     public static final String STATUS_CANCELLED = "cancelled";
 
     // -------------------------------------------------------------------------
-    // Canonical notification response values stored in Firestore
+    // Canonical notification response values
     // -------------------------------------------------------------------------
 
     public static final String RESPONSE_NONE = "none";
@@ -48,219 +39,124 @@ public final class InvitationFlowUtil {
     public static final String RESPONSE_CANCELLED = "cancelled";
 
     /**
-     * Normalizes entrant status values from Firestore into one canonical form.
+     * Normalizes a raw entrant status string into its canonical form.
      *
-     * @param rawStatus stored status value
-     * @return canonical status, or empty string when the value is missing/unknown
+     * @param rawStatus The status string from Firestore or UI.
+     * @return The canonical status string (e.g., "waitlisted", "invited").
      */
     public static String normalizeEntrantStatus(String rawStatus) {
-        if (rawStatus == null) {
-            return "";
-        }
-
+        if (rawStatus == null) return "";
         String normalized = rawStatus.trim().toLowerCase(Locale.US);
 
-        if ("waiting".equals(normalized)
-                || "waitlist".equals(normalized)
-                || "waitlisted".equals(normalized)) {
+        if ("waiting".equals(normalized) || "waitlist".equals(normalized) || "waitlisted".equals(normalized)) {
             return STATUS_WAITLISTED;
         }
-
-        if ("invited".equals(normalized)
-                || "selected".equals(normalized)) {
+        if ("invited".equals(normalized) || "selected".equals(normalized)) {
             return STATUS_INVITED;
         }
-
         if ("accepted".equals(normalized)) {
             return STATUS_ACCEPTED;
         }
-
-        if ("declined".equals(normalized)
-                || "rejected".equals(normalized)) {
+        if ("declined".equals(normalized) || "rejected".equals(normalized)) {
             return STATUS_DECLINED;
         }
-
-        if ("cancelled".equals(normalized)
-                || "canceled".equals(normalized)) {
+        if ("cancelled".equals(normalized) || "canceled".equals(normalized)) {
             return STATUS_CANCELLED;
         }
-
         return "";
     }
 
     /**
-     * Normalizes notification response values into one canonical form.
+     * Normalizes a raw notification response string into its canonical form.
      *
-     * @param rawResponse stored response value
-     * @return canonical response, or RESPONSE_NONE when missing/unknown
+     * @param rawResponse The response string from a notification dialog.
+     * @return The canonical response string (e.g., "accepted", "declined").
      */
     public static String normalizeNotificationResponse(String rawResponse) {
-        if (rawResponse == null) {
-            return RESPONSE_NONE;
-        }
-
+        if (rawResponse == null) return RESPONSE_NONE;
         String normalized = rawResponse.trim().toLowerCase(Locale.US);
 
-        if ("accepted".equals(normalized) || "accept".equals(normalized)) {
-            return RESPONSE_ACCEPTED;
-        }
-
-        if ("declined".equals(normalized)
-                || "decline".equals(normalized)
-                || "rejected".equals(normalized)
-                || "reject".equals(normalized)) {
-            return RESPONSE_DECLINED;
-        }
-
-        if ("dismissed".equals(normalized) || "dismiss".equals(normalized)) {
-            return RESPONSE_DISMISSED;
-        }
-
-        if ("cancelled".equals(normalized) || "canceled".equals(normalized)) {
-            return RESPONSE_CANCELLED;
-        }
-
+        if ("accepted".equals(normalized) || "accept".equals(normalized)) return RESPONSE_ACCEPTED;
+        if ("declined".equals(normalized) || "decline".equals(normalized) || "rejected".equals(normalized) || "reject".equals(normalized)) return RESPONSE_DECLINED;
+        if ("dismissed".equals(normalized) || "dismiss".equals(normalized)) return RESPONSE_DISMISSED;
+        if ("cancelled".equals(normalized) || "canceled".equals(normalized)) return RESPONSE_CANCELLED;
         return RESPONSE_NONE;
     }
 
     /**
-     * Maps a notification response value to the entrant status that should result from it.
+     * Builds a Firestore update payload for marking an entrant as invited/selected.
      *
-     * @param response notification response value
-     * @return canonical entrant status, or empty string when the response does not imply a status change
+     * @return A map containing status and timestamp updates.
      */
-    public static String entrantStatusFromNotificationResponse(String response) {
+    public static Map<String, Object> buildInvitedEntrantUpdate() {
+        Timestamp now = Timestamp.now();
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("status", STATUS_INVITED);
+        updates.put("selectedAt", now);
+        updates.put("updatedAt", now);
+        return updates;
+    }
+
+    /**
+     * Builds a Firestore update payload for an entrant status based on a notification response.
+     *
+     * @param response The user's response string.
+     * @return A map containing status and timestamp updates.
+     */
+    public static Map<String, Object> buildEntrantStatusUpdateFromResponse(String response) {
         String normalizedResponse = normalizeNotificationResponse(response);
+        String status = "";
 
         switch (normalizedResponse) {
-            case RESPONSE_ACCEPTED:
-                return STATUS_ACCEPTED;
-            case RESPONSE_DECLINED:
-                return STATUS_DECLINED;
-            case RESPONSE_CANCELLED:
-                return STATUS_CANCELLED;
-            default:
-                return "";
+            case RESPONSE_ACCEPTED: status = STATUS_ACCEPTED; break;
+            case RESPONSE_DECLINED: status = STATUS_DECLINED; break;
+            case RESPONSE_CANCELLED: status = STATUS_CANCELLED; break;
         }
+
+        Map<String, Object> updates = new HashMap<>();
+        if (status.isEmpty()) return updates;
+
+        Timestamp now = Timestamp.now();
+        updates.put("status", status);
+        updates.put("respondedAt", now);
+        updates.put("updatedAt", now);
+        return updates;
     }
 
     /**
-     * Returns true if the given status represents a terminal decision.
+     * Builds a Firestore update payload for cancelling an entrant's participation.
      *
-     * @param status entrant status
-     * @return true if accepted / declined / cancelled
+     * @return A map containing status and timestamp updates.
      */
-    public static boolean isFinalEntrantStatus(String status) {
-        String normalized = normalizeEntrantStatus(status);
-        return STATUS_ACCEPTED.equals(normalized)
-                || STATUS_DECLINED.equals(normalized)
-                || STATUS_CANCELLED.equals(normalized);
+    public static Map<String, Object> buildCancelledEntrantUpdate() {
+        Timestamp now = Timestamp.now();
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("status", STATUS_CANCELLED);
+        updates.put("cancelledAt", now);
+        updates.put("updatedAt", now);
+        return updates;
     }
 
     /**
-     * Returns true if the given notification response represents a handled action.
+     * Builds a Firestore update payload for marking a notification as handled.
      *
-     * @param response notification response
-     * @return true if accepted / declined / dismissed / cancelled
+     * @param response The user's response to the notification.
+     * @return A map with read status updated.
      */
-    public static boolean isHandledResponse(String response) {
-        String normalized = normalizeNotificationResponse(response);
-        return !RESPONSE_NONE.equals(normalized);
+    public static Map<String, Object> buildHandledNotificationUpdate(String response) {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("isRead", true);
+        return updates;
     }
 
     /**
-     * Builds the Firestore payload used when marking a notification as read.
+     * Builds a Firestore update payload for marking a notification as read.
      *
-     * @return Firestore update payload
+     * @return A map with read status updated.
      */
     public static Map<String, Object> buildReadNotificationUpdate() {
         Map<String, Object> updates = new HashMap<>();
         updates.put("isRead", true);
-        return updates;
-    }
-
-    /**
-     * Builds the Firestore payload used when syncing a handled notification.
-     *
-     * Recommended fields:
-     * - isRead
-     * - actionTaken
-     * - response
-     * - actedAt
-     *
-     * @param response handled response value
-     * @return Firestore update payload
-     */
-    public static Map<String, Object> buildHandledNotificationUpdate(String response) {
-        String normalizedResponse = normalizeNotificationResponse(response);
-
-        Map<String, Object> updates = new HashMap<>();
-        updates.put("isRead", true);
-        updates.put("actionTaken", true);
-        updates.put("response", normalizedResponse);
-        updates.put("actedAt", Timestamp.now());
-        return updates;
-    }
-
-    /**
-     * Builds the Firestore payload for marking an entrant as invited.
-     *
-     * @return Firestore update payload
-     */
-    public static Map<String, Object> buildInvitedEntrantUpdate() {
-        Map<String, Object> updates = new HashMap<>();
-        updates.put("status", STATUS_INVITED);
-        updates.put("invitedAt", Timestamp.now());
-        return updates;
-    }
-
-    /**
-     * Builds the Firestore payload for syncing an entrant status after a notification response.
-     *
-     * This method updates:
-     * - status
-     * - acceptedAt / declinedAt / cancelledAt
-     *
-     * @param response notification response value
-     * @return Firestore update payload
-     */
-    public static Map<String, Object> buildEntrantStatusUpdateFromResponse(String response) {
-        String status = entrantStatusFromNotificationResponse(response);
-        Map<String, Object> updates = new HashMap<>();
-
-        if (status.isEmpty()) {
-            return updates;
-        }
-
-        Timestamp now = Timestamp.now();
-        updates.put("status", status);
-
-        switch (status) {
-            case STATUS_ACCEPTED:
-                updates.put("acceptedAt", now);
-                break;
-            case STATUS_DECLINED:
-                updates.put("declinedAt", now);
-                break;
-            case STATUS_CANCELLED:
-                updates.put("cancelledAt", now);
-                break;
-            default:
-                break;
-        }
-
-        return updates;
-    }
-
-    /**
-     * Builds a Firestore payload for cancelling an entrant directly.
-     *
-     * @return Firestore update payload
-     */
-    public static Map<String, Object> buildCancelledEntrantUpdate() {
-        Map<String, Object> updates = new HashMap<>();
-        updates.put("status", STATUS_CANCELLED);
-        updates.put("cancelledAt", Timestamp.now());
         return updates;
     }
 }
