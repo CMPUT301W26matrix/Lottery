@@ -85,7 +85,7 @@ public class EntrantProfileActivity extends AppCompatActivity {
 
         btnLogout.setOnClickListener(v -> {
             mAuth.signOut();
-            SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
+            SharedPreferences prefs = getSharedPreferences(LotteryApplication.PREFS_NAME, MODE_PRIVATE);
             prefs.edit().clear().apply();
 
             Intent intent = new Intent(this, MainActivity.class);
