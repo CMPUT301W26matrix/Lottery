@@ -10,6 +10,9 @@ import com.google.firebase.FirebaseApp;
  * <p>Initializes Firebase once for the whole app process before any activity starts.</p>
  */
 public class LotteryApplication extends Application {
+
+    public static final String PREFS_NAME = "AppPrefs";
+
     /**
      * Called when the application process is created.
      * Initializes Firebase services used throughout the app.

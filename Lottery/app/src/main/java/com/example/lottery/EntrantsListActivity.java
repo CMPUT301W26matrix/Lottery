@@ -51,6 +51,10 @@ import java.util.Map;
  * </p>
  */
 public class EntrantsListActivity extends AppCompatActivity implements NotificationFragment.NotificationListener, SampleFragment.SamplingListener, OnMapReadyCallback {
+    static final String COL_WAITED_LISTED = "waited_listed_collections";
+    static final String COL_INVITED = "invited_collections";
+    static final String COL_CANCELLED = "cancelled_collections";
+    static final String COL_SIGNED_UP = "signed_up_collections";
     private static final String TAG = "EntrantsListActivity";
     private Button btnSwitchSignedUp, btnSwitchCancelled, btnSwitchWaitedList, btnSendNotification, btnViewLocation, btnSampleWinners, btnSwitchInvited;
     private FirebaseFirestore db;
@@ -166,7 +170,7 @@ public class EntrantsListActivity extends AppCompatActivity implements Notificat
         /**
          * set waited_listed arraylist
          */
-        waitedListReg = db.collection("events").document(eventId).collection("waited_listed_collections").addSnapshotListener((querySnapshot, firebaseFirestoreException) -> {
+        waitedListReg = db.collection("events").document(eventId).collection(COL_WAITED_LISTED).addSnapshotListener((querySnapshot, firebaseFirestoreException) -> {
             if (firebaseFirestoreException != null) {
                 Log.e(TAG, "waited_listed listener error", firebaseFirestoreException);
                 return;
@@ -188,7 +192,7 @@ public class EntrantsListActivity extends AppCompatActivity implements Notificat
         /**
          * set invited arraylist
          */
-        invitedReg = db.collection("events").document(eventId).collection("invited_collections").addSnapshotListener((querySnapshot, firebaseFirestoreException) -> {
+        invitedReg = db.collection("events").document(eventId).collection(COL_INVITED).addSnapshotListener((querySnapshot, firebaseFirestoreException) -> {
             if (firebaseFirestoreException != null) {
                 Log.e(TAG, "invited listener error", firebaseFirestoreException);
                 return;
@@ -211,7 +215,7 @@ public class EntrantsListActivity extends AppCompatActivity implements Notificat
         /**
          * set cancelled arraylist
          */
-        cancelledReg = db.collection("events").document(eventId).collection("cancelled_collections").addSnapshotListener((querySnapshot, firebaseFirestoreException) -> {
+        cancelledReg = db.collection("events").document(eventId).collection(COL_CANCELLED).addSnapshotListener((querySnapshot, firebaseFirestoreException) -> {
             if (firebaseFirestoreException != null) {
                 Log.e(TAG, "cancelled listener error", firebaseFirestoreException);
                 return;
@@ -235,7 +239,7 @@ public class EntrantsListActivity extends AppCompatActivity implements Notificat
         /**
          * set signed up arraylist
          */
-        signedUpReg = db.collection("events").document(eventId).collection("signed_up_collections").addSnapshotListener((querySnapshot, firebaseFirestoreException) -> {
+        signedUpReg = db.collection("events").document(eventId).collection(COL_SIGNED_UP).addSnapshotListener((querySnapshot, firebaseFirestoreException) -> {
             if (firebaseFirestoreException != null) {
                 Log.e(TAG, "signed_up listener error", firebaseFirestoreException);
                 return;
@@ -282,7 +286,7 @@ public class EntrantsListActivity extends AppCompatActivity implements Notificat
         }
         int sampleSize = Integer.parseInt(size);
         DocumentReference eventRef = db.collection("events").document(eventId);
-        eventRef.collection("waited_listed_collections").get().addOnSuccessListener(queryDocumentSnapshots -> {
+        eventRef.collection(COL_WAITED_LISTED).get().addOnSuccessListener(queryDocumentSnapshots -> {
             if (queryDocumentSnapshots.isEmpty()) {
                 Toast.makeText(this, "no entrants in the waited listed collections", Toast.LENGTH_LONG).show();
                 return;
@@ -309,7 +313,7 @@ public class EntrantsListActivity extends AppCompatActivity implements Notificat
                 if (loc != null) {
                     newData.put("location", loc);
                 }
-                DocumentReference newRef = eventRef.collection("invited_collections").document();
+                DocumentReference newRef = eventRef.collection(COL_INVITED).document();
                 batch.set(newRef, newData);
 
                 //delete the document in the waited_listed since it's belong to invited collections now

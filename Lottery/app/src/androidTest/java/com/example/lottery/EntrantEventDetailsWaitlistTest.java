@@ -30,9 +30,9 @@ public class EntrantEventDetailsWaitlistTest {
         );
 
         intent.putExtra(EntrantEventDetailsActivity.EXTRA_EVENT_ID,
-                "10766c8d-b1e6-4b95-96e2-92742e8063b2");
+                "test_event_id");
         intent.putExtra(EntrantEventDetailsActivity.EXTRA_USER_ID,
-                "6xygP8FXpxATgAkKmj27");
+                "test_user_id");
 
         try (ActivityScenario<EntrantEventDetailsActivity> scenario =
                      ActivityScenario.launch(intent)) {

@@ -58,7 +58,7 @@ public class OrganizerProfileActivity extends AppCompatActivity {
 
             FirebaseAuth.getInstance().signOut();
 
-            SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
+            SharedPreferences prefs = getSharedPreferences(LotteryApplication.PREFS_NAME, MODE_PRIVATE);
             prefs.edit().clear().apply();
 
             Toast.makeText(this, "Logged out", Toast.LENGTH_SHORT).show();

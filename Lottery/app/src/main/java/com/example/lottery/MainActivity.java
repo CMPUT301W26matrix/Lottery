@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        sharedPreferences = getSharedPreferences("AppPrefs", MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences(LotteryApplication.PREFS_NAME, MODE_PRIVATE);
 
         entrantButton = findViewById(R.id.entrant_login_button);
         organizerButton = findViewById(R.id.organizer_login_button);
@@ -99,26 +99,6 @@ public class MainActivity extends AppCompatActivity {
         signInButton = findViewById(R.id.btnSignIn);
 
         setupNavigation();
-
-        /*
-        -------------------------------------------------
-        TEMPORARY TEST CODE (USED DURING DEVELOPMENT)
-        -------------------------------------------------
-        This block was used to directly open the entrant
-        event details screen for testing waitlist and
-        notification functionality.
-
-        It should remain commented in the main branch
-        and will be removed once full navigation flow
-        is implemented.
-        -------------------------------------------------
-
-        Intent intent = new Intent(MainActivity.this, EntrantEventDetailsActivity.class);
-        intent.putExtra(EntrantEventDetailsActivity.EXTRA_EVENT_ID, "27f4180b-d282-41fc-a240-5d2675d4bf59");
-        intent.putExtra(EntrantEventDetailsActivity.EXTRA_USER_ID, "7EwFNDGwGyR89nPgfPzwD8wG6jq2");
-        startActivity(intent);
-        finish();
-        */
     }
 
     /**
