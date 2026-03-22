@@ -32,8 +32,11 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageException;
+import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 
 import java.text.SimpleDateFormat;
@@ -383,16 +386,44 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
     }
 
     private void uploadPosterAndSaveEvent(String title, String capacityStr, String details, Integer waitingListLimit, Uri posterUri) {
+        // Ensure user is authenticated before upload
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            Log.w(TAG, "User not authenticated, attempting anonymous sign-in before upload");
+            FirebaseAuth.getInstance().signInAnonymously().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    performUpload(title, capacityStr, details, waitingListLimit, posterUri);
+                } else {
+                    btnCreateEvent.setEnabled(true);
+                    Toast.makeText(this, "Upload failed: Authentication error", Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            performUpload(title, capacityStr, details, waitingListLimit, posterUri);
+        }
+    }
+
+    private void performUpload(String title, String capacityStr, String details, Integer waitingListLimit, Uri posterUri) {
         StorageReference posterRef = storage.getReference().child("event_posters/" + eventId + "/" + UUID.randomUUID() + ".jpg");
-        posterRef.putFile(posterUri)
+        
+        // Add metadata to explicitly set content type, which can help with session issues
+        StorageMetadata metadata = new StorageMetadata.Builder()
+                .setContentType("image/jpeg")
+                .build();
+
+        posterRef.putFile(posterUri, metadata)
                 .continueWithTask(task -> {
-                    if (!task.isSuccessful()) throw task.getException() != null ? task.getException() : new IllegalStateException("Upload failed");
+                    if (!task.isSuccessful()) {
+                        Log.e(TAG, "Upload failed", task.getException());
+                        throw task.getException() != null ? task.getException() : new IllegalStateException("Upload failed");
+                    }
                     return posterRef.getDownloadUrl();
                 })
                 .addOnSuccessListener(downloadUri -> saveEventToFirestore(title, capacityStr, details, waitingListLimit, downloadUri.toString()))
                 .addOnFailureListener(e -> {
-                    btnCreateEvent.setEnabled(true);
-                    Toast.makeText(this, "Failed to upload poster", Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "Failed to upload poster: " + e.getMessage());
+                    Toast.makeText(this, "poster upload unavailable in current project plan", Toast.LENGTH_LONG).show();
+                    // FIX: Proceed to save event with empty posterUri if storage fails
+                    saveEventToFirestore(title, capacityStr, details, waitingListLimit, "");
                 });
     }
 
@@ -438,8 +469,18 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         if (existingPosterUri == null || existingPosterUri.isEmpty() || existingPosterUri.equals(newPosterUri)) return;
         try {
             if (existingPosterUri.startsWith("gs://") || existingPosterUri.contains("firebasestorage.googleapis.com")) {
-                FirebaseStorage.getInstance().getReferenceFromUrl(existingPosterUri).delete();
+                FirebaseStorage.getInstance().getReferenceFromUrl(existingPosterUri).delete()
+                        .addOnFailureListener(e -> {
+                            // Check if it's a 404 (Object not found) and ignore it
+                            if (e instanceof StorageException && ((StorageException) e).getErrorCode() == StorageException.ERROR_OBJECT_NOT_FOUND) {
+                                Log.d(TAG, "Old poster already gone, ignoring 404.");
+                            } else {
+                                Log.w(TAG, "Failed to delete old poster: " + e.getMessage());
+                            }
+                        });
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            Log.w(TAG, "Error resolving old poster URL for deletion: " + e.getMessage());
+        }
     }
 }

@@ -15,6 +15,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.lottery.util.FirestorePaths;
 import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.installations.FirebaseInstallations;
@@ -62,6 +63,17 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, AdminSignInActivity.class);
             startActivity(intent);
         });
+
+        ensureAuthenticated();
+    }
+
+    /**
+     * Ensures the user is authenticated with Firebase Auth to avoid Storage/Firestore permission issues.
+     */
+    private void ensureAuthenticated() {
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            FirebaseAuth.getInstance().signInAnonymously();
+        }
     }
 
     /**
