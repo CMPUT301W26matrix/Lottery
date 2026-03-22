@@ -12,7 +12,7 @@
         android:id="@+id/headerBar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@color/primary_light_blue"
+        android:background="@color/white"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:padding="16dp"
@@ -40,6 +40,13 @@
             android:textStyle="bold" />
     </LinearLayout>
 
+    <View
+        android:id="@+id/headerDivider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/divider_gray"
+        app:layout_constraintTop_toBottomOf="@id/headerBar" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -47,7 +54,7 @@
         android:orientation="vertical"
         android:padding="32dp"
         app:layout_constraintBottom_toTopOf="@id/bottom_nav_container"
-        app:layout_constraintTop_toBottomOf="@id/headerBar">
+        app:layout_constraintTop_toBottomOf="@id/headerDivider">
 
         <ImageView
             android:layout_width="120dp"
