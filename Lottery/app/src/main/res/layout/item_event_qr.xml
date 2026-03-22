@@ -23,14 +23,5 @@
             android:textSize="18sp"
             android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/tvEventDate"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Event Date"
-            android:textColor="#6B7280"
-            android:textSize="14sp" />
-
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

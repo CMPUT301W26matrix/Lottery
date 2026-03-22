@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/page_background"
+    android:background="#F5F5F5"
     tools:context=".EntrantQrScanActivity">
 
     <!-- Header Bar -->
@@ -13,7 +13,6 @@
         android:id="@+id/topBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
         android:paddingHorizontal="16dp"
         android:paddingVertical="12dp"
         app:layout_constraintTop_toTopOf="parent">
@@ -48,13 +47,6 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <View
-        android:id="@+id/headerDivider"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/divider_gray"
-        app:layout_constraintTop_toBottomOf="@id/topBar" />
-
     <!-- Main Content Area -->
     <LinearLayout
         android:layout_width="match_parent"
@@ -63,7 +55,7 @@
         android:orientation="vertical"
         android:padding="32dp"
         app:layout_constraintBottom_toTopOf="@id/bottom_nav_container"
-        app:layout_constraintTop_toBottomOf="@id/headerDivider">
+        app:layout_constraintTop_toBottomOf="@id/topBar">
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="wrap_content"
