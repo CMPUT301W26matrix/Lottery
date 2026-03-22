@@ -243,7 +243,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                                 dateFormat.format(start.toDate()), dateFormat.format(end.toDate())));
                     }
 
-                    PosterImageLoader.load(ivEventPoster, documentSnapshot.getString("posterUri"), android.R.drawable.ic_menu_gallery);
+                    PosterImageLoader.load(ivEventPoster, documentSnapshot.getString("posterUri"), R.drawable.event_placeholder);
                 });
     }
 
