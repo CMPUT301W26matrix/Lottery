@@ -31,7 +31,8 @@ public class EntrantsListActivityTest {
     @Rule
     public ActivityScenarioRule<EntrantsListActivity> activityRule =
             new ActivityScenarioRule<>(new Intent(ApplicationProvider.getApplicationContext(), EntrantsListActivity.class)
-                    .putExtra("eventId", "test_event_id"));
+                    .putExtra("eventId", "test_event_id")
+                    .putExtra("userId", "test_user_id"));
 
     /**
      * Verifies that all navigation buttons are displayed upon initialization.

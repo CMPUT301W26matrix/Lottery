@@ -52,6 +52,7 @@ public class OrganizerEventDetailsActivityTest {
         Context context = ApplicationProvider.getApplicationContext();
         Intent intent = new Intent(context, OrganizerEventDetailsActivity.class);
         intent.putExtra("eventId", "test_event_id");
+        intent.putExtra("userId", "test_user_id");
 
         try (ActivityScenario<OrganizerEventDetailsActivity> scenario = ActivityScenario.launch(intent)) {
             // Check if the main components are displayed
@@ -69,6 +70,7 @@ public class OrganizerEventDetailsActivityTest {
         Context context = ApplicationProvider.getApplicationContext();
         Intent intent = new Intent(context, OrganizerEventDetailsActivity.class);
         intent.putExtra("eventId", "dummy_id");
+        intent.putExtra("userId", "test_user_id");
 
         try (ActivityScenario<OrganizerEventDetailsActivity> scenario = ActivityScenario.launch(intent)) {
             onView(withId(R.id.tvDetailsHeader))
@@ -89,6 +91,7 @@ public class OrganizerEventDetailsActivityTest {
         Context context = ApplicationProvider.getApplicationContext();
         Intent intent = new Intent(context, OrganizerEventDetailsActivity.class);
         intent.putExtra("eventId", "test_poster_id");
+        intent.putExtra("userId", "test_user_id");
 
         try (ActivityScenario<OrganizerEventDetailsActivity> scenario = ActivityScenario.launch(intent)) {
             // Verify that the poster container and image are displayed
@@ -106,6 +109,7 @@ public class OrganizerEventDetailsActivityTest {
         Context context = ApplicationProvider.getApplicationContext();
         Intent intent = new Intent(context, OrganizerEventDetailsActivity.class);
         intent.putExtra("eventId", "edit_target_event");
+        intent.putExtra("userId", "test_user_id");
 
         try (ActivityScenario<OrganizerEventDetailsActivity> scenario = ActivityScenario.launch(intent)) {
             onView(withId(R.id.btnEditEvent)).check(matches(isDisplayed()));
@@ -123,6 +127,7 @@ public class OrganizerEventDetailsActivityTest {
         Context context = ApplicationProvider.getApplicationContext();
         Intent intent = new Intent(context, OrganizerEventDetailsActivity.class);
         intent.putExtra("eventId", "organizer_event_id");
+        intent.putExtra("userId", "test_user_id");
 
         try (ActivityScenario<OrganizerEventDetailsActivity> scenario = ActivityScenario.launch(intent)) {
             onView(withId(R.id.btnDeleteEvent)).check(doesNotExist());

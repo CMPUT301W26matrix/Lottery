@@ -19,7 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.lottery.model.NotificationItem;
 import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.InvitationFlowUtil;
-import com.google.firebase.auth.FirebaseAuth;
+import com.example.lottery.util.SessionUtil;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
@@ -83,11 +83,7 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
         rvNotifications.setLayoutManager(new LinearLayoutManager(this));
         rvNotifications.setAdapter(adapter);
 
-        // Preference: Use Auth UID if available, otherwise fallback to intent
-        userId = FirebaseAuth.getInstance().getUid();
-        if (userId == null) {
-            readIntentData();
-        }
+        readUserId();
 
         if (userId == null) {
             return;
@@ -153,11 +149,10 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
     /**
      * Extracts the user ID from the starting Intent.
      */
-    private void readIntentData() {
-        userId = getIntent().getStringExtra(EXTRA_USER_ID);
-        if (userId == null || userId.isEmpty()) {
+    private void readUserId() {
+        userId = SessionUtil.resolveUserId(this);
+        if (userId == null) {
             Toast.makeText(this, R.string.missing_user_info, Toast.LENGTH_SHORT).show();
-            userId = null;
             finish();
         }
     }

@@ -19,6 +19,7 @@ import com.example.lottery.model.Event;
 import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.InvitationFlowUtil;
 import com.example.lottery.util.PosterImageLoader;
+import com.example.lottery.util.SessionUtil;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
@@ -74,23 +75,29 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
 
         eventId = getIntent().getStringExtra("eventId");
-        userId = getIntent().getStringExtra("userId");
-        
-        setupNavigation();
+        userId = SessionUtil.resolveUserId(this);
 
-        if (eventId != null) {
-            fetchEventDetails(eventId);
-            fetchEntrantCounts(eventId);
-        } else {
+        if (eventId == null) {
             Toast.makeText(this, "Error: Event ID missing", Toast.LENGTH_SHORT).show();
             finish();
+            return;
         }
+        if (userId == null) {
+            Toast.makeText(this, R.string.missing_user_info, Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
+        setupNavigation();
+        fetchEventDetails(eventId);
+        fetchEntrantCounts(eventId);
 
         btnEditEvent.setOnClickListener(v -> handleEditEvent());
 
         btnViewWaitingList.setOnClickListener(v -> {
             Intent intent = new Intent(this, EntrantsListActivity.class);
             intent.putExtra("eventId", eventId);
+            intent.putExtra("userId", userId);
             startActivity(intent);
         });
     }

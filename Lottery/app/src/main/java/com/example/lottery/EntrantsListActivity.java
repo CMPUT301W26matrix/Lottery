@@ -19,6 +19,7 @@ import com.example.lottery.model.Entrant;
 import com.example.lottery.model.NotificationItem;
 import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.InvitationFlowUtil;
+import com.example.lottery.util.SessionUtil;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -26,7 +27,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.Timestamp;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -37,7 +37,6 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -78,6 +77,7 @@ public class EntrantsListActivity extends AppCompatActivity implements
     private MapView mapView;
 
     private String eventId;
+    private String userId;
     private String eventTitle = "Event";
     private long capacity, maxSampleSize;
     private boolean requireLocation = false;
@@ -96,6 +96,13 @@ public class EntrantsListActivity extends AppCompatActivity implements
         eventId = getIntent().getStringExtra("eventId");
         if (eventId == null) {
             Toast.makeText(this, "event id missing", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
+        userId = SessionUtil.resolveUserId(this);
+        if (userId == null) {
+            Toast.makeText(this, R.string.missing_user_info, Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
@@ -319,7 +326,6 @@ public class EntrantsListActivity extends AppCompatActivity implements
      */
     @Override
     public void sendNotification(String content) {
-        String currentUserId = FirebaseAuth.getInstance().getUid();
         String notificationId = UUID.randomUUID().toString();
         Timestamp now = Timestamp.now();
 
@@ -331,13 +337,17 @@ public class EntrantsListActivity extends AppCompatActivity implements
         globalNotif.put("type", "general");
         globalNotif.put("eventId", eventId);
         globalNotif.put("eventTitle", eventTitle);
-        globalNotif.put("senderId", currentUserId);
+        globalNotif.put("senderId", userId);
         globalNotif.put("senderRole", "organizer");
         globalNotif.put("createdAt", now);
 
         db.collection(FirestorePaths.NOTIFICATIONS).document(notificationId)
                 .set(globalNotif)
-                .addOnSuccessListener(aVoid -> fetchRecipientsAndSend(notificationId, content, globalNotif));
+                .addOnSuccessListener(aVoid -> fetchRecipientsAndSend(notificationId, content, globalNotif))
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to create notification", e);
+                    Toast.makeText(this, "Failed to send notification", Toast.LENGTH_SHORT).show();
+                });
     }
 
     private void fetchRecipientsAndSend(String notificationId, String content, Map<String, Object> globalNotif) {
@@ -380,8 +390,13 @@ public class EntrantsListActivity extends AppCompatActivity implements
             }
 
             if (count > 0) {
-                batch.commit().addOnSuccessListener(unused -> 
-                    Toast.makeText(this, "Notification sent to " + count + " entrants", Toast.LENGTH_SHORT).show());
+                batch.commit()
+                    .addOnSuccessListener(unused ->
+                        Toast.makeText(this, "Notification sent to " + count + " entrants", Toast.LENGTH_SHORT).show())
+                    .addOnFailureListener(e -> {
+                        Log.e(TAG, "Failed to send notifications", e);
+                        Toast.makeText(this, "Failed to send notifications", Toast.LENGTH_SHORT).show();
+                    });
             } else {
                 Toast.makeText(this, "No entrants found in this group", Toast.LENGTH_SHORT).show();
             }
