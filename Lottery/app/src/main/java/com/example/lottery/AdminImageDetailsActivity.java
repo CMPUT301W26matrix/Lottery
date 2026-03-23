@@ -21,50 +21,43 @@ import com.example.lottery.util.PosterImageLoader;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
-import java.text.SimpleDateFormat;
-import java.util.Locale;
-
 /**
- * AdminEventDetailsActivity displays a read-only administrator view of a specific event.
+ * AdminImageDetailsActivity displays a full-size poster preview for administrators.
  *
- * <p>Responsibilities:
+ * <p>Key Responsibilities:
  * <ul>
  *   <li>Fetches the event record from Firestore using the supplied event ID.</li>
- *   <li>Renders the poster, title, schedule, registration dates, and description.</li>
- *   <li>Surfaces organizer-configured requirements such as geolocation.</li>
+ *   <li>Renders the poster at full width, event title, organizer name, and description.</li>
+ *   <li>Looks up the organizer name from the users collection via organizerId.</li>
+ *   <li>Provides a delete button (to be repurposed for image-only deletion later).</li>
  *   <li>Keeps the custom admin bottom navigation active on the details screen.</li>
  * </ul>
  * </p>
  */
-public class AdminEventDetailsActivity extends AppCompatActivity {
+public class AdminImageDetailsActivity extends AppCompatActivity {
 
-    private static final String TAG = "AdminEventDetails";
+    private static final String TAG = "AdminImageDetails";
     private static final String EXTRA_EVENT_ID = "eventId";
 
     /**
-     * Formatter used for displaying event-related date fields.
-     */
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat(
-            "yyyy-MM-dd HH:mm",
-            Locale.getDefault()
-    );
-
-    /**
-     * ImageView used for displaying the event poster.
+     * ImageView used for displaying the full-size event poster.
      */
     private ImageView ivEventPoster;
     /**
-     * TextViews for rendering the main event metadata and details.
+     * TextView for rendering the event title.
      */
     private TextView tvEventTitle;
-    private TextView tvScheduledDate;
-    private TextView tvEventEndDate;
-    private TextView tvRegistrationStart;
-    private TextView tvRegistrationDeadline;
-    private TextView tvDrawDate;
-    private TextView tvWaitingListCapacity;
+    /**
+     * TextView for displaying the organizer name.
+     */
+    private TextView tvOrganizerName;
+    /**
+     * TextView for displaying the event description.
+     */
     private TextView tvEventDetails;
-    private TextView tvLocationRequirement;
+    /**
+     * Button for deleting the event (to be repurposed for image deletion).
+     */
     private Button btnDeleteEvent;
     /**
      * Firebase Firestore instance for database operations.
@@ -79,7 +72,7 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_admin_event_details);
+        setContentView(R.layout.activity_admin_image_details);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content), (v, insets) -> {
             Insets in = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -91,17 +84,10 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
 
         ivEventPoster = findViewById(R.id.ivEventPoster);
         tvEventTitle = findViewById(R.id.tvEventTitle);
-        tvScheduledDate = findViewById(R.id.tvScheduledDate);
-        tvEventEndDate = findViewById(R.id.tvEventEndDate);
-        tvRegistrationStart = findViewById(R.id.tvRegistrationStart);
-        tvRegistrationDeadline = findViewById(R.id.tvRegistrationDeadline);
-        tvDrawDate = findViewById(R.id.tvDrawDate);
-        tvWaitingListCapacity = findViewById(R.id.tvWaitingListCapacity);
+        tvOrganizerName = findViewById(R.id.tvOrganizerName);
         tvEventDetails = findViewById(R.id.tvEventDetails);
-        tvLocationRequirement = findViewById(R.id.tvLocationRequirement);
         btnDeleteEvent = findViewById(R.id.btnDeleteEvent);
 
-        // Set click listener for the delete button
         btnDeleteEvent.setOnClickListener(v -> showDeleteConfirmationDialog());
 
         setupNavigation();
@@ -152,6 +138,7 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
         if (btnImages != null) {
             btnImages.setOnClickListener(v -> {
                 Intent intent = new Intent(this, AdminBrowseImagesActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
                 finish();
             });
@@ -165,7 +152,7 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * Launches a confirmation dialog before deleting the event for confirmation.
+     * Launches a confirmation dialog before deleting the event.
      */
     private void showDeleteConfirmationDialog() {
         new AlertDialog.Builder(this).setTitle("Confirm Deletion").setMessage("Do you confirm the deletion of this event?")
@@ -174,13 +161,11 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
     }
 
     private void deleteEvent() {
-        // If eventId is null or empty, show a toast message
         if (eventId == null || eventId.isEmpty()) {
             Toast.makeText(this, "Event ID is empty", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Disable the delete button
         btnDeleteEvent.setEnabled(false);
 
         db.collection("events")
@@ -189,13 +174,11 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     int totalEntrants = queryDocumentSnapshots.size();
-                    // In case there are no entrants, delete the event document
                     if (totalEntrants == 0) {
                         deleteEventDocument();
                         return;
                     }
 
-                    // Delete each entrant document
                     int[] deletedEntrants = {0};
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         document.getReference()
@@ -229,7 +212,7 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
                 .delete()
                 .addOnSuccessListener(unused -> {
                     Toast.makeText(this, "Event deleted successfully", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(this, AdminBrowseEventsActivity.class));
+                    startActivity(new Intent(this, AdminBrowseImagesActivity.class));
                     finish();
                 })
                 .addOnFailureListener(e -> {
@@ -261,7 +244,7 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
                     updateUi(event);
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error fetching admin event details", e);
+                    Log.e(TAG, "Error fetching event details", e);
                     Toast.makeText(this, R.string.failed_to_load_event_details, Toast.LENGTH_SHORT).show();
                 });
     }
@@ -274,31 +257,30 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
     private void updateUi(Event event) {
         tvEventTitle.setText(event.getTitle());
         tvEventDetails.setText(event.getDetails());
+        PosterImageLoader.load(ivEventPoster, event.getPosterUri(), R.drawable.event_placeholder);
 
-        tvScheduledDate.setText(event.getScheduledDateTime() != null
-                ? dateFormat.format(event.getScheduledDateTime()) : "");
-        tvEventEndDate.setText(event.getEventEndDate() != null
-                ? dateFormat.format(event.getEventEndDate()) : "");
-        tvRegistrationStart.setText(event.getRegistrationStartDate() != null
-                ? dateFormat.format(event.getRegistrationStartDate()) : "");
-        tvRegistrationDeadline.setText(event.getRegistrationDeadline() != null
-                ? dateFormat.format(event.getRegistrationDeadline()) : "");
-        tvDrawDate.setText(event.getDrawDate() != null
-                ? dateFormat.format(event.getDrawDate()) : "");
-
-        String capacityLabel = event.getWaitingListLimit() == null
-                ? getString(R.string.unlimited)
-                : String.valueOf(event.getWaitingListLimit());
-        tvWaitingListCapacity.setText(capacityLabel);
-
-        if (event.isRequireLocation()) {
-            tvLocationRequirement.setVisibility(View.VISIBLE);
-            tvLocationRequirement.setText(R.string.location_verification_required);
+        if (event.getOrganizerId() != null) {
+            fetchOrganizerName(event.getOrganizerId());
         } else {
-            tvLocationRequirement.setVisibility(View.GONE);
+            tvOrganizerName.setText(getString(R.string.admin_organizer_label,
+                    getString(R.string.admin_unknown_organizer)));
         }
+    }
 
-        String posterUriString = event.getPosterUri();
-        PosterImageLoader.load(ivEventPoster, posterUriString, R.drawable.event_placeholder);
+    /**
+     * Fetches the organizer name from the users collection.
+     *
+     * @param organizerId The ID of the organizer to look up.
+     */
+    private void fetchOrganizerName(String organizerId) {
+        db.collection("users").document(organizerId).get()
+                .addOnSuccessListener(doc -> {
+                    String name = doc.getString("name");
+                    tvOrganizerName.setText(getString(R.string.admin_organizer_label,
+                            name != null ? name : getString(R.string.admin_unknown_organizer)));
+                })
+                .addOnFailureListener(e ->
+                        tvOrganizerName.setText(getString(R.string.admin_organizer_label,
+                                getString(R.string.admin_unknown_organizer))));
     }
 }
