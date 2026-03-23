@@ -165,7 +165,6 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
         db.collection(FirestorePaths.USERS)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    // Rebuild the list from the latest Firestore snapshot each time.
                     users.clear();
 
                     if (queryDocumentSnapshots.isEmpty()) {
@@ -177,13 +176,13 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
 
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                         String userId = doc.getId();
-                        String name = doc.getString("name");
+                        // Unified: use username instead of name
+                        String username = doc.getString("username");
                         String email = doc.getString("email");
                         String phone = doc.getString("phone");
 
-                        // Keep the list readable even when older documents have missing fields.
-                        if (name == null || name.isEmpty()) {
-                            name = "Unknown User";
+                        if (username == null || username.isEmpty()) {
+                            username = "Unknown User";
                         }
 
                         if (email == null || email.isEmpty()) {
@@ -194,7 +193,7 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
                             phone = "";
                         }
 
-                        users.add(new User(userId, name, email, phone));
+                        users.add(new User(userId, username, email, phone));
                     }
 
                     tvEmptyProfiles.setVisibility(View.GONE);
@@ -217,7 +216,7 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
     private void showDeleteConfirmationDialog(User selectedUser) {
         new AlertDialog.Builder(this)
                 .setTitle("Delete Profile")
-                .setMessage("Delete profile for " + selectedUser.getName() + "?")
+                .setMessage("Delete profile for " + selectedUser.getUsername() + "?")
                 .setPositiveButton("Confirm", (dialog, which) -> {
                     deleteProfile(selectedUser);
                     setDeleteMode(false);

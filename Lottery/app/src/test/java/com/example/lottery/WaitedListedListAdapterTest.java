@@ -35,7 +35,7 @@ public class WaitedListedListAdapterTest {
         entrantList = new ArrayList<>();
 
         Entrant e = new Entrant();
-        e.setEntrant_name("Waitlisted User");
+        e.setUserName("Waitlisted User");
         entrantList.add(e);
 
         adapter = new WaitedListedListAdapter(context, entrantList);

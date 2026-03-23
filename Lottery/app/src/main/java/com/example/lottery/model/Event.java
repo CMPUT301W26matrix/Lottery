@@ -18,17 +18,13 @@ public class Event {
     private Integer waitingListLimit;
     private String qrCodeContent;
     private String status; // open, closed, cancelled
-    private Timestamp createdAt;
-    private Timestamp updatedAt;
-
-    // Remaining fields kept for UI compatibility during transition
+    private String posterUri;
     private Timestamp scheduledDateTime;
-    private Timestamp eventEndDate;
-    private Timestamp registrationStartDate;
     private Timestamp registrationDeadline;
     private Timestamp drawDate;
     private boolean requireLocation;
-    private String posterUri;
+    private Timestamp createdAt;
+    private Timestamp updatedAt;
 
     /**
      * Default constructor required for Firestore.
@@ -48,6 +44,11 @@ public class Event {
                  Integer waitingListLimit,
                  String qrCodeContent,
                  String status,
+                 String posterUri,
+                 Timestamp scheduledDateTime,
+                 Timestamp registrationDeadline,
+                 Timestamp drawDate,
+                 boolean requireLocation,
                  Timestamp createdAt,
                  Timestamp updatedAt) {
         this.eventId = eventId;
@@ -58,6 +59,11 @@ public class Event {
         this.waitingListLimit = waitingListLimit;
         this.qrCodeContent = qrCodeContent;
         this.status = status;
+        this.posterUri = posterUri;
+        this.scheduledDateTime = scheduledDateTime;
+        this.registrationDeadline = registrationDeadline;
+        this.drawDate = drawDate;
+        this.requireLocation = requireLocation;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -104,15 +110,6 @@ public class Event {
         this.capacity = capacity;
     }
 
-    /** Backward compatibility alias for maxCapacity */
-    public Integer getMaxCapacity() {
-        return capacity;
-    }
-
-    public void setMaxCapacity(Integer maxCapacity) {
-        this.capacity = maxCapacity;
-    }
-
     public Integer getWaitingListLimit() {
         return waitingListLimit;
     }
@@ -137,23 +134,13 @@ public class Event {
         this.status = status;
     }
 
-    public Timestamp getCreatedAt() {
-        return createdAt;
+    public String getPosterUri() {
+        return posterUri;
     }
 
-    public void setCreatedAt(Timestamp createdAt) {
-        this.createdAt = createdAt;
+    public void setPosterUri(String posterUri) {
+        this.posterUri = posterUri;
     }
-
-    public Timestamp getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Timestamp updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    // Compatibility Getters/Setters for UI fields
 
     public Timestamp getScheduledDateTime() {
         return scheduledDateTime;
@@ -161,22 +148,6 @@ public class Event {
 
     public void setScheduledDateTime(Timestamp scheduledDateTime) {
         this.scheduledDateTime = scheduledDateTime;
-    }
-
-    public Timestamp getEventEndDate() {
-        return eventEndDate;
-    }
-
-    public void setEventEndDate(Timestamp eventEndDate) {
-        this.eventEndDate = eventEndDate;
-    }
-
-    public Timestamp getRegistrationStartDate() {
-        return registrationStartDate;
-    }
-
-    public void setRegistrationStartDate(Timestamp registrationStartDate) {
-        this.registrationStartDate = registrationStartDate;
     }
 
     public Timestamp getRegistrationDeadline() {
@@ -203,12 +174,20 @@ public class Event {
         this.requireLocation = requireLocation;
     }
 
-    public String getPosterUri() {
-        return posterUri;
+    public Timestamp getCreatedAt() {
+        return createdAt;
     }
 
-    public void setPosterUri(String posterUri) {
-        this.posterUri = posterUri;
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Timestamp getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Timestamp updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     /**

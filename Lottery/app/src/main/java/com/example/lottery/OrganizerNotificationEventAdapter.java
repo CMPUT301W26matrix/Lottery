@@ -33,10 +33,10 @@ public class OrganizerNotificationEventAdapter extends RecyclerView.Adapter<Orga
      */
     public interface OnNotificationGroupClickListener {
         /**
-         * Called when a specific group (Waitlist, Selected, or Cancelled) is clicked for an event.
+         * Called when a specific group (Waitlist, Invited, or Cancelled) is clicked for an event.
          *
          * @param event The event associated with the notification.
-         * @param group The group identifier (e.g., "waitlisted", "selected", "cancelled").
+         * @param group The group identifier (e.g., "waitlisted", "invited", "cancelled").
          */
         void onGroupClick(Event event, String group);
     }
@@ -81,7 +81,8 @@ public class OrganizerNotificationEventAdapter extends RecyclerView.Adapter<Orga
         });
 
         holder.btnNotifySelected.setOnClickListener(v -> {
-            if (listener != null) listener.onGroupClick(event, "selected");
+            // Unified: use "invited" group identifier instead of "selected"
+            if (listener != null) listener.onGroupClick(event, "invited");
         });
 
         holder.btnNotifyCancelled.setOnClickListener(v -> {

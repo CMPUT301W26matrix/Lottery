@@ -41,12 +41,10 @@ public class EntrantAdapter extends ArrayAdapter<User> {
 
         TextView name = listItem.findViewById(R.id.entrantName);
         if (currentUser != null) {
-            name.setText(currentUser.getUsername() != null ? currentUser.getUsername() : currentUser.getName());
+            // Fixed: use getUsername() only as per specification
+            name.setText(currentUser.getUsername() != null ? currentUser.getUsername() : "Unknown");
         }
 
-        // View Details Button logic can be added here if needed, 
-        // but for basic display based on the test, name is sufficient.
-        
         return listItem;
     }
 }

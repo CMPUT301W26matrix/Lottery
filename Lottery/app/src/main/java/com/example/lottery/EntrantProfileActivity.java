@@ -116,11 +116,12 @@ public class EntrantProfileActivity extends AppCompatActivity {
 
         db.collection(FirestorePaths.USERS).document(userId).get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
-                String name = documentSnapshot.getString("name");
+                // Fixed: unified field name to username
+                String username = documentSnapshot.getString("username");
                 String email = documentSnapshot.getString("email");
                 String phone = documentSnapshot.getString("phone");
 
-                tvName.setText(name != null && !name.isEmpty() ? name : "Unknown");
+                tvName.setText(username != null && !username.isEmpty() ? username : "Unknown");
                 tvEmail.setText(email != null && !email.isEmpty() ? email : "No Email");
                 
                 if (phone != null && !phone.isEmpty()) {
@@ -130,12 +131,12 @@ public class EntrantProfileActivity extends AppCompatActivity {
                     tvPhone.setVisibility(View.GONE);
                 }
 
-                etName.setText(name != null ? name : "");
+                etName.setText(username != null ? username : "");
                 etEmail.setText(email != null ? email : "");
                 etPhone.setText(phone != null ? phone : "");
                 
                 // If we were forced to edit but data is now present, we can exit edit mode
-                if (forceEdit && name != null && !name.isEmpty() && email != null && !email.isEmpty()) {
+                if (forceEdit && username != null && !username.isEmpty() && email != null && !email.isEmpty()) {
                     forceEdit = false;
                     exitEditMode();
                 }
@@ -160,17 +161,17 @@ public class EntrantProfileActivity extends AppCompatActivity {
     }
 
     private void saveProfile() {
-        String name = etName.getText().toString().trim();
+        String username = etName.getText().toString().trim();
         String email = etEmail.getText().toString().trim();
         String phone = etPhone.getText().toString().trim();
 
-        if (name.isEmpty() || email.isEmpty()) {
+        if (username.isEmpty() || email.isEmpty()) {
             Toast.makeText(this, "Name and Email are required", Toast.LENGTH_SHORT).show();
             return;
         }
 
         Map<String, Object> updates = new HashMap<>();
-        updates.put("name", name);
+        updates.put("username", username); // Fixed: unified field name to username
         updates.put("email", email);
         updates.put("phone", phone); // Optional
 
@@ -180,7 +181,7 @@ public class EntrantProfileActivity extends AppCompatActivity {
                     
                     // Update local prefs
                     SharedPreferences.Editor editor = getSharedPreferences("AppPrefs", MODE_PRIVATE).edit();
-                    editor.putString("userName", name);
+                    editor.putString("userName", username);
                     editor.apply();
 
                     if (forceEdit) {

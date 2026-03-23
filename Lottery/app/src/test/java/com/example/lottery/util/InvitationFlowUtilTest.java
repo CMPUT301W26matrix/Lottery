@@ -19,8 +19,8 @@ public class InvitationFlowUtilTest {
     }
 
     @Test
-    public void normalizeEntrantStatus_mapsRejectedToCanonicalDeclined() {
-        assertEquals(InvitationFlowUtil.STATUS_DECLINED,
+    public void normalizeEntrantStatus_mapsRejectedToCanonicalCancelled() {
+        assertEquals(InvitationFlowUtil.STATUS_CANCELLED,
                 InvitationFlowUtil.normalizeEntrantStatus("REJECTED"));
     }
 
@@ -49,17 +49,17 @@ public class InvitationFlowUtilTest {
     }
 
     @Test
-    public void buildHandledNotificationUpdate_marksNotificationRead() {
+    public void buildReadNotificationUpdate_marksNotificationRead() {
         Map<String, Object> updates =
-                InvitationFlowUtil.buildHandledNotificationUpdate(InvitationFlowUtil.RESPONSE_ACCEPTED);
+                InvitationFlowUtil.buildReadNotificationUpdate();
 
         assertEquals(Boolean.TRUE, updates.get("isRead"));
     }
 
     @Test
-    public void buildHandledNotificationUpdate_containsOnlyExpectedKeys() {
+    public void buildReadNotificationUpdate_containsOnlyExpectedKeys() {
         Map<String, Object> updates =
-                InvitationFlowUtil.buildHandledNotificationUpdate(InvitationFlowUtil.RESPONSE_CANCELLED);
+                InvitationFlowUtil.buildReadNotificationUpdate();
 
         assertEquals(1, updates.size());
         assertTrue(updates.containsKey("isRead"));

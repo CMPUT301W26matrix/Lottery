@@ -6,7 +6,7 @@ import com.google.firebase.Timestamp;
  * Model class representing a notification in a user's inbox.
  *
  * Target Firestore path:
- * users/{uid}/inbox/{notificationId}
+ * users/{userId}/inbox/{notificationId}
  */
 public class NotificationItem {
 
@@ -60,15 +60,6 @@ public class NotificationItem {
 
     public void setNotificationId(String notificationId) {
         this.notificationId = notificationId;
-    }
-
-    /** Backward compatibility alias for older code using read */
-    public boolean isRead() {
-        return isRead;
-    }
-
-    public void setRead(boolean read) {
-        isRead = read;
     }
 
     public String getTitle() {
@@ -127,6 +118,14 @@ public class NotificationItem {
         this.senderRole = senderRole;
     }
 
+    public boolean isRead() {
+        return isRead;
+    }
+
+    public void setRead(boolean read) {
+        isRead = read;
+    }
+
     public Timestamp getCreatedAt() {
         return createdAt;
     }
@@ -134,7 +133,4 @@ public class NotificationItem {
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
     }
-
-    // Compatibility methods removed or simplified if they relied on complex state
-    // like 'actionTaken' which now belongs elsewhere or should be inferred.
 }

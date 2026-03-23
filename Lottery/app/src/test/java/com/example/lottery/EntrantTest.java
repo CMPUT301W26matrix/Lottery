@@ -3,6 +3,7 @@ package com.example.lottery;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import com.example.lottery.model.Entrant;
 import com.google.firebase.Timestamp;
@@ -22,45 +23,39 @@ public class EntrantTest {
     public void testDefaultConstructor() {
         Entrant entrant = new Entrant();
         assertNotNull(entrant);
-        assertNull(entrant.getEntrant_id());
+        assertNull(entrant.getUserId());
     }
 
     /**
-     * Verifies the wait-listed constructor and getters.
+     * Verifies the full constructor and getters.
      */
     @Test
-    public void testWaitListedConstructor() {
-        String name = "John Doe";
-        String id = "user123";
-        Timestamp regTime = Timestamp.now();
+    public void testFullConstructor() {
+        String userId = "user123";
+        String userName = "John Doe";
+        String email = "john@example.com";
+        String status = "waitlisted";
+        Timestamp registeredAt = Timestamp.now();
+        Timestamp waitlistedAt = Timestamp.now();
+        Timestamp invitedAt = null;
+        Timestamp acceptedAt = null;
+        Timestamp cancelledAt = null;
         GeoPoint location = new GeoPoint(45.0, -90.0);
 
-        Entrant entrant = new Entrant(name, id, regTime, location);
+        Entrant entrant = new Entrant(userId, userName, email, status, registeredAt,
+                waitlistedAt, invitedAt, acceptedAt, cancelledAt, location);
 
-        assertEquals(name, entrant.getEntrant_name());
-        assertEquals(id, entrant.getEntrant_id());
-        assertEquals(regTime, entrant.getRegistration_time());
+        assertEquals(userId, entrant.getUserId());
+        assertEquals(userName, entrant.getUserName());
+        assertEquals(email, entrant.getEmail());
+        assertEquals(status, entrant.getStatus());
+        assertEquals(registeredAt, entrant.getRegisteredAt());
+        assertEquals(waitlistedAt, entrant.getWaitlistedAt());
+        assertEquals(invitedAt, entrant.getInvitedAt());
+        assertEquals(acceptedAt, entrant.getAcceptedAt());
+        assertEquals(cancelledAt, entrant.getCancelledAt());
         assertEquals(location, entrant.getLocation());
-    }
-
-    /**
-     * Verifies the invited constructor and getters.
-     */
-    @Test
-    public void testInvitedConstructor() {
-        Timestamp invitedTime = Timestamp.now();
-        String name = "Jane Smith";
-        String id = "user456";
-        Timestamp regTime = Timestamp.now();
-        GeoPoint location = new GeoPoint(50.0, -100.0);
-
-        Entrant entrant = new Entrant(invitedTime, name, id, regTime, location);
-
-        assertEquals(invitedTime, entrant.getInvited_time());
-        assertEquals(name, entrant.getEntrant_name());
-        assertEquals(id, entrant.getEntrant_id());
-        assertEquals(regTime, entrant.getRegistration_time());
-        assertEquals(location, entrant.getLocation());
+        assertTrue(entrant.isWaitlisted());
     }
 
     /**
@@ -70,17 +65,30 @@ public class EntrantTest {
     public void testSettersAndGetters() {
         Entrant entrant = new Entrant();
 
-        String name = "New Name";
-        entrant.setEntrant_name(name);
-        assertEquals(name, entrant.getEntrant_name());
+        String userId = "user456";
+        entrant.setUserId(userId);
+        assertEquals(userId, entrant.getUserId());
 
-        Timestamp cancelledTime = Timestamp.now();
-        entrant.setCancelled_time(cancelledTime);
-        assertEquals(cancelledTime, entrant.getCancelled_time());
+        String userName = "Jane Smith";
+        entrant.setUserName(userName);
+        assertEquals(userName, entrant.getUserName());
 
-        Timestamp signedUpTime = Timestamp.now();
-        entrant.setSigned_up_time(signedUpTime);
-        assertEquals(signedUpTime, entrant.getSigned_up_time());
+        String email = "jane@example.com";
+        entrant.setEmail(email);
+        assertEquals(email, entrant.getEmail());
+
+        String status = "invited";
+        entrant.setStatus(status);
+        assertEquals(status, entrant.getStatus());
+        assertTrue(entrant.isInvited());
+
+        Timestamp registeredAt = Timestamp.now();
+        entrant.setRegisteredAt(registeredAt);
+        assertEquals(registeredAt, entrant.getRegisteredAt());
+
+        Timestamp cancelledAt = Timestamp.now();
+        entrant.setCancelledAt(cancelledAt);
+        assertEquals(cancelledAt, entrant.getCancelledAt());
 
         GeoPoint location = new GeoPoint(10.0, 20.0);
         entrant.setLocation(location);

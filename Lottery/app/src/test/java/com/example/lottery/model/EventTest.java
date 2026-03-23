@@ -9,9 +9,6 @@ import com.google.firebase.Timestamp;
 
 import org.junit.Test;
 
-import java.util.Calendar;
-import java.util.Date;
-
 /**
  * Unit tests for the {@link Event} model class.
  */
@@ -27,10 +24,12 @@ public class EventTest {
         Integer waitingListLimit = 100;
         String qrCodeContent = "qr_content";
         String status = "open";
+        String posterUri = "uri_test";
         Timestamp now = Timestamp.now();
 
+        // Testing the full constructor with compliant fields
         Event event = new Event(eventId, title, details, organizerId, capacity,
-                waitingListLimit, qrCodeContent, status, now, now);
+                waitingListLimit, qrCodeContent, status, posterUri, now, now, now, true, now, now);
 
         assertEquals(eventId, event.getEventId());
         assertEquals(title, event.getTitle());
@@ -40,6 +39,9 @@ public class EventTest {
         assertEquals(waitingListLimit, event.getWaitingListLimit());
         assertEquals(qrCodeContent, event.getQrCodeContent());
         assertEquals(status, event.getStatus());
+        assertEquals(posterUri, event.getPosterUri());
+        assertEquals(now, event.getScheduledDateTime());
+        assertTrue(event.isRequireLocation());
     }
 
     @Test

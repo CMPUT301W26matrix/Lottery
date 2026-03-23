@@ -71,7 +71,8 @@ public class InvitedListAdapter extends RecyclerView.Adapter<InvitedListAdapter.
     @Override
     public void onBindViewHolder(InvitedListAdapter.ViewHolder holder, int position) {
         Entrant entrant = mData.get(position);
-        holder.tvEntrantName.setText(entrant.getEntrant_name());
+        // Unified: use getUserName() instead of getEntrant_name()
+        holder.tvEntrantName.setText(entrant.getUserName());
         holder.tvEntrantStatus.setText("");
         holder.btnViewDetails.setOnClickListener(v -> {
             boolean requireLocation = false;

@@ -12,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -63,6 +64,7 @@ public class OrganizerProfileActivity extends AppCompatActivity {
         initializeViews();
         loadUserProfile();
         setupNavigation();
+        setupBackPressed();
 
         if (forceEdit) {
             enterEditMode();
@@ -94,6 +96,20 @@ public class OrganizerProfileActivity extends AppCompatActivity {
         });
     }
 
+    private void setupBackPressed() {
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (forceEdit) {
+                    Toast.makeText(OrganizerProfileActivity.this, "Please complete your profile to continue", Toast.LENGTH_SHORT).show();
+                } else {
+                    setEnabled(false);
+                    getOnBackPressedDispatcher().onBackPressed();
+                }
+            }
+        });
+    }
+
     private void initializeViews() {
         tvName = findViewById(R.id.tv_profile_name);
         tvEmail = findViewById(R.id.tv_profile_email);
@@ -115,11 +131,12 @@ public class OrganizerProfileActivity extends AppCompatActivity {
 
         db.collection(FirestorePaths.USERS).document(userId).get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
-                String name = documentSnapshot.getString("name");
+                // Fixed: unified field name to username
+                String username = documentSnapshot.getString("username");
                 String email = documentSnapshot.getString("email");
                 String phone = documentSnapshot.getString("phone");
 
-                tvName.setText(name != null && !name.isEmpty() ? name : "Unknown");
+                tvName.setText(username != null && !username.isEmpty() ? username : "Unknown");
                 tvEmail.setText(email != null && !email.isEmpty() ? email : "No Email");
                 
                 if (phone != null && !phone.isEmpty()) {
@@ -129,11 +146,11 @@ public class OrganizerProfileActivity extends AppCompatActivity {
                     tvPhone.setVisibility(View.GONE);
                 }
 
-                etName.setText(name != null ? name : "");
+                etName.setText(username != null ? username : "");
                 etEmail.setText(email != null ? email : "");
                 etPhone.setText(phone != null ? phone : "");
                 
-                if (forceEdit && name != null && !name.isEmpty() && email != null && !email.isEmpty()) {
+                if (forceEdit && username != null && !username.isEmpty() && email != null && !email.isEmpty()) {
                     forceEdit = false;
                     exitEditMode();
                 }
@@ -158,17 +175,17 @@ public class OrganizerProfileActivity extends AppCompatActivity {
     }
 
     private void saveProfile() {
-        String name = etName.getText().toString().trim();
+        String username = etName.getText().toString().trim();
         String email = etEmail.getText().toString().trim();
         String phone = etPhone.getText().toString().trim();
 
-        if (name.isEmpty() || email.isEmpty()) {
+        if (username.isEmpty() || email.isEmpty()) {
             Toast.makeText(this, "Name and Email are required", Toast.LENGTH_SHORT).show();
             return;
         }
 
         Map<String, Object> updates = new HashMap<>();
-        updates.put("name", name);
+        updates.put("username", username); // Fixed: unified field name to username
         updates.put("email", email);
         updates.put("phone", phone); // Optional
 
@@ -177,7 +194,7 @@ public class OrganizerProfileActivity extends AppCompatActivity {
                     Toast.makeText(this, "Profile updated", Toast.LENGTH_SHORT).show();
                     
                     SharedPreferences.Editor editor = getSharedPreferences("AppPrefs", MODE_PRIVATE).edit();
-                    editor.putString("userName", name);
+                    editor.putString("userName", username);
                     editor.apply();
 
                     if (forceEdit) {
@@ -264,7 +281,6 @@ public class OrganizerProfileActivity extends AppCompatActivity {
         // Reset home selection
         View navHome = findViewById(R.id.nav_home);
         if (navHome != null) {
-            // Finding subviews by type/index since they don't have IDs in organizer layout
             if (navHome instanceof LinearLayout) {
                 LinearLayout ll = (LinearLayout) navHome;
                 if (ll.getChildCount() >= 2) {
@@ -288,15 +304,6 @@ public class OrganizerProfileActivity extends AppCompatActivity {
                     if (tv instanceof TextView) ((TextView) tv).setTextColor(getResources().getColor(R.color.primary_blue));
                 }
             }
-        }
-    }
-    
-    @Override
-    public void onBackPressed() {
-        if (forceEdit) {
-            Toast.makeText(this, "Please complete your profile to continue", Toast.LENGTH_SHORT).show();
-        } else {
-            super.onBackPressed();
         }
     }
 }

@@ -25,7 +25,6 @@ public final class InvitationFlowUtil {
     public static final String STATUS_WAITLISTED = "waitlisted";
     public static final String STATUS_INVITED = "invited";
     public static final String STATUS_ACCEPTED = "accepted";
-    public static final String STATUS_DECLINED = "declined";
     public static final String STATUS_CANCELLED = "cancelled";
 
     // -------------------------------------------------------------------------
@@ -48,19 +47,17 @@ public final class InvitationFlowUtil {
         if (rawStatus == null) return "";
         String normalized = rawStatus.trim().toLowerCase(Locale.US);
 
-        if ("waiting".equals(normalized) || "waitlist".equals(normalized) || "waitlisted".equals(normalized)) {
+        if ("waitlisted".equalsIgnoreCase(normalized) || "waiting".equalsIgnoreCase(normalized)) {
             return STATUS_WAITLISTED;
         }
-        if ("invited".equals(normalized) || "selected".equals(normalized)) {
+        if ("invited".equalsIgnoreCase(normalized) || "selected".equalsIgnoreCase(normalized)) {
             return STATUS_INVITED;
         }
-        if ("accepted".equals(normalized)) {
+        if ("accepted".equalsIgnoreCase(normalized)) {
             return STATUS_ACCEPTED;
         }
-        if ("declined".equals(normalized) || "rejected".equals(normalized)) {
-            return STATUS_DECLINED;
-        }
-        if ("cancelled".equals(normalized) || "canceled".equals(normalized)) {
+        if ("cancelled".equalsIgnoreCase(normalized) || "cancelled".equalsIgnoreCase(normalized) || 
+            "declined".equalsIgnoreCase(normalized) || "rejected".equalsIgnoreCase(normalized)) {
             return STATUS_CANCELLED;
         }
         return "";
@@ -84,7 +81,7 @@ public final class InvitationFlowUtil {
     }
 
     /**
-     * Builds a Firestore update payload for marking an entrant as invited/selected.
+     * Builds a Firestore update payload for marking an entrant as invited.
      *
      * @return A map containing status and timestamp updates.
      */
@@ -92,8 +89,7 @@ public final class InvitationFlowUtil {
         Timestamp now = Timestamp.now();
         Map<String, Object> updates = new HashMap<>();
         updates.put("status", STATUS_INVITED);
-        updates.put("selectedAt", now);
-        updates.put("updatedAt", now);
+        updates.put("invitedAt", now);
         return updates;
     }
 
@@ -106,11 +102,18 @@ public final class InvitationFlowUtil {
     public static Map<String, Object> buildEntrantStatusUpdateFromResponse(String response) {
         String normalizedResponse = normalizeNotificationResponse(response);
         String status = "";
+        String timeField = "";
 
         switch (normalizedResponse) {
-            case RESPONSE_ACCEPTED: status = STATUS_ACCEPTED; break;
-            case RESPONSE_DECLINED: status = STATUS_DECLINED; break;
-            case RESPONSE_CANCELLED: status = STATUS_CANCELLED; break;
+            case RESPONSE_ACCEPTED: 
+                status = STATUS_ACCEPTED; 
+                timeField = "acceptedAt";
+                break;
+            case RESPONSE_DECLINED: 
+            case RESPONSE_CANCELLED: 
+                status = STATUS_CANCELLED; 
+                timeField = "cancelledAt";
+                break;
         }
 
         Map<String, Object> updates = new HashMap<>();
@@ -118,8 +121,7 @@ public final class InvitationFlowUtil {
 
         Timestamp now = Timestamp.now();
         updates.put("status", status);
-        updates.put("respondedAt", now);
-        updates.put("updatedAt", now);
+        updates.put(timeField, now);
         return updates;
     }
 
@@ -133,19 +135,6 @@ public final class InvitationFlowUtil {
         Map<String, Object> updates = new HashMap<>();
         updates.put("status", STATUS_CANCELLED);
         updates.put("cancelledAt", now);
-        updates.put("updatedAt", now);
-        return updates;
-    }
-
-    /**
-     * Builds a Firestore update payload for marking a notification as handled.
-     *
-     * @param response The user's response to the notification.
-     * @return A map with read status updated.
-     */
-    public static Map<String, Object> buildHandledNotificationUpdate(String response) {
-        Map<String, Object> updates = new HashMap<>();
-        updates.put("isRead", true);
         return updates;
     }
 

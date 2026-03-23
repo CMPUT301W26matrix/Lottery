@@ -69,7 +69,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     private int waitlistCount = 0;
     private boolean isInvited = false;
     private boolean hasAcceptedInvite = false;
-    private boolean hasDeclinedInvite = false;
+    private boolean isCancelled = false;
 
     /**
      * Initializes the activity, sets up view references, and triggers initial data loading.
@@ -236,11 +236,9 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                     tvEventTitle.setText(documentSnapshot.getString("title"));
                     tvEventDescription.setText(documentSnapshot.getString("details"));
                     
-                    Timestamp start = documentSnapshot.getTimestamp("registrationStartDate");
                     Timestamp end = documentSnapshot.getTimestamp("registrationDeadline");
-                    if (start != null && end != null) {
-                        tvRegistrationPeriod.setText(String.format("%s - %s", 
-                                dateFormat.format(start.toDate()), dateFormat.format(end.toDate())));
+                    if (end != null) {
+                        tvRegistrationPeriod.setText(String.format("Deadline: %s", dateFormat.format(end.toDate())));
                     }
 
                     PosterImageLoader.load(ivEventPoster, documentSnapshot.getString("posterUri"), R.drawable.event_placeholder);
@@ -257,7 +255,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                         String status = InvitationFlowUtil.normalizeEntrantStatus(doc.getString("status"));
                         isInvited = InvitationFlowUtil.STATUS_INVITED.equals(status);
                         hasAcceptedInvite = InvitationFlowUtil.STATUS_ACCEPTED.equals(status);
-                        hasDeclinedInvite = InvitationFlowUtil.STATUS_DECLINED.equals(status);
+                        isCancelled = InvitationFlowUtil.STATUS_CANCELLED.equals(status);
                         isInWaitlist = InvitationFlowUtil.STATUS_WAITLISTED.equals(status);
                         updateUIBasedOnStatus();
                     } else {
@@ -278,7 +276,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
             invitationButtonsContainer.setVisibility(View.GONE);
             btnWaitlistAction.setVisibility(View.VISIBLE);
             btnWaitlistAction.setText(R.string.cancel_event_membership);
-        } else if (hasDeclinedInvite) {
+        } else if (isCancelled) {
             invitationButtonsContainer.setVisibility(View.GONE);
             btnWaitlistAction.setVisibility(View.GONE);
             registrationEndedContainer.setVisibility(View.VISIBLE);
@@ -295,7 +293,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         isInWaitlist = false;
         isInvited = false;
         hasAcceptedInvite = false;
-        hasDeclinedInvite = false;
+        isCancelled = false;
         updateUIBasedOnStatus();
     }
 
@@ -356,7 +354,13 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
      */
     private void joinWaitlist() {
         Timestamp now = Timestamp.now();
-        EntrantEvent record = new EntrantEvent(userId, userName, userEmail, InvitationFlowUtil.STATUS_WAITLISTED, now, null, null, null, now);
+        EntrantEvent record = new EntrantEvent();
+        record.setUserId(userId);
+        record.setUserName(userName);
+        record.setEmail(userEmail);
+        record.setStatus(InvitationFlowUtil.STATUS_WAITLISTED);
+        record.setRegisteredAt(now);
+        record.setWaitlistedAt(now);
         
         db.collection(FirestorePaths.eventWaitingList(eventId)).document(userId)
                 .set(record)

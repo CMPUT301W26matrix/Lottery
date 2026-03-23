@@ -23,6 +23,7 @@ import java.util.List;
  *   <li>bind data to waited listed entrants recyclerview</li>
  *   <li>render each piece of data </li>
  *   <li>handle user interaction</li>
+ *   <li>implement US 02.06.01 Be able to view all chosen entrants</li>
  * </ul>
  * </p>
  */
@@ -72,7 +73,8 @@ public class WaitedListedListAdapter extends RecyclerView.Adapter<WaitedListedLi
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Entrant entrant = mData.get(position);
-        holder.tvEntrantName.setText(entrant.getEntrant_name());
+        // Unified: use getUserName() instead of getEntrant_name()
+        holder.tvEntrantName.setText(entrant.getUserName());
         holder.tvEntrantStatus.setText("");
         holder.btnViewDetails.setOnClickListener(v -> {
             boolean requireLocation = false;

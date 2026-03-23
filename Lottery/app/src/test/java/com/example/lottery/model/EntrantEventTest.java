@@ -2,7 +2,6 @@ package com.example.lottery.model;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.GeoPoint;
@@ -34,27 +33,20 @@ public class EntrantEventTest {
         String userId = "user123";
         String userName = "John Doe";
         String email = "john@example.com";
-        String status = "registered";
-        Timestamp joinedAt = Timestamp.now();
-        Timestamp selectedAt = Timestamp.now();
-        Timestamp respondedAt = Timestamp.now();
-        Timestamp cancelledAt = Timestamp.now();
-        Timestamp updatedAt = Timestamp.now();
+        String status = "waitlisted";
+        Timestamp now = Timestamp.now();
         GeoPoint location = new GeoPoint(45.0, -90.0);
 
         EntrantEvent entrantEvent = new EntrantEvent(
-                userId, userName, email, status, joinedAt, selectedAt, respondedAt, cancelledAt, updatedAt, location
+                userId, userName, email, status, now, now, null, null, null, location
         );
 
         assertEquals(userId, entrantEvent.getUserId());
         assertEquals(userName, entrantEvent.getUserName());
         assertEquals(email, entrantEvent.getEmail());
         assertEquals(status, entrantEvent.getStatus());
-        assertEquals(joinedAt, entrantEvent.getJoinedAt());
-        assertEquals(selectedAt, entrantEvent.getSelectedAt());
-        assertEquals(respondedAt, entrantEvent.getRespondedAt());
-        assertEquals(cancelledAt, entrantEvent.getCancelledAt());
-        assertEquals(updatedAt, entrantEvent.getUpdatedAt());
+        assertEquals(now, entrantEvent.getRegisteredAt());
+        assertEquals(now, entrantEvent.getWaitlistedAt());
         assertEquals(location, entrantEvent.getLocation());
     }
 
@@ -65,7 +57,7 @@ public class EntrantEventTest {
     public void testSettersAndGetters() {
         EntrantEvent entrantEvent = new EntrantEvent();
 
-        String status = "selected";
+        String status = "invited";
         entrantEvent.setStatus(status);
         assertEquals(status, entrantEvent.getStatus());
 

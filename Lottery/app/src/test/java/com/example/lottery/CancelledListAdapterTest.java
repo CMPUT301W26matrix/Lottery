@@ -35,7 +35,7 @@ public class CancelledListAdapterTest {
         entrantList = new ArrayList<>();
 
         Entrant e = new Entrant();
-        e.setEntrant_name("Cancelled User");
+        e.setUserName("Cancelled User");
         entrantList.add(e);
 
         adapter = new CancelledListAdapter(context, entrantList);

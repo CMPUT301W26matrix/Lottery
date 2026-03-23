@@ -72,7 +72,8 @@ public class CancelledListAdapter extends RecyclerView.Adapter<CancelledListAdap
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Entrant entrant = mData.get(position);
-        holder.tvEntrantName.setText(entrant.getEntrant_name());
+        // Unified: use getUserName() instead of getEntrant_name()
+        holder.tvEntrantName.setText(entrant.getUserName());
         holder.tvEntrantStatus.setText("");
         holder.btnViewDetails.setOnClickListener(v -> {
             boolean requireLocation = false;

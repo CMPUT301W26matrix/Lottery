@@ -129,7 +129,7 @@ public class WaitingListActivity extends AppCompatActivity {
                                     if (userSnapshot.exists()) {
                                         User user = userSnapshot.toObject(User.class);
                                         if (user != null) {
-                                            user.setUid(userSnapshot.getId());
+                                            user.setUserId(userSnapshot.getId());
                                             entrants.add(user);
                                         }
                                     }

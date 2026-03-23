@@ -248,17 +248,15 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
 
             this.qrCodeContent = event.getQrCodeContent();
             this.eventStartDate = event.getScheduledDateTime() != null ? event.getScheduledDateTime().toDate() : null;
-            this.eventEndDate = event.getEventEndDate() != null ? event.getEventEndDate().toDate() : null;
-            this.regStartDate = event.getRegistrationStartDate() != null ? event.getRegistrationStartDate().toDate() : null;
             this.regEndDate = event.getRegistrationDeadline() != null ? event.getRegistrationDeadline().toDate() : null;
             this.drawDate = event.getDrawDate() != null ? event.getDrawDate().toDate() : null;
 
             SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm", Locale.getDefault());
             if (eventStartDate != null) etEventStart.setText(sdf.format(eventStartDate));
-            if (eventEndDate != null) etEventEnd.setText(sdf.format(eventEndDate));
-            if (regStartDate != null) etRegStart.setText(sdf.format(regStartDate));
             if (regEndDate != null) etRegEnd.setText(sdf.format(regEndDate));
             if (drawDate != null) etDrawDate.setText(sdf.format(drawDate));
+            
+            // Note: eventEndDate and registrationStartDate are removed as per new Event model
         });
     }
 
@@ -386,7 +384,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
     }
 
     private void uploadPosterAndSaveEvent(String title, String capacityStr, String details, Integer waitingListLimit, Uri posterUri) {
-        // Ensure user is authenticated before upload
         if (FirebaseAuth.getInstance().getCurrentUser() == null) {
             Log.w(TAG, "User not authenticated, attempting anonymous sign-in before upload");
             FirebaseAuth.getInstance().signInAnonymously().addOnCompleteListener(task -> {
@@ -404,8 +401,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
 
     private void performUpload(String title, String capacityStr, String details, Integer waitingListLimit, Uri posterUri) {
         StorageReference posterRef = storage.getReference().child("event_posters/" + eventId + "/" + UUID.randomUUID() + ".jpg");
-        
-        // Add metadata to explicitly set content type, which can help with session issues
         StorageMetadata metadata = new StorageMetadata.Builder()
                 .setContentType("image/jpeg")
                 .build();
@@ -421,8 +416,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                 .addOnSuccessListener(downloadUri -> saveEventToFirestore(title, capacityStr, details, waitingListLimit, downloadUri.toString()))
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Failed to upload poster: " + e.getMessage());
-                    Toast.makeText(this, "poster upload unavailable in current project plan", Toast.LENGTH_LONG).show();
-                    // FIX: Proceed to save event with empty posterUri if storage fails
+                    Toast.makeText(this, "Poster upload unavailable, saving event without poster", Toast.LENGTH_LONG).show();
                     saveEventToFirestore(title, capacityStr, details, waitingListLimit, "");
                 });
     }
@@ -444,8 +438,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         event.setWaitingListLimit(waitingListLimit);
         event.setQrCodeContent(qrCodeContent);
         event.setScheduledDateTime(eventStartDate != null ? new Timestamp(eventStartDate) : null);
-        event.setEventEndDate(eventEndDate != null ? new Timestamp(eventEndDate) : null);
-        event.setRegistrationStartDate(regStartDate != null ? new Timestamp(regStartDate) : null);
         event.setRegistrationDeadline(regEndDate != null ? new Timestamp(regEndDate) : null);
         event.setDrawDate(drawDate != null ? new Timestamp(drawDate) : null);
         event.setRequireLocation(requireLocation);
@@ -471,7 +463,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             if (existingPosterUri.startsWith("gs://") || existingPosterUri.contains("firebasestorage.googleapis.com")) {
                 FirebaseStorage.getInstance().getReferenceFromUrl(existingPosterUri).delete()
                         .addOnFailureListener(e -> {
-                            // Check if it's a 404 (Object not found) and ignore it
                             if (e instanceof StorageException && ((StorageException) e).getErrorCode() == StorageException.ERROR_OBJECT_NOT_FOUND) {
                                 Log.d(TAG, "Old poster already gone, ignoring 404.");
                             } else {

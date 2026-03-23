@@ -57,8 +57,8 @@ public class MainActivity extends AppCompatActivity {
         Button organizerButton = findViewById(R.id.organizer_login_button);
         Button adminButton = findViewById(R.id.admin_login_button);
 
-        entrantButton.setOnClickListener(v -> handleDeviceLogin("entrant"));
-        organizerButton.setOnClickListener(v -> handleDeviceLogin("organizer"));
+        entrantButton.setOnClickListener(v -> handleDeviceLogin("ENTRANT"));
+        organizerButton.setOnClickListener(v -> handleDeviceLogin("ORGANIZER"));
         adminButton.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, AdminSignInActivity.class);
             startActivity(intent);
@@ -78,14 +78,14 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Handles login using the device's unique ID combined with the role (role_FID).
-     * @param role The role chosen by the user ("entrant" or "organizer").
+     * @param role The role chosen by the user ("ENTRANT" or "ORGANIZER").
      */
     private void handleDeviceLogin(String role) {
         FirebaseInstallations.getInstance().getId().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 String fid = task.getResult();
-                // FIX: userId is now role-prefixed to allow multiple profiles per device
-                String userId = role + "_" + fid;
+                // userId is role-prefixed (lowercase in ID for consistency with existing DB)
+                String userId = role.toLowerCase() + "_" + fid;
                 
                 db.collection(FirestorePaths.USERS).document(userId).get().addOnCompleteListener(userTask -> {
                     if (userTask.isSuccessful()) {
@@ -114,8 +114,8 @@ public class MainActivity extends AppCompatActivity {
 
         userData.put("userId", userId);
         userData.put("role", role);
-        userData.put("deviceId", fid); // Store raw FID as deviceId
-        userData.put("name", ""); 
+        userData.put("deviceId", fid); 
+        userData.put("username", ""); // Fixed: unified name to username
         userData.put("email", "");
         userData.put("phone", "");
         userData.put("createdAt", now);
@@ -135,37 +135,37 @@ public class MainActivity extends AppCompatActivity {
      */
     private void loginUser(DocumentSnapshot document, String role, String fid) {
         String userId = document.getId();
-        String name = document.getString("name");
+        String username = document.getString("username"); // Fixed: unified name to username
         String email = document.getString("email");
         
         // Update last activity timestamp
         db.collection(FirestorePaths.USERS).document(userId)
                 .update("updatedAt", Timestamp.now());
         
-        saveSessionLocally(userId, role, fid, name);
+        saveSessionLocally(userId, role, fid, username);
 
-        if (name == null || name.trim().isEmpty() || email == null || email.trim().isEmpty()) {
+        if (username == null || username.trim().isEmpty() || email == null || email.trim().isEmpty()) {
             navigateToProfileCompletion(role, userId);
         } else {
-            navigateToRoleMain(role, userId, name, email);
+            navigateToRoleMain(role, userId, username, email);
         }
     }
 
     /**
      * Persists the current session details locally.
      */
-    private void saveSessionLocally(String userId, String role, String fid, String name) {
+    private void saveSessionLocally(String userId, String role, String fid, String username) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(KEY_USER_ID, userId);   // Saves role_fid
-        editor.putString(KEY_USER_ROLE, role);   // Saves role
-        editor.putString(KEY_FID, fid);          // Saves raw fid
-        editor.putString("userName", name);
+        editor.putString(KEY_USER_ID, userId);
+        editor.putString(KEY_USER_ROLE, role);
+        editor.putString(KEY_FID, fid);
+        editor.putString("userName", username); // Key userName is used in SP throughout the app
         editor.apply();
     }
 
     private void navigateToProfileCompletion(String role, String userId) {
         Intent intent;
-        if ("entrant".equals(role)) {
+        if ("ENTRANT".equalsIgnoreCase(role)) {
             intent = new Intent(this, EntrantProfileActivity.class);
         } else {
             intent = new Intent(this, OrganizerProfileActivity.class);
@@ -176,15 +176,15 @@ public class MainActivity extends AppCompatActivity {
         finish();
     }
 
-    private void navigateToRoleMain(String role, String userId, String name, String email) {
+    private void navigateToRoleMain(String role, String userId, String username, String email) {
         Intent intent;
-        if ("entrant".equals(role)) {
+        if ("ENTRANT".equalsIgnoreCase(role)) {
             intent = new Intent(this, EntrantMainActivity.class);
         } else {
             intent = new Intent(this, OrganizerBrowseEventsActivity.class);
         }
         intent.putExtra("userId", userId);
-        intent.putExtra("userName", name);
+        intent.putExtra("userName", username);
         intent.putExtra("userEmail", email);
         startActivity(intent);
         finish();

@@ -79,7 +79,7 @@ public class EntrantsListActivity extends AppCompatActivity implements
 
     private String eventId;
     private String eventTitle = "Event";
-    private long maxCapacity, maxSampleSize;
+    private long capacity, maxSampleSize;
     private boolean requireLocation = false;
 
     private ListenerRegistration entrantsReg;
@@ -168,8 +168,9 @@ public class EntrantsListActivity extends AppCompatActivity implements
 
         db.collection(FirestorePaths.EVENTS).document(eventId).get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
-                Long cap = documentSnapshot.getLong("maxCapacity");
-                maxCapacity = cap != null ? cap : 0L;
+                // Unified: use capacity instead of maxCapacity
+                Long cap = documentSnapshot.getLong("capacity");
+                capacity = cap != null ? cap : 0L;
                 
                 String title = documentSnapshot.getString("title");
                 if (title != null) {
@@ -202,72 +203,41 @@ public class EntrantsListActivity extends AppCompatActivity implements
 
                     if (querySnapshot != null) {
                         for (QueryDocumentSnapshot snapshot : querySnapshot) {
-                            String userId = getFirstNonEmptyString(
-                                    snapshot.getString("userId"),
-                                    snapshot.getString("entrant_id")
-                            );
-
-                            String userName = getFirstNonEmptyString(
-                                    snapshot.getString("userName"),
-                                    snapshot.getString("entrant_name"),
-                                    snapshot.getString("name")
-                            );
-
+                            // Unified: remove all fallback getters
+                            String userId = snapshot.getString("userId");
+                            String userName = snapshot.getString("userName");
                             String email = snapshot.getString("email");
-
-                            Timestamp registeredAt = getFirstNonNullTimestamp(
-                                    snapshot.getTimestamp("registeredAt"),
-                                    snapshot.getTimestamp("registration_time"),
-                                    snapshot.getTimestamp("registrationTime")
-                            );
-
-                            Timestamp invitedAt = getFirstNonNullTimestamp(
-                                    snapshot.getTimestamp("invitedAt"),
-                                    snapshot.getTimestamp("invited_time")
-                            );
-
-                            Timestamp acceptedAt = getFirstNonNullTimestamp(
-                                    snapshot.getTimestamp("acceptedAt"),
-                                    snapshot.getTimestamp("signed_up_time")
-                            );
-
-                            Timestamp cancelledAt = getFirstNonNullTimestamp(
-                                    snapshot.getTimestamp("cancelledAt"),
-                                    snapshot.getTimestamp("cancelled_time"),
-                                    snapshot.getTimestamp("declinedAt")
-                            );
-
+                            Timestamp registeredAt = snapshot.getTimestamp("registeredAt");
+                            Timestamp invitedAt = snapshot.getTimestamp("invitedAt");
+                            Timestamp acceptedAt = snapshot.getTimestamp("acceptedAt");
+                            Timestamp cancelledAt = snapshot.getTimestamp("cancelledAt");
                             GeoPoint location = snapshot.getGeoPoint("location");
-                            String status = InvitationFlowUtil.normalizeEntrantStatus(
-                                    snapshot.getString("status")
-                            );
+                            String status = snapshot.getString("status");
 
                             if (userId == null || userId.trim().isEmpty()) {
                                 continue;
                             }
 
-                            if (userName == null) {
-                                userName = "";
-                            }
+                            Entrant entrant = new Entrant();
+                            entrant.setUserId(userId);
+                            entrant.setUserName(userName != null ? userName : "");
+                            entrant.setEmail(email);
+                            entrant.setStatus(status);
+                            entrant.setRegisteredAt(registeredAt);
+                            entrant.setInvitedAt(invitedAt);
+                            entrant.setAcceptedAt(acceptedAt);
+                            entrant.setCancelledAt(cancelledAt);
+                            entrant.setLocation(location);
 
-                            Entrant entrant;
+                            String normalizedStatus = InvitationFlowUtil.normalizeEntrantStatus(status);
 
-                            if (InvitationFlowUtil.STATUS_WAITLISTED.equals(status)) {
-                                entrant = new Entrant(userName, userId, registeredAt, location);
-                                entrant.setEmail(email);
+                            if (InvitationFlowUtil.STATUS_WAITLISTED.equals(normalizedStatus)) {
                                 entrantWaitedListArrayList.add(entrant);
-                            } else if (InvitationFlowUtil.STATUS_INVITED.equals(status)) {
-                                entrant = new Entrant(invitedAt, userName, userId, registeredAt, location);
-                                entrant.setEmail(email);
+                            } else if (InvitationFlowUtil.STATUS_INVITED.equals(normalizedStatus)) {
                                 entrantInvitedArrayList.add(entrant);
-                            } else if (InvitationFlowUtil.STATUS_ACCEPTED.equals(status)) {
-                                entrant = new Entrant(userName, userId, invitedAt, registeredAt, location, acceptedAt);
-                                entrant.setEmail(email);
+                            } else if (InvitationFlowUtil.STATUS_ACCEPTED.equals(normalizedStatus)) {
                                 entrantSignedUpArrayList.add(entrant);
-                            } else if (InvitationFlowUtil.STATUS_CANCELLED.equals(status)
-                                    || InvitationFlowUtil.STATUS_DECLINED.equals(status)) {
-                                entrant = new Entrant(userName, location, userId, cancelledAt, invitedAt, registeredAt);
-                                entrant.setEmail(email);
+                            } else if (InvitationFlowUtil.STATUS_CANCELLED.equals(normalizedStatus)) {
                                 entrantCancelledArrayList.add(entrant);
                             }
                         }
@@ -311,7 +281,7 @@ public class EntrantsListActivity extends AppCompatActivity implements
                     Collections.shuffle(waitlistedDocs);
 
                     maxSampleSize = min(
-                            maxCapacity - entrantSignedUpArrayList.size() - entrantInvitedArrayList.size(),
+                            capacity - entrantSignedUpArrayList.size() - entrantInvitedArrayList.size(),
                             entrantWaitedListArrayList.size()
                     );
 
@@ -346,7 +316,6 @@ public class EntrantsListActivity extends AppCompatActivity implements
 
     /**
      * Sends a notification to the currently visible group of entrants.
-     * Follows the new structured notification format.
      */
     @Override
     public void sendNotification(String content) {
@@ -362,11 +331,9 @@ public class EntrantsListActivity extends AppCompatActivity implements
         globalNotif.put("type", "general");
         globalNotif.put("eventId", eventId);
         globalNotif.put("eventTitle", eventTitle);
-        globalNotif.put("group", activeGroupStatus);
         globalNotif.put("senderId", currentUserId);
         globalNotif.put("senderRole", "organizer");
         globalNotif.put("createdAt", now);
-        globalNotif.put("recipientCount", 0);
 
         db.collection(FirestorePaths.NOTIFICATIONS).document(notificationId)
                 .set(globalNotif)
@@ -374,33 +341,23 @@ public class EntrantsListActivity extends AppCompatActivity implements
     }
 
     private void fetchRecipientsAndSend(String notificationId, String content, Map<String, Object> globalNotif) {
-        Query query;
-        if (InvitationFlowUtil.STATUS_CANCELLED.equals(activeGroupStatus)) {
-            // Handle both CANCELLED and DECLINED statuses for the cancelled list
-            query = db.collection(FirestorePaths.eventWaitingList(eventId))
-                    .whereIn("status", Arrays.asList(InvitationFlowUtil.STATUS_CANCELLED, InvitationFlowUtil.STATUS_DECLINED));
-        } else {
-            query = db.collection(FirestorePaths.eventWaitingList(eventId))
+        Query query = db.collection(FirestorePaths.eventWaitingList(eventId))
                     .whereEqualTo("status", activeGroupStatus);
-        }
 
         query.get().addOnSuccessListener(querySnapshot -> {
             WriteBatch batch = db.batch();
-            int count = 0;
+            int count = querySnapshot.size();
 
             for (QueryDocumentSnapshot doc : querySnapshot) {
                 String recipientUid = doc.getId();
-                count++;
 
                 // 2. Create recipient entry in global log
                 DocumentReference recipientRef = db.collection(FirestorePaths.notificationRecipients(notificationId))
                         .document(recipientUid);
                 Map<String, Object> recData = new HashMap<>();
                 recData.put("userId", recipientUid);
-                recData.put("delivered", true);
                 recData.put("isRead", false);
-                recData.put("statusAtSendTime", activeGroupStatus);
-                recData.put("deliveredAt", Timestamp.now());
+                recData.put("createdAt", Timestamp.now());
                 batch.set(recipientRef, recData);
 
                 // 3. Create inbox entry for the user
@@ -423,10 +380,8 @@ public class EntrantsListActivity extends AppCompatActivity implements
             }
 
             if (count > 0) {
-                batch.update(db.collection(FirestorePaths.NOTIFICATIONS).document(notificationId), "recipientCount", count);
-                final int finalCount = count;
                 batch.commit().addOnSuccessListener(unused -> 
-                    Toast.makeText(this, "Notification sent to " + finalCount + " entrants", Toast.LENGTH_SHORT).show());
+                    Toast.makeText(this, "Notification sent to " + count + " entrants", Toast.LENGTH_SHORT).show());
             } else {
                 Toast.makeText(this, "No entrants found in this group", Toast.LENGTH_SHORT).show();
             }
@@ -534,23 +489,5 @@ public class EntrantsListActivity extends AppCompatActivity implements
     public void onLowMemory() {
         super.onLowMemory();
         mapView.onLowMemory();
-    }
-
-    private String getFirstNonEmptyString(String... values) {
-        for (String value : values) {
-            if (value != null && !value.trim().isEmpty()) {
-                return value;
-            }
-        }
-        return null;
-    }
-
-    private Timestamp getFirstNonNullTimestamp(Timestamp... values) {
-        for (Timestamp value : values) {
-            if (value != null) {
-                return value;
-            }
-        }
-        return null;
     }
 }

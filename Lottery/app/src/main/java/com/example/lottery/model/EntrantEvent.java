@@ -7,19 +7,19 @@ import com.google.firebase.firestore.GeoPoint;
  * Model class representing an entrant's participation record in an event's waiting list.
  *
  * Target Firestore path:
- * events/{eventId}/waitingList/{uid}
+ * events/{eventId}/waitingList/{userId}
  */
 public class EntrantEvent {
 
     private String userId;
     private String userName;
     private String email;
-    private String status; // registered, selected, accepted, declined, cancelled, not_selected
-    private Timestamp joinedAt;
-    private Timestamp selectedAt;
-    private Timestamp respondedAt;
+    private String status; // waitlisted / invited / accepted / cancelled
+    private Timestamp registeredAt;
+    private Timestamp waitlistedAt;
+    private Timestamp invitedAt;
+    private Timestamp acceptedAt;
     private Timestamp cancelledAt;
-    private Timestamp updatedAt;
     private GeoPoint location;
 
     /**
@@ -35,37 +35,22 @@ public class EntrantEvent {
                         String userName,
                         String email,
                         String status,
-                        Timestamp joinedAt,
-                        Timestamp selectedAt,
-                        Timestamp respondedAt,
+                        Timestamp registeredAt,
+                        Timestamp waitlistedAt,
+                        Timestamp invitedAt,
+                        Timestamp acceptedAt,
                         Timestamp cancelledAt,
-                        Timestamp updatedAt,
                         GeoPoint location) {
         this.userId = userId;
         this.userName = userName;
         this.email = email;
         this.status = status;
-        this.joinedAt = joinedAt;
-        this.selectedAt = selectedAt;
-        this.respondedAt = respondedAt;
+        this.registeredAt = registeredAt;
+        this.waitlistedAt = waitlistedAt;
+        this.invitedAt = invitedAt;
+        this.acceptedAt = acceptedAt;
         this.cancelledAt = cancelledAt;
-        this.updatedAt = updatedAt;
         this.location = location;
-    }
-
-    /**
-     * Constructor without location for backward compatibility.
-     */
-    public EntrantEvent(String userId,
-                        String userName,
-                        String email,
-                        String status,
-                        Timestamp joinedAt,
-                        Timestamp selectedAt,
-                        Timestamp respondedAt,
-                        Timestamp cancelledAt,
-                        Timestamp updatedAt) {
-        this(userId, userName, email, status, joinedAt, selectedAt, respondedAt, cancelledAt, updatedAt, null);
     }
 
     // Getters and Setters
@@ -94,15 +79,6 @@ public class EntrantEvent {
         this.email = email;
     }
 
-    /** Backward compatibility alias for older code using entrantId */
-    public String getEntrantId() {
-        return userId;
-    }
-
-    public void setEntrantId(String entrantId) {
-        this.userId = entrantId;
-    }
-
     public String getStatus() {
         return status;
     }
@@ -111,37 +87,36 @@ public class EntrantEvent {
         this.status = status;
     }
 
-    public Timestamp getJoinedAt() {
-        return joinedAt;
+    public Timestamp getRegisteredAt() {
+        return registeredAt;
     }
 
-    public void setJoinedAt(Timestamp joinedAt) {
-        this.joinedAt = joinedAt;
+    public void setRegisteredAt(Timestamp registeredAt) {
+        this.registeredAt = registeredAt;
     }
 
-    public Timestamp getSelectedAt() {
-        return selectedAt;
+    public Timestamp getWaitlistedAt() {
+        return waitlistedAt;
     }
 
-    public void setSelectedAt(Timestamp selectedAt) {
-        this.selectedAt = selectedAt;
+    public void setWaitlistedAt(Timestamp waitlistedAt) {
+        this.waitlistedAt = waitlistedAt;
     }
 
-    /** Backward compatibility alias for older code using invitedAt */
     public Timestamp getInvitedAt() {
-        return selectedAt;
+        return invitedAt;
     }
 
     public void setInvitedAt(Timestamp invitedAt) {
-        this.selectedAt = invitedAt;
+        this.invitedAt = invitedAt;
     }
 
-    public Timestamp getRespondedAt() {
-        return respondedAt;
+    public Timestamp getAcceptedAt() {
+        return acceptedAt;
     }
 
-    public void setRespondedAt(Timestamp respondedAt) {
-        this.respondedAt = respondedAt;
+    public void setAcceptedAt(Timestamp acceptedAt) {
+        this.acceptedAt = acceptedAt;
     }
 
     public Timestamp getCancelledAt() {
@@ -152,26 +127,11 @@ public class EntrantEvent {
         this.cancelledAt = cancelledAt;
     }
 
-    public Timestamp getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Timestamp updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
     public GeoPoint getLocation() {
         return location;
     }
 
     public void setLocation(GeoPoint location) {
         this.location = location;
-    }
-
-    /**
-     * Updates the updatedAt timestamp. Should be called explicitly before Firestore writes.
-     */
-    public void touch() {
-        this.updatedAt = Timestamp.now();
     }
 }

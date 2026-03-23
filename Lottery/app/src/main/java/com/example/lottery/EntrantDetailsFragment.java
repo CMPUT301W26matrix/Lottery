@@ -52,10 +52,13 @@ public class EntrantDetailsFragment extends DialogFragment {
      */
     public static EntrantDetailsFragment newInstance(EntrantEvent entrantEvent, boolean requireLocation) {
         Entrant entrant = new Entrant();
-        entrant.setEntrant_id(entrantEvent.getUserId());
-        entrant.setEntrant_name(entrantEvent.getUserName());
+        // Unified: Use specification compliant field names
+        entrant.setUserId(entrantEvent.getUserId());
+        entrant.setUserName(entrantEvent.getUserName());
         entrant.setLocation(entrantEvent.getLocation());
-        // Map other fields as necessary
+        entrant.setEmail(entrantEvent.getEmail());
+        entrant.setStatus(entrantEvent.getStatus());
+        
         return newInstance(entrant, requireLocation);
     }
 
@@ -78,16 +81,17 @@ public class EntrantDetailsFragment extends DialogFragment {
         
         LinearLayout llLocation = view.findViewById(R.id.details_fragment_location);
 
-        tvName.setText(entrant.getEntrant_name());
+        // Unified: use getUserName()
+        tvName.setText(entrant.getUserName() != null ? entrant.getUserName() : "Unknown");
         
         // Try to get email from Entrant object
         if (entrant.getEmail() != null && !entrant.getEmail().isEmpty()) {
             tvEmail.setText(entrant.getEmail());
-        } else {
+        } else if (entrant.getUserId() != null) {
             tvEmail.setText("Loading...");
             // Fetch email from users collection if not present in Entrant
             FirebaseFirestore.getInstance().collection(FirestorePaths.USERS)
-                    .document(entrant.getEntrant_id())
+                    .document(entrant.getUserId())
                     .get()
                     .addOnSuccessListener(documentSnapshot -> {
                         if (documentSnapshot.exists()) {
@@ -102,6 +106,8 @@ public class EntrantDetailsFragment extends DialogFragment {
                             tvEmail.setText("N/A");
                         }
                     });
+        } else {
+            tvEmail.setText("N/A");
         }
         
         if (requireLocation) {

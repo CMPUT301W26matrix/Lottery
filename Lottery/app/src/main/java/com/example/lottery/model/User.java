@@ -7,14 +7,14 @@ import com.google.firebase.firestore.GeoPoint;
  * Model class representing a user in the system.
  *
  * Target Firestore path:
- * users/{uid}
+ * users/{userId}
  */
 public class User {
 
     /**
-     * Unique user identifier (Firebase Auth UID).
+     * Unique user identifier.
      */
-    private String uid;
+    private String userId;
 
     /**
      * Optional device identifier.
@@ -39,7 +39,7 @@ public class User {
     /**
      * Role of the user in the system.
      */
-    private Role role;
+    private String role;
 
     /**
      * Geographic location of the user.
@@ -61,7 +61,7 @@ public class User {
      * Default constructor required for Firestore.
      */
     public User() {
-        this.role = Role.ENTRANT;
+        this.role = "ENTRANT";
         this.notificationsEnabled = true;
     }
 
@@ -76,11 +76,11 @@ public class User {
     }
 
     /**
-     * Convenience constructor for basic profile information with UID.
+     * Convenience constructor for basic profile information with userId.
      */
-    public User(String uid, String username, String email, String phone) {
+    public User(String userId, String username, String email, String phone) {
         this();
-        this.uid = uid;
+        this.userId = userId;
         this.username = username;
         this.email = email;
         this.phone = phone;
@@ -89,22 +89,22 @@ public class User {
     /**
      * Full constructor.
      */
-    public User(String uid,
+    public User(String userId,
                 String deviceId,
                 String email,
                 String phone,
                 String username,
-                Role role,
+                String role,
                 GeoPoint location,
                 boolean notificationsEnabled,
                 Timestamp createdAt,
                 Timestamp updatedAt) {
-        this.uid = uid;
+        this.userId = userId;
         this.deviceId = deviceId;
         this.email = email;
         this.phone = phone;
         this.username = username;
-        this.role = role == null ? Role.ENTRANT : role;
+        this.role = role == null ? "ENTRANT" : role;
         this.location = location;
         this.notificationsEnabled = notificationsEnabled;
         this.createdAt = createdAt;
@@ -113,21 +113,12 @@ public class User {
 
     // Getters and Setters
 
-    public String getUid() {
-        return uid;
-    }
-
-    public void setUid(String uid) {
-        this.uid = uid;
-    }
-
-    /** Backward compatibility alias for older code using userId */
     public String getUserId() {
-        return uid;
+        return userId;
     }
 
     public void setUserId(String userId) {
-        this.uid = userId;
+        this.userId = userId;
     }
 
     public String getDeviceId() {
@@ -154,15 +145,6 @@ public class User {
         this.phone = phone;
     }
 
-    /** Backward compatibility alias for older code using phoneNumber */
-    public String getPhoneNumber() {
-        return phone;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phone = phoneNumber;
-    }
-
     public String getUsername() {
         return username;
     }
@@ -171,21 +153,28 @@ public class User {
         this.username = username;
     }
 
-    /** Backward compatibility alias for older code using name */
+    /**
+     * Alias for getUsername() to maintain compatibility with older code.
+     * @return the username
+     */
     public String getName() {
         return username;
     }
 
-    public void setName(String name) {
-        this.username = name;
+    /**
+     * Alias for getPhone() to maintain compatibility with older code.
+     * @return the phone number
+     */
+    public String getPhoneNumber() {
+        return phone;
     }
 
-    public Role getRole() {
+    public String getRole() {
         return role;
     }
 
-    public void setRole(Role role) {
-        this.role = role == null ? Role.ENTRANT : role;
+    public void setRole(String role) {
+        this.role = role == null ? "ENTRANT" : role;
     }
 
     public GeoPoint getLocation() {
@@ -223,15 +212,15 @@ public class User {
     // Helpers
 
     public boolean isEntrant() {
-        return role == Role.ENTRANT;
+        return "ENTRANT".equalsIgnoreCase(role);
     }
 
     public boolean isOrganizer() {
-        return role == Role.ORGANIZER;
+        return "ORGANIZER".equalsIgnoreCase(role);
     }
 
     public boolean isAdmin() {
-        return role == Role.ADMIN;
+        return "ADMIN".equalsIgnoreCase(role);
     }
 
     /**
@@ -242,14 +231,5 @@ public class User {
         if (this.createdAt == null) {
             this.createdAt = this.updatedAt;
         }
-    }
-
-    /**
-     * Enum representing valid user roles.
-     */
-    public enum Role {
-        ENTRANT,
-        ORGANIZER,
-        ADMIN
     }
 }

@@ -4,12 +4,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -36,12 +36,11 @@ public class OrganizerQrEventListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_organizer_qr_event_list);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        // Fix: Use the custom back button from the layout instead of a Toolbar
+        ImageButton btnBack = findViewById(R.id.btnBack);
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> finish());
         }
-        toolbar.setNavigationOnClickListener(v -> finish());
 
         db = FirebaseFirestore.getInstance();
         
@@ -124,16 +123,7 @@ public class OrganizerQrEventListActivity extends AppCompatActivity {
     }
 
     private void updateNavigationSelection() {
-        // Find views within the included layout
-        View navQr = findViewById(R.id.nav_qr_code);
-        if (navQr != null) {
-            ImageView iv = navQr.findViewWithTag("nav_icon"); // We might need to add tags or IDs to subviews
-            TextView tv = navQr.findViewWithTag("nav_text");
-            
-            // For now, since IDs are not in subviews of organizer nav, 
-            // we'll rely on the parent IDs if they were there.
-            // But looking at layout_bottom_nav_organizer.xml, subviews don't have IDs.
-        }
+        // Implementation for updating UI selection if needed
     }
 
     private void loadEvents() {

@@ -2,7 +2,7 @@ package com.example.lottery.util;
 
 /**
  * Centralizes all Firestore collection names and path builders to ensure
- * consistency across the application during the refactor.
+ * consistency across the application.
  */
 public final class FirestorePaths {
 
@@ -23,17 +23,17 @@ public final class FirestorePaths {
     }
 
     /**
-     * Path: users/{uid}
+     * Path: users/{userId}
      */
-    public static String userDoc(String uid) {
-        return USERS + "/" + uid;
+    public static String userDoc(String userId) {
+        return USERS + "/" + userId;
     }
 
     /**
-     * Path: users/{uid}/inbox
+     * Path: users/{userId}/inbox
      */
-    public static String userInbox(String uid) {
-        return userDoc(uid) + "/" + INBOX;
+    public static String userInbox(String userId) {
+        return userDoc(userId) + "/" + INBOX;
     }
 
     /**
