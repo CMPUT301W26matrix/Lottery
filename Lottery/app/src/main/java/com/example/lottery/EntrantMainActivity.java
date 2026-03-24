@@ -32,6 +32,7 @@ public class EntrantMainActivity extends AppCompatActivity {
     private EntrantEventAdapter adapter;
     private View emptyStateContainer;
     private TextView tvActiveCount, tvJoinedCount;
+    private TextView tvNotificationBadge;
     private FirebaseFirestore db;
     private String userId;
 
@@ -68,6 +69,7 @@ public class EntrantMainActivity extends AppCompatActivity {
         emptyStateContainer = findViewById(R.id.emptyStateContainer);
         tvActiveCount = findViewById(R.id.tvActiveCount);
         tvJoinedCount = findViewById(R.id.tvJoinedCount);
+        tvNotificationBadge = findViewById(R.id.tvNotificationBadge);
 
         adapter = new EntrantEventAdapter(eventList, this::openEventDetails);
         rvEvents.setLayoutManager(new LinearLayoutManager(this));
@@ -76,6 +78,15 @@ public class EntrantMainActivity extends AppCompatActivity {
         setupNavigation();
         loadEvents();
         loadStats();
+        checkUnreadNotifications();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadEvents();
+        loadStats();
+        checkUnreadNotifications();
     }
 
     /**
@@ -92,7 +103,6 @@ public class EntrantMainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // Fixed QR Scan click listener
         findViewById(R.id.nav_qr_scan).setOnClickListener(v -> {
             Toast.makeText(this, "Opening QR Event List...", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(this, OrganizerQrEventListActivity.class);
@@ -122,7 +132,9 @@ public class EntrantMainActivity extends AppCompatActivity {
                     adapter.notifyDataSetChanged();
                     updateEmptyState();
                 })
-                .addOnFailureListener(e -> Toast.makeText(this, "Failed to load events", Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Failed to load events", Toast.LENGTH_SHORT).show()
+                );
     }
 
     /**
@@ -145,6 +157,30 @@ public class EntrantMainActivity extends AppCompatActivity {
                         }
                     });
         }
+    }
+
+    /**
+     * Checks whether the user has unread notifications and shows/hides the badge.
+     */
+    private void checkUnreadNotifications() {
+        if (userId == null || tvNotificationBadge == null) {
+            return;
+        }
+
+        db.collection("users")
+                .document(userId)
+                .collection("notifications")
+                .whereEqualTo("isRead", false)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (!querySnapshot.isEmpty()) {
+                        tvNotificationBadge.setVisibility(View.VISIBLE);
+                        tvNotificationBadge.setText(String.valueOf(querySnapshot.size()));
+                    } else {
+                        tvNotificationBadge.setVisibility(View.GONE);
+                    }
+                })
+                .addOnFailureListener(e -> tvNotificationBadge.setVisibility(View.GONE));
     }
 
     /**

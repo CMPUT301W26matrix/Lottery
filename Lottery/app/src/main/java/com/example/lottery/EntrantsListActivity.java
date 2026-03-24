@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.lottery.util.InvitationFlowUtil;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -37,69 +38,122 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Activity to display entrants of different status of a event by list and map and able to sample they
+ * Displays organizer-side entrant lists for one event.
  *
- * <p>Responsibilities:
+ * <p>All entrant data in this activity is read from:</p>
+ *
+ * <pre>
+ * events/{eventId}/entrant_events/{userId}
+ * </pre>
+ *
+ * <p>The status field in entrant_events is the single source of truth.</p>
+ *
+ * <p>Supported organizer views:</p>
  * <ul>
- *   <li>Fetch the 4 different status entrant collections from Firestore</li>
- *   <li>Render the 4 different status entrant list and implement view location and sample winners functionality</li>
- *   <li>implement US 02.02.02 Be Able To See On A Map Where Entrants Joined My Event</li>
- *   <li>implement US 02.05.02 Be able to sample number of attendees to register for the event</li>
- *   <li>implement US 02.06.01 Be able to view all chosen entrants</li>
- *   <li>implement US 02.06.02 Be able to see a list of all the cancelled entrants</li>
+ *     <li>Waiting entrants</li>
+ *     <li>Invited entrants</li>
+ *     <li>Accepted entrants</li>
+ *     <li>Cancelled / declined entrants</li>
+ *     <li>Map view for locations</li>
  * </ul>
- * </p>
+ *
+ * <p>This activity also supports:</p>
+ * <ul>
+ *     <li>Sending notifications to the currently selected entrant group</li>
+ *     <li>Sampling winners from the waiting list</li>
+ * </ul>
  */
-public class EntrantsListActivity extends AppCompatActivity implements NotificationFragment.NotificationListener, SampleFragment.SamplingListener, OnMapReadyCallback {
+public class EntrantsListActivity extends AppCompatActivity
+        implements NotificationFragment.NotificationListener,
+        SampleFragment.SamplingListener,
+        OnMapReadyCallback {
+
+    /** Log tag for debugging. */
     private static final String TAG = "EntrantsListActivity";
-    private Button btnSwitchSignedUp, btnSwitchCancelled, btnSwitchWaitedList, btnSendNotification, btnViewLocation, btnSampleWinners, btnSwitchInvited;
+
+    /** Buttons for switching between entrant groups and actions. */
+    private Button btnSwitchSignedUp;
+    private Button btnSwitchCancelled;
+    private Button btnSwitchWaitedList;
+    private Button btnSendNotification;
+    private Button btnViewLocation;
+    private Button btnSampleWinners;
+    private Button btnSwitchInvited;
+
+    /** Firestore instance. */
     private FirebaseFirestore db;
+
+    /** In-memory entrant lists for each organizer tab. */
     private ArrayList<Entrant> entrantSignedUpArrayList;
     private ArrayList<Entrant> entrantInvitedArrayList;
     private ArrayList<Entrant> entrantCancelledArrayList;
     private ArrayList<Entrant> entrantWaitedListArrayList;
+
+    /** RecyclerView adapters. */
     private SignedUpListAdapter signedUpAdapter;
     private CancelledListAdapter cancelledAdapter;
     private WaitedListedListAdapter waitedListAdapter;
     private InvitedListAdapter invitedAdapter;
-    private LinearLayout invitedEntrantsListLayout, cancelledEntrantsListLayout, signedUpEntrantsListLayout, waitedListEntrantsListLayout, viewLocationLayout;
-    private RecyclerView invitedEventsView, signedUpEventsView, waitedListEventsView, cancelledEntrantsView;
+
+    /** Layout containers for tab switching. */
+    private LinearLayout invitedEntrantsListLayout;
+    private LinearLayout cancelledEntrantsListLayout;
+    private LinearLayout signedUpEntrantsListLayout;
+    private LinearLayout waitedListEntrantsListLayout;
+    private LinearLayout viewLocationLayout;
+
+    /** RecyclerViews for each entrant group. */
+    private RecyclerView invitedEventsView;
+    private RecyclerView signedUpEventsView;
+    private RecyclerView waitedListEventsView;
+    private RecyclerView cancelledEntrantsView;
+
+    /** Google Map references. */
     private GoogleMap googleMap;
     private MapView mapView;
+
+    /** Current event ID. */
     private String eventId;
-    private long maxCapacity, maxSampleSize;
-    private ListenerRegistration waitedListReg, invitedReg, cancelledReg, signedUpReg;
+
+    /** Selection capacity and current sample size ceiling. */
+    private long selectedCapacity;
+    private long maxSampleSize;
+
+    /** Snapshot listeners for live updates by status. */
+    private ListenerRegistration waitedListReg;
+    private ListenerRegistration invitedReg;
+    private ListenerRegistration cancelledReg;
+    private ListenerRegistration signedUpReg;
 
     /**
-     * Initializes the activity, sets up Firebase, bind views,
-     * and click button listeners for QR code generation and event creation.
+     * Initializes the activity, Firebase, views, adapters, listeners, and live queries.
      *
-     * @param savedInstanceState If the activity is initialized again after being shut down,
-     *                           this contains the most recent data, in other case it is null.
+     * @param savedInstanceState previously saved state, if any
      */
     @SuppressLint("NotifyDataSetChanged")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.entrants_list);
-        // Initialize Firestore
+
         try {
             db = FirebaseFirestore.getInstance();
         } catch (Exception e) {
             Log.e(TAG, "Firebase initialization failed", e);
-            Toast.makeText(this, "Service Unavailable", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Service unavailable", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
-        //get event id from the jump from page to query entrants
         eventId = getIntent().getStringExtra("eventId");
         if (eventId == null) {
-            Toast.makeText(this, "event id missing", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Event ID missing", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
+
         initializeViews();
+
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
 
@@ -107,47 +161,34 @@ public class EntrantsListActivity extends AppCompatActivity implements Notificat
         entrantCancelledArrayList = new ArrayList<>();
         entrantWaitedListArrayList = new ArrayList<>();
         entrantInvitedArrayList = new ArrayList<>();
+
         signedUpAdapter = new SignedUpListAdapter(this, entrantSignedUpArrayList);
         cancelledAdapter = new CancelledListAdapter(this, entrantCancelledArrayList);
         waitedListAdapter = new WaitedListedListAdapter(this, entrantWaitedListArrayList);
         invitedAdapter = new InvitedListAdapter(this, entrantInvitedArrayList);
+
         signedUpEventsView.setAdapter(signedUpAdapter);
         waitedListEventsView.setAdapter(waitedListAdapter);
         cancelledEntrantsView.setAdapter(cancelledAdapter);
         invitedEventsView.setAdapter(invitedAdapter);
+
         showLayout(waitedListEntrantsListLayout);
 
-        /**
-         * switch to signed up component to display the entrants list that have signed up
-         */
         btnSwitchSignedUp.setOnClickListener(v -> showLayout(signedUpEntrantsListLayout));
         btnSwitchCancelled.setOnClickListener(v -> showLayout(cancelledEntrantsListLayout));
         btnSwitchWaitedList.setOnClickListener(v -> showLayout(waitedListEntrantsListLayout));
-        btnSwitchInvited.setOnClickListener(view -> showLayout(invitedEntrantsListLayout));
+        btnSwitchInvited.setOnClickListener(v -> showLayout(invitedEntrantsListLayout));
 
-        /**
-         *display send notification fragment
-         */
-        btnSendNotification.setOnClickListener(view -> {
+        btnSendNotification.setOnClickListener(v -> {
             NotificationFragment notificationFragment = new NotificationFragment();
             notificationFragment.show(getSupportFragmentManager(), "Send Notification");
         });
 
-        /**
-         * display sample fragment
-         */
-        btnSampleWinners.setOnClickListener(view -> {
+        btnSampleWinners.setOnClickListener(v -> {
             SampleFragment sampleFragment = new SampleFragment();
             sampleFragment.show(getSupportFragmentManager(), "Sample Winners");
         });
 
-        /**
-         * switch to invited component to display the entrants list that have invited by the organizer
-         */
-
-        /**
-         * switch to view location component to display the entrants on the map
-         */
         btnViewLocation.setOnClickListener(v -> {
             if (googleMap != null) {
                 if (waitedListEntrantsListLayout.getVisibility() == View.VISIBLE) {
@@ -163,173 +204,316 @@ public class EntrantsListActivity extends AppCompatActivity implements Notificat
             showLayout(viewLocationLayout);
         });
 
-        /**
-         * set waited_listed arraylist
-         */
-        waitedListReg = db.collection("events").document(eventId).collection("waited_listed_collections").addSnapshotListener((querySnapshot, firebaseFirestoreException) -> {
-            if (firebaseFirestoreException != null) {
-                Log.e(TAG, "waited_listed listener error", firebaseFirestoreException);
-                return;
-            }
-            entrantWaitedListArrayList.clear();
-            if (querySnapshot != null) {
-                for (QueryDocumentSnapshot snapshot : querySnapshot) {
-                    String entrantId = snapshot.getString("entrant_id");
-                    Timestamp registrationTime = snapshot.getTimestamp("registration_time");
-                    GeoPoint location = snapshot.getGeoPoint("location");
-                    String name = snapshot.getString("entrant_name");
-                    Entrant newEntrant = new Entrant(name, entrantId, registrationTime, location);
-                    entrantWaitedListArrayList.add(newEntrant);
-                }
-                waitedListAdapter.notifyDataSetChanged();
-            }
-        });
-
-        /**
-         * set invited arraylist
-         */
-        invitedReg = db.collection("events").document(eventId).collection("invited_collections").addSnapshotListener((querySnapshot, firebaseFirestoreException) -> {
-            if (firebaseFirestoreException != null) {
-                Log.e(TAG, "invited listener error", firebaseFirestoreException);
-                return;
-            }
-            entrantInvitedArrayList.clear();
-            if (querySnapshot != null) {
-                for (QueryDocumentSnapshot snapshot : querySnapshot) {
-                    String entrantId = snapshot.getString("entrant_id");
-                    Timestamp registrationTime = snapshot.getTimestamp("registration_time");
-                    GeoPoint location = snapshot.getGeoPoint("location");
-                    Timestamp invitedTime = snapshot.getTimestamp("invited_time");
-                    String name = snapshot.getString("entrant_name");
-                    Entrant newEntrant = new Entrant(invitedTime, name, entrantId, registrationTime, location);
-                    entrantInvitedArrayList.add(newEntrant);
-                }
-                invitedAdapter.notifyDataSetChanged();
-            }
-        });
-
-        /**
-         * set cancelled arraylist
-         */
-        cancelledReg = db.collection("events").document(eventId).collection("cancelled_collections").addSnapshotListener((querySnapshot, firebaseFirestoreException) -> {
-            if (firebaseFirestoreException != null) {
-                Log.e(TAG, "cancelled listener error", firebaseFirestoreException);
-                return;
-            }
-            entrantCancelledArrayList.clear();
-            if (querySnapshot != null) {
-                for (QueryDocumentSnapshot snapshot : querySnapshot) {
-                    String entrantId = snapshot.getString("entrant_id");
-                    Timestamp registrationTime = snapshot.getTimestamp("registration_time");
-                    GeoPoint location = snapshot.getGeoPoint("location");
-                    Timestamp cancelledTime = snapshot.getTimestamp("cancelled_time");
-                    Timestamp invitedTime = snapshot.getTimestamp("invited_time");
-                    String name = snapshot.getString("entrant_name");
-                    Entrant newEntrant = new Entrant(name, location, entrantId, cancelledTime, invitedTime, registrationTime);
-                    entrantCancelledArrayList.add(newEntrant);
-                }
-                cancelledAdapter.notifyDataSetChanged();
-            }
-        });
-
-        /**
-         * set signed up arraylist
-         */
-        signedUpReg = db.collection("events").document(eventId).collection("signed_up_collections").addSnapshotListener((querySnapshot, firebaseFirestoreException) -> {
-            if (firebaseFirestoreException != null) {
-                Log.e(TAG, "signed_up listener error", firebaseFirestoreException);
-                return;
-            }
-            entrantSignedUpArrayList.clear();
-            if (querySnapshot != null) {
-                for (QueryDocumentSnapshot snapshot : querySnapshot) {
-                    String entrantId = snapshot.getString("entrant_id");
-                    Timestamp registrationTime = snapshot.getTimestamp("registration_time");
-                    GeoPoint location = snapshot.getGeoPoint("location");
-                    Timestamp signedUpTime = snapshot.getTimestamp("signed_up_time");
-                    Timestamp invitedTime = snapshot.getTimestamp("invited_time");
-                    String name = snapshot.getString("entrant_name");
-                    Entrant newEntrant = new Entrant(name, entrantId, invitedTime, registrationTime, location, signedUpTime);
-                    entrantSignedUpArrayList.add(newEntrant);
-                }
-                signedUpAdapter.notifyDataSetChanged();
-            }
-        });
-
-        //get the max capacity of the event
-        db.collection("events").document(eventId).get().addOnSuccessListener(documentSnapshot -> {
-            if (documentSnapshot.exists()) {
-                Long cap = documentSnapshot.getLong("maxCapacity");
-                maxCapacity = cap != null ? cap : 0L;
-            }
-        });
+        attachWaitedListListener();
+        attachInvitedListListener();
+        attachAcceptedListListener();
+        attachCancelledListListener();
+        loadSelectedCapacity();
     }
 
     /**
-     * implement US 02.05.02, randomly sample a specific number of signed up entrants from the attendees
+     * Attaches the waiting-list live query.
      *
-     * @param size sampling size which is the number of random entrants needed to marked as invited
+     * <p>Reads entrants whose status is {@code waiting}.</p>
+     */
+    private void attachWaitedListListener() {
+        waitedListReg = db.collection("events")
+                .document(eventId)
+                .collection("entrant_events")
+                .whereEqualTo("status", InvitationFlowUtil.STATUS_WAITING)
+                .addSnapshotListener((querySnapshot, e) -> {
+                    if (e != null) {
+                        Log.e(TAG, "waiting listener error", e);
+                        return;
+                    }
+
+                    entrantWaitedListArrayList.clear();
+
+                    if (querySnapshot != null) {
+                        for (DocumentSnapshot snapshot : querySnapshot) {
+                            String userId = snapshot.getString("userId");
+                            GeoPoint location = snapshot.getGeoPoint("location");
+                            Timestamp joinedTime = snapshot.getTimestamp("joinedWaitlistAt");
+
+                            String name = userId;
+                            Entrant entrant = new Entrant(name, userId, joinedTime, location);
+                            entrantWaitedListArrayList.add(entrant);
+                        }
+                    }
+
+                    waitedListAdapter.notifyDataSetChanged();
+                });
+    }
+
+    /**
+     * Attaches the invited-list live query.
+     *
+     * <p>Reads entrants whose status is {@code invited}.</p>
+     */
+    private void attachInvitedListListener() {
+        invitedReg = db.collection("events")
+                .document(eventId)
+                .collection("entrant_events")
+                .whereEqualTo("status", InvitationFlowUtil.STATUS_INVITED)
+                .addSnapshotListener((querySnapshot, e) -> {
+                    if (e != null) {
+                        Log.e(TAG, "invited listener error", e);
+                        return;
+                    }
+
+                    entrantInvitedArrayList.clear();
+
+                    if (querySnapshot != null) {
+                        for (DocumentSnapshot snapshot : querySnapshot) {
+                            String userId = snapshot.getString("userId");
+                            GeoPoint location = snapshot.getGeoPoint("location");
+                            Timestamp invitedTime = snapshot.getTimestamp("invitedAt");
+                            String name = userId;
+
+                            Entrant entrant = new Entrant(invitedTime, name, userId, null, location);
+                            entrantInvitedArrayList.add(entrant);
+                        }
+                    }
+
+                    invitedAdapter.notifyDataSetChanged();
+                });
+    }
+
+    /**
+     * Attaches the accepted-list live query.
+     *
+     * <p>Reads entrants whose status is {@code accepted}.</p>
+     */
+    private void attachAcceptedListListener() {
+        signedUpReg = db.collection("events")
+                .document(eventId)
+                .collection("entrant_events")
+                .whereEqualTo("status", InvitationFlowUtil.STATUS_ACCEPTED)
+                .addSnapshotListener((querySnapshot, e) -> {
+                    if (e != null) {
+                        Log.e(TAG, "accepted listener error", e);
+                        return;
+                    }
+
+                    entrantSignedUpArrayList.clear();
+
+                    if (querySnapshot != null) {
+                        for (DocumentSnapshot snapshot : querySnapshot) {
+                            String userId = snapshot.getString("userId");
+                            GeoPoint location = snapshot.getGeoPoint("location");
+                            Timestamp invitedTime = snapshot.getTimestamp("invitedAt");
+                            Timestamp acceptedTime = snapshot.getTimestamp("acceptedAt");
+                            String name = userId;
+
+                            Entrant entrant = new Entrant(name, userId, invitedTime, null, location, acceptedTime);
+                            entrantSignedUpArrayList.add(entrant);
+                        }
+                    }
+
+                    signedUpAdapter.notifyDataSetChanged();
+                });
+    }
+
+    /**
+     * Attaches the cancelled / declined list live query.
+     *
+     * <p>Reads entrants whose status is {@code declined}.</p>
+     */
+    private void attachCancelledListListener() {
+        cancelledReg = db.collection("events")
+                .document(eventId)
+                .collection("entrant_events")
+                .whereEqualTo("status", InvitationFlowUtil.STATUS_DECLINED)
+                .addSnapshotListener((querySnapshot, e) -> {
+                    if (e != null) {
+                        Log.e(TAG, "declined listener error", e);
+                        return;
+                    }
+
+                    entrantCancelledArrayList.clear();
+
+                    if (querySnapshot != null) {
+                        for (DocumentSnapshot snapshot : querySnapshot) {
+                            String userId = snapshot.getString("userId");
+                            GeoPoint location = snapshot.getGeoPoint("location");
+                            Timestamp invitedTime = snapshot.getTimestamp("invitedAt");
+                            Timestamp cancelledTime = snapshot.getTimestamp("cancelledAt");
+                            String name = userId;
+
+                            Entrant entrant = new Entrant(name, location, userId, cancelledTime, invitedTime, null);
+                            entrantCancelledArrayList.add(entrant);
+                        }
+                    }
+
+                    cancelledAdapter.notifyDataSetChanged();
+                });
+    }
+
+    /**
+     * Loads the event's selected capacity from Firestore.
+     *
+     * <p>Uses {@code selectedCapacity} first and falls back to {@code maxCapacity} if needed.</p>
+     */
+    private void loadSelectedCapacity() {
+        db.collection("events")
+                .document(eventId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (!documentSnapshot.exists()) {
+                        selectedCapacity = 0L;
+                        return;
+                    }
+
+                    Long selectedCap = documentSnapshot.getLong("selectedCapacity");
+                    Long fallbackCap = documentSnapshot.getLong("maxCapacity");
+
+                    if (selectedCap != null) {
+                        selectedCapacity = selectedCap;
+                    } else if (fallbackCap != null) {
+                        selectedCapacity = fallbackCap;
+                    } else {
+                        selectedCapacity = 0L;
+                    }
+                });
+    }
+
+    /**
+     * Samples a specific number of waiting entrants and marks them as invited.
+     *
+     * <p>This updates the same entrant_events documents instead of moving data between collections.</p>
+     *
+     * @param size requested sample size as text
      */
     @SuppressLint({"DefaultLocale", "NotifyDataSetChanged"})
     @Override
     public void sampling(String size) {
         try {
-            //if not a number, prevent executing sampling
             Integer.parseInt(size);
         } catch (NumberFormatException e) {
             Toast.makeText(this, "ERROR: sample size must be an integer", Toast.LENGTH_LONG).show();
             return;
         }
+
         int sampleSize = Integer.parseInt(size);
         DocumentReference eventRef = db.collection("events").document(eventId);
-        eventRef.collection("waited_listed_collections").get().addOnSuccessListener(queryDocumentSnapshots -> {
-            if (queryDocumentSnapshots.isEmpty()) {
-                Toast.makeText(this, "no entrants in the waited listed collections", Toast.LENGTH_LONG).show();
-                return;
-            }
-            List<DocumentSnapshot> data = queryDocumentSnapshots.getDocuments();
-            Collections.shuffle(data);
-            maxSampleSize = min(maxCapacity - entrantSignedUpArrayList.size() - entrantInvitedArrayList.size(), entrantWaitedListArrayList.size());
-            Log.d(TAG, "sampling: shuffle succeeds");
-            if (maxSampleSize < sampleSize || sampleSize <= 0) {
-                String errorMessage = String.format("ERROR: check failed: 0 < sample size < %d", maxSampleSize);
-                Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
-                return;
-            }
 
-            WriteBatch batch = db.batch();
-            for (int i = 0; i < sampleSize; i++) {
-                DocumentSnapshot documentSnapshot = data.get(i);
-                Map<String, Object> newData = new HashMap<>();
-                newData.put("entrant_id", documentSnapshot.getString("entrant_id"));
-                newData.put("registration_time", documentSnapshot.getTimestamp("registration_time"));
-                newData.put("invited_time", Timestamp.now());
-                newData.put("entrant_name", documentSnapshot.getString("entrant_name"));
-                GeoPoint loc = documentSnapshot.getGeoPoint("location");
-                if (loc != null) {
-                    newData.put("location", loc);
-                }
-                DocumentReference newRef = eventRef.collection("invited_collections").document();
-                batch.set(newRef, newData);
+        eventRef.collection("entrant_events")
+                .whereEqualTo("status", InvitationFlowUtil.STATUS_WAITING)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (queryDocumentSnapshots.isEmpty()) {
+                        Toast.makeText(this, "No entrants in the waiting list", Toast.LENGTH_LONG).show();
+                        return;
+                    }
 
-                //delete the document in the waited_listed since it's belong to invited collections now
-                batch.delete(documentSnapshot.getReference());
-            }
-            batch.commit().addOnFailureListener(e -> Log.d("sampling", "commit failed"));
-        });
+                    List<DocumentSnapshot> data = queryDocumentSnapshots.getDocuments();
+                    Collections.shuffle(data);
+
+                    maxSampleSize = min(
+                            selectedCapacity - entrantSignedUpArrayList.size() - entrantInvitedArrayList.size(),
+                            entrantWaitedListArrayList.size()
+                    );
+
+                    if (maxSampleSize < sampleSize || sampleSize <= 0) {
+                        String errorMessage = String.format(
+                                "ERROR: check failed: 0 < sample size < %d",
+                                maxSampleSize
+                        );
+                        Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    WriteBatch batch = db.batch();
+                    Timestamp now = Timestamp.now();
+
+                    for (int i = 0; i < sampleSize; i++) {
+                        DocumentSnapshot documentSnapshot = data.get(i);
+                        batch.update(
+                                documentSnapshot.getReference(),
+                                "status", InvitationFlowUtil.STATUS_INVITED,
+                                "invitedAt", now,
+                                "updatedAt", now
+                        );
+                    }
+
+                    batch.commit()
+                            .addOnSuccessListener(unused ->
+                                    Toast.makeText(this, "Winners sampled successfully", Toast.LENGTH_SHORT).show()
+                            )
+                            .addOnFailureListener(e ->
+                                    Toast.makeText(this, "Sampling failed", Toast.LENGTH_SHORT).show()
+                            );
+                });
     }
 
     /**
-     * send notification to specified entrants(depend on which list the organizer is browsing)
+     * Sends an organizer notification to the currently selected entrant group.
      *
-     * @param content a sequence of words that will be sent to entrants
+     * <p>Recipients are determined by the visible tab and read from entrant_events.</p>
+     *
+     * @param content notification message body
      */
     @Override
     public void sendNotification(String content) {
+        if (content == null || content.trim().isEmpty()) {
+            Toast.makeText(this, "Message cannot be empty", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String targetStatus;
+
+        if (waitedListEntrantsListLayout.getVisibility() == View.VISIBLE) {
+            targetStatus = InvitationFlowUtil.STATUS_WAITING;
+        } else if (signedUpEntrantsListLayout.getVisibility() == View.VISIBLE) {
+            targetStatus = InvitationFlowUtil.STATUS_ACCEPTED;
+        } else if (cancelledEntrantsListLayout.getVisibility() == View.VISIBLE) {
+            targetStatus = InvitationFlowUtil.STATUS_DECLINED;
+        } else if (invitedEntrantsListLayout.getVisibility() == View.VISIBLE) {
+            targetStatus = InvitationFlowUtil.STATUS_INVITED;
+        } else {
+            Toast.makeText(this, "No list selected", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        db.collection("events")
+                .document(eventId)
+                .collection("entrant_events")
+                .whereEqualTo("status", targetStatus)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    int sentCount = 0;
+
+                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                        String userId = doc.getString("userId");
+                        if (userId == null || userId.isEmpty()) {
+                            continue;
+                        }
+
+                        Map<String, Object> notification = new HashMap<>();
+                        notification.put("type", "organizer_message");
+                        notification.put("eventId", eventId);
+                        notification.put("title", "Organizer Update");
+                        notification.put("message", content.trim());
+                        notification.put("isRead", false);
+                        notification.put("createdAt", Timestamp.now());
+
+                        db.collection("users")
+                                .document(userId)
+                                .collection("notifications")
+                                .add(notification);
+
+                        sentCount++;
+                    }
+
+                    Toast.makeText(this, "Sent to " + sentCount + " user(s)", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Failed to send notification", Toast.LENGTH_SHORT).show()
+                );
     }
 
     /**
-     * Initialize view for the create event activity.
+     * Binds UI views and sets RecyclerView layout managers.
      */
     private void initializeViews() {
         btnSwitchWaitedList = findViewById(R.id.entrants_list_waited_list_btn);
@@ -339,42 +523,47 @@ public class EntrantsListActivity extends AppCompatActivity implements Notificat
         btnSampleWinners = findViewById(R.id.entrants_list_sample_btn);
         btnSwitchInvited = findViewById(R.id.entrants_list_invited_btn);
         btnSendNotification = findViewById(R.id.entrants_list_send_notification_btn);
+
         signedUpEventsView = findViewById(R.id.signed_up_events_view);
         invitedEventsView = findViewById(R.id.invited_events_view);
         waitedListEventsView = findViewById(R.id.waited_list_events_view);
         cancelledEntrantsView = findViewById(R.id.cancelled_entrants_view);
+
         signedUpEventsView.setLayoutManager(new LinearLayoutManager(this));
         waitedListEventsView.setLayoutManager(new LinearLayoutManager(this));
         cancelledEntrantsView.setLayoutManager(new LinearLayoutManager(this));
         invitedEventsView.setLayoutManager(new LinearLayoutManager(this));
+
         cancelledEntrantsListLayout = findViewById(R.id.cancelled_entrants_list_layout);
         signedUpEntrantsListLayout = findViewById(R.id.signed_up_entrants_list_layout);
         waitedListEntrantsListLayout = findViewById(R.id.waited_list_entrants_list_layout);
         invitedEntrantsListLayout = findViewById(R.id.invited_entrants_list_layout);
         viewLocationLayout = findViewById(R.id.view_location_layout);
+
         mapView = findViewById(R.id.mapView);
     }
 
-    // Source - https://stackoverflow.com/a/30054797
-    // Posted by Ankit Khare, modified by community. See post 'Timeline' for change history
-    // Retrieved 2026-03-11, License - CC BY-SA 3.0
-
     /**
-     * nsert makers of entrants' location into the map
+     * Inserts markers for entrant locations into the map.
      *
-     * @param list entrant we want to show their location on the map
+     * @param list entrants whose locations should be displayed
      */
     private void insertMarkers(ArrayList<Entrant> list) {
         googleMap.clear();
         final LatLngBounds.Builder builder = new LatLngBounds.Builder();
         boolean hasLocations = false;
-        for (int i = 0; i < list.size(); i++) {
-            Entrant entrant = list.get(i);
+
+        for (Entrant entrant : list) {
             GeoPoint geoLocation = entrant.getLocation();
             if (geoLocation == null) {
                 continue;
             }
-            final LatLng position = new LatLng(geoLocation.getLatitude(), geoLocation.getLongitude());
+
+            final LatLng position = new LatLng(
+                    geoLocation.getLatitude(),
+                    geoLocation.getLongitude()
+            );
+
             final MarkerOptions options = new MarkerOptions().position(position);
             googleMap.addMarker(options);
             builder.include(position);
@@ -386,6 +575,11 @@ public class EntrantsListActivity extends AppCompatActivity implements Notificat
         }
     }
 
+    /**
+     * Shows one layout and hides all others.
+     *
+     * @param target target layout to show
+     */
     private void showLayout(LinearLayout target) {
         signedUpEntrantsListLayout.setVisibility(signedUpEntrantsListLayout == target ? View.VISIBLE : View.GONE);
         cancelledEntrantsListLayout.setVisibility(cancelledEntrantsListLayout == target ? View.VISIBLE : View.GONE);
@@ -394,15 +588,10 @@ public class EntrantsListActivity extends AppCompatActivity implements Notificat
         viewLocationLayout.setVisibility(viewLocationLayout == target ? View.VISIBLE : View.GONE);
     }
 
-
-    // Source - https://stackoverflow.com/a/19806967
-    // Posted by Naveed Ali, modified by community. See post 'Timeline' for change history
-    // Retrieved 2026-03-11, License - CC BY-SA 4.0
-
     /**
-     * initialize google map component
+     * Called when the Google Map is ready to use.
      *
-     * @param g instance of GoogleMap
+     * @param g initialized GoogleMap instance
      */
     @Override
     public void onMapReady(@NonNull GoogleMap g) {
@@ -411,7 +600,7 @@ public class EntrantsListActivity extends AppCompatActivity implements Notificat
     }
 
     /**
-     * initialize mapview
+     * Starts MapView lifecycle.
      */
     @Override
     public void onStart() {
@@ -420,7 +609,7 @@ public class EntrantsListActivity extends AppCompatActivity implements Notificat
     }
 
     /**
-     * inform mapview to free resources when stop using
+     * Stops MapView lifecycle.
      */
     @Override
     public void onStop() {
@@ -429,7 +618,7 @@ public class EntrantsListActivity extends AppCompatActivity implements Notificat
     }
 
     /**
-     * interact with users
+     * Resumes MapView lifecycle.
      */
     @Override
     public void onResume() {
@@ -438,7 +627,7 @@ public class EntrantsListActivity extends AppCompatActivity implements Notificat
     }
 
     /**
-     * stop rendering map
+     * Pauses MapView lifecycle.
      */
     @Override
     public void onPause() {
@@ -447,7 +636,7 @@ public class EntrantsListActivity extends AppCompatActivity implements Notificat
     }
 
     /**
-     * remove map allocated resources
+     * Cleans up listeners and MapView resources.
      */
     @Override
     public void onDestroy() {
@@ -460,7 +649,7 @@ public class EntrantsListActivity extends AppCompatActivity implements Notificat
     }
 
     /**
-     * control map memory use when system is busy
+     * Forwards low-memory signal to MapView.
      */
     @Override
     public void onLowMemory() {

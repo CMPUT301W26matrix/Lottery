@@ -38,15 +38,20 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
 
     private static final String TAG = "OrganizerEventDetails";
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+
     private ImageView ivEventPoster;
-    private TextView tvEventTitle, tvScheduledDate, tvEventEndDate, tvRegistrationStart,
-            tvRegistrationDeadline, tvDrawDate, tvEventDetails, tvLocationRequirement;
-    private TextView tvFullMessage, tvWaitingListCapacity;
+    private TextView tvEventTitle;
+    private TextView tvScheduledDate;
+    private TextView tvEventEndDate;
+    private TextView tvRegistrationStart;
+    private TextView tvRegistrationDeadline;
+    private TextView tvDrawDate;
+    private TextView tvEventDetails;
+    private TextView tvLocationRequirement;
+    private TextView tvWaitingListCapacity;
     private Button btnEditEvent;
+
     private FirebaseFirestore db;
-    /**
-     * The current event being displayed.
-     */
     private Event currentEvent;
     private String eventId;
 
@@ -72,8 +77,9 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         tvEventDetails = findViewById(R.id.tvEventDetails);
         tvLocationRequirement = findViewById(R.id.tvLocationRequirement);
         tvWaitingListCapacity = findViewById(R.id.tvWaitingListCapacity);
-        Button btnEditEvent = findViewById(R.id.btnEditEvent);
+        btnEditEvent = findViewById(R.id.btnEditEvent);
         Button btnViewWaitingList = findViewById(R.id.btnViewWaitingList);
+
         db = FirebaseFirestore.getInstance();
 
         setupNavigation();
@@ -84,12 +90,14 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, "Error: Event ID missing", Toast.LENGTH_SHORT).show();
             finish();
+            return;
         }
 
         btnEditEvent.setOnClickListener(v -> handleEditEvent());
+
         btnViewWaitingList.setOnClickListener(v -> {
             Intent intent = new Intent(this, EntrantsListActivity.class);
-            intent.putExtra("eventId", eventId); // pass event ID
+            intent.putExtra("eventId", eventId);
             startActivity(intent);
         });
     }
@@ -121,9 +129,8 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
 
         View btnCreate = findViewById(R.id.nav_create_container);
         if (btnCreate != null) {
-            btnCreate.setOnClickListener(v -> {
-                startActivity(new Intent(this, OrganizerCreateEventActivity.class));
-            });
+            btnCreate.setOnClickListener(v ->
+                    startActivity(new Intent(this, OrganizerCreateEventActivity.class)));
         }
 
         View btnHistory = findViewById(R.id.nav_calendar);
@@ -139,7 +146,8 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
      * @param eventId The unique identifier of the event.
      */
     private void fetchEventDetails(String eventId) {
-        db.collection("events").document(eventId)
+        db.collection("events")
+                .document(eventId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
@@ -177,17 +185,23 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
 
         tvScheduledDate.setText(event.getScheduledDateTime() != null
                 ? dateFormat.format(event.getScheduledDateTime()) : "");
+
         tvEventEndDate.setText(event.getEventEndDate() != null
                 ? dateFormat.format(event.getEventEndDate()) : "");
+
         tvRegistrationStart.setText(event.getRegistrationStartDate() != null
                 ? dateFormat.format(event.getRegistrationStartDate()) : "");
+
         tvRegistrationDeadline.setText(event.getRegistrationDeadline() != null
                 ? dateFormat.format(event.getRegistrationDeadline()) : "");
+
         tvDrawDate.setText(event.getDrawDate() != null
                 ? dateFormat.format(event.getDrawDate()) : "");
 
         if (tvWaitingListCapacity != null) {
-            String capacityLabel = (event.getWaitingListLimit() == null) ? "Unlimited" : String.valueOf(event.getWaitingListLimit());
+            String capacityLabel = (event.getWaitingListLimit() == null)
+                    ? "Unlimited"
+                    : String.valueOf(event.getWaitingListLimit());
             tvWaitingListCapacity.setText(capacityLabel);
         }
 
