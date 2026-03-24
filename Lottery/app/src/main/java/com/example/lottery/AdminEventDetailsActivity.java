@@ -168,7 +168,7 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
      * Launches a confirmation dialog before deleting the event for confirmation.
      */
     private void showDeleteConfirmationDialog() {
-        new AlertDialog.Builder(this).setTitle("Confirm Deletion").setMessage("Do you confirm the deletion of this event?")
+        new AlertDialog.Builder(this).setTitle("Confirm Deletion").setMessage("Do you want to delete this event?")
                 .setPositiveButton("Delete", (dialog, which) -> deleteEvent())
                 .setNegativeButton("Cancel", null).show();
     }

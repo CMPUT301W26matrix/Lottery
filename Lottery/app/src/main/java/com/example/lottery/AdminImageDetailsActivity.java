@@ -19,7 +19,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.lottery.model.Event;
 import com.example.lottery.util.PosterImageLoader;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.storage.FirebaseStorage;
 
 /**
  * AdminImageDetailsActivity displays a full-size poster preview for administrators.
@@ -58,7 +58,7 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
     /**
      * Button for deleting the event (to be repurposed for image deletion).
      */
-    private Button btnDeleteEvent;
+    private Button btnDeleteImage;
     /**
      * Firebase Firestore instance for database operations.
      */
@@ -67,6 +67,10 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
      * Identifier of the event currently being displayed.
      */
     private String eventId;
+    /**
+     * The current poster URI, saved for deletion from Firebase Storage.
+     */
+    private String currentPosterUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,9 +90,9 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
         tvEventTitle = findViewById(R.id.tvEventTitle);
         tvOrganizerName = findViewById(R.id.tvOrganizerName);
         tvEventDetails = findViewById(R.id.tvEventDetails);
-        btnDeleteEvent = findViewById(R.id.btnDeleteEvent);
+        btnDeleteImage = findViewById(R.id.btnDeleteImage);
 
-        btnDeleteEvent.setOnClickListener(v -> showDeleteConfirmationDialog());
+        btnDeleteImage.setOnClickListener(v -> showDeleteConfirmationDialog());
 
         setupNavigation();
 
@@ -155,70 +159,43 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
      * Launches a confirmation dialog before deleting the event.
      */
     private void showDeleteConfirmationDialog() {
-        new AlertDialog.Builder(this).setTitle("Confirm Deletion").setMessage("Do you confirm the deletion of this event?")
-                .setPositiveButton("Delete", (dialog, which) -> deleteEvent())
+        new AlertDialog.Builder(this).setTitle("Confirm Deletion").setMessage("Do you want to delete this poster image?")
+                .setPositiveButton("Delete", (dialog, which) -> DeleteImage())
                 .setNegativeButton("Cancel", null).show();
     }
 
-    private void deleteEvent() {
+    /**
+     * Deletes the poster image from Firebase Storage and clears the posterUri in Firestore.
+     */
+    private void DeleteImage() {
         if (eventId == null || eventId.isEmpty()) {
             Toast.makeText(this, "Event ID is empty", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        btnDeleteEvent.setEnabled(false);
+        btnDeleteImage.setEnabled(false);
 
-        db.collection("events")
-                .document(eventId)
-                .collection("entrants")
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    int totalEntrants = queryDocumentSnapshots.size();
-                    if (totalEntrants == 0) {
-                        deleteEventDocument();
-                        return;
-                    }
+        // Delete file from Firebase Storage if it's a Firebase URL
+        if (currentPosterUri != null
+                && (currentPosterUri.contains("firebasestorage.googleapis.com")
+                || currentPosterUri.startsWith("gs://"))) {
+            FirebaseStorage.getInstance()
+                    .getReferenceFromUrl(currentPosterUri)
+                    .delete()
+                    .addOnFailureListener(e -> Log.e(TAG, "Failed to delete storage file", e));
+        }
 
-                    int[] deletedEntrants = {0};
-                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        document.getReference()
-                                .delete()
-                                .addOnSuccessListener(unused -> {
-                                    deletedEntrants[0]++;
-                                    if (deletedEntrants[0] == totalEntrants) {
-                                        deleteEventDocument();
-                                    }
-                                })
-                                .addOnFailureListener(e -> {
-                                    Log.e(TAG, "Error deleting event entrant", e);
-                                    btnDeleteEvent.setEnabled(true);
-                                    Toast.makeText(this, "Failed to delete event entrants", Toast.LENGTH_SHORT).show();
-                                });
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error fetching event entrants", e);
-                    btnDeleteEvent.setEnabled(true);
-                    Toast.makeText(this, "Failed to delete event entrants", Toast.LENGTH_SHORT).show();
-                });
-    }
-
-    /**
-     * Deletes the event document after related entrant records have been removed.
-     */
-    private void deleteEventDocument() {
-        db.collection("events")
-                .document(eventId)
-                .delete()
+        // Clear posterUri in Firestore
+        db.collection("events").document(eventId)
+                .update("posterUri", null)
                 .addOnSuccessListener(unused -> {
-                    Toast.makeText(this, "Event deleted successfully", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(this, AdminBrowseImagesActivity.class));
+                    Toast.makeText(this, "Image deleted", Toast.LENGTH_SHORT).show();
                     finish();
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error deleting event", e);
-                    btnDeleteEvent.setEnabled(true);
-                    Toast.makeText(this, "Failed to delete event", Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "Failed to clear posterUri", e);
+                    btnDeleteImage.setEnabled(true);
+                    Toast.makeText(this, "Failed to delete image", Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -257,7 +234,8 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
     private void updateUi(Event event) {
         tvEventTitle.setText(event.getTitle());
         tvEventDetails.setText(event.getDetails());
-        PosterImageLoader.load(ivEventPoster, event.getPosterUri(), R.drawable.event_placeholder);
+        currentPosterUri = event.getPosterUri();
+        PosterImageLoader.load(ivEventPoster, currentPosterUri, R.drawable.event_placeholder);
 
         if (event.getOrganizerId() != null) {
             fetchOrganizerName(event.getOrganizerId());
@@ -268,7 +246,7 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * Fetches the organizer name from the users collection.
+     * Fetches the organizer name from the users' collection.
      *
      * @param organizerId The ID of the organizer to look up.
      */
