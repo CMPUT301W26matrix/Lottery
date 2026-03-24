@@ -59,7 +59,7 @@ public class EntrantDetailsFragment extends DialogFragment {
         EntrantEvent entrant = (EntrantEvent) requireArguments().getSerializable(ARG_ENTRANT);
         boolean requireLocation = requireArguments().getBoolean(ARG_REQUIRE_LOCATION, false);
         String eventId = requireArguments().getString(ARG_EVENT_ID);
-        
+
         View view = getLayoutInflater().inflate(R.layout.entrant_details_fragment, null);
         TextView tvName = view.findViewById(R.id.details_name);
         TextView tvEmail = view.findViewById(R.id.details_email);
@@ -67,12 +67,15 @@ public class EntrantDetailsFragment extends DialogFragment {
         
         LinearLayout llLocation = view.findViewById(R.id.details_fragment_location);
 
+        // Unified: use getUserName()
         tvName.setText(entrant.getUserName() != null ? entrant.getUserName() : "Unknown");
         
+        // Try to get email from EntrantEvent object
         if (entrant.getEmail() != null && !entrant.getEmail().isEmpty()) {
             tvEmail.setText(entrant.getEmail());
         } else if (entrant.getUserId() != null) {
             tvEmail.setText("Loading...");
+            // Fetch email from users collection if not present in EntrantEvent
             FirebaseFirestore.getInstance().collection(FirestorePaths.USERS)
                     .document(entrant.getUserId())
                     .get()

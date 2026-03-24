@@ -79,11 +79,11 @@ public class WaitedListedListAdapter extends RecyclerView.Adapter<WaitedListedLi
         if (context instanceof EntrantsListActivity) {
             EntrantsListActivity activity = (EntrantsListActivity) context;
             holder.cbSelect.setVisibility(View.VISIBLE);
-            
+
             // Remove listener before setting checked state to avoid triggering it
             holder.cbSelect.setOnCheckedChangeListener(null);
             holder.cbSelect.setChecked(activity.isSelected(entrant.getUserId()));
-            
+
             holder.cbSelect.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 activity.toggleSelection(entrant.getUserId());
             });

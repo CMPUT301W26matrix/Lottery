@@ -103,12 +103,6 @@ public class EntrantEventHistoryActivity extends AppCompatActivity {
     private void loadEventHistory() {
         progressBar.setVisibility(View.VISIBLE);
 
-        /*
-         * WARNING: This query requires a Firestore Composite Index for the Collection Group "waitingList".
-         * Fields: userId (ASCENDING), registeredAt (DESCENDING).
-         * Scope: Collection Group.
-         * If the index is missing, the query will fail with FAILED_PRECONDITION.
-         */
         db.collectionGroup(FirestorePaths.WAITING_LIST)
                 .whereEqualTo("userId", userId)
                 .orderBy("registeredAt", Query.Direction.DESCENDING)
