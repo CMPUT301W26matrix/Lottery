@@ -1,5 +1,6 @@
 package com.example.lottery;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
@@ -16,76 +17,55 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lottery.model.NotificationItem;
+import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.InvitationFlowUtil;
+import com.example.lottery.util.SessionUtil;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
- * Displays notifications for the currently logged-in entrant.
+ * Activity that displays a list of notifications for the currently logged-in entrant.
  *
- * <p>This activity retrieves notifications from Firestore and displays them
- * in a RecyclerView. Entrants can view notification details and respond to
- * certain notification types (such as winning an event draw).</p>
- *
- * <p>If the notification represents a winning invitation, the entrant can
- * either accept or reject the invite. The response updates both the user's
- * notification document and the entrant status within the corresponding
- * event in Firestore.</p>
- *
- * <p>This activity expects the following intent extra:</p>
+ * <p>Responsibilities:
  * <ul>
- *     <li>{@link #EXTRA_USER_ID} – the ID of the current user</li>
+ *   <li>Fetch notifications from the user's private inbox subcollection in Firestore.</li>
+ *   <li>Display notification details such as title, message, and type.</li>
+ *   <li>Manage the "read/unread" status of each notification.</li>
+ *   <li>Provide actionable dialogs for specific notification types (e.g., event invitations).</li>
  * </ul>
+ * </p>
  */
 public class NotificationsActivity extends AppCompatActivity implements NotificationAdapter.OnNotificationClickListener {
 
     /**
-     * Intent extra used to pass the user ID to this activity.
+     * Intent extra key used to pass the user's ID to this activity.
      */
     public static final String EXTRA_USER_ID = "userId";
-    /**
-     * List storing all notifications retrieved from Firestore.
-     */
+
     private final List<NotificationItem> notificationList = new ArrayList<>();
-    /**
-     * RecyclerView used to display notifications.
-     */
     private RecyclerView rvNotifications;
-    /**
-     * TextView shown when there are no notifications.
-     */
     private TextView tvNoNotifications;
-    /**
-     * Button used to navigate back from the notifications screen.
-     */
     private ImageButton btnBack;
-    /**
-     * Firestore database instance used to retrieve notifications.
-     */
     private FirebaseFirestore db;
-    /**
-     * Adapter used to bind notification data to the RecyclerView.
-     */
     private NotificationAdapter adapter;
-    /**
-     * ID of the currently logged-in user.
-     */
     private String userId;
 
     /**
-     * Initializes the activity, binds UI components,
-     * retrieves the user ID from the intent, and loads notifications.
+     * Initializes the activity, sets up the RecyclerView, and starts loading notifications.
      *
-     * @param savedInstanceState previously saved activity state
+     * @param savedInstanceState If the activity is being re-initialized after
+     *     previously being shut down then this Bundle contains the data it most
+     *     recently supplied in {@link #onSaveInstanceState}. <b>Note: Otherwise it is null.</b>
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_notifications);
+        setContentView(R.layout.activity_entrant_notifications);
 
         db = FirebaseFirestore.getInstance();
 
@@ -103,18 +83,60 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
         rvNotifications.setLayoutManager(new LinearLayoutManager(this));
         rvNotifications.setAdapter(adapter);
 
-        readIntentData();
+        readUserId();
+
         if (userId == null) {
             return;
         }
 
         btnBack.setOnClickListener(v -> finish());
-
+        setupNavigation();
         loadNotifications();
     }
 
     /**
-     * Reloads notifications whenever the activity becomes visible again.
+     * Configures the click listeners for the custom bottom navigation bar.
+     */
+    private void setupNavigation() {
+        View navHome = findViewById(R.id.nav_home);
+        if (navHome != null) {
+            navHome.setOnClickListener(v -> {
+                Intent intent = new Intent(this, EntrantMainActivity.class);
+                intent.putExtra("userId", userId);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
+                finish();
+            });
+        }
+
+        View navHistory = findViewById(R.id.nav_history);
+        if (navHistory != null) {
+            navHistory.setOnClickListener(v -> {
+                // Already here
+            });
+        }
+
+        View navQrScan = findViewById(R.id.nav_qr_scan);
+        if (navQrScan != null) {
+            navQrScan.setOnClickListener(v -> {
+                Intent intent = new Intent(this, EntrantQrScanActivity.class);
+                intent.putExtra("userId", userId);
+                startActivity(intent);
+            });
+        }
+
+        View navProfile = findViewById(R.id.nav_profile);
+        if (navProfile != null) {
+            navProfile.setOnClickListener(v -> {
+                Intent intent = new Intent(this, EntrantProfileActivity.class);
+                intent.putExtra("userId", userId);
+                startActivity(intent);
+            });
+        }
+    }
+
+    /**
+     * Refreshes the notification list whenever the activity becomes visible.
      */
     @Override
     protected void onResume() {
@@ -125,66 +147,35 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
     }
 
     /**
-     * Reads the user ID from the intent that launched the activity.
-     * If the user ID is missing, the activity closes.
+     * Extracts the user ID from the starting Intent.
      */
-    private void readIntentData() {
-        userId = getIntent().getStringExtra(EXTRA_USER_ID);
-
-        if (userId == null || userId.isEmpty()) {
+    private void readUserId() {
+        userId = SessionUtil.resolveUserId(this);
+        if (userId == null) {
             Toast.makeText(this, R.string.missing_user_info, Toast.LENGTH_SHORT).show();
-            userId = null;
             finish();
         }
     }
 
     /**
-     * Retrieves notifications for the current user from Firestore and
-     * updates the RecyclerView.
+     * Queries Firestore for notifications in the user's inbox, ordered by creation date.
      */
     private void loadNotifications() {
-        db.collection("users")
-                .document(userId)
-                .collection("notifications")
-                .orderBy("timestamp", Query.Direction.DESCENDING)
+        db.collection(FirestorePaths.userInbox(userId))
+                .orderBy("createdAt", Query.Direction.DESCENDING)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     notificationList.clear();
-
                     queryDocumentSnapshots.forEach(document -> {
-                        String id = document.getId();
-                        String title = document.getString("title");
-                        String message = document.getString("message");
-                        String type = document.getString("type");
-                        String eventId = document.getString("eventId");
-
-                        boolean isRead = Boolean.TRUE.equals(document.getBoolean("isRead"));
-                        boolean actionTaken = Boolean.TRUE.equals(document.getBoolean("actionTaken"));
-                        String response = document.getString("response");
-
-                        NotificationItem item = new NotificationItem(
-                                id,
-                                title,
-                                message,
-                                type,
-                                eventId,
-                                isRead,
-                                actionTaken,
-                                response
-                        );
-
-                        notificationList.add(item);
+                        NotificationItem item = document.toObject(NotificationItem.class);
+                        if (item != null) {
+                            item.setNotificationId(document.getId());
+                            notificationList.add(item);
+                        }
                     });
 
                     adapter.notifyDataSetChanged();
-
-                    if (notificationList.isEmpty()) {
-                        tvNoNotifications.setVisibility(View.VISIBLE);
-                        rvNotifications.setVisibility(View.GONE);
-                    } else {
-                        tvNoNotifications.setVisibility(View.GONE);
-                        rvNotifications.setVisibility(View.VISIBLE);
-                    }
+                    updateEmptyState();
                 })
                 .addOnFailureListener(e -> {
                     tvNoNotifications.setVisibility(View.VISIBLE);
@@ -194,91 +185,78 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
     }
 
     /**
-     * Updates the entrant status for a specific event in Firestore.
+     * Updates the UI visibility based on whether the notification list is empty.
+     */
+    private void updateEmptyState() {
+        if (notificationList.isEmpty()) {
+            tvNoNotifications.setVisibility(View.VISIBLE);
+            rvNotifications.setVisibility(View.GONE);
+        } else {
+            tvNoNotifications.setVisibility(View.GONE);
+            rvNotifications.setVisibility(View.VISIBLE);
+        }
+    }
+
+    /**
+     * Updates the entrant's status for a specific event in Firestore based on their response.
      *
-     * @param eventId  the event for which the status should be updated
-     * @param response the notification response value (e.g., ACCEPTED or REJECTED)
+     * @param eventId  The ID of the event.
+     * @param response The user's response string (e.g., accepted, declined).
      */
     private void updateUserStatusForEvent(String eventId, String response) {
-        String normalizedStatus = InvitationFlowUtil.entrantStatusFromNotificationResponse(response);
-        if (normalizedStatus.isEmpty()) {
-            Toast.makeText(this, R.string.failed_to_update_status, Toast.LENGTH_SHORT).show();
-            return;
-        }
+        Map<String, Object> updates = InvitationFlowUtil.buildEntrantStatusUpdateFromResponse(response);
+        if (updates.isEmpty() || eventId == null) return;
 
-        db.collection("events")
-                .document(eventId)
-                .collection("entrants")
+        db.collection(FirestorePaths.eventWaitingList(eventId))
                 .document(userId)
-                .update("status", normalizedStatus)
+                .update(updates)
                 .addOnFailureListener(e ->
                         Toast.makeText(this, R.string.failed_to_update_status, Toast.LENGTH_SHORT).show()
                 );
     }
 
     /**
-     * Marks a notification as having an action taken (accept or reject).
+     * Updates the "isRead" field of a notification document in Firestore.
      *
-     * @param item     the notification item being updated
-     * @param response the response value (ACCEPTED or REJECTED)
+     * @param item The notification item to mark as read.
      */
-    private void markActionTaken(NotificationItem item, String response) {
-        db.collection("users")
-                .document(userId)
-                .collection("notifications")
+    private void markNotificationRead(NotificationItem item) {
+        db.collection(FirestorePaths.userInbox(userId))
                 .document(item.getNotificationId())
-                .update(
-                        "actionTaken", true,
-                        "response", response
-                )
+                .update("isRead", true)
                 .addOnSuccessListener(unused -> {
-                    item.setActionTaken(true);
-                    item.setResponse(response);
+                    item.setRead(true);
                     adapter.notifyDataSetChanged();
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, R.string.failed_to_update_notification, Toast.LENGTH_SHORT).show()
-                );
+                });
     }
 
     /**
-     * Handles notification item clicks.
+     * Handles clicks on notification items. Marks the item as read and displays its content in a dialog.
+     * Special handling is provided for event invitations.
      *
-     * <p>If the notification represents a winning invitation,
-     * the entrant is given the option to accept or reject the invite.</p>
-     *
-     * @param item the clicked notification item
+     * @param item The clicked notification item.
      */
     @Override
     public void onNotificationClick(NotificationItem item) {
-
-        db.collection("users")
-                .document(userId)
-                .collection("notifications")
-                .document(item.getNotificationId())
-                .update("isRead", true);
-
-        item.setRead(true);
-        adapter.notifyDataSetChanged();
+        markNotificationRead(item);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(item.getTitle());
         builder.setMessage(item.getMessage());
 
-        if ("win".equalsIgnoreCase(item.getType()) && !item.isActionTaken()) {
+        // Simple check for invitation type
+        boolean isInvitation = "event_invitation".equalsIgnoreCase(item.getType());
 
+        if (isInvitation) {
             builder.setPositiveButton(R.string.accept_invite, (dialog, which) -> {
                 updateUserStatusForEvent(item.getEventId(), InvitationFlowUtil.RESPONSE_ACCEPTED);
-                markActionTaken(item, InvitationFlowUtil.RESPONSE_ACCEPTED);
             });
 
             builder.setNegativeButton(R.string.reject, (dialog, which) -> {
-                updateUserStatusForEvent(item.getEventId(), InvitationFlowUtil.RESPONSE_REJECTED);
-                markActionTaken(item, InvitationFlowUtil.RESPONSE_REJECTED);
+                updateUserStatusForEvent(item.getEventId(), InvitationFlowUtil.RESPONSE_DECLINED);
             });
 
             builder.setNeutralButton(R.string.close, (dialog, which) -> dialog.dismiss());
-
         } else {
             builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
         }

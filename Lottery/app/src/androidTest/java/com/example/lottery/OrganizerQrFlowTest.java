@@ -25,11 +25,15 @@ public class OrganizerQrFlowTest {
 
     /**
      * Verifies that the OrganizerQrEventListActivity launches correctly.
+     * Note: Requires userId in Intent to prevent immediate finish().
      */
     @Test
     public void testEventListLaunch() {
-        try (ActivityScenario<OrganizerQrEventListActivity> scenario =
-                     ActivityScenario.launch(OrganizerQrEventListActivity.class)) {
+        Context context = ApplicationProvider.getApplicationContext();
+        Intent intent = new Intent(context, OrganizerQrEventListActivity.class);
+        intent.putExtra("userId", "test_organizer_123");
+
+        try (ActivityScenario<OrganizerQrEventListActivity> scenario = ActivityScenario.launch(intent)) {
             // Check if the RecyclerView is displayed
             onView(withId(R.id.rvQrEvents)).check(matches(isDisplayed()));
         }

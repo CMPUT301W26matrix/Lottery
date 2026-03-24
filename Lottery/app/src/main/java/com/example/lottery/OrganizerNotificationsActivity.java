@@ -1,7 +1,9 @@
 package com.example.lottery;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -15,25 +17,54 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lottery.model.Event;
-import com.google.firebase.auth.FirebaseAuth;
+import com.example.lottery.model.NotificationItem;
+import com.example.lottery.util.FirestorePaths;
+import com.example.lottery.util.InvitationFlowUtil;
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
- * OrganizerNotificationsActivity allows organizers to manage and send notifications
- * to different groups of entrants (Waiting List, Selected, Cancelled).
+ * Activity that allows organizers to manage and send notifications to different groups of entrants.
+ *
+ * <p>Key Responsibilities:
+ * <ul>
+ *   <li>Display a list of events created by the current organizer.</li>
+ *   <li>Provide options to send notifications to specific entrant sub-groups (e.g., waitlisted, selected, cancelled).</li>
+ *   <li>Orchestrate the creation of notification logs and individual user inbox entries in Firestore.</li>
+ * </ul>
+ * </p>
  */
-public class OrganizerNotificationsActivity extends AppCompatActivity {
+public class OrganizerNotificationsActivity extends AppCompatActivity 
+        implements NotificationFragment.NotificationListener, 
+                   OrganizerNotificationEventAdapter.OnNotificationGroupClickListener {
 
+    private static final String TAG = "OrganizerNotifications";
     private RecyclerView rvEvents;
     private OrganizerNotificationEventAdapter adapter;
     private List<Event> eventList;
     private TextView tvNoEvents;
     private FirebaseFirestore db;
+    private String userId;
+    
+    private Event selectedEventForNotification;
+    private String selectedGroup;
 
+    /**
+     * Initializes the activity, sets up the RecyclerView, and loads the organizer's events.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after
+     *     previously being shut down then this Bundle contains the data it most
+     *     recently supplied in {@link #onSaveInstanceState}. <b>Note: Otherwise it is null.</b>
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,12 +78,25 @@ public class OrganizerNotificationsActivity extends AppCompatActivity {
         });
 
         db = FirebaseFirestore.getInstance();
+        
+        // Unified userId retrieval
+        userId = getIntent().getStringExtra("userId");
+        if (userId == null) {
+            SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
+            userId = prefs.getString("userId", null);
+        }
+
+        if (userId == null) {
+            Toast.makeText(this, "Session expired", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
         rvEvents = findViewById(R.id.rvOrganizerEvents);
         tvNoEvents = findViewById(R.id.tvNoEvents);
 
         eventList = new ArrayList<>();
-        adapter = new OrganizerNotificationEventAdapter(eventList);
+        adapter = new OrganizerNotificationEventAdapter(eventList, this);
         rvEvents.setLayoutManager(new LinearLayoutManager(this));
         rvEvents.setAdapter(adapter);
 
@@ -62,44 +106,45 @@ public class OrganizerNotificationsActivity extends AppCompatActivity {
         loadOrganizerEvents();
     }
 
+    /**
+     * Configures the click listeners for the included bottom navigation layout.
+     */
     private void setupNavigation() {
         findViewById(R.id.nav_home).setOnClickListener(v -> {
             Intent intent = new Intent(this, OrganizerBrowseEventsActivity.class);
+            intent.putExtra("userId", userId);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
             finish();
         });
 
         findViewById(R.id.nav_create_container).setOnClickListener(v -> {
-            startActivity(new Intent(this, OrganizerCreateEventActivity.class));
-        });
-
-        findViewById(R.id.nav_notifications).setOnClickListener(v -> {
-            // Already here
+            Intent intent = new Intent(this, OrganizerCreateEventActivity.class);
+            intent.putExtra("userId", userId);
+            startActivity(intent);
         });
 
         findViewById(R.id.nav_qr_code).setOnClickListener(v -> {
-            startActivity(new Intent(this, OrganizerQrEventListActivity.class));
+            Intent intent = new Intent(this, OrganizerQrEventListActivity.class);
+            intent.putExtra("userId", userId);
+            startActivity(intent);
         });
 
         findViewById(R.id.nav_profile).setOnClickListener(v -> {
-            startActivity(new Intent(this, OrganizerProfileActivity.class));
+            Intent intent = new Intent(this, OrganizerProfileActivity.class);
+            intent.putExtra("userId", userId);
+            startActivity(intent);
         });
     }
 
     /**
-     * Loads events owned by the current organizer to manage notifications.
+     * Fetches the list of events owned by the current organizer from Firestore.
      */
     private void loadOrganizerEvents() {
-        // Ensure data isolation by filtering with current user's UID
-        String currentUserId = FirebaseAuth.getInstance().getUid();
-        if (currentUserId == null) {
-            Toast.makeText(this, "User not authenticated", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        if (userId == null) return;
 
-        db.collection("events")
-                .whereEqualTo("organizerId", currentUserId)
+        db.collection(FirestorePaths.EVENTS)
+                .whereEqualTo("organizerId", userId)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     eventList.clear();
@@ -114,5 +159,124 @@ public class OrganizerNotificationsActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Failed to load events", Toast.LENGTH_SHORT).show();
                 });
+    }
+
+    /**
+     * Called when a notification group button is clicked in the adapter.
+     * Opens the {@link NotificationFragment} to compose a message.
+     *
+     * @param event The event associated with the notification.
+     * @param group The target group identifier.
+     */
+    @Override
+    public void onGroupClick(Event event, String group) {
+        this.selectedEventForNotification = event;
+        this.selectedGroup = group;
+        NotificationFragment fragment = NotificationFragment.newInstance();
+        fragment.show(getSupportFragmentManager(), "compose_notification");
+    }
+
+    /**
+     * Callback from {@link NotificationFragment} with the message content.
+     * Initiates the multi-stage Firestore write process.
+     *
+     * @param message The text body of the notification.
+     */
+    @Override
+    public void sendNotification(String message) {
+        if (selectedEventForNotification == null || selectedGroup == null || userId == null) return;
+
+        String notificationId = UUID.randomUUID().toString();
+        Timestamp now = Timestamp.now();
+
+        Map<String, Object> globalNotif = new HashMap<>();
+        globalNotif.put("notificationId", notificationId);
+        globalNotif.put("title", "Update for " + selectedEventForNotification.getTitle());
+        globalNotif.put("message", message);
+        globalNotif.put("type", "general");
+        globalNotif.put("eventId", selectedEventForNotification.getEventId());
+        globalNotif.put("eventTitle", selectedEventForNotification.getTitle());
+        globalNotif.put("group", selectedGroup);
+        globalNotif.put("senderId", userId);
+        globalNotif.put("senderRole", "organizer");
+        globalNotif.put("createdAt", now);
+        globalNotif.put("recipientCount", 0);
+
+        db.collection(FirestorePaths.NOTIFICATIONS).document(notificationId)
+                .set(globalNotif)
+                .addOnSuccessListener(aVoid -> fetchRecipientsAndSend(notificationId, message, globalNotif));
+    }
+
+    /**
+     * Queries the event's waiting list for recipients matching the selected group and sends individual entries.
+     *
+     * @param notificationId The ID of the parent notification log.
+     * @param message        The message content.
+     * @param globalNotif    The full metadata map for the notification.
+     */
+    private void fetchRecipientsAndSend(String notificationId, String message, Map<String, Object> globalNotif) {
+        String targetStatus;
+        switch (selectedGroup) {
+            case "selected":
+                targetStatus = InvitationFlowUtil.STATUS_INVITED;
+                break;
+            case "cancelled":
+                targetStatus = InvitationFlowUtil.STATUS_CANCELLED;
+                break;
+            case "waitlisted":
+            default:
+                targetStatus = InvitationFlowUtil.STATUS_WAITLISTED;
+                break;
+        }
+
+        db.collection(FirestorePaths.eventWaitingList(selectedEventForNotification.getEventId()))
+                .whereEqualTo("status", targetStatus) 
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    WriteBatch batch = db.batch();
+                    int count = 0;
+
+                    for (QueryDocumentSnapshot doc : querySnapshot) {
+                        String recipientUid = doc.getId();
+                        count++;
+
+                        DocumentReference recipientRef = db.collection(FirestorePaths.notificationRecipients(notificationId))
+                                .document(recipientUid);
+                        Map<String, Object> recData = new HashMap<>();
+                        recData.put("userId", recipientUid);
+                        recData.put("delivered", true);
+                        recData.put("isRead", false);
+                        recData.put("statusAtSendTime", targetStatus);
+                        recData.put("deliveredAt", Timestamp.now());
+                        batch.set(recipientRef, recData);
+
+                        DocumentReference inboxRef = db.collection(FirestorePaths.userInbox(recipientUid))
+                                .document(notificationId);
+                        
+                        NotificationItem inboxItem = new NotificationItem(
+                                notificationId,
+                                (String) globalNotif.get("title"),
+                                message,
+                                "general",
+                                selectedEventForNotification.getEventId(),
+                                selectedEventForNotification.getTitle(),
+                                (String) globalNotif.get("senderId"),
+                                "organizer",
+                                false,
+                                (Timestamp) globalNotif.get("createdAt")
+                        );
+                        batch.set(inboxRef, inboxItem);
+                    }
+
+                    if (count > 0) {
+                        final int finalCount = count;
+                        batch.update(db.collection(FirestorePaths.NOTIFICATIONS).document(notificationId), "recipientCount", count);
+                        batch.commit().addOnSuccessListener(unused -> 
+                            Toast.makeText(this, "Notification sent to " + finalCount + " recipients", Toast.LENGTH_SHORT).show());
+                    } else {
+                        Toast.makeText(this, "No recipients found in group: " + selectedGroup, Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> Log.e(TAG, "Error fetching recipients", e));
     }
 }

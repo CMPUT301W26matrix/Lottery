@@ -17,6 +17,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.lottery.model.Event;
+import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.PosterImageLoader;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -58,8 +59,6 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
      */
     private TextView tvEventTitle;
     private TextView tvScheduledDate;
-    private TextView tvEventEndDate;
-    private TextView tvRegistrationStart;
     private TextView tvRegistrationDeadline;
     private TextView tvDrawDate;
     private TextView tvWaitingListCapacity;
@@ -92,8 +91,6 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
         ivEventPoster = findViewById(R.id.ivEventPoster);
         tvEventTitle = findViewById(R.id.tvEventTitle);
         tvScheduledDate = findViewById(R.id.tvScheduledDate);
-        tvEventEndDate = findViewById(R.id.tvEventEndDate);
-        tvRegistrationStart = findViewById(R.id.tvRegistrationStart);
         tvRegistrationDeadline = findViewById(R.id.tvRegistrationDeadline);
         tvDrawDate = findViewById(R.id.tvDrawDate);
         tvWaitingListCapacity = findViewById(R.id.tvWaitingListCapacity);
@@ -174,28 +171,25 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
     }
 
     private void deleteEvent() {
-        // If eventId is null or empty, show a toast message
         if (eventId == null || eventId.isEmpty()) {
             Toast.makeText(this, "Event ID is empty", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Disable the delete button
         btnDeleteEvent.setEnabled(false);
 
-        db.collection("events")
+        // Fixed: Use unified sub-collection name "waitingList" instead of "entrants"
+        db.collection(FirestorePaths.EVENTS)
                 .document(eventId)
-                .collection("entrants")
+                .collection(FirestorePaths.WAITING_LIST)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     int totalEntrants = queryDocumentSnapshots.size();
-                    // In case there are no entrants, delete the event document
                     if (totalEntrants == 0) {
                         deleteEventDocument();
                         return;
                     }
 
-                    // Delete each entrant document
                     int[] deletedEntrants = {0};
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         document.getReference()
@@ -224,7 +218,7 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
      * Deletes the event document after related entrant records have been removed.
      */
     private void deleteEventDocument() {
-        db.collection("events")
+        db.collection(FirestorePaths.EVENTS)
                 .document(eventId)
                 .delete()
                 .addOnSuccessListener(unused -> {
@@ -243,7 +237,7 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
      * Fetches the event details from Firestore.
      */
     private void fetchEventDetails() {
-        db.collection("events")
+        db.collection(FirestorePaths.EVENTS)
                 .document(eventId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
@@ -276,17 +270,13 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
         tvEventDetails.setText(event.getDetails());
 
         tvScheduledDate.setText(event.getScheduledDateTime() != null
-                ? dateFormat.format(event.getScheduledDateTime()) : "");
-        tvEventEndDate.setText(event.getEventEndDate() != null
-                ? dateFormat.format(event.getEventEndDate()) : "");
-        tvRegistrationStart.setText(event.getRegistrationStartDate() != null
-                ? dateFormat.format(event.getRegistrationStartDate()) : "");
+                ? dateFormat.format(event.getScheduledDateTime().toDate()) : "");
         tvRegistrationDeadline.setText(event.getRegistrationDeadline() != null
-                ? dateFormat.format(event.getRegistrationDeadline()) : "");
+                ? dateFormat.format(event.getRegistrationDeadline().toDate()) : "");
         tvDrawDate.setText(event.getDrawDate() != null
-                ? dateFormat.format(event.getDrawDate()) : "");
+                ? dateFormat.format(event.getDrawDate().toDate()) : "");
 
-        String capacityLabel = event.getWaitingListLimit() == null
+        String capacityLabel = (event.getWaitingListLimit() == null)
                 ? getString(R.string.unlimited)
                 : String.valueOf(event.getWaitingListLimit());
         tvWaitingListCapacity.setText(capacityLabel);

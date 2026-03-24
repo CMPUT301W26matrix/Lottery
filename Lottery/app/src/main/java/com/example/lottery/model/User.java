@@ -1,73 +1,235 @@
 package com.example.lottery.model;
 
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.GeoPoint;
+
 /**
- * User model class representing an entrant or user in the system.
- * This class stores basic personal information including name, email, and phone number.
+ * Model class representing a user in the system.
+ *
+ * Target Firestore path:
+ * users/{userId}
  */
 public class User {
 
+    /**
+     * Unique user identifier.
+     */
     private String userId;
-    private String name;
-    private String email;
-    private String phoneNumber;
 
     /**
-     * Default constructor required for Firebase Firestore serialization.
+     * Optional device identifier.
+     */
+    private String deviceId;
+
+    /**
+     * Email address of the user.
+     */
+    private String email;
+
+    /**
+     * Phone number of the user.
+     */
+    private String phone;
+
+    /**
+     * Display name or username of the user.
+     */
+    private String username;
+
+    /**
+     * Role of the user in the system.
+     */
+    private String role;
+
+    /**
+     * Geographic location of the user.
+     */
+    private GeoPoint location;
+
+    /**
+     * Whether this user has notifications enabled.
+     */
+    private boolean notificationsEnabled;
+
+    /**
+     * When the user record was first created.
+     */
+    private Timestamp createdAt;
+    private Timestamp updatedAt;
+
+    /**
+     * Default constructor required for Firestore.
      */
     public User() {
+        this.role = "ENTRANT";
+        this.notificationsEnabled = true;
     }
 
     /**
-     * Constructs a new User with the specified details.
-     *
-     * @param name        The name of the user.
-     * @param email       The email address of the user.
-     * @param phoneNumber The phone number of the user.
+     * Convenience constructor for basic profile information.
      */
-    public User(String name, String email, String phoneNumber) {
-        this(null, name, email, phoneNumber);
-    }
-
-    public User(String userId, String name, String email, String phoneNumber) {
-        this.userId = userId;
-        this.name = name;
+    public User(String username, String email, String phone) {
+        this();
+        this.username = username;
         this.email = email;
-        this.phoneNumber = phoneNumber;
+        this.phone = phone;
     }
 
     /**
-     * Returns the ID of the user.
-     *
-     * @return The user's ID.
+     * Convenience constructor for basic profile information with userId.
      */
+    public User(String userId, String username, String email, String phone) {
+        this();
+        this.userId = userId;
+        this.username = username;
+        this.email = email;
+        this.phone = phone;
+    }
+
+    /**
+     * Full constructor.
+     */
+    public User(String userId,
+                String deviceId,
+                String email,
+                String phone,
+                String username,
+                String role,
+                GeoPoint location,
+                boolean notificationsEnabled,
+                Timestamp createdAt,
+                Timestamp updatedAt) {
+        this.userId = userId;
+        this.deviceId = deviceId;
+        this.email = email;
+        this.phone = phone;
+        this.username = username;
+        this.role = role == null ? "ENTRANT" : role;
+        this.location = location;
+        this.notificationsEnabled = notificationsEnabled;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
+    // Getters and Setters
+
     public String getUserId() {
         return userId;
     }
 
-    /**
-     * Returns the name of the user.
-     *
-     * @return The user's name.
-     */
-    public String getName() {
-        return name;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
-    /**
-     * Returns the email address of the user.
-     *
-     * @return The user's email.
-     */
+    public String getDeviceId() {
+        return deviceId;
+    }
+
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
+    }
+
     public String getEmail() {
         return email;
     }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     /**
-     * Returns the phone number of the user.
-     *
-     * @return The user's phone number.
+     * Alias for getUsername() to maintain compatibility with older code.
+     * @return the username
+     */
+    public String getName() {
+        return username;
+    }
+
+    /**
+     * Alias for getPhone() to maintain compatibility with older code.
+     * @return the phone number
      */
     public String getPhoneNumber() {
-        return phoneNumber;
+        return phone;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role == null ? "ENTRANT" : role;
+    }
+
+    public GeoPoint getLocation() {
+        return location;
+    }
+
+    public void setLocation(GeoPoint location) {
+        this.location = location;
+    }
+
+    public boolean isNotificationsEnabled() {
+        return notificationsEnabled;
+    }
+
+    public void setNotificationsEnabled(boolean notificationsEnabled) {
+        this.notificationsEnabled = notificationsEnabled;
+    }
+
+    public Timestamp getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Timestamp getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Timestamp updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    // Helpers
+
+    public boolean isEntrant() {
+        return "ENTRANT".equalsIgnoreCase(role);
+    }
+
+    public boolean isOrganizer() {
+        return "ORGANIZER".equalsIgnoreCase(role);
+    }
+
+    public boolean isAdmin() {
+        return "ADMIN".equalsIgnoreCase(role);
+    }
+
+    /**
+     * Updates the updatedAt timestamp. Should be called explicitly before Firestore writes.
+     */
+    public void touch() {
+        this.updatedAt = Timestamp.now();
+        if (this.createdAt == null) {
+            this.createdAt = this.updatedAt;
+        }
     }
 }

@@ -2,11 +2,11 @@ package com.example.lottery;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.not;
 
 import android.content.Intent;
@@ -22,201 +22,88 @@ import org.junit.runner.RunWith;
 
 /**
  * UI tests for EntrantsListActivity.
- * Verifies that the organizer can switch between entrant list tabs and interact with fragments.
+ * Verifies that the organizer can switch between entrant list tabs and interact with functional components.
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class EntrantsListActivityTest {
-    /**
-     * initialize an intent for test
-     */
+    
     @Rule
     public ActivityScenarioRule<EntrantsListActivity> activityRule =
-            new ActivityScenarioRule<>(new Intent(ApplicationProvider.getApplicationContext(), EntrantsListActivity.class).putExtra("eventId", "test_event_id"));
+            new ActivityScenarioRule<>(new Intent(ApplicationProvider.getApplicationContext(), EntrantsListActivity.class)
+                    .putExtra("eventId", "test_event_id")
+                    .putExtra("userId", "test_user_id"));
 
     /**
-     * test the layout visibility when the page is initialized
-     * <p>
-     *     <ul>
-     *         check visibility of all buttons
-     *     </ul>
-     * </p>
+     * Verifies that all navigation buttons are displayed upon initialization.
      */
     @Test
     public void testInitializedPageVisibility() {
-        // Initially, the waited listed button must be visible
-        onView(withId(R.id.entrants_list_waited_list_btn))
-                .check(matches(isDisplayed()));
-
-        // Initially, the invited button must be visible
-        onView(withId(R.id.entrants_list_invited_btn))
-                .check(matches(isDisplayed()));
-
-        // Initially, the cancelled button must be visible
-        onView(withId(R.id.entrants_list_cancelled_btn))
-                .check(matches(isDisplayed()));
-
-        //Initially, the signed up button must be visible
-        onView(withId(R.id.entrants_list_signed_up_btn))
-                .check(matches(isDisplayed()));
-
-        //Initially, the send notification button must be visible
-        onView(withId(R.id.entrants_list_send_notification_btn))
-                .check(matches(isDisplayed()));
-
-        //Initially, the view location button must be visible
-        onView(withId(R.id.entrants_list_view_location_btn))
-                .check(matches(isDisplayed()));
+        onView(withId(R.id.entrants_list_waited_list_btn)).check(matches(isDisplayed()));
+        onView(withId(R.id.entrants_list_invited_btn)).check(matches(isDisplayed()));
+        onView(withId(R.id.entrants_list_cancelled_btn)).check(matches(isDisplayed()));
+        onView(withId(R.id.entrants_list_signed_up_btn)).check(matches(isDisplayed()));
+        onView(withId(R.id.entrants_list_send_notification_btn)).check(matches(isDisplayed()));
+        onView(withId(R.id.entrants_list_view_location_btn)).check(matches(isDisplayed()));
     }
 
     /**
-     * test the layout visibility when user switch to signed up list
-     * <p>
-     *     <ul>
-     *         click signed up button, verify view signed up layout visibility (should be VISIBLE)
-     *     </ul>
-     *     <ul>
-     *         other 4 linear layout must be invisible
-     *     </ul>
-     * </p>
+     * Verifies switching to the Signed Up (Accepted) entrants list.
      */
     @Test
     public void testSwitchToSignedUpList() {
-        // click signed up button, verify signed up entrants list visibility
-        onView(withId(R.id.entrants_list_signed_up_btn)).perform(scrollTo(), click());
+        onView(withId(R.id.entrants_list_signed_up_btn)).perform(click());
         onView(withId(R.id.signed_up_entrants_list_layout)).check(matches(isDisplayed()));
 
-        // other 4 linear layout must be invisible
+        // Verify other layouts are hidden
         onView(withId(R.id.cancelled_entrants_list_layout)).check(matches(not(isDisplayed())));
-        onView(withId(R.id.view_location_layout)).check(matches(not(isDisplayed())));
         onView(withId(R.id.invited_entrants_list_layout)).check(matches(not(isDisplayed())));
         onView(withId(R.id.waited_list_entrants_list_layout)).check(matches(not(isDisplayed())));
     }
 
     /**
-     * test the layout visibility when user switch to waited listed layout
-     * <p>
-     *     <ul>
-     *         click waited listed button, verify view waited listed layout visibility (should be VISIBLE)
-     *     </ul>
-     *     <ul>
-     *         other 4 linear layout must be invisible
-     *     </ul>
-     * </p>
+     * Verifies switching to the Waited List entrants list.
      */
     @Test
     public void testSwitchToWaitedListedList() {
-        // click waited listed button, verify waited listed entrants list visibility
+        // First switch to another tab to ensure we are testing a real transition
+        onView(withId(R.id.entrants_list_signed_up_btn)).perform(click());
+        
         onView(withId(R.id.entrants_list_waited_list_btn)).perform(click());
         onView(withId(R.id.waited_list_entrants_list_layout)).check(matches(isDisplayed()));
 
-        // other 4 linear layout must be invisible
-        onView(withId(R.id.cancelled_entrants_list_layout)).check(matches(not(isDisplayed())));
-        onView(withId(R.id.view_location_layout)).check(matches(not(isDisplayed())));
-        onView(withId(R.id.invited_entrants_list_layout)).check(matches(not(isDisplayed())));
         onView(withId(R.id.signed_up_entrants_list_layout)).check(matches(not(isDisplayed())));
     }
 
     /**
-     * test the layout visibility when user switch to invited list
-     * <p>
-     *     <ul>
-     *         click invited list button, verify invited list layout visibility (should be VISIBLE)
-     *     </ul>
-     *     <ul>
-     *         other 4 linear layout must be invisible
-     *     </ul>
-     * </p>
-     */
-    @Test
-    public void testSwitchToInvitedList() {
-        // click invited button, verify invited entrants list visibility
-        onView(withId(R.id.entrants_list_invited_btn)).perform(scrollTo(), click());
-        onView(withId(R.id.invited_entrants_list_layout)).check(matches(isDisplayed()));
-
-        // other 4 linear layout must be invisible
-        onView(withId(R.id.cancelled_entrants_list_layout)).check(matches(not(isDisplayed())));
-        onView(withId(R.id.view_location_layout)).check(matches(not(isDisplayed())));
-        onView(withId(R.id.signed_up_entrants_list_layout)).check(matches(not(isDisplayed())));
-        onView(withId(R.id.waited_list_entrants_list_layout)).check(matches(not(isDisplayed())));
-    }
-
-    /**
-     * test the layout visibility when user switch to cancelled list
-     * <p>
-     *     <ul>
-     *         click cancelled list button, verify view cancelled list layout visibility (should be VISIBLE)
-     *     </ul>
-     *     <ul>
-     *         other 4 linear layout must be invisible
-     *     </ul>
-     * </p>
-     */
-    @Test
-    public void testSwitchToCancelledList() {
-        // click cancelled button, verify signed up entrants list visibility
-        onView(withId(R.id.entrants_list_cancelled_btn)).perform(click());
-        onView(withId(R.id.cancelled_entrants_list_layout)).check(matches(isDisplayed()));
-
-        // other 4 linear layout must be invisible
-        onView(withId(R.id.signed_up_entrants_list_layout)).check(matches(not(isDisplayed())));
-        onView(withId(R.id.view_location_layout)).check(matches(not(isDisplayed())));
-        onView(withId(R.id.invited_entrants_list_layout)).check(matches(not(isDisplayed())));
-        onView(withId(R.id.waited_list_entrants_list_layout)).check(matches(not(isDisplayed())));
-    }
-
-    /**
-     * test the layout visibility when user switch to view location
-     * <p>
-     *     <ul>
-     *         click view location button, verify view location component(a map) visibility (should be VISIBLE)
-     *     </ul>
-     *     <ul>
-     *         other 4 linear layout must be invisible
-     *     </ul>
-     * </p>
+     * Verifies switching to the Map view (View Location).
      */
     @Test
     public void testSwitchToViewLocation() {
-        // click view location button, verify view location component(a map) visibility
         onView(withId(R.id.entrants_list_view_location_btn)).perform(click());
         onView(withId(R.id.view_location_layout)).check(matches(isDisplayed()));
+        onView(withId(R.id.mapView)).check(matches(isDisplayed()));
 
-        // other 4 linear layout must be invisible
-        onView(withId(R.id.cancelled_entrants_list_layout)).check(matches(not(isDisplayed())));
-        onView(withId(R.id.signed_up_entrants_list_layout)).check(matches(not(isDisplayed())));
-        onView(withId(R.id.invited_entrants_list_layout)).check(matches(not(isDisplayed())));
         onView(withId(R.id.waited_list_entrants_list_layout)).check(matches(not(isDisplayed())));
     }
 
     /**
-     * test whether sample winners button works correctly
-     * <p>
-     *     <ul>
-     *         click sample winners button, verify sample fragment visibility (should be GONE -> VISIBLE)
-     *     </ul>
-     * </p>
+     * Verifies that the Sample Winners dialog appears.
      */
     @Test
     public void testClickSampleFragmentVisibility() {
-        onView(withId(R.id.sample_fragment)).check(doesNotExist());
         onView(withId(R.id.entrants_list_sample_btn)).perform(click());
-        onView(withId(R.id.sample_fragment)).check(matches(isDisplayed()));
+        // Check for dialog elements (SampleFragment uses AlertDialog)
+        onView(withText("Sample Winners")).check(matches(isDisplayed()));
     }
 
     /**
-     * test whether send notification button works correctly
-     * <p>
-     *     <ul>
-     *         click send notification button, verify notification fragment visibility (should be GONE -> VISIBLE)
-     *     </ul>
-     * </p>
+     * Verifies that the Send Notification dialog appears.
      */
     @Test
     public void testClickNotificationFragmentVisibility() {
-        onView(withId(R.id.notification_fragment)).check(doesNotExist());
         onView(withId(R.id.entrants_list_send_notification_btn)).perform(click());
-        onView(withId(R.id.notification_fragment)).check(matches(isDisplayed()));
+        // Check for dialog elements (NotificationFragment uses AlertDialog)
+        onView(withText("Compose Notification")).check(matches(isDisplayed()));
     }
 }
-

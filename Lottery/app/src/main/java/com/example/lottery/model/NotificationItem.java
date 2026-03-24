@@ -1,144 +1,136 @@
 package com.example.lottery.model;
 
+import com.google.firebase.Timestamp;
+
 /**
- * Represents a notification shown to a user in the app.
+ * Model class representing a notification in a user's inbox.
+ *
+ * Target Firestore path:
+ * users/{userId}/inbox/{notificationId}
  */
 public class NotificationItem {
+
     private String notificationId;
     private String title;
     private String message;
     private String type;
     private String eventId;
+    private String eventTitle;
+    private String senderId;
+    private String senderRole;
     private boolean isRead;
-    private boolean actionTaken;
-    private String response;
+    private Timestamp createdAt;
 
     /**
-     * Creates an empty notification item.
+     * Default constructor for Firestore serialization.
      */
     public NotificationItem() {
     }
 
     /**
-     * Creates a notification item with all fields initialized.
-     *
-     * @param notificationId the notification ID
-     * @param title          the notification title
-     * @param message        the notification message
-     * @param type           the notification type
-     * @param eventId        the related event ID
-     * @param isRead         whether the notification has been read
-     * @param actionTaken    whether the user has taken action on the notification
-     * @param response       the user's response to the notification
+     * Full constructor for a user inbox notification.
      */
-    public NotificationItem(String notificationId, String title, String message, String type,
-                            String eventId, boolean isRead, boolean actionTaken, String response) {
+    public NotificationItem(String notificationId,
+                            String title,
+                            String message,
+                            String type,
+                            String eventId,
+                            String eventTitle,
+                            String senderId,
+                            String senderRole,
+                            boolean isRead,
+                            Timestamp createdAt) {
         this.notificationId = notificationId;
         this.title = title;
         this.message = message;
         this.type = type;
         this.eventId = eventId;
+        this.eventTitle = eventTitle;
+        this.senderId = senderId;
+        this.senderRole = senderRole;
         this.isRead = isRead;
-        this.actionTaken = actionTaken;
-        this.response = response;
+        this.createdAt = createdAt;
     }
 
-    /**
-     * Returns the notification ID.
-     *
-     * @return the notification ID
-     */
+    // Getters and Setters
+
     public String getNotificationId() {
         return notificationId;
     }
 
-    /**
-     * Returns the notification title.
-     *
-     * @return the notification title
-     */
+    public void setNotificationId(String notificationId) {
+        this.notificationId = notificationId;
+    }
+
     public String getTitle() {
         return title;
     }
 
-    /**
-     * Returns the notification message.
-     *
-     * @return the notification message
-     */
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     public String getMessage() {
         return message;
     }
 
-    /**
-     * Returns the notification type.
-     *
-     * @return the notification type
-     */
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
     public String getType() {
         return type;
     }
 
-    /**
-     * Returns the related event ID.
-     *
-     * @return the related event ID
-     */
+    public void setType(String type) {
+        this.type = type;
+    }
+
     public String getEventId() {
         return eventId;
     }
 
-    /**
-     * Indicates whether the notification has been read.
-     *
-     * @return true if the notification has been read
-     */
+    public void setEventId(String eventId) {
+        this.eventId = eventId;
+    }
+
+    public String getEventTitle() {
+        return eventTitle;
+    }
+
+    public void setEventTitle(String eventTitle) {
+        this.eventTitle = eventTitle;
+    }
+
+    public String getSenderId() {
+        return senderId;
+    }
+
+    public void setSenderId(String senderId) {
+        this.senderId = senderId;
+    }
+
+    public String getSenderRole() {
+        return senderRole;
+    }
+
+    public void setSenderRole(String senderRole) {
+        this.senderRole = senderRole;
+    }
+
     public boolean isRead() {
         return isRead;
     }
 
-    /**
-     * Updates the read status of the notification.
-     *
-     * @param read the new read status
-     */
     public void setRead(boolean read) {
         isRead = read;
     }
 
-    /**
-     * Indicates whether action has been taken on the notification.
-     *
-     * @return true if action has been taken
-     */
-    public boolean isActionTaken() {
-        return actionTaken;
+    public Timestamp getCreatedAt() {
+        return createdAt;
     }
 
-    /**
-     * Updates whether action has been taken on the notification.
-     *
-     * @param actionTaken the new action state
-     */
-    public void setActionTaken(boolean actionTaken) {
-        this.actionTaken = actionTaken;
-    }
-
-    /**
-     * Returns the user's response to the notification.
-     *
-     * @return the user's response
-     */
-    public String getResponse() {
-        return response;
-    }
-
-    /**
-     * Updates the user's response to the notification.
-     *
-     * @param response the new response
-     */
-    public void setResponse(String response) {
-        this.response = response;
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
     }
 }

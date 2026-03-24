@@ -16,39 +16,33 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.lottery.model.Event;
+import com.example.lottery.util.FirestorePaths;
+import com.example.lottery.util.InvitationFlowUtil;
 import com.example.lottery.util.PosterImageLoader;
+import com.example.lottery.util.SessionUtil;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 /**
- * Activity to display the details of a specific event and handle registration.
- *
- * <p>Responsibilities:
- * <ul>
- *   <li>Fetch the event record from Firestore using the supplied event ID.</li>
- *   <li>Render the poster, title, schedule, deadline, and description.</li>
- *   <li>Surface organizer-configured requirements such as geolocation.</li>
- *   <li>Keep the custom bottom navigation active on the details screen.</li>
- * </ul>
- * </p>
+ * Activity to display the details of a specific event for the organizer.
  */
 public class OrganizerEventDetailsActivity extends AppCompatActivity {
 
     private static final String TAG = "OrganizerEventDetails";
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+    private final SimpleDateFormat dateFormat =
+            new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+
     private ImageView ivEventPoster;
-    private TextView tvEventTitle, tvScheduledDate, tvEventEndDate, tvRegistrationStart,
-            tvRegistrationDeadline, tvDrawDate, tvEventDetails, tvLocationRequirement;
-    private TextView tvFullMessage, tvWaitingListCapacity;
+    private TextView tvEventTitle, tvScheduledDate, tvRegistrationDeadline, tvDrawDate, tvEventDetails, tvLocationRequirement;
+    private TextView tvWaitingListCapacity, tvEntrantCounts;
     private Button btnEditEvent;
     private FirebaseFirestore db;
-    /**
-     * The current event being displayed.
-     */
+
     private Event currentEvent;
     private String eventId;
+    private String userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,54 +59,64 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         ivEventPoster = findViewById(R.id.ivEventPoster);
         tvEventTitle = findViewById(R.id.tvEventTitle);
         tvScheduledDate = findViewById(R.id.tvScheduledDate);
-        tvEventEndDate = findViewById(R.id.tvEventEndDate);
-        tvRegistrationStart = findViewById(R.id.tvRegistrationStart);
         tvRegistrationDeadline = findViewById(R.id.tvRegistrationDeadline);
         tvDrawDate = findViewById(R.id.tvDrawDate);
         tvEventDetails = findViewById(R.id.tvEventDetails);
         tvLocationRequirement = findViewById(R.id.tvLocationRequirement);
         tvWaitingListCapacity = findViewById(R.id.tvWaitingListCapacity);
+        tvEntrantCounts = findViewById(R.id.tvEntrantCounts);
         btnEditEvent = findViewById(R.id.btnEditEvent);
         Button btnViewWaitingList = findViewById(R.id.btnViewWaitingList);
+
+        // Remove references to deleted UI components if they were in the layout but no longer in model
+        // tvEventEndDate = findViewById(R.id.tvEventEndDate);
+        // tvRegistrationStart = findViewById(R.id.tvRegistrationStart);
+
         db = FirebaseFirestore.getInstance();
 
-        setupNavigation();
-
         eventId = getIntent().getStringExtra("eventId");
-        if (eventId != null) {
-            fetchEventDetails(eventId);
-        } else {
+        userId = SessionUtil.resolveUserId(this);
+
+        if (eventId == null) {
             Toast.makeText(this, "Error: Event ID missing", Toast.LENGTH_SHORT).show();
             finish();
+            return;
+        }
+        if (userId == null) {
+            Toast.makeText(this, R.string.missing_user_info, Toast.LENGTH_SHORT).show();
+            finish();
+            return;
         }
 
+        setupNavigation();
+        fetchEventDetails(eventId);
+        fetchEntrantCounts(eventId);
+
         btnEditEvent.setOnClickListener(v -> handleEditEvent());
+
         btnViewWaitingList.setOnClickListener(v -> {
             Intent intent = new Intent(this, EntrantsListActivity.class);
-            intent.putExtra("eventId", eventId); // pass event ID
+            intent.putExtra("eventId", eventId);
+            intent.putExtra("userId", userId);
             startActivity(intent);
         });
     }
 
-    /**
-     * Refreshes the displayed event details whenever the activity returns to the foreground.
-     */
     @Override
     protected void onResume() {
         super.onResume();
         if (eventId != null) {
             fetchEventDetails(eventId);
+            fetchEntrantCounts(eventId);
         }
     }
 
-    /**
-     * Sets up click listeners for the bottom navigation bar and other navigation elements.
-     */
     private void setupNavigation() {
         View btnHome = findViewById(R.id.nav_home);
         if (btnHome != null) {
             btnHome.setOnClickListener(v -> {
                 Intent intent = new Intent(this, OrganizerBrowseEventsActivity.class);
+                intent.putExtra("userId", userId);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
                 finish();
@@ -122,29 +126,48 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         View btnCreate = findViewById(R.id.nav_create_container);
         if (btnCreate != null) {
             btnCreate.setOnClickListener(v -> {
-                startActivity(new Intent(this, OrganizerCreateEventActivity.class));
+                Intent intent = new Intent(this, OrganizerCreateEventActivity.class);
+                intent.putExtra("userId", userId);
+                startActivity(intent);
             });
         }
 
-        View btnHistory = findViewById(R.id.nav_notifications);
-        if (btnHistory != null) {
-            btnHistory.setOnClickListener(v ->
-                    startActivity(new Intent(this, OrganizerNotificationsActivity.class)));
+        View btnNotifications = findViewById(R.id.nav_notifications);
+        if (btnNotifications != null) {
+            btnNotifications.setOnClickListener(v -> {
+                Intent intent = new Intent(this, OrganizerNotificationsActivity.class);
+                intent.putExtra("userId", userId);
+                startActivity(intent);
+            });
+        }
+
+        View btnQr = findViewById(R.id.nav_qr_code);
+        if (btnQr != null) {
+            btnQr.setOnClickListener(v -> {
+                Intent intent = new Intent(this, OrganizerQrEventListActivity.class);
+                intent.putExtra("userId", userId);
+                startActivity(intent);
+            });
+        }
+
+        View btnProfile = findViewById(R.id.nav_profile);
+        if (btnProfile != null) {
+            btnProfile.setOnClickListener(v -> {
+                Intent intent = new Intent(this, OrganizerProfileActivity.class);
+                intent.putExtra("userId", userId);
+                startActivity(intent);
+            });
         }
     }
 
-    /**
-     * Fetches the event details from Firestore.
-     *
-     * @param eventId The unique identifier of the event.
-     */
     private void fetchEventDetails(String eventId) {
-        db.collection("events").document(eventId)
+        db.collection(FirestorePaths.EVENTS).document(eventId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         currentEvent = documentSnapshot.toObject(Event.class);
                         if (currentEvent != null) {
+                            currentEvent.setEventId(documentSnapshot.getId());
                             updateUI(currentEvent);
                         }
                     } else {
@@ -158,49 +181,67 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * Launches OrganizerCreateEventActivity in edit mode for the currently displayed event.
+     * Fetches real-time counts from the waitingList subcollection.
      */
+    private void fetchEntrantCounts(String eventId) {
+        db.collection(FirestorePaths.eventWaitingList(eventId))
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    int waitlisted = 0;
+                    int invited = 0;
+                    int accepted = 0;
+                    int cancelled = 0;
+
+                    for (com.google.firebase.firestore.DocumentSnapshot doc : queryDocumentSnapshots) {
+                        String status = InvitationFlowUtil.normalizeEntrantStatus(doc.getString("status"));
+                        switch (status) {
+                            case InvitationFlowUtil.STATUS_WAITLISTED: waitlisted++; break;
+                            case InvitationFlowUtil.STATUS_INVITED: invited++; break;
+                            case InvitationFlowUtil.STATUS_ACCEPTED: accepted++; break;
+                            case InvitationFlowUtil.STATUS_CANCELLED: cancelled++; break;
+                        }
+                    }
+
+                    if (tvEntrantCounts != null) {
+                        tvEntrantCounts.setText(String.format(Locale.getDefault(),
+                                "Waitlisted: %d | Invited: %d | Accepted: %d | Cancelled: %d",
+                                waitlisted, invited, accepted, cancelled));
+                    }
+                });
+    }
+
     private void handleEditEvent() {
         Intent intent = new Intent(this, OrganizerCreateEventActivity.class);
         intent.putExtra("eventId", eventId);
+        intent.putExtra("userId", userId);
         startActivity(intent);
     }
 
-    /**
-     * Updates the UI components with the provided event data.
-     *
-     * @param event The event data to display.
-     */
     private void updateUI(Event event) {
-        tvEventTitle.setText(event.getTitle());
-        tvEventDetails.setText(event.getDetails());
+        tvEventTitle.setText(event.getTitle() != null ? event.getTitle() : "");
+        tvEventDetails.setText(event.getDetails() != null ? event.getDetails() : "");
 
-        tvScheduledDate.setText(event.getScheduledDateTime() != null
-                ? dateFormat.format(event.getScheduledDateTime()) : "");
-        tvEventEndDate.setText(event.getEventEndDate() != null
-                ? dateFormat.format(event.getEventEndDate()) : "");
-        tvRegistrationStart.setText(event.getRegistrationStartDate() != null
-                ? dateFormat.format(event.getRegistrationStartDate()) : "");
-        tvRegistrationDeadline.setText(event.getRegistrationDeadline() != null
-                ? dateFormat.format(event.getRegistrationDeadline()) : "");
-        tvDrawDate.setText(event.getDrawDate() != null
-                ? dateFormat.format(event.getDrawDate()) : "");
+        if (event.getScheduledDateTime() != null)
+            tvScheduledDate.setText(dateFormat.format(event.getScheduledDateTime().toDate()));
+        
+        // registrationStartDate and eventEndDate removed from Event model
+
+        if (event.getRegistrationDeadline() != null)
+            tvRegistrationDeadline.setText(dateFormat.format(event.getRegistrationDeadline().toDate()));
+        if (event.getDrawDate() != null)
+            tvDrawDate.setText(dateFormat.format(event.getDrawDate().toDate()));
 
         if (tvWaitingListCapacity != null) {
-            String capacityLabel = (event.getWaitingListLimit() == null) ? "Unlimited" : String.valueOf(event.getWaitingListLimit());
+            String capacityLabel = (event.getWaitingListLimit() == null)
+                    ? "Unlimited"
+                    : String.valueOf(event.getWaitingListLimit());
             tvWaitingListCapacity.setText(capacityLabel);
         }
 
         if (tvLocationRequirement != null) {
-            if (event.isRequireLocation()) {
-                tvLocationRequirement.setText("Location Verification Required");
-                tvLocationRequirement.setVisibility(View.VISIBLE);
-            } else {
-                tvLocationRequirement.setVisibility(View.GONE);
-            }
+            tvLocationRequirement.setVisibility(event.isRequireLocation() ? View.VISIBLE : View.GONE);
         }
 
-        String posterUriString = event.getPosterUri();
-        PosterImageLoader.load(ivEventPoster, posterUriString, R.drawable.event_placeholder);
+        PosterImageLoader.load(ivEventPoster, event.getPosterUri(), R.drawable.event_placeholder);
     }
 }

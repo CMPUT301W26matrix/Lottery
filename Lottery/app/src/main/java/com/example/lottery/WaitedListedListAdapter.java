@@ -11,6 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.lottery.model.Entrant;
+
 import java.util.List;
 
 /**
@@ -21,6 +23,7 @@ import java.util.List;
  *   <li>bind data to waited listed entrants recyclerview</li>
  *   <li>render each piece of data </li>
  *   <li>handle user interaction</li>
+ *   <li>implement US 02.06.01 Be able to view all chosen entrants</li>
  * </ul>
  * </p>
  */
@@ -70,10 +73,15 @@ public class WaitedListedListAdapter extends RecyclerView.Adapter<WaitedListedLi
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Entrant entrant = mData.get(position);
-        holder.tvEntrantName.setText(entrant.getEntrant_name());
+        // Unified: use getUserName() instead of getEntrant_name()
+        holder.tvEntrantName.setText(entrant.getUserName());
         holder.tvEntrantStatus.setText("");
         holder.btnViewDetails.setOnClickListener(v -> {
-            EntrantDetailsFragment entrantDetailsFragment = EntrantDetailsFragment.newInstance(entrant);
+            boolean requireLocation = false;
+            if (context instanceof EntrantsListActivity) {
+                requireLocation = ((EntrantsListActivity) context).isRequireLocation();
+            }
+            EntrantDetailsFragment entrantDetailsFragment = EntrantDetailsFragment.newInstance(entrant, requireLocation);
             entrantDetailsFragment.show(((AppCompatActivity) context).getSupportFragmentManager(), "Entrant Details");
         });
     }
@@ -109,4 +117,3 @@ public class WaitedListedListAdapter extends RecyclerView.Adapter<WaitedListedLi
         }
     }
 }
-

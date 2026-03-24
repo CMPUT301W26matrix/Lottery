@@ -67,33 +67,9 @@ public class MainActivityTest {
     }
 
     @Test
-    public void testSignInButtonIsDisplayed() {
-        onView(withId(R.id.btnSignIn))
-                .check(matches(isDisplayed()));
-    }
-
-    @Test
     public void testChooseYourRoleTextIsDisplayed() {
         onView(withId(R.id.tvChooseRole)).check(matches(isDisplayed()));
         onView(withId(R.id.tvChooseRole)).check(matches(withText(R.string.choose_your_role)));
-    }
-
-    @Test
-    public void testSignInHintAndButtonAreDisplayed() {
-        onView(withId(R.id.tvSignInHint)).check(matches(isDisplayed()));
-        onView(withId(R.id.tvSignInHint)).check(matches(withText(R.string.already_have_an_account)));
-    }
-
-    @Test
-    public void testSwitchToEntrantRegistrationActivity() {
-        onView(withId(R.id.entrant_login_button)).perform(click());
-        intended(hasComponent(EntrantRegistrationActivity.class.getName()));
-    }
-
-    @Test
-    public void testSwitchToOrganizerRegistrationActivity() {
-        onView(withId(R.id.organizer_login_button)).perform(click());
-        intended(hasComponent(OrganizerRegistrationActivity.class.getName()));
     }
 
     @Test
@@ -101,11 +77,4 @@ public class MainActivityTest {
         onView(withId(R.id.admin_login_button)).perform(click());
         intended(hasComponent(AdminSignInActivity.class.getName()));
     }
-
-    @Test
-    public void testSwitchToGeneralSignInActivity() {
-        onView(withId(R.id.btnSignIn)).perform(click());
-        intended(hasComponent(GeneralSignInActivity.class.getName()));
-    }
-
 }

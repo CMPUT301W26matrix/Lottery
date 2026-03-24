@@ -14,14 +14,17 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.lottery.model.EntrantEvent;
 import com.example.lottery.model.User;
+import com.example.lottery.util.FirestorePaths;
+import com.example.lottery.util.InvitationFlowUtil;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 
 /**
  * WaitingListActivity
- * Displays the real entrants who joined the waiting list
+ * Displays the entrants who are currently in the waitlisted status
  * for the selected event.
  */
 public class WaitingListActivity extends AppCompatActivity {
@@ -90,17 +93,13 @@ public class WaitingListActivity extends AppCompatActivity {
     }
 
     /**
-     * Loads entrant IDs from:
-     * events/{eventId}/entrants
-     * <p>
-     * Then loads each user's personal info from:
-     * users
+     * Loads entrant IDs from events/{eventId}/waitingList subcollection.
+     * Filters for status == "waitlisted".
+     * Then loads user details for display.
      */
     private void loadWaitingList() {
-        db.collection("events")
-                .document(eventId)
-                .collection("entrants")
-                .whereEqualTo("status", "waiting")
+        db.collection(FirestorePaths.eventWaitingList(eventId))
+                .whereEqualTo("status", InvitationFlowUtil.STATUS_WAITLISTED)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     entrants.clear();
@@ -114,60 +113,44 @@ public class WaitingListActivity extends AppCompatActivity {
                     final int[] loadedCount = {0};
 
                     queryDocumentSnapshots.forEach(document -> {
-                        String entrantId = document.getString("entrantId");
+                        EntrantEvent entrantRecord = document.toObject(EntrantEvent.class);
+                        String uid = (entrantRecord != null) ? entrantRecord.getUserId() : document.getId();
 
-                        if (entrantId == null || entrantId.isEmpty()) {
+                        if (uid == null || uid.isEmpty()) {
                             loadedCount[0]++;
-                            if (loadedCount[0] == totalEntrants) {
-                                updateListState();
-                            }
+                            if (loadedCount[0] == totalEntrants) updateListState();
                             return;
                         }
 
-                        db.collection("users")
-                                .document(entrantId)
+                        db.collection(FirestorePaths.USERS)
+                                .document(uid)
                                 .get()
                                 .addOnSuccessListener(userSnapshot -> {
                                     if (userSnapshot.exists()) {
-                                        String username = userSnapshot.getString("name");
-                                        String email = userSnapshot.getString("email");
-                                        String phone = userSnapshot.getString("phone");
-
-                                        if (username == null || username.isEmpty())
-                                            username = "Unknown User";
-                                        if (email == null || email.isEmpty()) email = "No email";
-                                        if (phone == null || phone.isEmpty()) phone = "No phone";
-
-                                        entrants.add(new User(username, email, phone));
+                                        User user = userSnapshot.toObject(User.class);
+                                        if (user != null) {
+                                            user.setUserId(userSnapshot.getId());
+                                            entrants.add(user);
+                                        }
                                     }
 
                                     loadedCount[0]++;
-                                    if (loadedCount[0] == totalEntrants) {
-                                        updateListState();
-                                    }
+                                    if (loadedCount[0] == totalEntrants) updateListState();
                                 })
                                 .addOnFailureListener(e -> {
                                     loadedCount[0]++;
-                                    if (loadedCount[0] == totalEntrants) {
-                                        updateListState();
-                                    }
+                                    if (loadedCount[0] == totalEntrants) updateListState();
                                 });
                     });
                 })
                 .addOnFailureListener(e -> Toast.makeText(this, "Failed to load waiting list", Toast.LENGTH_SHORT).show());
     }
 
-    /**
-     * Shows the empty message if no entrants exist.
-     */
     private void showEmptyState() {
         emptyMessage.setVisibility(View.VISIBLE);
         waitingListView.setVisibility(View.GONE);
     }
 
-    /**
-     * Updates the screen after Firestore data finishes loading.
-     */
     private void updateListState() {
         if (entrants.isEmpty()) {
             showEmptyState();

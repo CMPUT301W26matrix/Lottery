@@ -3,44 +3,55 @@ package com.example.lottery.model;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.GeoPoint;
 
-/**
- * Model class representing an entrant's participation record in an event's waiting list.
- *
- * Target Firestore path:
- * events/{eventId}/waitingList/{userId}
- */
-public class EntrantEvent {
+import java.io.Serializable;
 
+/**
+ * Data model representing an entrant in an event.
+ *
+ * <p>Responsibilities:
+ * <ul>
+ *   <li>Store entrant identity and status timestamps for all 4 states: waitlisted, invited, accepted, cancelled.</li>
+ *   <li>Store the entrant's geolocation at the time of registration.</li>
+ * </ul>
+ * </p>
+ */
+public class Entrant implements Serializable {
+
+    /**
+     * Preferred unified fields.
+     */
     private String userId;
     private String userName;
     private String email;
     private String status; // waitlisted / invited / accepted / cancelled
+
     private Timestamp registeredAt;
     private Timestamp waitlistedAt;
     private Timestamp invitedAt;
     private Timestamp acceptedAt;
     private Timestamp cancelledAt;
+
     private GeoPoint location;
 
     /**
-     * Default constructor for Firestore serialization.
+     * Default constructor required for Firestore / serialization.
      */
-    public EntrantEvent() {
+    public Entrant() {
     }
 
     /**
-     * Full constructor for an entrant-event relationship.
+     * Full constructor using the new unified structure.
      */
-    public EntrantEvent(String userId,
-                        String userName,
-                        String email,
-                        String status,
-                        Timestamp registeredAt,
-                        Timestamp waitlistedAt,
-                        Timestamp invitedAt,
-                        Timestamp acceptedAt,
-                        Timestamp cancelledAt,
-                        GeoPoint location) {
+    public Entrant(String userId,
+                   String userName,
+                   String email,
+                   String status,
+                   Timestamp registeredAt,
+                   Timestamp waitlistedAt,
+                   Timestamp invitedAt,
+                   Timestamp acceptedAt,
+                   Timestamp cancelledAt,
+                   GeoPoint location) {
         this.userId = userId;
         this.userName = userName;
         this.email = email;
@@ -133,5 +144,23 @@ public class EntrantEvent {
 
     public void setLocation(GeoPoint location) {
         this.location = location;
+    }
+
+    // Helpful status checks
+
+    public boolean isWaitlisted() {
+        return "waitlisted".equalsIgnoreCase(status);
+    }
+
+    public boolean isInvited() {
+        return "invited".equalsIgnoreCase(status);
+    }
+
+    public boolean isAccepted() {
+        return "accepted".equalsIgnoreCase(status);
+    }
+
+    public boolean isCancelled() {
+        return "cancelled".equalsIgnoreCase(status);
     }
 }

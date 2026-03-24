@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <queries>
         <package android:name="com.google.android.gms" />
@@ -50,27 +52,13 @@
             android:name=".EntrantEventDetailsActivity"
             android:exported="false" />
         <activity
-            android:name=".WaitingListActivity"
-            android:exported="false" />
-        <activity
-            android:name=".EntrantRegistrationActivity"
-            android:exported="false" />
-        <activity
-            android:name=".OrganizerRegistrationActivity"
-            android:exported="false" />
-        <activity
             android:name=".AdminSignInActivity"
-            android:exported="false" />
-        <activity
-            android:name=".GeneralSignInActivity"
             android:exported="false" />
         <activity
             android:name=".EntrantMainActivity"
             android:exported="false" />
         <activity
             android:name=".EntrantProfileActivity"
-            android:exported="false" />
-        <activity android:name=".BrowseProfilesActivity"
             android:exported="false" />
         <activity android:name=".AdminBrowseProfilesActivity"
             android:exported="false" />

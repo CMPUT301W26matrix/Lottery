@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lottery.model.Event;
+import com.example.lottery.util.FirestorePaths;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -140,11 +141,10 @@ public class AdminBrowseEventsActivity extends AppCompatActivity implements Even
      * Loads events from the Firestore 'events' collection.
      *
      * <p>This method clears the existing list, fetches all documents, and repopulates the list.
-     * It includes a compatibility fix to handle older documents that might use different field names for dates.
      * After fetching, it updates the RecyclerView and the summary statistics UI.</p>
      */
     private void loadEvents() {
-        db.collection("events")
+        db.collection(FirestorePaths.EVENTS)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     eventList.clear();
@@ -156,29 +156,19 @@ public class AdminBrowseEventsActivity extends AppCompatActivity implements Even
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         try {
                             Event event = document.toObject(Event.class);
-
-                            if (event.getScheduledDateTime() == null) {
-                                Date oldDate = document.getDate("eventDate");
-                                if (oldDate != null) {
-                                    event.setScheduledDateTime(oldDate);
-                                }
-                            }
-                            if (event.getRegistrationDeadline() == null) {
-                                Date oldDeadline = document.getDate("deadlineDate");
-                                if (oldDeadline != null) {
-                                    event.setRegistrationDeadline(oldDeadline);
-                                }
-                            }
-
+                            if (event == null) continue;
+                            
+                            event.setEventId(document.getId());
                             eventList.add(event);
 
+                            // Logical classification based on spec fields
                             if (event.getDrawDate() != null
                                     && event.getRegistrationDeadline() != null
-                                    && event.getRegistrationDeadline().before(now)
-                                    && event.getDrawDate().after(now)) {
+                                    && event.getRegistrationDeadline().toDate().before(now)
+                                    && event.getDrawDate().toDate().after(now)) {
                                 pending++;
                             } else if (event.getScheduledDateTime() != null
-                                    && event.getScheduledDateTime().after(now)) {
+                                    && event.getScheduledDateTime().toDate().after(now)) {
                                 active++;
                             } else {
                                 closed++;
