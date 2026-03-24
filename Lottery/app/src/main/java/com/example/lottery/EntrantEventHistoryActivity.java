@@ -34,7 +34,7 @@ public class EntrantEventHistoryActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private EntrantHistoryAdapter adapter;
     private final List<EntrantHistoryAdapter.HistoryItem> historyList = new ArrayList<>();
-    
+
     private FirebaseFirestore db;
     private String userId;
 
@@ -102,7 +102,13 @@ public class EntrantEventHistoryActivity extends AppCompatActivity {
 
     private void loadEventHistory() {
         progressBar.setVisibility(View.VISIBLE);
-        
+
+        /*
+         * WARNING: This query requires a Firestore Composite Index for the Collection Group "waitingList".
+         * Fields: userId (ASCENDING), registeredAt (DESCENDING).
+         * Scope: Collection Group.
+         * If the index is missing, the query will fail with FAILED_PRECONDITION.
+         */
         db.collectionGroup(FirestorePaths.WAITING_LIST)
                 .whereEqualTo("userId", userId)
                 .orderBy("registeredAt", Query.Direction.DESCENDING)
@@ -121,7 +127,7 @@ public class EntrantEventHistoryActivity extends AppCompatActivity {
                         String status = regDoc.getString("status");
                         EntrantHistoryAdapter.HistoryItem item = new EntrantHistoryAdapter.HistoryItem(null, status);
                         historyList.add(item); // Add placeholder to maintain count
-                        
+
                         regDoc.getReference().getParent().getParent().get()
                                 .addOnSuccessListener(eventDoc -> {
                                     if (eventDoc.exists()) {
@@ -129,7 +135,7 @@ public class EntrantEventHistoryActivity extends AppCompatActivity {
                                         if (event != null) {
                                             event.setEventId(eventDoc.getId());
                                             item.event = event;
-                                            
+
                                             // Fetch Organizer Name
                                             if (event.getOrganizerId() != null) {
                                                 db.collection(FirestorePaths.USERS).document(event.getOrganizerId()).get()

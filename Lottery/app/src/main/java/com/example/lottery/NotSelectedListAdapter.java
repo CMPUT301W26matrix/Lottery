@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.lottery.model.Entrant;
+import com.example.lottery.model.EntrantEvent;
 
 import java.util.List;
 
@@ -19,10 +19,10 @@ import java.util.List;
  * Adapter for entrants who were not selected during the lottery draw.
  */
 public class NotSelectedListAdapter extends RecyclerView.Adapter<NotSelectedListAdapter.ViewHolder> {
-    private final List<Entrant> mData;
+    private final List<EntrantEvent> mData;
     private final Context context;
 
-    NotSelectedListAdapter(Context context, List<Entrant> data) {
+    NotSelectedListAdapter(Context context, List<EntrantEvent> data) {
         this.context = context;
         this.mData = data;
     }
@@ -36,7 +36,7 @@ public class NotSelectedListAdapter extends RecyclerView.Adapter<NotSelectedList
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Entrant entrant = mData.get(position);
+        EntrantEvent entrant = mData.get(position);
         holder.tvEntrantName.setText(entrant.getUserName());
         holder.tvEntrantStatus.setText("");
         holder.btnViewDetails.setOnClickListener(v -> {

@@ -3,13 +3,15 @@ package com.example.lottery.model;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.GeoPoint;
 
+import java.io.Serializable;
+
 /**
  * Model class representing an entrant's participation record in an event's waiting list.
  *
  * Target Firestore path:
  * events/{eventId}/waitingList/{userId}
  */
-public class EntrantEvent {
+public class EntrantEvent implements Serializable {
 
     private String userId;
     private String userName;
@@ -133,5 +135,23 @@ public class EntrantEvent {
 
     public void setLocation(GeoPoint location) {
         this.location = location;
+    }
+
+    // Helpful status checks
+
+    public boolean isWaitlisted() {
+        return "waitlisted".equalsIgnoreCase(status);
+    }
+
+    public boolean isInvited() {
+        return "invited".equalsIgnoreCase(status);
+    }
+
+    public boolean isAccepted() {
+        return "accepted".equalsIgnoreCase(status);
+    }
+
+    public boolean isCancelled() {
+        return "cancelled".equalsIgnoreCase(status);
     }
 }

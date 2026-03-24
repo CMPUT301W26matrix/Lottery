@@ -12,7 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.lottery.model.Entrant;
+import com.example.lottery.model.EntrantEvent;
 
 import java.util.List;
 
@@ -32,7 +32,7 @@ public class WaitedListedListAdapter extends RecyclerView.Adapter<WaitedListedLi
     /**
      * data we will manipulate to display
      */
-    private final List<Entrant> mData;
+    private final List<EntrantEvent> mData;
     /**
      * context we want to interact
      */
@@ -44,7 +44,7 @@ public class WaitedListedListAdapter extends RecyclerView.Adapter<WaitedListedLi
      * @param context context we want to interact
      * @param data    data we will manipulate to display
      */
-    WaitedListedListAdapter(Context context, List<Entrant> data) {
+    WaitedListedListAdapter(Context context, List<EntrantEvent> data) {
         this.context = context;
         this.mData = data;
     }
@@ -72,7 +72,7 @@ public class WaitedListedListAdapter extends RecyclerView.Adapter<WaitedListedLi
      */
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Entrant entrant = mData.get(position);
+        EntrantEvent entrant = mData.get(position);
         holder.tvEntrantName.setText(entrant.getUserName());
         holder.tvEntrantStatus.setText("");
 

@@ -7,8 +7,6 @@ import android.content.Context;
 
 import androidx.test.core.app.ApplicationProvider;
 
-import com.example.lottery.model.Entrant;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
