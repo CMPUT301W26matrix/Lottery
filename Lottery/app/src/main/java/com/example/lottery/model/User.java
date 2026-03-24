@@ -137,6 +137,11 @@ public class User {
         this.deviceId = deviceId;
     }
 
+    /**
+     * Returns the email address of the user.
+     *
+     * @return The user's email.
+     */
     public String getEmail() {
         return email;
     }

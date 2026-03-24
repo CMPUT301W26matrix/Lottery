@@ -28,15 +28,39 @@ import java.util.List;
 
 /**
  * Activity that displays a list of events for the organizer to select and view their QR codes.
- * Updated with Edge-to-Edge support to ensure UI respects notches and system bars.
+ *
+ * <p>Key Responsibilities:
+ * <ul>
+ *   <li>Initializes the RecyclerView to list all events from the 'events' collection in Firestore.</li>
+ *   <li>Configures the custom Toolbar with a back navigation button.</li>
+ *   <li>Manages data loading from Firestore and handles the navigation to QR code details.</li>
+ *   <li>Provides fallback test data if the database is empty.</li>
+ * </ul>
+ * </p>
  */
 public class OrganizerQrEventListActivity extends AppCompatActivity {
 
+    /**
+     * Adapter for binding event data to the RecyclerView.
+     */
     private OrganizerQrEventAdapter adapter;
+    /**
+     * Data source for the event list.
+     */
     private List<Event> eventList;
+    /**
+     * Firebase Firestore instance for database access.
+     */
     private FirebaseFirestore db;
     private String userId;
 
+    /**
+     * Initializes the activity, sets up the Toolbar with back navigation,
+     * configures the RecyclerView and adapter, and triggers event loading from Firestore.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously
+     *                           being shut down, this contains the saved state; otherwise null.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,7 +83,7 @@ public class OrganizerQrEventListActivity extends AppCompatActivity {
         }
 
         db = FirebaseFirestore.getInstance();
-        
+
         userId = getIntent().getStringExtra("userId");
         if (userId == null) {
             SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
@@ -75,6 +99,7 @@ public class OrganizerQrEventListActivity extends AppCompatActivity {
         RecyclerView rvEvents = findViewById(R.id.rvQrEvents);
         eventList = new ArrayList<>();
 
+        // Initialize adapter with click listener to open QR detail view
         adapter = new OrganizerQrEventAdapter(eventList, event -> {
             Intent intent = new Intent(OrganizerQrEventListActivity.this, OrganizerQrCodeDetailActivity.class);
             intent.putExtra(OrganizerQrCodeDetailActivity.EXTRA_EVENT_TITLE, event.getTitle());
@@ -98,7 +123,7 @@ public class OrganizerQrEventListActivity extends AppCompatActivity {
                 startActivity(intent);
             });
         }
-        
+
         View btnHome = findViewById(R.id.nav_home);
         if (btnHome != null) {
             btnHome.setOnClickListener(v -> {
@@ -134,7 +159,7 @@ public class OrganizerQrEventListActivity extends AppCompatActivity {
                 startActivity(intent);
             });
         }
-        
+
         updateNavigationSelection();
     }
 

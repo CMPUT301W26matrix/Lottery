@@ -19,6 +19,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.lottery.util.FirestorePaths;
+import com.example.lottery.util.FirestorePaths;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.switchmaterial.SwitchMaterial;
@@ -63,13 +64,13 @@ public class EntrantProfileActivity extends AppCompatActivity {
         });
 
         db = FirebaseFirestore.getInstance();
-        
+
         SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
         userId = getIntent().getStringExtra("userId");
         if (userId == null) {
             userId = prefs.getString("userId", null);
         }
-        
+
         forceEdit = getIntent().getBooleanExtra("forceEdit", false);
 
         initializeViews();
@@ -112,7 +113,13 @@ public class EntrantProfileActivity extends AppCompatActivity {
             }
         });
 
-        btnLogout.setOnClickListener(v -> logout());
+        btnLogout.setOnClickListener(v -> {
+            prefs.edit().clear().apply();
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        });
 
         btnDeleteProfile.setOnClickListener(v -> showDeleteConfirmationDialog());
 
@@ -128,17 +135,17 @@ public class EntrantProfileActivity extends AppCompatActivity {
         tvPhone = findViewById(R.id.tv_profile_phone);
         tvNotificationBadge = findViewById(R.id.tvNotificationBadge);
         tvActionsHeader = findViewById(R.id.tv_actions_header);
-        
-        etName = findViewById(R.id.et_edit_name); 
+
+        etName = findViewById(R.id.et_edit_name);
         etEmail = findViewById(R.id.et_edit_email);
         etPhone = findViewById(R.id.et_edit_phone);
 
         btnLogout = findViewById(R.id.btn_log_out);
-        btnEditSave = findViewById(R.id.btn_edit_save); 
+        btnEditSave = findViewById(R.id.btn_edit_save);
         btnCancel = findViewById(R.id.btn_cancel_edit);
         btnDeleteProfile = findViewById(R.id.btn_delete_profile);
         btnLotteryGuidelines = findViewById(R.id.btn_lottery_guidelines);
-        
+
         dividerDelete = findViewById(R.id.divider_delete);
         dividerCancel = findViewById(R.id.divider_cancel);
         dividerGuidelines = findViewById(R.id.divider_guidelines);
@@ -174,7 +181,7 @@ public class EntrantProfileActivity extends AppCompatActivity {
 
                 tvName.setText(username != null && !username.isEmpty() ? username : "Unknown");
                 tvEmail.setText(email != null && !email.isEmpty() ? email : "No Email");
-                
+
                 if (phone != null && !phone.isEmpty()) {
                     tvPhone.setText(phone);
                     tvPhone.setVisibility(View.VISIBLE);
@@ -185,6 +192,11 @@ public class EntrantProfileActivity extends AppCompatActivity {
                 etName.setText(username != null ? username : "");
                 etEmail.setText(email != null ? email : "");
                 etPhone.setText(phone != null ? phone : "");
+
+                if (forceEdit && username != null && !username.isEmpty() && email != null && !email.isEmpty()) {
+                    forceEdit = false;
+                    exitEditMode();
+                }
 
                 List<String> interests = (List<String>) documentSnapshot.get("interests");
                 if (interests != null) {
@@ -208,7 +220,7 @@ public class EntrantProfileActivity extends AppCompatActivity {
         displayLayout.setVisibility(View.GONE);
         editLayout.setVisibility(View.VISIBLE);
         btnEditSave.setText(forceEdit ? "Complete Profile" : "Save Changes");
-        
+
         // Hide options when editing
         btnDeleteProfile.setVisibility(View.GONE);
         dividerDelete.setVisibility(View.GONE);
@@ -235,7 +247,7 @@ public class EntrantProfileActivity extends AppCompatActivity {
         displayLayout.setVisibility(View.VISIBLE);
         editLayout.setVisibility(View.GONE);
         btnEditSave.setText("Edit Profile");
-        
+
         btnCancel.setVisibility(View.GONE);
         dividerCancel.setVisibility(View.GONE);
         btnDeleteProfile.setVisibility(View.VISIBLE);
@@ -338,7 +350,7 @@ public class EntrantProfileActivity extends AppCompatActivity {
                 if (!forceEdit) navigateToMain();
             });
         }
-        
+
         View navHistory = findViewById(R.id.nav_history);
         if (navHistory != null) {
             navHistory.setOnClickListener(v -> {

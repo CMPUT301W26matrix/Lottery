@@ -29,7 +29,16 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 /**
- * Activity to display the details of a specific event for the organizer.
+ * Activity to display the details of a specific event and handle registration.
+ *
+ * <p>Responsibilities:
+ * <ul>
+ *   <li>Fetch the event record from Firestore using the supplied event ID.</li>
+ *   <li>Render the poster, title, schedule, deadline, and description.</li>
+ *   <li>Surface organizer-configured requirements such as geolocation.</li>
+ *   <li>Keep the custom bottom navigation active on the details screen.</li>
+ * </ul>
+ * </p>
  */
 public class OrganizerEventDetailsActivity extends AppCompatActivity {
 
@@ -107,7 +116,17 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, "Error: Event ID missing", Toast.LENGTH_SHORT).show();
             finish();
+            return;
         }
+        if (userId == null) {
+            Toast.makeText(this, R.string.missing_user_info, Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
+        setupNavigation();
+        fetchEventDetails(eventId);
+        fetchEntrantCounts(eventId);
 
         btnEditEvent.setOnClickListener(v -> handleEditEvent());
 
@@ -158,6 +177,9 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Sets up click listeners for the bottom navigation bar and other navigation elements.
+     */
     private void setupNavigation() {
         View btnHome = findViewById(R.id.nav_home);
         if (btnHome != null) {
@@ -264,13 +286,18 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    /**
+     * Updates the UI components with the provided event data.
+     *
+     * @param event The event data to display.
+     */
     private void updateUI(Event event) {
         tvEventTitle.setText(event.getTitle() != null ? event.getTitle() : "");
         tvEventDetails.setText(event.getDetails() != null ? event.getDetails() : "");
 
         if (event.getScheduledDateTime() != null)
             tvScheduledDate.setText(dateFormat.format(event.getScheduledDateTime().toDate()));
-        
+
         // registrationStartDate and eventEndDate removed from Event model
 
         if (event.getRegistrationDeadline() != null)

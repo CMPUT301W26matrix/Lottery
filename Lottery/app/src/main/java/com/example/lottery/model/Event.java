@@ -5,8 +5,21 @@ import com.google.firebase.Timestamp;
 /**
  * Model class representing an event.
  *
- * Target Firestore path:
- * events/{eventId}
+ * <p>Key Responsibilities:
+ * <ul>
+ *   <li>Encapsulates all metadata for an event, including titles, dates, and descriptions.</li>
+ *   <li>Stores references to promotional assets like poster URIs and QR code content.</li>
+ *   <li>Acts as a Data Transfer Object (DTO) for Firebase Firestore serialization.</li>
+ * </ul>
+ * </p>
+ *
+ * <p>Satisfies requirements for:
+ * US 02.01.01: Event creation with promotional QR code.
+ * US 02.01.04: Registration deadline management.
+ * US 02.04.01: Event poster support.
+ * US 02.02.03: Geolocation requirement toggle.
+ * US 02.02.02: Waiting List Limit.
+ * </p>
  */
 public class Event {
 
@@ -82,14 +95,23 @@ public class Event {
         return eventId;
     }
 
+    /**
+     * @param eventId The unique identifier to set for the event.
+     */
     public void setEventId(String eventId) {
         this.eventId = eventId;
     }
 
+    /**
+     * @return The title of the event.
+     */
     public String getTitle() {
         return title;
     }
 
+    /**
+     * @param title The title to set for the event.
+     */
     public void setTitle(String title) {
         this.title = title;
     }
@@ -98,6 +120,9 @@ public class Event {
         return details;
     }
 
+    /**
+     * @param details The detailed description to set.
+     */
     public void setDetails(String details) {
         this.details = details;
     }
@@ -106,6 +131,9 @@ public class Event {
         return organizerId;
     }
 
+    /**
+     * @param organizerId The identifier of the event organizer to set.
+     */
     public void setOrganizerId(String organizerId) {
         this.organizerId = organizerId;
     }
@@ -118,10 +146,16 @@ public class Event {
         this.capacity = capacity;
     }
 
+    /**
+     * @return The optional limit for the waiting list. null means unlimited.
+     */
     public Integer getWaitingListLimit() {
         return waitingListLimit;
     }
 
+    /**
+     * @param waitingListLimit The optional limit to set for the waiting list.
+     */
     public void setWaitingListLimit(Integer waitingListLimit) {
         this.waitingListLimit = waitingListLimit;
     }

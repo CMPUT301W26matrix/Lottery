@@ -96,6 +96,8 @@ public final class InvitationFlowUtil {
         return updates;
     }
 
+
+
     /**
      * Builds a Firestore update payload for marking an entrant as not selected.
      *
@@ -121,13 +123,13 @@ public final class InvitationFlowUtil {
         String timeField = "";
 
         switch (normalizedResponse) {
-            case RESPONSE_ACCEPTED: 
-                status = STATUS_ACCEPTED; 
+            case RESPONSE_ACCEPTED:
+                status = STATUS_ACCEPTED;
                 timeField = "acceptedAt";
                 break;
-            case RESPONSE_DECLINED: 
-            case RESPONSE_CANCELLED: 
-                status = STATUS_CANCELLED; 
+            case RESPONSE_DECLINED:
+            case RESPONSE_CANCELLED:
+                status = STATUS_CANCELLED;
                 timeField = "cancelledAt";
                 break;
         }

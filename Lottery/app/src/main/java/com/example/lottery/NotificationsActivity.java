@@ -45,13 +45,33 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
      * Intent extra key used to pass the user's ID to this activity.
      */
     public static final String EXTRA_USER_ID = "userId";
-
+    /**
+     * List storing all notifications retrieved from Firestore.
+     */
     private final List<NotificationItem> notificationList = new ArrayList<>();
+    /**
+     * RecyclerView used to display notifications.
+     */
     private RecyclerView rvNotifications;
+    /**
+     * TextView shown when there are no notifications.
+     */
     private TextView tvNoNotifications;
+    /**
+     * Button used to navigate back from the notifications screen.
+     */
     private ImageButton btnBack;
+    /**
+     * Firestore database instance used to retrieve notifications.
+     */
     private FirebaseFirestore db;
+    /**
+     * Adapter used to bind notification data to the RecyclerView.
+     */
     private NotificationAdapter adapter;
+    /**
+     * ID of the currently logged-in user.
+     */
     private String userId;
 
     /**
@@ -231,8 +251,8 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
     }
 
     /**
-     * Handles clicks on notification items. Marks the item as read and navigates to event details or shows content.
-     * For event invitations, it opens the event details screen directly.
+     * Handles clicks on notification items. Marks the item as read and displays its content in a dialog.
+     * Special handling is provided for event invitations.
      *
      * @param item The clicked notification item.
      */

@@ -59,6 +59,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Activity to display entrants of different status of a event by list and map and able to sample they
+ *
+ * <p>Responsibilities:
+ * <ul>
+ *   <li>Fetch the 4 different status entrant collections from Firestore</li>
+ *   <li>Render the 4 different status entrant list and implement view location and sample winners functionality</li>
+ *   <li>implement US 02.02.02 Be Able To See On A Map Where Entrants Joined My Event</li>
+ *   <li>implement US 02.05.02 Be able to sample number of attendees to register for the event</li>
+ *   <li>implement US 02.06.01 Be able to view all chosen entrants</li>
+ *   <li>implement US 02.06.02 Be able to see a list of all the cancelled entrants</li>
+ * </ul>
+ * </p>
  */
 public class EntrantsListActivity extends AppCompatActivity implements
         NotificationFragment.NotificationListener,
@@ -121,6 +132,7 @@ public class EntrantsListActivity extends AppCompatActivity implements
 
         db = FirebaseFirestore.getInstance();
 
+        //get event id from the jump from page to query entrants
         eventId = getIntent().getStringExtra("eventId");
         if (eventId == null) {
             Toast.makeText(this, "event id missing", Toast.LENGTH_SHORT).show();
@@ -208,6 +220,13 @@ public class EntrantsListActivity extends AppCompatActivity implements
             sampleFragment.show(getSupportFragmentManager(), "Sample Winners");
         });
 
+        /**
+         * switch to invited component to display the entrants list that have invited by the organizer
+         */
+
+        /**
+         * switch to view location component to display the entrants on the map
+         */
         btnViewLocation.setOnClickListener(v -> {
             if (googleMap != null) {
                 if (waitedListEntrantsListLayout.getVisibility() == View.VISIBLE) {
@@ -240,7 +259,7 @@ public class EntrantsListActivity extends AppCompatActivity implements
                 // Unified: use capacity instead of maxCapacity
                 Long cap = documentSnapshot.getLong("capacity");
                 capacity = cap != null ? cap : 0L;
-                
+
                 String title = documentSnapshot.getString("title");
                 if (title != null) {
                     eventTitle = title;
@@ -367,9 +386,16 @@ public class EntrantsListActivity extends AppCompatActivity implements
                 });
     }
 
+    /**
+     * implement US 02.05.02, randomly sample a specific number of signed up entrants from the attendees
+     *
+     * @param size sampling size which is the number of random entrants needed to marked as invited
+     */
+    @SuppressLint({"DefaultLocale", "NotifyDataSetChanged"})
     @Override
     public void sampling(String size) {
         try {
+            //if not a number, prevent executing sampling
             Integer.parseInt(size);
         } catch (NumberFormatException e) {
             Toast.makeText(this, "ERROR: sample size must be an integer", Toast.LENGTH_LONG).show();
@@ -444,6 +470,8 @@ public class EntrantsListActivity extends AppCompatActivity implements
     /**
      * Sends a notification specifically to entrants on the waiting list (US 02.07.01)
      * or to selected entrants (US 02.07.02).
+     *
+     * @param content a sequence of words that will be sent to entrants
      */
     @Override
     public void sendNotification(String content) {
@@ -623,6 +651,15 @@ public class EntrantsListActivity extends AppCompatActivity implements
         mapView = findViewById(R.id.mapView);
     }
 
+    // Source - https://stackoverflow.com/a/30054797
+    // Posted by Ankit Khare, modified by community. See post 'Timeline' for change history
+    // Retrieved 2026-03-11, License - CC BY-SA 3.0
+
+    /**
+     * nsert makers of entrants' location into the map
+     *
+     * @param list entrant we want to show their location on the map
+     */
     private void insertMarkers(ArrayList<Entrant> list) {
         googleMap.clear();
 
@@ -679,30 +716,45 @@ public class EntrantsListActivity extends AppCompatActivity implements
         googleMap.getUiSettings().setZoomControlsEnabled(true);
     }
 
+    /**
+     * initialize mapview
+     */
     @Override
     public void onStart() {
         mapView.onStart();
         super.onStart();
     }
 
+    /**
+     * inform mapview to free resources when stop using
+     */
     @Override
     public void onStop() {
         mapView.onStop();
         super.onStop();
     }
 
+    /**
+     * interact with users
+     */
     @Override
     public void onResume() {
         mapView.onResume();
         super.onResume();
     }
 
+    /**
+     * stop rendering map
+     */
     @Override
     public void onPause() {
         super.onPause();
         mapView.onPause();
     }
 
+    /**
+     * remove map allocated resources
+     */
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -710,6 +762,9 @@ public class EntrantsListActivity extends AppCompatActivity implements
         mapView.onDestroy();
     }
 
+    /**
+     * control map memory use when system is busy
+     */
     @Override
     public void onLowMemory() {
         super.onLowMemory();

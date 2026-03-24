@@ -50,6 +50,16 @@ import java.util.UUID;
 
 /**
  * Activity for organizers to create or edit events.
+ *
+ * <p>Key Responsibilities:
+ * <ul>
+ *   <li>Provides UI for entering event details (Title, Date, Capacity, etc.).</li>
+ *   <li>Handles both creation of new events and editing of existing ones.</li>
+ *   <li>Enforces business rules such as registration deadline validation
+ *       and waiting list limit enforcement.</li>
+ *   <li>Manages promotional QR code generation and poster selection.</li>
+ * </ul>
+ * </p>
  */
 public class OrganizerCreateEventActivity extends AppCompatActivity {
 
@@ -66,13 +76,39 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
     private SwitchMaterial swRequireLocation, swLimitWaitingList, swIsPrivate;
     private ChipGroup cgCategories;
 
+    // Core data variables
+    /**
+     * Unique identifier for the event.
+     */
     private String eventId = UUID.randomUUID().toString();
+    /**
+     * Content encoded within the event's promotional QR code.
+     */
     private String qrCodeContent = "";
+    /**
+     * Date objects representing various event deadlines and scheduled times.
+     */
     private Date eventStartDate, eventEndDate, regStartDate, regEndDate, drawDate;
+    /**
+     * Flag indicating whether the activity is in edit mode for an existing event.
+     */
     private boolean isEditMode = false;
+
+    /**
+     * URI of the selected poster image.
+     */
     private Uri selectedPosterUri = null;
+    /**
+     * Current poster value loaded from Firestore. This may already be a remote download URL.
+     */
     private String existingPosterUri = "";
+    /**
+     * Firebase Firestore instance for database operations.
+     */
     private FirebaseFirestore db;
+    /**
+     * Firebase Storage instance for poster uploads.
+     */
     private FirebaseStorage storage;
     private String userId;
 
@@ -91,7 +127,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
-        
+
         SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
         userId = getIntent().getStringExtra("userId");
         if (userId == null) {
@@ -128,6 +164,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         });
 
         btnGenerateQRCode.setOnClickListener(v -> generateAndDisplayQRCode());
+        btnCreateEvent.setOnClickListener(v -> validateAndSaveEvent());
 
         btnCreateEvent.setOnClickListener(v -> {
             Log.d(TAG, "Save/Launch button clicked");
@@ -240,6 +277,11 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         cgCategories = findViewById(R.id.cgCategories);
     }
 
+    /**
+     * Loads existing event data from Firestore and populates the UI fields.
+     *
+     * @param existingEventId The unique ID of the event to load.
+     */
     private void loadEventData(String existingEventId) {
         db.collection(FirestorePaths.EVENTS).document(existingEventId).get().addOnSuccessListener(doc -> {
             if (!doc.exists()) return;
@@ -253,6 +295,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             swRequireLocation.setChecked(event.isRequireLocation());
             swIsPrivate.setChecked(event.isPrivate());
 
+            // US 02.03.01: Load waiting list limit
             if (event.getWaitingListLimit() != null) {
                 swLimitWaitingList.setChecked(true);
                 etWaitingListLimit.setText(String.valueOf(event.getWaitingListLimit()));
@@ -292,7 +335,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             } else if (event.isPrivate()) {
                 btnGenerateQRCode.setVisibility(View.GONE);
             }
-            
+
             // Set category
             if (event.getCategory() != null) {
                 for (int i = 0; i < cgCategories.getChildCount(); i++) {
@@ -309,6 +352,9 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Sets up the fragment result listener for receiving poster image selection results.
+     */
     private void setupDialogCallback() {
         getSupportFragmentManager().setFragmentResultListener("posterRequest", this, (requestKey, bundle) -> {
             String uriString = bundle.getString("posterUri");
@@ -326,6 +372,9 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Generates a unique QR code for the event and displays it in the UI.
+     */
     private void generateAndDisplayQRCode() {
         if (swIsPrivate.isChecked()) {
             Toast.makeText(this, "Private events do not have promotional QR codes", Toast.LENGTH_SHORT).show();
@@ -341,6 +390,12 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Displays a date and time picker dialog and updates the provided EditText with the selection.
+     *
+     * @param editText  The EditText to update with the formatted date string.
+     * @param fieldType The type of field being updated (e.g., "eventStart", "regEnd").
+     */
     private void showDateTimePicker(final TextInputEditText editText, final String fieldType) {
         final Calendar calendar = Calendar.getInstance();
         new DatePickerDialog(this, (view, year, month, day) ->
@@ -362,6 +417,18 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         ).show();
     }
 
+    /**
+     * Validates all input fields and business rules before saving the event to Firestore.
+     *
+     * <p>Rules enforced:
+     * <ul>
+     *   <li>Title, Start Date, and Registration End are required.</li>
+     *   <li>Registration must end before the event starts.</li>
+     *   <li>Waiting list limit must be a positive integer.</li>
+     *   <li>New limit cannot be less than the current number of entrants when editing.</li>
+     * </ul>
+     * </p>
+     */
     private void validateAndSaveEvent() {
         Log.d(TAG, "Starting validation...");
         String title = etEventTitle.getText() != null ? etEventTitle.getText().toString().trim() : "";
@@ -369,27 +436,34 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         String details = etEventDetails.getText() != null ? etEventDetails.getText().toString().trim() : "";
         String waitingLimitStr = etWaitingListLimit.getText() != null ? etWaitingListLimit.getText().toString().trim() : "";
 
+        // 1.1 Event must have title
         if (title.isEmpty()) {
             Toast.makeText(this, "Event title is required", Toast.LENGTH_SHORT).show();
             Log.w(TAG, "Validation failed: Title is empty");
             return;
         }
+
+        // 1.2 Event must have start date and time
         if (eventStartDate == null) {
             Toast.makeText(this, "Event date and time are required", Toast.LENGTH_SHORT).show();
             Log.w(TAG, "Validation failed: Event start date is null");
             return;
         }
+
+        // 1.3 Event must have registration deadline
         if (regEndDate == null) {
             Toast.makeText(this, "Registration deadline is required", Toast.LENGTH_SHORT).show();
             Log.w(TAG, "Validation failed: Registration deadline is null");
             return;
         }
+
         if (!EventValidationUtils.isRegistrationDeadlineValid(regEndDate, eventStartDate)) {
             Toast.makeText(this, "Registration must end before the event starts", Toast.LENGTH_LONG).show();
             Log.w(TAG, "Validation failed: Invalid registration deadline sequence");
             return;
         }
 
+        // US 02.02.02: Validate waiting list limit
         Integer waitingListLimit = null;
         if (swLimitWaitingList.isChecked()) {
             if (waitingLimitStr.isEmpty()) {
@@ -412,6 +486,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         final Integer finalWaitingListLimit = waitingListLimit;
         Log.d(TAG, "Validation passed, proceeding to persist event");
 
+        // US 02.02.02: AC #3: Check if new limit is smaller than current entrants when editing
         if (isEditMode && finalWaitingListLimit != null) {
             db.collection(FirestorePaths.eventWaitingList(eventId)).get()
                     .addOnSuccessListener(snapshots -> {
@@ -430,6 +505,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
     private void persistEvent(String title, String capacityStr, String details, Integer waitingListLimit) {
         Log.d(TAG, "persistEvent started");
         btnCreateEvent.setEnabled(false);
+
         if (isLocalUri(selectedPosterUri)) {
             Log.d(TAG, "Local URI detected, uploading poster first");
             uploadPosterAndSaveEvent(title, capacityStr, details, waitingListLimit, selectedPosterUri);
@@ -490,9 +566,9 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
 
     private void saveEventToFirestore(String title, String capacityStr, String details, Integer waitingListLimit, String posterUriToSave) {
         Log.d(TAG, "saveEventToFirestore started");
-        
+
         boolean isPrivate = swIsPrivate.isChecked();
-        
+
         if (isPrivate) {
             qrCodeContent = ""; // No promotional QR for private events
         } else if (qrCodeContent == null || qrCodeContent.isEmpty()) {
