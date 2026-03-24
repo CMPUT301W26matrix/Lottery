@@ -21,6 +21,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
+import androidx.annotation.VisibleForTesting;
+
 import java.util.ArrayList;
 
 /**
@@ -39,8 +41,10 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
     private MaterialButton btnFilterEntrant;
     private MaterialButton btnFilterOrganizer;
 
-    private ArrayList<User> allUsers;
-    private ArrayList<User> filteredUsers;
+    @VisibleForTesting
+    ArrayList<User> allUsers;
+    @VisibleForTesting
+    ArrayList<User> filteredUsers;
     private ProfileAdapter profileAdapter;
 
     private FirebaseFirestore db;

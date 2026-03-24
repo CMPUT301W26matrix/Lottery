@@ -1,5 +1,6 @@
 package com.example.lottery;
 
+import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -8,6 +9,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static androidx.test.espresso.action.ViewActions.click;
+import static org.hamcrest.Matchers.anything;
 
 import android.content.Intent;
 import android.view.View;
@@ -83,7 +85,7 @@ public class AdminBrowseProfilesActivityTest {
 
     @Test
     public void adminBrowseProfilesActivity_hasCorrectEmptyMessageText() {
-        try (ActivityScenario<AdminBrowseProfilesActivity> scenario = launchAdminActivity()) {
+        try (ActivityScenario<AdminBrowseProfilesActivity> ignored = launchAdminActivity()) {
             onView(withId(R.id.tvEmptyProfiles))
                     .check(matches(withText("There are no user profiles in the system.")));
         }
@@ -91,7 +93,7 @@ public class AdminBrowseProfilesActivityTest {
 
     @Test
     public void adminBrowseProfilesActivity_emptyMessageViewExists() {
-        try (ActivityScenario<AdminBrowseProfilesActivity> scenario = launchAdminActivity()) {
+        try (ActivityScenario<AdminBrowseProfilesActivity> ignored = launchAdminActivity()) {
             onView(withId(R.id.tvEmptyProfiles))
                     .check(matches(withText("There are no user profiles in the system.")));
         }
@@ -99,7 +101,7 @@ public class AdminBrowseProfilesActivityTest {
 
     @Test
     public void adminBrowseProfilesActivity_titleIsCorrect() {
-        try (ActivityScenario<AdminBrowseProfilesActivity> scenario = launchAdminActivity()) {
+        try (ActivityScenario<AdminBrowseProfilesActivity> ignored = launchAdminActivity()) {
             onView(withId(R.id.tvBrowseProfilesTitle))
                     .check(matches(withText("Browse Profiles")));
         }
@@ -107,7 +109,7 @@ public class AdminBrowseProfilesActivityTest {
 
     @Test
     public void adminBrowseProfilesActivity_deleteButtonExists() {
-        try (ActivityScenario<AdminBrowseProfilesActivity> scenario = launchAdminActivity()) {
+        try (ActivityScenario<AdminBrowseProfilesActivity> ignored = launchAdminActivity()) {
             onView(withId(R.id.btnEnableDeleteProfile))
                     .check(matches(isDisplayed()));
         }
@@ -125,12 +127,165 @@ public class AdminBrowseProfilesActivityTest {
         }
     }
 
+    /**
+     * Injects mixed-role users into the adapter for filter tests.
+     * Directly adds to the adapter since filteredUsers is the backing list;
+     * clicking a filter button will re-filter from allUsers which we also populate.
+     */
+    private void injectMixedRoleUsers(ActivityScenario<AdminBrowseProfilesActivity> scenario) {
+        scenario.onActivity(activity -> {
+            User entrant = new User("e-1", "EntrantUser", "e@test.com", "");
+            entrant.setRole("ENTRANT");
+            User organizer = new User("o-1", "OrganizerUser", "o@test.com", "");
+            organizer.setRole("ORGANIZER");
+            User entrant2 = new User("e-2", "EntrantUser2", "e2@test.com", "");
+            entrant2.setRole("ENTRANT");
+
+            // Populate allUsers so filter buttons work correctly
+            activity.allUsers.clear();
+            activity.allUsers.add(entrant);
+            activity.allUsers.add(organizer);
+            activity.allUsers.add(entrant2);
+
+            // Populate filteredUsers (adapter backing list) to show all initially
+            activity.filteredUsers.clear();
+            activity.filteredUsers.addAll(activity.allUsers);
+
+            ListView listView = activity.findViewById(R.id.lvProfiles);
+            listView.setVisibility(View.VISIBLE);
+            ((ProfileAdapter) listView.getAdapter()).notifyDataSetChanged();
+            listView.requestLayout();
+        });
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+    }
+
+    @Test
+    public void filterButtons_allThreeDisplayed() {
+        try (ActivityScenario<AdminBrowseProfilesActivity> ignored = launchAdminActivity()) {
+            onView(withId(R.id.btnFilterAll)).check(matches(isDisplayed()));
+            onView(withId(R.id.btnFilterEntrant)).check(matches(isDisplayed()));
+            onView(withId(R.id.btnFilterOrganizer)).check(matches(isDisplayed()));
+        }
+    }
+
+    @Test
+    public void filterButtons_showCorrectLabels() {
+        try (ActivityScenario<AdminBrowseProfilesActivity> ignored = launchAdminActivity()) {
+            onView(withId(R.id.btnFilterAll)).check(matches(withText("All")));
+            onView(withId(R.id.btnFilterEntrant)).check(matches(withText("Entrant")));
+            onView(withId(R.id.btnFilterOrganizer)).check(matches(withText("Organizer")));
+        }
+    }
+
+    @Test
+    public void filterEntrant_showsOnlyEntrants() {
+        try (ActivityScenario<AdminBrowseProfilesActivity> scenario = launchAdminActivity()) {
+            injectMixedRoleUsers(scenario);
+
+            onView(withId(R.id.btnFilterEntrant)).perform(click());
+            onView(isRoot()).perform(waitFor(300));
+
+            scenario.onActivity(activity -> {
+                ListView listView = activity.findViewById(R.id.lvProfiles);
+                Assert.assertEquals(2, listView.getAdapter().getCount());
+            });
+        }
+    }
+
+    @Test
+    public void filterOrganizer_showsOnlyOrganizers() {
+        try (ActivityScenario<AdminBrowseProfilesActivity> scenario = launchAdminActivity()) {
+            injectMixedRoleUsers(scenario);
+
+            onView(withId(R.id.btnFilterOrganizer)).perform(click());
+            onView(isRoot()).perform(waitFor(300));
+
+            scenario.onActivity(activity -> {
+                ListView listView = activity.findViewById(R.id.lvProfiles);
+                Assert.assertEquals(1, listView.getAdapter().getCount());
+            });
+        }
+    }
+
+    @Test
+    public void filterAll_showsAllUsers() {
+        try (ActivityScenario<AdminBrowseProfilesActivity> scenario = launchAdminActivity()) {
+            injectMixedRoleUsers(scenario);
+
+            // Switch to Organizer first, then back to All
+            onView(withId(R.id.btnFilterOrganizer)).perform(click());
+            onView(isRoot()).perform(waitFor(300));
+            onView(withId(R.id.btnFilterAll)).perform(click());
+            onView(isRoot()).perform(waitFor(300));
+
+            scenario.onActivity(activity -> {
+                ListView listView = activity.findViewById(R.id.lvProfiles);
+                Assert.assertEquals(3, listView.getAdapter().getCount());
+            });
+        }
+    }
+
+    @Test
+    public void filterOrganizer_emptyState_showsMessage() {
+        try (ActivityScenario<AdminBrowseProfilesActivity> scenario = launchAdminActivity()) {
+            // Inject only entrants into allUsers
+            scenario.onActivity(activity -> {
+                User entrant = new User("e-1", "EntrantOnly", "e@test.com", "");
+                entrant.setRole("ENTRANT");
+
+                activity.allUsers.clear();
+                activity.allUsers.add(entrant);
+                activity.filteredUsers.clear();
+                activity.filteredUsers.add(entrant);
+
+                ListView listView = activity.findViewById(R.id.lvProfiles);
+                listView.setVisibility(View.VISIBLE);
+                ((ProfileAdapter) listView.getAdapter()).notifyDataSetChanged();
+            });
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+
+            onView(withId(R.id.btnFilterOrganizer)).perform(click());
+            onView(isRoot()).perform(waitFor(300));
+
+            onView(withId(R.id.tvEmptyProfiles)).check(matches(isDisplayed()));
+        }
+    }
+
+    @Test
+    public void deleteOrganizer_dialogShowsCascadeWarning() {
+        try (ActivityScenario<AdminBrowseProfilesActivity> scenario = launchAdminActivity()) {
+            scenario.onActivity(activity -> {
+                User organizer = new User("o-1", "BadOrganizer", "bad@test.com", "");
+                organizer.setRole("ORGANIZER");
+
+                activity.allUsers.clear();
+                activity.allUsers.add(organizer);
+                activity.filteredUsers.clear();
+                activity.filteredUsers.add(organizer);
+
+                ListView listView = activity.findViewById(R.id.lvProfiles);
+                listView.setVisibility(View.VISIBLE);
+                ((ProfileAdapter) listView.getAdapter()).notifyDataSetChanged();
+                listView.requestLayout();
+            });
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+
+            onView(withId(R.id.btnEnableDeleteProfile)).perform(click());
+            onView(isRoot()).perform(waitFor(300));
+
+            onData(anything()).inAdapterView(withId(R.id.lvProfiles)).atPosition(0).perform(click());
+            onView(isRoot()).perform(waitFor(500));
+
+            // Verify cascade warning message
+            onView(withText("Delete organizer \"BadOrganizer\"? All events created by this organizer will also be deleted."))
+                    .check(matches(isDisplayed()));
+        }
+    }
+
     private void prepareSingleProfileAndClickFirstRow(ActivityScenario<AdminBrowseProfilesActivity> scenario) {
         scenario.onActivity(activity -> {
             ListView listView = activity.findViewById(R.id.lvProfiles);
-            Button enableDeleteButton = activity.findViewById(R.id.btnEnableDeleteProfile);
 
-            @SuppressWarnings("unchecked")
             ProfileAdapter adapter = (ProfileAdapter) listView.getAdapter();
 
             adapter.clear();
