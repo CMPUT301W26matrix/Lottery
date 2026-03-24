@@ -112,21 +112,16 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">NotificationsActivity</span>
 <span class="extends-implements">extends androidx.appcompat.app.AppCompatActivity
 implements <a href="NotificationAdapter.OnNotificationClickListener.html" title="interface in com.example.lottery">NotificationAdapter.OnNotificationClickListener</a></span></div>
-<div class="block">Displays notifications for the currently logged-in entrant.
+<div class="block">Activity that displays a list of notifications for the currently logged-in entrant.
 
- <p>This activity retrieves notifications from Firestore and displays them
- in a RecyclerView. Entrants can view notification details and respond to
- certain notification types (such as winning an event draw).</p>
-
- <p>If the notification represents a winning invitation, the entrant can
- either accept or reject the invite. The response updates both the user's
- notification document and the entrant status within the corresponding
- event in Firestore.</p>
-
- <p>This activity expects the following intent extra:</p>
+ <p>Responsibilities:
  <ul>
-     <li><a href="#EXTRA_USER_ID"><code>EXTRA_USER_ID</code></a> – the ID of the current user</li>
- </ul></div>
+   <li>Fetch notifications from the user's private inbox subcollection in Firestore.</li>
+   <li>Display notification details such as title, message, and type.</li>
+   <li>Manage the "read/unread" status of each notification.</li>
+   <li>Provide actionable dialogs for specific notification types (e.g., event invitations).</li>
+ </ul>
+ </p></div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -160,7 +155,7 @@ implements <a href="NotificationAdapter.OnNotificationClickListener.html" title=
 <div class="col-first even-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second even-row-color"><code><a href="#EXTRA_USER_ID" class="member-name-link">EXTRA_USER_ID</a></code></div>
 <div class="col-last even-row-color">
-<div class="block">Intent extra used to pass the user ID to this activity.</div>
+<div class="block">Intent extra key used to pass the user's ID to this activity.</div>
 </div>
 </div>
 <div class="inherited-list">
@@ -201,18 +196,17 @@ implements <a href="NotificationAdapter.OnNotificationClickListener.html" title=
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onCreate(android.os.Bundle)" class="member-name-link">onCreate</a><wbr>(android.os.Bundle&nbsp;savedInstanceState)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Initializes the activity, binds UI components,
- retrieves the user ID from the intent, and loads notifications.</div>
+<div class="block">Initializes the activity, sets up the RecyclerView, and starts loading notifications.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onNotificationClick(com.example.lottery.model.NotificationItem)" class="member-name-link">onNotificationClick</a><wbr>(<a href="model/NotificationItem.html" title="class in com.example.lottery.model">NotificationItem</a>&nbsp;item)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Handles notification item clicks.</div>
+<div class="block">Handles clicks on notification items.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onResume()" class="member-name-link">onResume</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Reloads notifications whenever the activity becomes visible again.</div>
+<div class="block">Refreshes the notification list whenever the activity becomes visible.</div>
 </div>
 </div>
 </div>
@@ -262,7 +256,7 @@ implements <a href="NotificationAdapter.OnNotificationClickListener.html" title=
 <section class="detail" id="EXTRA_USER_ID">
 <h3>EXTRA_USER_ID</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">EXTRA_USER_ID</span></div>
-<div class="block">Intent extra used to pass the user ID to this activity.</div>
+<div class="block">Intent extra key used to pass the user's ID to this activity.</div>
 <dl class="notes">
 <dt>See Also:</dt>
 <dd>
@@ -299,13 +293,14 @@ implements <a href="NotificationAdapter.OnNotificationClickListener.html" title=
 <section class="detail" id="onCreate(android.os.Bundle)">
 <h3>onCreate</h3>
 <div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onCreate</span><wbr><span class="parameters">(android.os.Bundle&nbsp;savedInstanceState)</span></div>
-<div class="block">Initializes the activity, binds UI components,
- retrieves the user ID from the intent, and loads notifications.</div>
+<div class="block">Initializes the activity, sets up the RecyclerView, and starts loading notifications.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code>onCreate</code>&nbsp;in class&nbsp;<code>androidx.fragment.app.FragmentActivity</code></dd>
 <dt>Parameters:</dt>
-<dd><code>savedInstanceState</code> - previously saved activity state</dd>
+<dd><code>savedInstanceState</code> - If the activity is being re-initialized after
+     previously being shut down then this Bundle contains the data it most
+     recently supplied in <code>ComponentActivity.onSaveInstanceState(android.os.Bundle)</code>. <b>Note: Otherwise it is null.</b></dd>
 </dl>
 </section>
 </li>
@@ -313,7 +308,7 @@ implements <a href="NotificationAdapter.OnNotificationClickListener.html" title=
 <section class="detail" id="onResume()">
 <h3>onResume</h3>
 <div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onResume</span>()</div>
-<div class="block">Reloads notifications whenever the activity becomes visible again.</div>
+<div class="block">Refreshes the notification list whenever the activity becomes visible.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code>onResume</code>&nbsp;in class&nbsp;<code>androidx.fragment.app.FragmentActivity</code></dd>
@@ -324,15 +319,13 @@ implements <a href="NotificationAdapter.OnNotificationClickListener.html" title=
 <section class="detail" id="onNotificationClick(com.example.lottery.model.NotificationItem)">
 <h3>onNotificationClick</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onNotificationClick</span><wbr><span class="parameters">(<a href="model/NotificationItem.html" title="class in com.example.lottery.model">NotificationItem</a>&nbsp;item)</span></div>
-<div class="block">Handles notification item clicks.
-
- <p>If the notification represents a winning invitation,
- the entrant is given the option to accept or reject the invite.</p></div>
+<div class="block">Handles clicks on notification items. Marks the item as read and displays its content in a dialog.
+ Special handling is provided for event invitations.</div>
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code><a href="NotificationAdapter.OnNotificationClickListener.html#onNotificationClick(com.example.lottery.model.NotificationItem)">onNotificationClick</a></code>&nbsp;in interface&nbsp;<code><a href="NotificationAdapter.OnNotificationClickListener.html" title="interface in com.example.lottery">NotificationAdapter.OnNotificationClickListener</a></code></dd>
 <dt>Parameters:</dt>
-<dd><code>item</code> - the clicked notification item</dd>
+<dd><code>item</code> - The clicked notification item.</dd>
 </dl>
 </section>
 </li>

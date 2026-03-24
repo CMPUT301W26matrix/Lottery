@@ -99,14 +99,12 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">NotificationFragment</span>
 <span class="extends-implements">extends androidx.fragment.app.DialogFragment</span></div>
-<div class="block">fragment for organizer sent notification to specific group of entrants(depending on status like waitedlisted signedup invited cancelled)
+<div class="block">DialogFragment used by Organizers to input a notification message.
 
- <p>Responsibilities:
- <ul>
-   <li>ask organizer to input a sequence of words and then call sendNotificaiton in the EntrantsListActivity to send notification</li>
-   <li>not be implemented yet since no one takes it</li>
- </ul>
- </p></div>
+ <p>This fragment handles the UI for composing a notification. The actual sending
+ logic is handled by the listener (e.g., <a href="EntrantsListActivity.html" title="class in com.example.lottery"><code>EntrantsListActivity</code></a> or
+ <a href="OrganizerNotificationsActivity.html" title="class in com.example.lottery"><code>OrganizerNotificationsActivity</code></a>) which will create entries in the global
+ 'notifications' collection and individual user 'inbox' subcollections.</p></div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -114,6 +112,17 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="nested-class-summary" id="nested-class-summary">
 <h2>Nested Class Summary</h2>
+<div class="caption"><span>Nested Classes</span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Class</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>static interface&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="NotificationFragment.NotificationListener.html" class="type-name-link" title="interface in com.example.lottery">NotificationFragment.NotificationListener</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">Interface for components that handle the actual notification sending logic.</div>
+</div>
+</div>
 <div class="inherited-list">
 <h2 id="nested-classes-inherited-from-class-androidx.fragment.app.Fragment">Nested classes/interfaces inherited from class&nbsp;androidx.fragment.app.Fragment</h2>
 <code>androidx.fragment.app.Fragment.InstantiationException, androidx.fragment.app.Fragment.SavedState</code></div>
@@ -158,17 +167,17 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="NotificationFragment.html" title="class in com.example.lottery">NotificationFragment</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#newInstance()" class="member-name-link">newInstance</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">initialize and return a new notification fragment</div>
+<div class="block">Initializes and returns a new NotificationFragment.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onAttach(android.content.Context)" class="member-name-link">onAttach</a><wbr>(android.content.Context&nbsp;context)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">check if the caller implemented the communication protocol</div>
+<div class="block">Attaches the fragment to its context and ensures it implements the <a href="NotificationFragment.NotificationListener.html" title="interface in com.example.lottery"><code>NotificationFragment.NotificationListener</code></a>.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>android.app.Dialog</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onCreateDialog(android.os.Bundle)" class="member-name-link">onCreateDialog</a><wbr>(android.os.Bundle&nbsp;savedInstanceState)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">set up the dialog</div>
+<div class="block">Creates and returns the notification composition dialog.</div>
 </div>
 </div>
 </div>
@@ -211,7 +220,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="newInstance()">
 <h3>newInstance</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="NotificationFragment.html" title="class in com.example.lottery">NotificationFragment</a></span>&nbsp;<span class="element-name">newInstance</span>()</div>
-<div class="block">initialize and return a new notification fragment</div>
+<div class="block">Initializes and returns a new NotificationFragment.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>a new notification fragment</dd>
@@ -223,12 +232,14 @@ loadScripts(document, 'script');</script>
 <h3>onAttach</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onAttach</span><wbr><span class="parameters">(@NonNull
  android.content.Context&nbsp;context)</span></div>
-<div class="block">check if the caller implemented the communication protocol</div>
+<div class="block">Attaches the fragment to its context and ensures it implements the <a href="NotificationFragment.NotificationListener.html" title="interface in com.example.lottery"><code>NotificationFragment.NotificationListener</code></a>.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code>onAttach</code>&nbsp;in class&nbsp;<code>androidx.fragment.app.DialogFragment</code></dd>
 <dt>Parameters:</dt>
-<dd><code>context</code> - caller's context</dd>
+<dd><code>context</code> - The context to which the fragment is being attached.</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/RuntimeException.html" title="class or interface in java.lang" class="external-link">RuntimeException</a></code> - if the context or parent fragment does not implement <a href="NotificationFragment.NotificationListener.html" title="interface in com.example.lottery"><code>NotificationFragment.NotificationListener</code></a>.</dd>
 </dl>
 </section>
 </li>
@@ -238,7 +249,7 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="annotations">@NonNull
 </span><span class="modifiers">public</span>&nbsp;<span class="return-type">android.app.Dialog</span>&nbsp;<span class="element-name">onCreateDialog</span><wbr><span class="parameters">(@Nullable
  android.os.Bundle&nbsp;savedInstanceState)</span></div>
-<div class="block">set up the dialog</div>
+<div class="block">Creates and returns the notification composition dialog.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code>onCreateDialog</code>&nbsp;in class&nbsp;<code>androidx.fragment.app.DialogFragment</code></dd>
@@ -246,7 +257,7 @@ loadScripts(document, 'script');</script>
 <dd><code>savedInstanceState</code> - The last saved instance state of the Fragment,
                            or null if this is a freshly created Fragment.</dd>
 <dt>Returns:</dt>
-<dd>a built dialog which can sent the notification content to caller by the protocol</dd>
+<dd>A built <code>AlertDialog</code> for notification input.</dd>
 </dl>
 </section>
 </li>

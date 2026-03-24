@@ -111,21 +111,14 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">EntrantEventDetailsActivity</span>
 <span class="extends-implements">extends androidx.appcompat.app.AppCompatActivity</span></div>
-<div class="block">Displays detailed information about a selected event for an entrant.
+<div class="block">Activity that displays detailed information about a specific event from an entrant's perspective.
 
- <p>This activity allows an entrant to:
+ <p>Responsibilities:
  <ul>
-     <li>View event information such as title, description, and registration period</li>
-     <li>View the current number of entrants in the waitlist</li>
-     <li>Join or leave the event waitlist</li>
-     <li>Accept or decline event invitations (when user has won the lottery)</li>
-     <li>View notifications related to the entrant</li>
- </ul>
-
- <p>The activity expects two intent extras:
- <ul>
-     <li><a href="#EXTRA_EVENT_ID"><code>EXTRA_EVENT_ID</code></a> – the ID of the selected event</li>
-     <li><a href="#EXTRA_USER_ID"><code>EXTRA_USER_ID</code></a> – the ID of the current entrant</li>
+   <li>Fetch and display event metadata (title, description, registration period, poster).</li>
+   <li>Monitor and display the entrant's current status for the event (waitlisted, invited, accepted, etc.).</li>
+   <li>Provide UI actions for joining/leaving the waitlist or responding to invitations.</li>
+   <li>Manage navigation within the entrant's scope.</li>
  </ul>
  </p></div>
 </section>
@@ -161,12 +154,12 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second even-row-color"><code><a href="#EXTRA_EVENT_ID" class="member-name-link">EXTRA_EVENT_ID</a></code></div>
 <div class="col-last even-row-color">
-<div class="block">Intent extra key used to pass the event ID to this activity.</div>
+<div class="block">Extra key for passing the Event ID.</div>
 </div>
 <div class="col-first odd-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second odd-row-color"><code><a href="#EXTRA_USER_ID" class="member-name-link">EXTRA_USER_ID</a></code></div>
 <div class="col-last odd-row-color">
-<div class="block">Intent extra key used to pass the user ID to this activity.</div>
+<div class="block">Extra key for passing the User ID.</div>
 </div>
 </div>
 <div class="inherited-list">
@@ -207,13 +200,12 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onCreate(android.os.Bundle)" class="member-name-link">onCreate</a><wbr>(android.os.Bundle&nbsp;savedInstanceState)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Initializes the activity, retrieves intent data, binds UI components,
- and loads event information from Firestore.</div>
+<div class="block">Initializes the activity, sets up view references, and triggers initial data loading.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onResume()" class="member-name-link">onResume</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Refreshes event data whenever the activity resumes.</div>
+<div class="block">Refreshes data when the activity returns to the foreground.</div>
 </div>
 </div>
 </div>
@@ -263,7 +255,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="EXTRA_EVENT_ID">
 <h3>EXTRA_EVENT_ID</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">EXTRA_EVENT_ID</span></div>
-<div class="block">Intent extra key used to pass the event ID to this activity.</div>
+<div class="block">Extra key for passing the Event ID.</div>
 <dl class="notes">
 <dt>See Also:</dt>
 <dd>
@@ -278,7 +270,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="EXTRA_USER_ID">
 <h3>EXTRA_USER_ID</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">EXTRA_USER_ID</span></div>
-<div class="block">Intent extra key used to pass the user ID to this activity.</div>
+<div class="block">Extra key for passing the User ID.</div>
 <dl class="notes">
 <dt>See Also:</dt>
 <dd>
@@ -315,13 +307,14 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="onCreate(android.os.Bundle)">
 <h3>onCreate</h3>
 <div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onCreate</span><wbr><span class="parameters">(android.os.Bundle&nbsp;savedInstanceState)</span></div>
-<div class="block">Initializes the activity, retrieves intent data, binds UI components,
- and loads event information from Firestore.</div>
+<div class="block">Initializes the activity, sets up view references, and triggers initial data loading.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code>onCreate</code>&nbsp;in class&nbsp;<code>androidx.fragment.app.FragmentActivity</code></dd>
 <dt>Parameters:</dt>
-<dd><code>savedInstanceState</code> - the previously saved state of the activity</dd>
+<dd><code>savedInstanceState</code> - If the activity is being re-initialized after
+     previously being shut down then this Bundle contains the data it most
+     recently supplied in <code>ComponentActivity.onSaveInstanceState(android.os.Bundle)</code>.  <b>Note: Otherwise it is null.</b></dd>
 </dl>
 </section>
 </li>
@@ -329,7 +322,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="onResume()">
 <h3>onResume</h3>
 <div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onResume</span>()</div>
-<div class="block">Refreshes event data whenever the activity resumes.</div>
+<div class="block">Refreshes data when the activity returns to the foreground.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code>onResume</code>&nbsp;in class&nbsp;<code>androidx.fragment.app.FragmentActivity</code></dd>

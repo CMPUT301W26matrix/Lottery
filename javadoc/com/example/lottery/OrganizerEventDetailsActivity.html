@@ -111,16 +111,7 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">OrganizerEventDetailsActivity</span>
 <span class="extends-implements">extends androidx.appcompat.app.AppCompatActivity</span></div>
-<div class="block">Activity to display the details of a specific event and handle registration.
-
- <p>Responsibilities:
- <ul>
-   <li>Fetch the event record from Firestore using the supplied event ID.</li>
-   <li>Render the poster, title, schedule, deadline, and description.</li>
-   <li>Surface organizer-configured requirements such as geolocation.</li>
-   <li>Keep the custom bottom navigation active on the details screen.</li>
- </ul>
- </p></div>
+<div class="block">Activity to display the details of a specific event for the organizer.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -186,9 +177,7 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onResume()" class="member-name-link">onResume</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Refreshes the displayed event details whenever the activity returns to the foreground.</div>
-</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
@@ -261,7 +250,6 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="onResume()">
 <h3>onResume</h3>
 <div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onResume</span>()</div>
-<div class="block">Refreshes the displayed event details whenever the activity returns to the foreground.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code>onResume</code>&nbsp;in class&nbsp;<code>androidx.fragment.app.FragmentActivity</code></dd>

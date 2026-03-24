@@ -112,15 +112,7 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">EntrantProfileActivity</span>
 <span class="extends-implements">extends androidx.appcompat.app.AppCompatActivity</span></div>
 <div class="block">EntrantProfileActivity displays and manages the personal profile of an entrant user.
-
- <p>Key Responsibilities:
- <ul>
-   <li>Displays the entrant's name and email retrieved from Firestore.</li>
-   <li>Provides a logout mechanism that clears Firebase authentication and local preferences.</li>
-   <li>Handles navigation to the entrant's home screen and other feature placeholders.</li>
-   <li>Serves as a hub for entrant settings such as profile editing and notification preferences.</li>
- </ul>
- </p></div>
+ Unified to handle both profile viewing and mandatory profile completion.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -181,11 +173,12 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onCreate(android.os.Bundle)" class="member-name-link">onCreate</a><wbr>(android.os.Bundle&nbsp;savedInstanceState)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Initializes the activity, sets up the layout, and configures UI components.</div>
-</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onBackPressed()" class="member-name-link">onBackPressed</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onCreate(android.os.Bundle)" class="member-name-link">onCreate</a><wbr>(android.os.Bundle&nbsp;savedInstanceState)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
@@ -197,7 +190,7 @@ loadScripts(document, 'script');</script>
 <code>dump, getSupportFragmentManager, getSupportLoaderManager, onActivityResult, onAttachFragment, onCreateView, onCreateView, onPause, onRequestPermissionsResult, onResume, onResumeFragments, onStateNotSaved, setEnterSharedElementCallback, setExitSharedElementCallback, startActivityFromFragment, startActivityFromFragment, startIntentSenderFromFragment, supportFinishAfterTransition, supportPostponeEnterTransition, supportStartPostponedEnterTransition, validateRequestPermissionsRequestCode</code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-androidx.activity.ComponentActivity">Methods inherited from class&nbsp;androidx.activity.ComponentActivity</h3>
-<code>addMenuProvider, addMenuProvider, addMenuProvider, addOnConfigurationChangedListener, addOnContextAvailableListener, addOnMultiWindowModeChangedListener, addOnNewIntentListener, addOnPictureInPictureModeChangedListener, addOnTrimMemoryListener, addOnUserLeaveHintListener, getActivityResultRegistry, getDefaultViewModelCreationExtras, getDefaultViewModelProviderFactory, getFullyDrawnReporter, getLastCustomNonConfigurationInstance, getLifecycle, getNavigationEventDispatcher, getOnBackPressedDispatcher, getSavedStateRegistry, getViewModelStore, initializeViewTreeOwners, invalidateMenu, onBackPressed, onCreatePanelMenu, onMultiWindowModeChanged, onMultiWindowModeChanged, onNewIntent, onPictureInPictureModeChanged, onPictureInPictureModeChanged, onPreparePanel, onRetainCustomNonConfigurationInstance, onRetainNonConfigurationInstance, onSaveInstanceState, onTrimMemory, onUserLeaveHint, peekAvailableContext, registerForActivityResult, registerForActivityResult, removeMenuProvider, removeOnConfigurationChangedListener, removeOnContextAvailableListener, removeOnMultiWindowModeChangedListener, removeOnNewIntentListener, removeOnPictureInPictureModeChangedListener, removeOnTrimMemoryListener, removeOnUserLeaveHintListener, reportFullyDrawn, startActivityForResult, startActivityForResult, startIntentSenderForResult, startIntentSenderForResult</code></div>
+<code>addMenuProvider, addMenuProvider, addMenuProvider, addOnConfigurationChangedListener, addOnContextAvailableListener, addOnMultiWindowModeChangedListener, addOnNewIntentListener, addOnPictureInPictureModeChangedListener, addOnTrimMemoryListener, addOnUserLeaveHintListener, getActivityResultRegistry, getDefaultViewModelCreationExtras, getDefaultViewModelProviderFactory, getFullyDrawnReporter, getLastCustomNonConfigurationInstance, getLifecycle, getNavigationEventDispatcher, getOnBackPressedDispatcher, getSavedStateRegistry, getViewModelStore, initializeViewTreeOwners, invalidateMenu, onCreatePanelMenu, onMultiWindowModeChanged, onMultiWindowModeChanged, onNewIntent, onPictureInPictureModeChanged, onPictureInPictureModeChanged, onPreparePanel, onRetainCustomNonConfigurationInstance, onRetainNonConfigurationInstance, onSaveInstanceState, onTrimMemory, onUserLeaveHint, peekAvailableContext, registerForActivityResult, registerForActivityResult, removeMenuProvider, removeOnConfigurationChangedListener, removeOnContextAvailableListener, removeOnMultiWindowModeChangedListener, removeOnNewIntentListener, removeOnPictureInPictureModeChangedListener, removeOnTrimMemoryListener, removeOnUserLeaveHintListener, reportFullyDrawn, startActivityForResult, startActivityForResult, startIntentSenderForResult, startIntentSenderForResult</code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-androidx.core.app.ComponentActivity">Methods inherited from class&nbsp;androidx.core.app.ComponentActivity</h3>
 <code>dispatchKeyShortcutEvent, getExtraData, putExtraData, shouldDumpInternalState, superDispatchKeyEvent</code></div>
@@ -248,12 +241,19 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="onCreate(android.os.Bundle)">
 <h3>onCreate</h3>
 <div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onCreate</span><wbr><span class="parameters">(android.os.Bundle&nbsp;savedInstanceState)</span></div>
-<div class="block">Initializes the activity, sets up the layout, and configures UI components.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code>onCreate</code>&nbsp;in class&nbsp;<code>androidx.fragment.app.FragmentActivity</code></dd>
-<dt>Parameters:</dt>
-<dd><code>savedInstanceState</code> - the previously saved state of the activity.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="onBackPressed()">
+<h3>onBackPressed</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onBackPressed</span>()</div>
+<dl class="notes">
+<dt>Overrides:</dt>
+<dd><code>onBackPressed</code>&nbsp;in class&nbsp;<code>androidx.activity.ComponentActivity</code></dd>
 </dl>
 </section>
 </li>

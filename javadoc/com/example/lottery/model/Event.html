@@ -91,23 +91,10 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">Event</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">Model class representing an Event.
+<div class="block">Model class representing an event.
 
- <p>Key Responsibilities:
- <ul>
-   <li>Encapsulates all metadata for an event, including titles, dates, and descriptions.</li>
-   <li>Stores references to promotional assets like poster URIs and QR code content.</li>
-   <li>Acts as a Data Transfer Object (DTO) for Firebase Firestore serialization.</li>
- </ul>
- </p>
-
- <p>Satisfies requirements for:
- US 02.01.01: Event creation with promotional QR code.
- US 02.01.04: Registration deadline management.
- US 02.04.01: Event poster support.
- US 02.02.03: Geolocation requirement toggle.
- US 02.02.02: Waiting List Limit.
- </p></div>
+ Target Firestore path:
+ events/{eventId}</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -121,24 +108,25 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E()" class="member-name-link">Event</a>()</code></div>
 <div class="col-last even-row-color">
-<div class="block">Default no-argument constructor required for Firebase Firestore serialization.</div>
+<div class="block">Default constructor required for Firestore.</div>
 </div>
-<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(java.lang.String,java.lang.String,java.util.Date,java.util.Date,java.util.Date,java.util.Date,java.util.Date,java.lang.Integer,java.lang.String,java.lang.String,java.lang.String,java.lang.String,boolean,java.lang.Integer)" class="member-name-link">Event</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
+<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.Integer,java.lang.Integer,java.lang.String,java.lang.String,java.lang.String,com.google.firebase.Timestamp,com.google.firebase.Timestamp,com.google.firebase.Timestamp,boolean,com.google.firebase.Timestamp,com.google.firebase.Timestamp)" class="member-name-link">Event</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;title,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Date.html" title="class or interface in java.util" class="external-link">Date</a>&nbsp;scheduledDateTime,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Date.html" title="class or interface in java.util" class="external-link">Date</a>&nbsp;eventEndDate,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Date.html" title="class or interface in java.util" class="external-link">Date</a>&nbsp;registrationStartDate,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Date.html" title="class or interface in java.util" class="external-link">Date</a>&nbsp;registrationDeadline,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Date.html" title="class or interface in java.util" class="external-link">Date</a>&nbsp;drawDate,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&nbsp;maxCapacity,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;details,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;posterUri,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;qrCodeContent,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;organizerId,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&nbsp;capacity,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&nbsp;waitingListLimit,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;qrCodeContent,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;status,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;posterUri,
+ com.google.firebase.Timestamp&nbsp;scheduledDateTime,
+ com.google.firebase.Timestamp&nbsp;registrationDeadline,
+ com.google.firebase.Timestamp&nbsp;drawDate,
  boolean&nbsp;requireLocation,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&nbsp;waitingListLimit)</code></div>
+ com.google.firebase.Timestamp&nbsp;createdAt,
+ com.google.firebase.Timestamp&nbsp;updatedAt)</code></div>
 <div class="col-last odd-row-color">
-<div class="block">Constructs a new Event with all metadata.</div>
+<div class="block">Full constructor for target Firestore event document.</div>
 </div>
 </div>
 </section>
@@ -154,20 +142,20 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCapacity()" class="member-name-link">getCapacity</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.google.firebase.Timestamp</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCreatedAt()" class="member-name-link">getCreatedAt</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getDetails()" class="member-name-link">getDetails</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Date.html" title="class or interface in java.util" class="external-link">Date</a></code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.google.firebase.Timestamp</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getDrawDate()" class="member-name-link">getDrawDate</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Date.html" title="class or interface in java.util" class="external-link">Date</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getEventEndDate()" class="member-name-link">getEventEndDate</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getEventId()" class="member-name-link">getEventId</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getMaxCapacity()" class="member-name-link">getMaxCapacity</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getEventId()" class="member-name-link">getEventId</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getOrganizerId()" class="member-name-link">getOrganizerId</a>()</code></div>
@@ -178,66 +166,77 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getQrCodeContent()" class="member-name-link">getQrCodeContent</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Date.html" title="class or interface in java.util" class="external-link">Date</a></code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.google.firebase.Timestamp</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getRegistrationDeadline()" class="member-name-link">getRegistrationDeadline</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Date.html" title="class or interface in java.util" class="external-link">Date</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getRegistrationStartDate()" class="member-name-link">getRegistrationStartDate</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.google.firebase.Timestamp</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getScheduledDateTime()" class="member-name-link">getScheduledDateTime</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Date.html" title="class or interface in java.util" class="external-link">Date</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getScheduledDateTime()" class="member-name-link">getScheduledDateTime</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getStatus()" class="member-name-link">getStatus</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTitle()" class="member-name-link">getTitle</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getWaitingListLimit()" class="member-name-link">getWaitingListLimit</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.google.firebase.Timestamp</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getUpdatedAt()" class="member-name-link">getUpdatedAt</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isRequireLocation()" class="member-name-link">isRequireLocation</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getWaitingListLimit()" class="member-name-link">getWaitingListLimit</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setDetails(java.lang.String)" class="member-name-link">setDetails</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;details)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isRequireLocation()" class="member-name-link">isRequireLocation</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setDrawDate(java.util.Date)" class="member-name-link">setDrawDate</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Date.html" title="class or interface in java.util" class="external-link">Date</a>&nbsp;drawDate)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setCapacity(java.lang.Integer)" class="member-name-link">setCapacity</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&nbsp;capacity)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setEventEndDate(java.util.Date)" class="member-name-link">setEventEndDate</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Date.html" title="class or interface in java.util" class="external-link">Date</a>&nbsp;eventEndDate)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setCreatedAt(com.google.firebase.Timestamp)" class="member-name-link">setCreatedAt</a><wbr>(com.google.firebase.Timestamp&nbsp;createdAt)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setDetails(java.lang.String)" class="member-name-link">setDetails</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;details)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setDrawDate(com.google.firebase.Timestamp)" class="member-name-link">setDrawDate</a><wbr>(com.google.firebase.Timestamp&nbsp;drawDate)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setEventId(java.lang.String)" class="member-name-link">setEventId</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setMaxCapacity(java.lang.Integer)" class="member-name-link">setMaxCapacity</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&nbsp;maxCapacity)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setOrganizerId(java.lang.String)" class="member-name-link">setOrganizerId</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;organizerId)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setOrganizerId(java.lang.String)" class="member-name-link">setOrganizerId</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;organizerId)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setPosterUri(java.lang.String)" class="member-name-link">setPosterUri</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;posterUri)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setPosterUri(java.lang.String)" class="member-name-link">setPosterUri</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;posterUri)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setQrCodeContent(java.lang.String)" class="member-name-link">setQrCodeContent</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;qrCodeContent)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setQrCodeContent(java.lang.String)" class="member-name-link">setQrCodeContent</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;qrCodeContent)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setRegistrationDeadline(java.util.Date)" class="member-name-link">setRegistrationDeadline</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Date.html" title="class or interface in java.util" class="external-link">Date</a>&nbsp;registrationDeadline)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setRegistrationStartDate(java.util.Date)" class="member-name-link">setRegistrationStartDate</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Date.html" title="class or interface in java.util" class="external-link">Date</a>&nbsp;registrationStartDate)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setRegistrationDeadline(com.google.firebase.Timestamp)" class="member-name-link">setRegistrationDeadline</a><wbr>(com.google.firebase.Timestamp&nbsp;registrationDeadline)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setRequireLocation(boolean)" class="member-name-link">setRequireLocation</a><wbr>(boolean&nbsp;requireLocation)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setScheduledDateTime(java.util.Date)" class="member-name-link">setScheduledDateTime</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Date.html" title="class or interface in java.util" class="external-link">Date</a>&nbsp;scheduledDateTime)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setScheduledDateTime(com.google.firebase.Timestamp)" class="member-name-link">setScheduledDateTime</a><wbr>(com.google.firebase.Timestamp&nbsp;scheduledDateTime)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setTitle(java.lang.String)" class="member-name-link">setTitle</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;title)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setStatus(java.lang.String)" class="member-name-link">setStatus</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;status)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setTitle(java.lang.String)" class="member-name-link">setTitle</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;title)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setUpdatedAt(com.google.firebase.Timestamp)" class="member-name-link">setUpdatedAt</a><wbr>(com.google.firebase.Timestamp&nbsp;updatedAt)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setWaitingListLimit(java.lang.Integer)" class="member-name-link">setWaitingListLimit</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&nbsp;waitingListLimit)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#touch()" class="member-name-link">touch</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Updates the updatedAt timestamp.</div>
+</div>
 </div>
 </div>
 </div>
@@ -259,44 +258,28 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="&lt;init&gt;()">
 <h3>Event</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">Event</span>()</div>
-<div class="block">Default no-argument constructor required for Firebase Firestore serialization.</div>
+<div class="block">Default constructor required for Firestore.</div>
 </section>
 </li>
 <li>
-<section class="detail" id="&lt;init&gt;(java.lang.String,java.lang.String,java.util.Date,java.util.Date,java.util.Date,java.util.Date,java.util.Date,java.lang.Integer,java.lang.String,java.lang.String,java.lang.String,java.lang.String,boolean,java.lang.Integer)">
+<section class="detail" id="&lt;init&gt;(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.Integer,java.lang.Integer,java.lang.String,java.lang.String,java.lang.String,com.google.firebase.Timestamp,com.google.firebase.Timestamp,com.google.firebase.Timestamp,boolean,com.google.firebase.Timestamp,com.google.firebase.Timestamp)">
 <h3>Event</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">Event</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;title,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Date.html" title="class or interface in java.util" class="external-link">Date</a>&nbsp;scheduledDateTime,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Date.html" title="class or interface in java.util" class="external-link">Date</a>&nbsp;eventEndDate,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Date.html" title="class or interface in java.util" class="external-link">Date</a>&nbsp;registrationStartDate,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Date.html" title="class or interface in java.util" class="external-link">Date</a>&nbsp;registrationDeadline,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Date.html" title="class or interface in java.util" class="external-link">Date</a>&nbsp;drawDate,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&nbsp;maxCapacity,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;details,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;posterUri,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;qrCodeContent,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;organizerId,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&nbsp;capacity,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&nbsp;waitingListLimit,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;qrCodeContent,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;status,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;posterUri,
+ com.google.firebase.Timestamp&nbsp;scheduledDateTime,
+ com.google.firebase.Timestamp&nbsp;registrationDeadline,
+ com.google.firebase.Timestamp&nbsp;drawDate,
  boolean&nbsp;requireLocation,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&nbsp;waitingListLimit)</span></div>
-<div class="block">Constructs a new Event with all metadata.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>eventId</code> - The unique ID of the event.</dd>
-<dd><code>title</code> - The title of the event.</dd>
-<dd><code>scheduledDateTime</code> - The date and time the event starts.</dd>
-<dd><code>eventEndDate</code> - The date and time the event ends.</dd>
-<dd><code>registrationStartDate</code> - The date and time registration opens.</dd>
-<dd><code>registrationDeadline</code> - The deadline for entrant registration.</dd>
-<dd><code>drawDate</code> - The date and time when the event draw is held.</dd>
-<dd><code>maxCapacity</code> - The maximum participant capacity.</dd>
-<dd><code>details</code> - The event description.</dd>
-<dd><code>posterUri</code> - The URI of the event poster.</dd>
-<dd><code>qrCodeContent</code> - The content of the promotional QR code.</dd>
-<dd><code>organizerId</code> - The ID of the event organizer.</dd>
-<dd><code>requireLocation</code> - Whether geolocation verification is required.</dd>
-<dd><code>waitingListLimit</code> - The optional limit for the waiting list.</dd>
-</dl>
+ com.google.firebase.Timestamp&nbsp;createdAt,
+ com.google.firebase.Timestamp&nbsp;updatedAt)</span></div>
+<div class="block">Full constructor for target Firestore event document.</div>
 </section>
 </li>
 </ul>
@@ -311,280 +294,187 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="getEventId()">
 <h3>getEventId</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">getEventId</span>()</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>The unique identifier of the event.</dd>
-</dl>
 </section>
 </li>
 <li>
 <section class="detail" id="setEventId(java.lang.String)">
 <h3>setEventId</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setEventId</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId)</span></div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>eventId</code> - The unique identifier to set for the event.</dd>
-</dl>
 </section>
 </li>
 <li>
 <section class="detail" id="getTitle()">
 <h3>getTitle</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">getTitle</span>()</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>The title of the event.</dd>
-</dl>
 </section>
 </li>
 <li>
 <section class="detail" id="setTitle(java.lang.String)">
 <h3>setTitle</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setTitle</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;title)</span></div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>title</code> - The title to set for the event.</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="getScheduledDateTime()">
-<h3>getScheduledDateTime</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Date.html" title="class or interface in java.util" class="external-link">Date</a></span>&nbsp;<span class="element-name">getScheduledDateTime</span>()</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>The scheduled date and time of the event.</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="setScheduledDateTime(java.util.Date)">
-<h3>setScheduledDateTime</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setScheduledDateTime</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Date.html" title="class or interface in java.util" class="external-link">Date</a>&nbsp;scheduledDateTime)</span></div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>scheduledDateTime</code> - The scheduled date and time to set for the event.</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="getEventEndDate()">
-<h3>getEventEndDate</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Date.html" title="class or interface in java.util" class="external-link">Date</a></span>&nbsp;<span class="element-name">getEventEndDate</span>()</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>The scheduled end date and time of the event.</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="setEventEndDate(java.util.Date)">
-<h3>setEventEndDate</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setEventEndDate</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Date.html" title="class or interface in java.util" class="external-link">Date</a>&nbsp;eventEndDate)</span></div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>eventEndDate</code> - The scheduled end date and time to set for the event.</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="getRegistrationStartDate()">
-<h3>getRegistrationStartDate</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Date.html" title="class or interface in java.util" class="external-link">Date</a></span>&nbsp;<span class="element-name">getRegistrationStartDate</span>()</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>The date and time when registration opens for the event.</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="setRegistrationStartDate(java.util.Date)">
-<h3>setRegistrationStartDate</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setRegistrationStartDate</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Date.html" title="class or interface in java.util" class="external-link">Date</a>&nbsp;registrationStartDate)</span></div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>registrationStartDate</code> - The date and time when registration opens to set for the event.</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="getRegistrationDeadline()">
-<h3>getRegistrationDeadline</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Date.html" title="class or interface in java.util" class="external-link">Date</a></span>&nbsp;<span class="element-name">getRegistrationDeadline</span>()</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>The registration deadline for the event.</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="setRegistrationDeadline(java.util.Date)">
-<h3>setRegistrationDeadline</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setRegistrationDeadline</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Date.html" title="class or interface in java.util" class="external-link">Date</a>&nbsp;registrationDeadline)</span></div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>registrationDeadline</code> - The registration deadline to set for the event.</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="getDrawDate()">
-<h3>getDrawDate</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Date.html" title="class or interface in java.util" class="external-link">Date</a></span>&nbsp;<span class="element-name">getDrawDate</span>()</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>The date and time when the lottery draw is held for the event.</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="setDrawDate(java.util.Date)">
-<h3>setDrawDate</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setDrawDate</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Date.html" title="class or interface in java.util" class="external-link">Date</a>&nbsp;drawDate)</span></div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>drawDate</code> - The date and time when the lottery draw is held to set for the event.</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="getMaxCapacity()">
-<h3>getMaxCapacity</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a></span>&nbsp;<span class="element-name">getMaxCapacity</span>()</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>The maximum participant capacity.</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="setMaxCapacity(java.lang.Integer)">
-<h3>setMaxCapacity</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setMaxCapacity</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&nbsp;maxCapacity)</span></div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>maxCapacity</code> - The maximum participant capacity to set.</dd>
-</dl>
 </section>
 </li>
 <li>
 <section class="detail" id="getDetails()">
 <h3>getDetails</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">getDetails</span>()</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>The detailed description of the event.</dd>
-</dl>
 </section>
 </li>
 <li>
 <section class="detail" id="setDetails(java.lang.String)">
 <h3>setDetails</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setDetails</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;details)</span></div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>details</code> - The detailed description to set.</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="getPosterUri()">
-<h3>getPosterUri</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">getPosterUri</span>()</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>The URI of the event poster.</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="setPosterUri(java.lang.String)">
-<h3>setPosterUri</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setPosterUri</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;posterUri)</span></div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>posterUri</code> - The URI of the event poster to set.</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="getQrCodeContent()">
-<h3>getQrCodeContent</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">getQrCodeContent</span>()</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>The content of the promotional QR code.</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="setQrCodeContent(java.lang.String)">
-<h3>setQrCodeContent</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setQrCodeContent</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;qrCodeContent)</span></div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>qrCodeContent</code> - The QR code content to set.</dd>
-</dl>
 </section>
 </li>
 <li>
 <section class="detail" id="getOrganizerId()">
 <h3>getOrganizerId</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">getOrganizerId</span>()</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>The identifier of the event organizer.</dd>
-</dl>
 </section>
 </li>
 <li>
 <section class="detail" id="setOrganizerId(java.lang.String)">
 <h3>setOrganizerId</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setOrganizerId</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;organizerId)</span></div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>organizerId</code> - The identifier of the event organizer to set.</dd>
-</dl>
 </section>
 </li>
 <li>
-<section class="detail" id="isRequireLocation()">
-<h3>isRequireLocation</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isRequireLocation</span>()</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>Whether geolocation verification is required for this event.</dd>
-</dl>
+<section class="detail" id="getCapacity()">
+<h3>getCapacity</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a></span>&nbsp;<span class="element-name">getCapacity</span>()</div>
 </section>
 </li>
 <li>
-<section class="detail" id="setRequireLocation(boolean)">
-<h3>setRequireLocation</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setRequireLocation</span><wbr><span class="parameters">(boolean&nbsp;requireLocation)</span></div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>requireLocation</code> - Sets whether geolocation verification is required.</dd>
-</dl>
+<section class="detail" id="setCapacity(java.lang.Integer)">
+<h3>setCapacity</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setCapacity</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&nbsp;capacity)</span></div>
 </section>
 </li>
 <li>
 <section class="detail" id="getWaitingListLimit()">
 <h3>getWaitingListLimit</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a></span>&nbsp;<span class="element-name">getWaitingListLimit</span>()</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>The optional limit for the waiting list. null means unlimited.</dd>
-</dl>
 </section>
 </li>
 <li>
 <section class="detail" id="setWaitingListLimit(java.lang.Integer)">
 <h3>setWaitingListLimit</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setWaitingListLimit</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&nbsp;waitingListLimit)</span></div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>waitingListLimit</code> - The optional limit to set for the waiting list.</dd>
-</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getQrCodeContent()">
+<h3>getQrCodeContent</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">getQrCodeContent</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setQrCodeContent(java.lang.String)">
+<h3>setQrCodeContent</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setQrCodeContent</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;qrCodeContent)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="getStatus()">
+<h3>getStatus</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">getStatus</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setStatus(java.lang.String)">
+<h3>setStatus</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setStatus</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;status)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="getPosterUri()">
+<h3>getPosterUri</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">getPosterUri</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setPosterUri(java.lang.String)">
+<h3>setPosterUri</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setPosterUri</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;posterUri)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="getScheduledDateTime()">
+<h3>getScheduledDateTime</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">com.google.firebase.Timestamp</span>&nbsp;<span class="element-name">getScheduledDateTime</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setScheduledDateTime(com.google.firebase.Timestamp)">
+<h3>setScheduledDateTime</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setScheduledDateTime</span><wbr><span class="parameters">(com.google.firebase.Timestamp&nbsp;scheduledDateTime)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="getRegistrationDeadline()">
+<h3>getRegistrationDeadline</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">com.google.firebase.Timestamp</span>&nbsp;<span class="element-name">getRegistrationDeadline</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setRegistrationDeadline(com.google.firebase.Timestamp)">
+<h3>setRegistrationDeadline</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setRegistrationDeadline</span><wbr><span class="parameters">(com.google.firebase.Timestamp&nbsp;registrationDeadline)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="getDrawDate()">
+<h3>getDrawDate</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">com.google.firebase.Timestamp</span>&nbsp;<span class="element-name">getDrawDate</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setDrawDate(com.google.firebase.Timestamp)">
+<h3>setDrawDate</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setDrawDate</span><wbr><span class="parameters">(com.google.firebase.Timestamp&nbsp;drawDate)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="isRequireLocation()">
+<h3>isRequireLocation</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isRequireLocation</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setRequireLocation(boolean)">
+<h3>setRequireLocation</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setRequireLocation</span><wbr><span class="parameters">(boolean&nbsp;requireLocation)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="getCreatedAt()">
+<h3>getCreatedAt</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">com.google.firebase.Timestamp</span>&nbsp;<span class="element-name">getCreatedAt</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setCreatedAt(com.google.firebase.Timestamp)">
+<h3>setCreatedAt</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setCreatedAt</span><wbr><span class="parameters">(com.google.firebase.Timestamp&nbsp;createdAt)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="getUpdatedAt()">
+<h3>getUpdatedAt</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">com.google.firebase.Timestamp</span>&nbsp;<span class="element-name">getUpdatedAt</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setUpdatedAt(com.google.firebase.Timestamp)">
+<h3>setUpdatedAt</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setUpdatedAt</span><wbr><span class="parameters">(com.google.firebase.Timestamp&nbsp;updatedAt)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="touch()">
+<h3>touch</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">touch</span>()</div>
+<div class="block">Updates the updatedAt timestamp. Should be called explicitly before Firestore writes.</div>
 </section>
 </li>
 </ul>

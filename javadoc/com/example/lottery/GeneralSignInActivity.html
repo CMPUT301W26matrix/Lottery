@@ -111,27 +111,8 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">GeneralSignInActivity</span>
 <span class="extends-implements">extends androidx.appcompat.app.AppCompatActivity</span></div>
-<div class="block">GeneralSignInActivity handles the sign-in process for existing users.
- Users can sign in with their email and password, and are then redirected
- to the appropriate main activity based on their role (entrant or organizer).
-
- <p>This activity:
- <ul>
-     <li>Authenticates users with Firebase Auth using email/password</li>
-     <li>Retrieves user role from Firestore</li>
-     <li>Navigates to role-specific main activities (EntrantMainActivity or OrganizerBrowseEventsActivity)</li>
-     <li>Stores session information in SharedPreferences</li>
- </ul></div>
-<dl class="notes">
-<dt>See Also:</dt>
-<dd>
-<ul class="tag-list">
-<li><a href="EntrantMainActivity.html" title="class in com.example.lottery"><code>EntrantMainActivity</code></a></li>
-<li><a href="OrganizerBrowseEventsActivity.html" title="class in com.example.lottery"><code>OrganizerBrowseEventsActivity</code></a></li>
-<li><a href="MainActivity.html" title="class in com.example.lottery"><code>MainActivity</code></a></li>
-</ul>
-</dd>
-</dl>
+<div class="block">GeneralSignInActivity is now deprecated in favor of device-based login in MainActivity.
+ Redirects to MainActivity to ensure consistent identification.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -195,15 +176,12 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onCreate(android.os.Bundle)" class="member-name-link">onCreate</a><wbr>(android.os.Bundle&nbsp;savedInstanceState)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onStart()" class="member-name-link">onStart</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-androidx.appcompat.app.AppCompatActivity">Methods inherited from class&nbsp;androidx.appcompat.app.AppCompatActivity</h3>
-<code>addContentView, attachBaseContext, closeOptionsMenu, dispatchKeyEvent, findViewById, getDelegate, getDrawerToggleDelegate, getMenuInflater, getResources, getSupportActionBar, getSupportParentActivityIntent, invalidateOptionsMenu, onConfigurationChanged, onContentChanged, onCreateSupportNavigateUpTaskStack, onDestroy, onKeyDown, onLocalesChanged, onMenuItemSelected, onMenuOpened, onNightModeChanged, onPanelClosed, onPostCreate, onPostResume, onPrepareSupportNavigateUpTaskStack, onStop, onSupportActionModeFinished, onSupportActionModeStarted, onSupportContentChanged, onSupportNavigateUp, onTitleChanged, onWindowStartingSupportActionMode, openOptionsMenu, setContentView, setContentView, setContentView, setSupportActionBar, setSupportProgress, setSupportProgressBarIndeterminate, setSupportProgressBarIndeterminateVisibility, setSupportProgressBarVisibility, setTheme, startSupportActionMode, supportInvalidateOptionsMenu, supportNavigateUpTo, supportRequestWindowFeature, supportShouldUpRecreateTask</code></div>
+<code>addContentView, attachBaseContext, closeOptionsMenu, dispatchKeyEvent, findViewById, getDelegate, getDrawerToggleDelegate, getMenuInflater, getResources, getSupportActionBar, getSupportParentActivityIntent, invalidateOptionsMenu, onConfigurationChanged, onContentChanged, onCreateSupportNavigateUpTaskStack, onDestroy, onKeyDown, onLocalesChanged, onMenuItemSelected, onMenuOpened, onNightModeChanged, onPanelClosed, onPostCreate, onPostResume, onPrepareSupportNavigateUpTaskStack, onStart, onStop, onSupportActionModeFinished, onSupportActionModeStarted, onSupportContentChanged, onSupportNavigateUp, onTitleChanged, onWindowStartingSupportActionMode, openOptionsMenu, setContentView, setContentView, setContentView, setSupportActionBar, setSupportProgress, setSupportProgressBarIndeterminate, setSupportProgressBarIndeterminateVisibility, setSupportProgressBarVisibility, setTheme, startSupportActionMode, supportInvalidateOptionsMenu, supportNavigateUpTo, supportRequestWindowFeature, supportShouldUpRecreateTask</code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-androidx.fragment.app.FragmentActivity">Methods inherited from class&nbsp;androidx.fragment.app.FragmentActivity</h3>
 <code>dump, getSupportFragmentManager, getSupportLoaderManager, onActivityResult, onAttachFragment, onCreateView, onCreateView, onPause, onRequestPermissionsResult, onResume, onResumeFragments, onStateNotSaved, setEnterSharedElementCallback, setExitSharedElementCallback, startActivityFromFragment, startActivityFromFragment, startIntentSenderFromFragment, supportFinishAfterTransition, supportPostponeEnterTransition, supportStartPostponedEnterTransition, validateRequestPermissionsRequestCode</code></div>
@@ -263,16 +241,6 @@ loadScripts(document, 'script');</script>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code>onCreate</code>&nbsp;in class&nbsp;<code>androidx.fragment.app.FragmentActivity</code></dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="onStart()">
-<h3>onStart</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onStart</span>()</div>
-<dl class="notes">
-<dt>Overrides:</dt>
-<dd><code>onStart</code>&nbsp;in class&nbsp;<code>androidx.appcompat.app.AppCompatActivity</code></dd>
 </dl>
 </section>
 </li>

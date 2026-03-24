@@ -157,11 +157,19 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="EntrantDetailsFragment.html" title="class in com.example.lottery">EntrantDetailsFragment</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#newInstance(com.example.lottery.Entrant)" class="member-name-link">newInstance</a><wbr>(<a href="Entrant.html" title="class in com.example.lottery">Entrant</a>&nbsp;entrant)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>android.app.Dialog</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onCreateDialog(android.os.Bundle)" class="member-name-link">onCreateDialog</a><wbr>(android.os.Bundle&nbsp;savedInstanceState)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#newInstance(com.example.lottery.model.EntrantEvent,boolean)" class="member-name-link">newInstance</a><wbr>(<a href="model/EntrantEvent.html" title="class in com.example.lottery.model">EntrantEvent</a>&nbsp;entrantEvent,
+ boolean&nbsp;requireLocation)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Overloaded method to support EntrantEvent as well if needed, 
+ but internally we should probably unify on Entrant model for details view.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="EntrantDetailsFragment.html" title="class in com.example.lottery">EntrantDetailsFragment</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#newInstance(com.example.lottery.model.Entrant,boolean)" class="member-name-link">newInstance</a><wbr>(<a href="model/Entrant.html" title="class in com.example.lottery.model">Entrant</a>&nbsp;entrant,
+ boolean&nbsp;requireLocation)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>android.app.Dialog</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onCreateDialog(android.os.Bundle)" class="member-name-link">onCreateDialog</a><wbr>(android.os.Bundle&nbsp;savedInstanceState)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">set up component for rendering the entrant details fragment</div>
 </div>
 </div>
@@ -202,15 +210,26 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="newInstance(com.example.lottery.Entrant)">
+<section class="detail" id="newInstance(com.example.lottery.model.Entrant,boolean)">
 <h3>newInstance</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="EntrantDetailsFragment.html" title="class in com.example.lottery">EntrantDetailsFragment</a></span>&nbsp;<span class="element-name">newInstance</span><wbr><span class="parameters">(<a href="Entrant.html" title="class in com.example.lottery">Entrant</a>&nbsp;entrant)</span></div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="EntrantDetailsFragment.html" title="class in com.example.lottery">EntrantDetailsFragment</a></span>&nbsp;<span class="element-name">newInstance</span><wbr><span class="parameters">(<a href="model/Entrant.html" title="class in com.example.lottery.model">Entrant</a>&nbsp;entrant,
+ boolean&nbsp;requireLocation)</span></div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>entrant</code> - the entrant we will display</dd>
+<dd><code>requireLocation</code> - whether the event requires location</dd>
 <dt>Returns:</dt>
 <dd>initialized fragment</dd>
 </dl>
+</section>
+</li>
+<li>
+<section class="detail" id="newInstance(com.example.lottery.model.EntrantEvent,boolean)">
+<h3>newInstance</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="EntrantDetailsFragment.html" title="class in com.example.lottery">EntrantDetailsFragment</a></span>&nbsp;<span class="element-name">newInstance</span><wbr><span class="parameters">(<a href="model/EntrantEvent.html" title="class in com.example.lottery.model">EntrantEvent</a>&nbsp;entrantEvent,
+ boolean&nbsp;requireLocation)</span></div>
+<div class="block">Overloaded method to support EntrantEvent as well if needed, 
+ but internally we should probably unify on Entrant model for details view.</div>
 </section>
 </li>
 <li>

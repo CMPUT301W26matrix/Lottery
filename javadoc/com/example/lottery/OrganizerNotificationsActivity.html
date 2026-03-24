@@ -106,13 +106,21 @@ loadScripts(document, 'script');</script>
 <section class="class-description" id="class-description">
 <dl class="notes">
 <dt>All Implemented Interfaces:</dt>
-<dd><code>android.content.ComponentCallbacks</code>, <code>android.content.ComponentCallbacks2</code>, <code>android.view.KeyEvent.Callback</code>, <code>android.view.LayoutInflater.Factory</code>, <code>android.view.LayoutInflater.Factory2</code>, <code>android.view.View.OnCreateContextMenuListener</code>, <code>android.view.Window.Callback</code>, <code>androidx.activity.contextaware.ContextAware</code>, <code>androidx.activity.FullyDrawnReporterOwner</code>, <code>androidx.activity.OnBackPressedDispatcherOwner</code>, <code>androidx.activity.result.ActivityResultCaller</code>, <code>androidx.activity.result.ActivityResultRegistryOwner</code>, <code>androidx.appcompat.app.ActionBarDrawerToggle.DelegateProvider</code>, <code>androidx.appcompat.app.AppCompatCallback</code>, <code>androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback</code>, <code>androidx.core.app.ActivityCompat.RequestPermissionsRequestCodeValidator</code>, <code>androidx.core.app.OnMultiWindowModeChangedProvider</code>, <code>androidx.core.app.OnNewIntentProvider</code>, <code>androidx.core.app.OnPictureInPictureModeChangedProvider</code>, <code>androidx.core.app.OnUserLeaveHintProvider</code>, <code>androidx.core.app.TaskStackBuilder.SupportParentable</code>, <code>androidx.core.content.OnConfigurationChangedProvider</code>, <code>androidx.core.content.OnTrimMemoryProvider</code>, <code>androidx.core.view.KeyEventDispatcher.Component</code>, <code>androidx.core.view.MenuHost</code>, <code>androidx.lifecycle.HasDefaultViewModelProviderFactory</code>, <code>androidx.lifecycle.LifecycleOwner</code>, <code>androidx.lifecycle.ViewModelStoreOwner</code>, <code>androidx.navigationevent.NavigationEventDispatcherOwner</code>, <code>androidx.savedstate.SavedStateRegistryOwner</code></dd>
+<dd><code>android.content.ComponentCallbacks</code>, <code>android.content.ComponentCallbacks2</code>, <code>android.view.KeyEvent.Callback</code>, <code>android.view.LayoutInflater.Factory</code>, <code>android.view.LayoutInflater.Factory2</code>, <code>android.view.View.OnCreateContextMenuListener</code>, <code>android.view.Window.Callback</code>, <code>androidx.activity.contextaware.ContextAware</code>, <code>androidx.activity.FullyDrawnReporterOwner</code>, <code>androidx.activity.OnBackPressedDispatcherOwner</code>, <code>androidx.activity.result.ActivityResultCaller</code>, <code>androidx.activity.result.ActivityResultRegistryOwner</code>, <code>androidx.appcompat.app.ActionBarDrawerToggle.DelegateProvider</code>, <code>androidx.appcompat.app.AppCompatCallback</code>, <code>androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback</code>, <code>androidx.core.app.ActivityCompat.RequestPermissionsRequestCodeValidator</code>, <code>androidx.core.app.OnMultiWindowModeChangedProvider</code>, <code>androidx.core.app.OnNewIntentProvider</code>, <code>androidx.core.app.OnPictureInPictureModeChangedProvider</code>, <code>androidx.core.app.OnUserLeaveHintProvider</code>, <code>androidx.core.app.TaskStackBuilder.SupportParentable</code>, <code>androidx.core.content.OnConfigurationChangedProvider</code>, <code>androidx.core.content.OnTrimMemoryProvider</code>, <code>androidx.core.view.KeyEventDispatcher.Component</code>, <code>androidx.core.view.MenuHost</code>, <code>androidx.lifecycle.HasDefaultViewModelProviderFactory</code>, <code>androidx.lifecycle.LifecycleOwner</code>, <code>androidx.lifecycle.ViewModelStoreOwner</code>, <code>androidx.navigationevent.NavigationEventDispatcherOwner</code>, <code>androidx.savedstate.SavedStateRegistryOwner</code>, <code><a href="NotificationFragment.NotificationListener.html" title="interface in com.example.lottery">NotificationFragment.NotificationListener</a></code>, <code><a href="OrganizerNotificationEventAdapter.OnNotificationGroupClickListener.html" title="interface in com.example.lottery">OrganizerNotificationEventAdapter.OnNotificationGroupClickListener</a></code></dd>
 </dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">OrganizerNotificationsActivity</span>
-<span class="extends-implements">extends androidx.appcompat.app.AppCompatActivity</span></div>
-<div class="block">OrganizerNotificationsActivity allows organizers to manage and send notifications
- to different groups of entrants (Waiting List, Selected, Cancelled).</div>
+<span class="extends-implements">extends androidx.appcompat.app.AppCompatActivity
+implements <a href="NotificationFragment.NotificationListener.html" title="interface in com.example.lottery">NotificationFragment.NotificationListener</a>, <a href="OrganizerNotificationEventAdapter.OnNotificationGroupClickListener.html" title="interface in com.example.lottery">OrganizerNotificationEventAdapter.OnNotificationGroupClickListener</a></span></div>
+<div class="block">Activity that allows organizers to manage and send notifications to different groups of entrants.
+
+ <p>Key Responsibilities:
+ <ul>
+   <li>Display a list of events created by the current organizer.</li>
+   <li>Provide options to send notifications to specific entrant sub-groups (e.g., waitlisted, selected, cancelled).</li>
+   <li>Orchestrate the creation of notification logs and individual user inbox entries in Firestore.</li>
+ </ul>
+ </p></div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -175,7 +183,20 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onCreate(android.os.Bundle)" class="member-name-link">onCreate</a><wbr>(android.os.Bundle&nbsp;savedInstanceState)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Initializes the activity, sets up the RecyclerView, and loads the organizer's events.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onGroupClick(com.example.lottery.model.Event,java.lang.String)" class="member-name-link">onGroupClick</a><wbr>(<a href="model/Event.html" title="class in com.example.lottery.model">Event</a>&nbsp;event,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;group)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Called when a notification group button is clicked in the adapter.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#sendNotification(java.lang.String)" class="member-name-link">sendNotification</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;message)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Callback from <a href="NotificationFragment.html" title="class in com.example.lottery"><code>NotificationFragment</code></a> with the message content.</div>
+</div>
 </div>
 </div>
 </div>
@@ -238,9 +259,44 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="onCreate(android.os.Bundle)">
 <h3>onCreate</h3>
 <div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onCreate</span><wbr><span class="parameters">(android.os.Bundle&nbsp;savedInstanceState)</span></div>
+<div class="block">Initializes the activity, sets up the RecyclerView, and loads the organizer's events.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code>onCreate</code>&nbsp;in class&nbsp;<code>androidx.fragment.app.FragmentActivity</code></dd>
+<dt>Parameters:</dt>
+<dd><code>savedInstanceState</code> - If the activity is being re-initialized after
+     previously being shut down then this Bundle contains the data it most
+     recently supplied in <code>ComponentActivity.onSaveInstanceState(android.os.Bundle)</code>. <b>Note: Otherwise it is null.</b></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="onGroupClick(com.example.lottery.model.Event,java.lang.String)">
+<h3>onGroupClick</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onGroupClick</span><wbr><span class="parameters">(<a href="model/Event.html" title="class in com.example.lottery.model">Event</a>&nbsp;event,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;group)</span></div>
+<div class="block">Called when a notification group button is clicked in the adapter.
+ Opens the <a href="NotificationFragment.html" title="class in com.example.lottery"><code>NotificationFragment</code></a> to compose a message.</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="OrganizerNotificationEventAdapter.OnNotificationGroupClickListener.html#onGroupClick(com.example.lottery.model.Event,java.lang.String)">onGroupClick</a></code>&nbsp;in interface&nbsp;<code><a href="OrganizerNotificationEventAdapter.OnNotificationGroupClickListener.html" title="interface in com.example.lottery">OrganizerNotificationEventAdapter.OnNotificationGroupClickListener</a></code></dd>
+<dt>Parameters:</dt>
+<dd><code>event</code> - The event associated with the notification.</dd>
+<dd><code>group</code> - The target group identifier.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="sendNotification(java.lang.String)">
+<h3>sendNotification</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">sendNotification</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;message)</span></div>
+<div class="block">Callback from <a href="NotificationFragment.html" title="class in com.example.lottery"><code>NotificationFragment</code></a> with the message content.
+ Initiates the multi-stage Firestore write process.</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="NotificationFragment.NotificationListener.html#sendNotification(java.lang.String)">sendNotification</a></code>&nbsp;in interface&nbsp;<code><a href="NotificationFragment.NotificationListener.html" title="interface in com.example.lottery">NotificationFragment.NotificationListener</a></code></dd>
+<dt>Parameters:</dt>
+<dd><code>message</code> - The text body of the notification.</dd>
 </dl>
 </section>
 </li>

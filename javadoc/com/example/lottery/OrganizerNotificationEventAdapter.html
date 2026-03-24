@@ -94,7 +94,14 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">OrganizerNotificationEventAdapter</span>
 <span class="extends-implements">extends androidx.recyclerview.widget.RecyclerView.Adapter&lt;<a href="OrganizerNotificationEventAdapter.ViewHolder.html" title="class in com.example.lottery">OrganizerNotificationEventAdapter.ViewHolder</a>&gt;</span></div>
 <div class="block">Adapter for displaying events in the Organizer Notifications screen.
- Each item allows the organizer to send notifications to different groups of entrants.</div>
+ Each item allows the organizer to send notifications to different groups of entrants.
+
+ <p>Key Responsibilities:
+ <ul>
+   <li>Binds event data to the list items in the notification screen.</li>
+   <li>Delegates button clicks to a listener to handle notification composition.</li>
+ </ul>
+ </p></div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -107,9 +114,16 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Class</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code>static class&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="OrganizerNotificationEventAdapter.ViewHolder.html" class="type-name-link" title="class in com.example.lottery">OrganizerNotificationEventAdapter.ViewHolder</a></code></div>
-<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code>static interface&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="OrganizerNotificationEventAdapter.OnNotificationGroupClickListener.html" class="type-name-link" title="interface in com.example.lottery">OrganizerNotificationEventAdapter.OnNotificationGroupClickListener</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">Listener interface for handling clicks on notification group buttons.</div>
+</div>
+<div class="col-first odd-row-color"><code>static class&nbsp;</code></div>
+<div class="col-second odd-row-color"><code><a href="OrganizerNotificationEventAdapter.ViewHolder.html" class="type-name-link" title="class in com.example.lottery">OrganizerNotificationEventAdapter.ViewHolder</a></code></div>
+<div class="col-last odd-row-color">
+<div class="block">ViewHolder class for caching UI component references in each list item.</div>
+</div>
 </div>
 <div class="inherited-list">
 <h2 id="nested-classes-inherited-from-class-androidx.recyclerview.widget.RecyclerView.Adapter">Nested classes/interfaces inherited from class&nbsp;androidx.recyclerview.widget.RecyclerView.Adapter</h2>
@@ -124,8 +138,11 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(java.util.List)" class="member-name-link">OrganizerNotificationEventAdapter</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="model/Event.html" title="class in com.example.lottery.model">Event</a>&gt;&nbsp;eventList)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(java.util.List,com.example.lottery.OrganizerNotificationEventAdapter.OnNotificationGroupClickListener)" class="member-name-link">OrganizerNotificationEventAdapter</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="model/Event.html" title="class in com.example.lottery.model">Event</a>&gt;&nbsp;eventList,
+ <a href="OrganizerNotificationEventAdapter.OnNotificationGroupClickListener.html" title="interface in com.example.lottery">OrganizerNotificationEventAdapter.OnNotificationGroupClickListener</a>&nbsp;listener)</code></div>
+<div class="col-last even-row-color">
+<div class="block">Constructs a new OrganizerNotificationEventAdapter.</div>
+</div>
 </div>
 </section>
 </li>
@@ -172,9 +189,16 @@ loadScripts(document, 'script');</script>
 <h2>Constructor Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="&lt;init&gt;(java.util.List)">
+<section class="detail" id="&lt;init&gt;(java.util.List,com.example.lottery.OrganizerNotificationEventAdapter.OnNotificationGroupClickListener)">
 <h3>OrganizerNotificationEventAdapter</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">OrganizerNotificationEventAdapter</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="model/Event.html" title="class in com.example.lottery.model">Event</a>&gt;&nbsp;eventList)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">OrganizerNotificationEventAdapter</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="model/Event.html" title="class in com.example.lottery.model">Event</a>&gt;&nbsp;eventList,
+ <a href="OrganizerNotificationEventAdapter.OnNotificationGroupClickListener.html" title="interface in com.example.lottery">OrganizerNotificationEventAdapter.OnNotificationGroupClickListener</a>&nbsp;listener)</span></div>
+<div class="block">Constructs a new OrganizerNotificationEventAdapter.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>eventList</code> - The list of events to display.</dd>
+<dd><code>listener</code> - The listener to handle group click events.</dd>
+</dl>
 </section>
 </li>
 </ul>

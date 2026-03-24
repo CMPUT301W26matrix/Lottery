@@ -91,7 +91,10 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">InvitationFlowUtil</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">Shared invitation flow helpers used by entrant event details and notifications.</div>
+<div class="block">Utility class that centralizes invitation status transitions and notification response handling.
+
+ <p>This class ensures consistent status names and Firestore update payloads across
+ the entrant's event details and notification processing flows.</p></div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -111,19 +114,25 @@ loadScripts(document, 'script');</script>
 <div class="col-second odd-row-color"><code><a href="#RESPONSE_CANCELLED" class="member-name-link">RESPONSE_CANCELLED</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color"><code><a href="#RESPONSE_REJECTED" class="member-name-link">RESPONSE_REJECTED</a></code></div>
+<div class="col-second even-row-color"><code><a href="#RESPONSE_DECLINED" class="member-name-link">RESPONSE_DECLINED</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#RESPONSE_DISMISSED" class="member-name-link">RESPONSE_DISMISSED</a></code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color"><code><a href="#RESPONSE_NONE" class="member-name-link">RESPONSE_NONE</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second odd-row-color"><code><a href="#STATUS_ACCEPTED" class="member-name-link">STATUS_ACCEPTED</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color"><code><a href="#STATUS_DECLINED" class="member-name-link">STATUS_DECLINED</a></code></div>
+<div class="col-second even-row-color"><code><a href="#STATUS_CANCELLED" class="member-name-link">STATUS_CANCELLED</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second odd-row-color"><code><a href="#STATUS_INVITED" class="member-name-link">STATUS_INVITED</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color"><code><a href="#STATUS_WAITING" class="member-name-link">STATUS_WAITING</a></code></div>
+<div class="col-second even-row-color"><code><a href="#STATUS_WAITLISTED" class="member-name-link">STATUS_WAITLISTED</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 </div>
 </section>
@@ -140,19 +149,34 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#buildHandledNotificationUpdate(java.lang.String)" class="member-name-link">buildHandledNotificationUpdate</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;response)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#buildCancelledEntrantUpdate()" class="member-name-link">buildCancelledEntrantUpdate</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Builds the Firestore payload used when syncing a handled win notification.</div>
+<div class="block">Builds a Firestore update payload for cancelling an entrant's participation.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#entrantStatusFromNotificationResponse(java.lang.String)" class="member-name-link">entrantStatusFromNotificationResponse</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;response)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#buildEntrantStatusUpdateFromResponse(java.lang.String)" class="member-name-link">buildEntrantStatusUpdateFromResponse</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;response)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Maps notification response values to the canonical entrant status.</div>
+<div class="block">Builds a Firestore update payload for an entrant status based on a notification response.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#buildInvitedEntrantUpdate()" class="member-name-link">buildInvitedEntrantUpdate</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Builds a Firestore update payload for marking an entrant as invited.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#buildReadNotificationUpdate()" class="member-name-link">buildReadNotificationUpdate</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Builds a Firestore update payload for marking a notification as read.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#normalizeEntrantStatus(java.lang.String)" class="member-name-link">normalizeEntrantStatus</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;rawStatus)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Normalizes entrant status values from Firestore into one canonical form.</div>
+<div class="block">Normalizes a raw entrant status string into its canonical form.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#normalizeNotificationResponse(java.lang.String)" class="member-name-link">normalizeNotificationResponse</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;rawResponse)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Normalizes a raw notification response string into its canonical form.</div>
 </div>
 </div>
 </div>
@@ -172,14 +196,14 @@ loadScripts(document, 'script');</script>
 <h2>Field Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="STATUS_WAITING">
-<h3>STATUS_WAITING</h3>
-<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">STATUS_WAITING</span></div>
+<section class="detail" id="STATUS_WAITLISTED">
+<h3>STATUS_WAITLISTED</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">STATUS_WAITLISTED</span></div>
 <dl class="notes">
 <dt>See Also:</dt>
 <dd>
 <ul class="tag-list">
-<li><a href="../../../../constant-values.html#com.example.lottery.util.InvitationFlowUtil.STATUS_WAITING">Constant Field Values</a></li>
+<li><a href="../../../../constant-values.html#com.example.lottery.util.InvitationFlowUtil.STATUS_WAITLISTED">Constant Field Values</a></li>
 </ul>
 </dd>
 </dl>
@@ -214,14 +238,28 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="STATUS_DECLINED">
-<h3>STATUS_DECLINED</h3>
-<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">STATUS_DECLINED</span></div>
+<section class="detail" id="STATUS_CANCELLED">
+<h3>STATUS_CANCELLED</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">STATUS_CANCELLED</span></div>
 <dl class="notes">
 <dt>See Also:</dt>
 <dd>
 <ul class="tag-list">
-<li><a href="../../../../constant-values.html#com.example.lottery.util.InvitationFlowUtil.STATUS_DECLINED">Constant Field Values</a></li>
+<li><a href="../../../../constant-values.html#com.example.lottery.util.InvitationFlowUtil.STATUS_CANCELLED">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="RESPONSE_NONE">
+<h3>RESPONSE_NONE</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">RESPONSE_NONE</span></div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../../../constant-values.html#com.example.lottery.util.InvitationFlowUtil.RESPONSE_NONE">Constant Field Values</a></li>
 </ul>
 </dd>
 </dl>
@@ -242,14 +280,28 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="RESPONSE_REJECTED">
-<h3>RESPONSE_REJECTED</h3>
-<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">RESPONSE_REJECTED</span></div>
+<section class="detail" id="RESPONSE_DECLINED">
+<h3>RESPONSE_DECLINED</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">RESPONSE_DECLINED</span></div>
 <dl class="notes">
 <dt>See Also:</dt>
 <dd>
 <ul class="tag-list">
-<li><a href="../../../../constant-values.html#com.example.lottery.util.InvitationFlowUtil.RESPONSE_REJECTED">Constant Field Values</a></li>
+<li><a href="../../../../constant-values.html#com.example.lottery.util.InvitationFlowUtil.RESPONSE_DECLINED">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="RESPONSE_DISMISSED">
+<h3>RESPONSE_DISMISSED</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">RESPONSE_DISMISSED</span></div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../../../constant-values.html#com.example.lottery.util.InvitationFlowUtil.RESPONSE_DISMISSED">Constant Field Values</a></li>
 </ul>
 </dd>
 </dl>
@@ -281,38 +333,71 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="normalizeEntrantStatus(java.lang.String)">
 <h3>normalizeEntrantStatus</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">normalizeEntrantStatus</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;rawStatus)</span></div>
-<div class="block">Normalizes entrant status values from Firestore into one canonical form.</div>
+<div class="block">Normalizes a raw entrant status string into its canonical form.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>rawStatus</code> - stored status value</dd>
+<dd><code>rawStatus</code> - The status string from Firestore or UI.</dd>
 <dt>Returns:</dt>
-<dd>canonical status, or empty string when the value is missing/unknown</dd>
+<dd>The canonical status string (e.g., "waitlisted", "invited").</dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="entrantStatusFromNotificationResponse(java.lang.String)">
-<h3>entrantStatusFromNotificationResponse</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">entrantStatusFromNotificationResponse</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;response)</span></div>
-<div class="block">Maps notification response values to the canonical entrant status.</div>
+<section class="detail" id="normalizeNotificationResponse(java.lang.String)">
+<h3>normalizeNotificationResponse</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">normalizeNotificationResponse</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;rawResponse)</span></div>
+<div class="block">Normalizes a raw notification response string into its canonical form.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>response</code> - notification response value</dd>
+<dd><code>rawResponse</code> - The response string from a notification dialog.</dd>
 <dt>Returns:</dt>
-<dd>canonical entrant status, or empty string when the response is unsupported</dd>
+<dd>The canonical response string (e.g., "accepted", "declined").</dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="buildHandledNotificationUpdate(java.lang.String)">
-<h3>buildHandledNotificationUpdate</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;</span>&nbsp;<span class="element-name">buildHandledNotificationUpdate</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;response)</span></div>
-<div class="block">Builds the Firestore payload used when syncing a handled win notification.</div>
+<section class="detail" id="buildInvitedEntrantUpdate()">
+<h3>buildInvitedEntrantUpdate</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;</span>&nbsp;<span class="element-name">buildInvitedEntrantUpdate</span>()</div>
+<div class="block">Builds a Firestore update payload for marking an entrant as invited.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>A map containing status and timestamp updates.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="buildEntrantStatusUpdateFromResponse(java.lang.String)">
+<h3>buildEntrantStatusUpdateFromResponse</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;</span>&nbsp;<span class="element-name">buildEntrantStatusUpdateFromResponse</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;response)</span></div>
+<div class="block">Builds a Firestore update payload for an entrant status based on a notification response.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>response</code> - handled response value</dd>
+<dd><code>response</code> - The user's response string.</dd>
 <dt>Returns:</dt>
-<dd>Firestore update payload</dd>
+<dd>A map containing status and timestamp updates.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="buildCancelledEntrantUpdate()">
+<h3>buildCancelledEntrantUpdate</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;</span>&nbsp;<span class="element-name">buildCancelledEntrantUpdate</span>()</div>
+<div class="block">Builds a Firestore update payload for cancelling an entrant's participation.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>A map containing status and timestamp updates.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="buildReadNotificationUpdate()">
+<h3>buildReadNotificationUpdate</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;</span>&nbsp;<span class="element-name">buildReadNotificationUpdate</span>()</div>
+<div class="block">Builds a Firestore update payload for marking a notification as read.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>A map with read status updated.</dd>
 </dl>
 </section>
 </li>
