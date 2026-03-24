@@ -113,7 +113,7 @@ public class AdminImageAdapter extends RecyclerView.Adapter<AdminImageAdapter.Im
         public void bind(final Event event, final OnImageClickListener listener) {
             tvEventTitle.setText(event.getTitle());
             tvEventDateTime.setText(event.getScheduledDateTime() != null
-                    ? dateFormat.format(event.getScheduledDateTime())
+                    ? dateFormat.format(event.getScheduledDateTime().toDate())
                     : "Date TBD");
 
             PosterImageLoader.load(ivThumbnail, event.getPosterUri(), R.drawable.event_placeholder);

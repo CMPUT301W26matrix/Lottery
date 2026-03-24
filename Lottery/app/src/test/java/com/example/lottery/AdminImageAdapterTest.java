@@ -13,6 +13,7 @@ import android.widget.TextView;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.example.lottery.model.Event;
+import com.google.firebase.Timestamp;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -43,7 +44,7 @@ public class AdminImageAdapterTest {
         event1.setEventId("event1");
         event1.setTitle("Concert Poster");
         event1.setPosterUri("https://example.com/poster1.jpg");
-        event1.setScheduledDateTime(new Date(System.currentTimeMillis() + 86400000));
+        event1.setScheduledDateTime(new Timestamp(new Date(System.currentTimeMillis() + 86400000)));
         imageList.add(event1);
 
         Event event2 = new Event();
