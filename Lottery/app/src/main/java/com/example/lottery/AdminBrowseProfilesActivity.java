@@ -16,14 +16,20 @@ import androidx.core.content.ContextCompat;
 
 import com.example.lottery.model.User;
 import com.example.lottery.util.FirestorePaths;
+import com.google.android.material.button.MaterialButton;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.WriteBatch;
+
+import androidx.annotation.VisibleForTesting;
 
 import java.util.ArrayList;
 
 /**
  * Allows administrators to browse all user profiles in the system.
+ * Supports filtering by role with three options All / Entrant / Organizer.
  * Includes a "one-shot" deletion mode for safety and UX consistency.
+ * When deleting an organizer, their associated events are also removed.
  */
 public class AdminBrowseProfilesActivity extends AppCompatActivity {
 
@@ -31,12 +37,26 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
     private TextView tvEmptyProfiles;
     private Button btnEnableDeletion;
 
-    private ArrayList<User> users;
+    private MaterialButton btnFilterAll;
+    private MaterialButton btnFilterEntrant;
+    private MaterialButton btnFilterOrganizer;
+
+    @VisibleForTesting
+    ArrayList<User> allUsers;
+    @VisibleForTesting
+    ArrayList<User> filteredUsers;
     private ProfileAdapter profileAdapter;
 
     private FirebaseFirestore db;
     private boolean isDeletionModeEnabled = false;
+    private String currentFilter = "ALL";
 
+    /**
+     * Initializes the activity, binds UI views, sets up filtering and deletion controls,
+     * and loads all user profiles from Firestore.
+     *
+     * @param savedInstanceState previously saved instance state, or null if none exists.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,14 +65,19 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
         lvProfiles = findViewById(R.id.lvProfiles);
         tvEmptyProfiles = findViewById(R.id.tvEmptyProfiles);
         btnEnableDeletion = findViewById(R.id.btnEnableDeleteProfile);
+        btnFilterAll = findViewById(R.id.btnFilterAll);
+        btnFilterEntrant = findViewById(R.id.btnFilterEntrant);
+        btnFilterOrganizer = findViewById(R.id.btnFilterOrganizer);
 
         db = FirebaseFirestore.getInstance();
 
-        users = new ArrayList<>();
-        profileAdapter = new ProfileAdapter(this, users);
+        allUsers = new ArrayList<>();
+        filteredUsers = new ArrayList<>();
+        profileAdapter = new ProfileAdapter(this, filteredUsers);
         lvProfiles.setAdapter(profileAdapter);
 
         setupNavigation();
+        setupFilterButtons();
 
         // Simple admin-only access check
         String role = getIntent().getStringExtra("role");
@@ -71,7 +96,7 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
                 return;
             }
 
-            User selectedUser = users.get(position);
+            User selectedUser = filteredUsers.get(position);
             showDeleteConfirmationDialog(selectedUser);
         });
 
@@ -79,18 +104,94 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
     }
 
     /**
+     * Configures the role filter buttons.
+     * Sets the default selection to "All" and attaches click listeners
+     * that update the current filter and refresh the displayed list.
+     */
+    private void setupFilterButtons() {
+        highlightFilterButton(btnFilterAll);
+        bindFilterButton(btnFilterAll, "ALL");
+        bindFilterButton(btnFilterEntrant, "ENTRANT");
+        bindFilterButton(btnFilterOrganizer, "ORGANIZER");
+    }
+
+    /**
+     * Binds a filter button so that clicking it sets the current filter and refreshes the list.
+     *
+     * @param button the MaterialButton to bind.
+     * @param filter the role filter value this button represents.
+     */
+    private void bindFilterButton(MaterialButton button, String filter) {
+        button.setOnClickListener(v -> {
+            currentFilter = filter;
+            highlightFilterButton(button);
+            applyFilter();
+        });
+    }
+
+    /**
+     * Updates filter button styles so the active button is highlighted in primary blue
+     * and all others are dimmed to gray.
+     *
+     * @param activeButton the button to highlight as the current selection.
+     */
+    private void highlightFilterButton(MaterialButton activeButton) {
+        int activeColor = ContextCompat.getColor(this, R.color.primary_blue);
+        int inactiveColor = ContextCompat.getColor(this, R.color.text_gray);
+
+        MaterialButton[] buttons = {btnFilterAll, btnFilterEntrant, btnFilterOrganizer};
+        for (MaterialButton btn : buttons) {
+            btn.setTextColor(inactiveColor);
+            btn.setStrokeColor(ColorStateList.valueOf(inactiveColor));
+        }
+        activeButton.setTextColor(activeColor);
+        activeButton.setStrokeColor(ColorStateList.valueOf(activeColor));
+    }
+
+    /**
+     * Filters the full user list by the current role filter and updates the ListView.
+     * Shows an empty-state message when no users match the selected filter.
+     */
+    private void applyFilter() {
+        filteredUsers.clear();
+
+        // Populate filteredUsers based on the selected role filter
+        if ("ALL".equals(currentFilter)) {
+            filteredUsers.addAll(allUsers);
+        } else {
+            for (User user : allUsers) {
+                if (currentFilter.equalsIgnoreCase(user.getRole())) {
+                    filteredUsers.add(user);
+                }
+            }
+        }
+
+        // Toggle empty-state message and list visibility
+        if (filteredUsers.isEmpty()) {
+            tvEmptyProfiles.setText(R.string.no_user_profiles_in_the_system);
+            tvEmptyProfiles.setVisibility(View.VISIBLE);
+            lvProfiles.setVisibility(View.GONE);
+        } else {
+            tvEmptyProfiles.setVisibility(View.GONE);
+            lvProfiles.setVisibility(View.VISIBLE);
+        }
+        profileAdapter.notifyDataSetChanged();
+    }
+
+    /**
      * Centralized method to update the deletion mode state and UI.
+     *
      * @param enabled true to enter delete mode, false to return to normal mode.
      */
     private void setDeleteMode(boolean enabled) {
         this.isDeletionModeEnabled = enabled;
         if (enabled) {
-            btnEnableDeletion.setText("Deletion Active");
+            btnEnableDeletion.setText(R.string.deletion_active);
             btnEnableDeletion.setBackgroundTintList(ColorStateList.valueOf(
                     ContextCompat.getColor(this, android.R.color.holo_red_dark)));
             Toast.makeText(this, "Click a profile to delete", Toast.LENGTH_SHORT).show();
         } else {
-            btnEnableDeletion.setText("Enable Deletion");
+            btnEnableDeletion.setText(R.string.enable_deletion);
             btnEnableDeletion.setBackgroundTintList(ColorStateList.valueOf(
                     ContextCompat.getColor(this, R.color.primary_blue)));
         }
@@ -168,7 +269,7 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
         db.collection(FirestorePaths.USERS)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    users.clear();
+                    allUsers.clear();
 
                     if (queryDocumentSnapshots.isEmpty()) {
                         tvEmptyProfiles.setText(R.string.no_user_profiles_in_the_system);
@@ -179,10 +280,10 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
 
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                         String userId = doc.getId();
-                        // Unified: use username instead of name
                         String username = doc.getString("username");
                         String email = doc.getString("email");
                         String phone = doc.getString("phone");
+                        String userRole = doc.getString("role");
 
                         if (username == null || username.isEmpty()) {
                             username = "Unknown User";
@@ -196,12 +297,12 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
                             phone = "";
                         }
 
-                        users.add(new User(userId, username, email, phone));
+                        User user = new User(userId, username, email, phone);
+                        user.setRole(userRole);
+                        allUsers.add(user);
                     }
 
-                    tvEmptyProfiles.setVisibility(View.GONE);
-                    lvProfiles.setVisibility(View.VISIBLE);
-                    profileAdapter.notifyDataSetChanged();
+                    applyFilter();
                 })
                 .addOnFailureListener(e -> {
                     tvEmptyProfiles.setText(R.string.failed_to_load_profiles);
@@ -213,13 +314,22 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
 
     /**
      * Show AlertDialog with user's name and ask for confirmation.
+     * If the user is an organizer, warn that their events will also be deleted.
      *
-     * @param selectedUser user be clicked in ListView
+     * @param selectedUser the user selected for deletion in the ListView.
      */
     private void showDeleteConfirmationDialog(User selectedUser) {
+        String message;
+        if (selectedUser.isOrganizer()) {
+            message = "Delete organizer \"" + selectedUser.getUsername()
+                    + "\"? All events created by this organizer will also be deleted.";
+        } else {
+            message = "Delete profile for " + selectedUser.getUsername() + "?";
+        }
+
         new AlertDialog.Builder(this)
                 .setTitle("Delete Profile")
-                .setMessage("Delete profile for " + selectedUser.getUsername() + "?")
+                .setMessage(message)
                 .setPositiveButton("Confirm", (dialog, which) -> {
                     deleteProfile(selectedUser);
                     setDeleteMode(false);
@@ -229,17 +339,62 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
     }
 
     /**
-     * Delete profile from firebase with query of UserId
+     * Delete profile from firebase. If the user is an organizer, also delete their events first.
      *
-     * @param selectedUser user be clicked in ListView
+     * @param selectedUser the user whose profile should be deleted.
      */
     private void deleteProfile(User selectedUser) {
+        if (selectedUser.isOrganizer()) {
+            deleteOrganizerAndEvents(selectedUser);
+        } else {
+            deleteUserDocument(selectedUser);
+        }
+    }
+
+    /**
+     * Deletes all events created by the given organizer, then deletes the organizer's profile.
+     *
+     * @param organizer the organizer whose events and profile should be removed.
+     */
+    private void deleteOrganizerAndEvents(User organizer) {
+        // Query all events owned by this organizer and delete them
+        db.collection(FirestorePaths.EVENTS)
+                .whereEqualTo("organizerId", organizer.getUserId())
+                .get()
+                .addOnSuccessListener(snapshots -> {
+                    if (snapshots.isEmpty()) {
+                        deleteUserDocument(organizer);
+                        return;
+                    }
+
+                    WriteBatch batch = db.batch();
+                    for (QueryDocumentSnapshot doc : snapshots) {
+                        batch.delete(doc.getReference());
+                    }
+                    batch.commit()
+                            .addOnSuccessListener(unused -> deleteUserDocument(organizer))
+                            .addOnFailureListener(e ->
+                                    Toast.makeText(this, "Failed to delete organizer's events",
+                                            Toast.LENGTH_SHORT).show());
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Failed to delete organizer's events",
+                                Toast.LENGTH_SHORT).show());
+    }
+
+    /**
+     * Deletes the user document from Firestore and reloads the profile list on success.
+     *
+     * @param selectedUser the user whose document should be deleted.
+     */
+    private void deleteUserDocument(User selectedUser) {
         db.collection(FirestorePaths.USERS)
                 .document(selectedUser.getUserId())
                 .delete()
                 .addOnSuccessListener(unused -> {
                     Toast.makeText(this, "Profile deleted", Toast.LENGTH_SHORT).show();
-                    loadProfiles();
+                    allUsers.remove(selectedUser);
+                    applyFilter();
                 })
                 .addOnFailureListener(e ->
                         Toast.makeText(this, "Failed to delete profile", Toast.LENGTH_SHORT).show());
