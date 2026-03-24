@@ -4,10 +4,6 @@
     <string name="i_m_an_entrant">I\'m an Entrant</string>
     <string name="i_m_an_organizer">I\'m an Organizer</string>
     <string name="i_m_an_admin">I\'m an Admin</string>
-    <string name="name">Name</string>
-    <string name="email">Email</string>
-    <string name="phone_number_optional">Phone Number (Optional)</string>
-    <string name="continue_text">Continue</string>
     <string name="admin_code">Admin Code</string>
     <string name="error_admin_code_required">Admin code is required</string>
     <string name="error_incorrect_admin_code">Admin code is incorrect</string>
@@ -15,12 +11,6 @@
     <string name="error_admin_code_not_configured">Admin code is not configured</string>
     <string name="error_admin_code_inactive">Admin code is inactive</string>
     <string name="admin_sign_in_title">Admin Sign In</string>
-    <string name="error_prefix">Error: %1$s</string>
-    <string name="error_failed_to_save_profile">Failed to save profile: %1$s</string>
-    <string name="error_user_role_not_found">User role not found</string>
-    <string name="error_user_profile_not_found">User profile not found</string>
-    <string name="error_failed_to_get_user_data">Failed to get user data</string>
-    <string name="back_button_description">Back</string>
 
     <string name="create">Create</string>
     <string name="create_new_event">Create New Event</string>
@@ -103,7 +93,6 @@
     <string name="admin_nav_profiles">Profiles</string>
     <string name="admin_nav_images">Images</string>
     <string name="admin_nav_logs">Logs</string>
-    <string name="admin_images_coming_soon">Browse images coming soon</string>
     <string name="admin_image_browser_title">Browse Images</string>
     <string name="admin_image_browser_subtitle">All event poster images</string>
     <string name="admin_no_images">No images found</string>
@@ -111,48 +100,31 @@
     <string name="admin_already_viewing_images">Already viewing images</string>
     <string name="admin_organizer_label">Organizer: %1$s</string>
     <string name="admin_unknown_organizer">Unknown Organizer</string>
-    <string name="failed_to_load_image_details">Failed to load image details</string>
     <string name="admin_logs_coming_soon">Notification logs coming soon</string>
     <string name="back">Back</string>
     <string name="unlimited">Unlimited</string>
 
     <!-- Profile Screen Strings -->
-    <string name="profile_name">Taocheng Wang</string>
-    <string name="profile_email">taocheng@ualberta.ca</string>
-    <string name="role_organizer">Organizer</string>
-    <string name="section_account">ACCOUNT</string>
-    <string name="menu_edit_profile">Edit Profile</string>
-    <string name="menu_notification_settings">Notification Settings</string>
-    <string name="btn_log_out">Log Out</string>
 
     <!-- EntrantEventDetailsActivity -->
     <string name="missing_event_or_user_info">Missing event or user information</string>
-    <string name="registration_period_range">Registration Period: %1$s to %2$s</string>
-    <string name="registration_closes_with_draw">Registration closes: %1$s | Draw date: %2$s</string>
-    <string name="registration_closes">Registration closes: %1$s</string>
-    <string name="event_ends">Event ends: %1$s</string>
-    <string name="registration_details_unavailable">Registration details unavailable</string>
     <string name="people_in_waitlist">People in Waitlist: %1$d</string>
     <string name="leave_wait_list">Leave Wait List</string>
     <string name="join_wait_list">Join Wait List</string>
     <string name="joined_waitlist">Joined waitlist</string>
     <string name="left_waitlist">Left waitlist</string>
-    <string name="event_description_unavailable">No event description available.</string>
 
     <!-- NotificationsActivity -->
     <string name="notifications_title">Notifications</string>
     <string name="no_notifications_yet">No notifications yet</string>
     <string name="missing_user_info">Missing user information</string>
     <string name="failed_to_update_status">Failed to update status</string>
-    <string name="failed_to_update_notification">Failed to update notification</string>
     <string name="failed_to_load_notifications">Failed to load notifications</string>
     <string name="accept_invite">Accept Invite</string>
     <string name="reject">Reject</string>
     <string name="close">Close</string>
-    <string name="notification_response">Response: %1$s</string>
     <string name="notification_new_badge">NEW</string>
     <string name="entrant_details_header">Entrant Details</string>
-    <string name="registration_time">Registration Time</string>
 
     <!-- Entrant Main Screen Strings -->
     <string name="your_wait_listed_events">Your Wait-Listed Events</string>
@@ -187,6 +159,10 @@
     <!-- Registration period ended strings -->
     <string name="registration_period_ended">Registration Period Over</string>
     <string name="cannot_join_event_lottery_drawn">You can no longer join this event as the lottery has already been drawn.</string>
-    <string name="entrant_counts">Entrant Counts</string>
     <string name="delete_image">Delete Image</string>
+    <string name="deletion_active">Deletion Active</string>
+    <string name="enable_deletion">Enable Deletion</string>
+    <string name="all">All</string>
+    <string name="entrant">Entrant</string>
+    <string name="organizer">Organizer</string>
 </resources>
