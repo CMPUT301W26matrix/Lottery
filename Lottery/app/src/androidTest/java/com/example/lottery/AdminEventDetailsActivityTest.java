@@ -47,7 +47,7 @@ public class AdminEventDetailsActivityTest {
         try (ActivityScenario<AdminEventDetailsActivity> ignored = ActivityScenario.launch(intent)) {
             onView(withId(R.id.btnDeleteEvent)).perform(scrollTo(), click());
             onView(withText("Confirm Deletion")).check(matches(isDisplayed()));
-            onView(withText("Do you confirm the deletion of this event?")).check(matches(isDisplayed()));
+            onView(withText("Do you want to delete this event?")).check(matches(isDisplayed()));
             onView(withText("Delete")).check(matches(isDisplayed()));
             onView(withText("Cancel")).check(matches(isDisplayed()));
         }
@@ -64,7 +64,7 @@ public class AdminEventDetailsActivityTest {
             onView(withText("Cancel")).perform(click());
 
             onView(withText("Confirm Deletion")).check(doesNotExist());
-            onView(withText("Do you confirm the deletion of this event?")).check(doesNotExist());
+            onView(withText("Do you want to delete this event?")).check(doesNotExist());
             onView(withId(R.id.btnDeleteEvent)).perform(scrollTo()).check(matches(isDisplayed()));
         }
     }

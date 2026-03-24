@@ -46,8 +46,8 @@ public class AdminImageDetailsActivityTest {
     @Test
     public void testDeleteButtonIsDisplayed() {
         try (ActivityScenario<AdminImageDetailsActivity> ignored = launchWithEventId()) {
-            onView(withId(R.id.btnDeleteEvent)).check(matches(isDisplayed()));
-            onView(withId(R.id.btnDeleteEvent)).check(matches(withText("Delete Event")));
+            onView(withId(R.id.btnDeleteImage)).check(matches(isDisplayed()));
+            onView(withId(R.id.btnDeleteImage)).check(matches(withText("Delete Image")));
         }
     }
 

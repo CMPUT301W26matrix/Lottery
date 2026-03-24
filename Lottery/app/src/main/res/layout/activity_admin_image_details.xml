@@ -36,13 +36,13 @@
                     android:textStyle="bold" />
 
                 <Button
-                    android:id="@+id/btnDeleteEvent"
+                    android:id="@+id/btnDeleteImage"
                     android:layout_width="wrap_content"
                     android:layout_height="40dp"
                     android:backgroundTint="@color/primary_blue"
                     android:minHeight="40dp"
                     android:paddingHorizontal="16dp"
-                    android:text="Delete Event"
+                    android:text="@string/delete_image"
                     android:textAllCaps="false" />
             </LinearLayout>
 

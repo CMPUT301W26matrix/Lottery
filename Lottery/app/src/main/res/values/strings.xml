@@ -213,4 +213,5 @@
     <!-- Registration period ended strings -->
     <string name="registration_period_ended">Registration Period Over</string>
     <string name="cannot_join_event_lottery_drawn">You can no longer join this event as the lottery has already been drawn.</string>
+    <string name="delete_image">Delete Image</string>
 </resources>
