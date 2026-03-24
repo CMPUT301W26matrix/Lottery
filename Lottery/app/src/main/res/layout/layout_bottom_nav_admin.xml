@@ -78,12 +78,14 @@
                 android:orientation="vertical">
 
                 <ImageView
+                    android:id="@+id/nav_images_icon"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@android:drawable/ic_menu_gallery"
                     app:tint="@color/text_gray" />
 
                 <TextView
+                    android:id="@+id/nav_images_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/admin_nav_images"

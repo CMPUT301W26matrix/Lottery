@@ -119,7 +119,15 @@
         <activity
             android:name=".OrganizerProfileActivity"
             android:exported="false" />
-
+        <activity
+            android:name=".AdminBrowseImagesActivity"
+            android:exported="false"
+            android:label="@string/admin_image_browser_title" />
+        <activity
+            android:name=".AdminImageDetailsActivity"
+            android:exported="false"
+            android:label="@string/admin_image_preview_title"
+            android:parentActivityName=".AdminBrowseImagesActivity" />
 
     </application>
 

@@ -129,6 +129,14 @@
     <string name="admin_nav_images">Images</string>
     <string name="admin_nav_logs">Logs</string>
     <string name="admin_images_coming_soon">Browse images coming soon</string>
+    <string name="admin_image_browser_title">Browse Images</string>
+    <string name="admin_image_browser_subtitle">All event poster images</string>
+    <string name="admin_no_images">No images found</string>
+    <string name="admin_image_preview_title">Image Preview</string>
+    <string name="admin_already_viewing_images">Already viewing images</string>
+    <string name="admin_organizer_label">Organizer: %1$s</string>
+    <string name="admin_unknown_organizer">Unknown Organizer</string>
+    <string name="failed_to_load_image_details">Failed to load image details</string>
     <string name="admin_logs_coming_soon">Notification logs coming soon</string>
     <string name="back">Back</string>
     <string name="unlimited">Unlimited</string>

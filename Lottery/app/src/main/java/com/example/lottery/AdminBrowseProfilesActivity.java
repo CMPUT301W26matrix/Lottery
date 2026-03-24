@@ -104,8 +104,11 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
 
         View btnImages = findViewById(R.id.nav_images);
         if (btnImages != null) {
-            btnImages.setOnClickListener(v ->
-                    Toast.makeText(this, R.string.admin_images_coming_soon, Toast.LENGTH_SHORT).show());
+            btnImages.setOnClickListener(v -> {
+                Intent intent = new Intent(this, AdminBrowseImagesActivity.class);
+                startActivity(intent);
+                finish();
+            });
         }
 
         View btnLogs = findViewById(R.id.nav_logs);
