@@ -11,27 +11,41 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.lottery.util.FirestorePaths;
+import com.example.lottery.util.FirestorePaths;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.switchmaterial.SwitchMaterial;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * EntrantProfileActivity displays and manages the personal profile of an entrant user.
- * Unified to handle both profile viewing and mandatory profile completion.
+ * US 01.02.04: Implements profile deletion and session management.
+ * US 01.04.03: Implements notification opt-out settings.
  */
 public class EntrantProfileActivity extends AppCompatActivity {
 
-    private TextView tvName, tvEmail, tvPhone, tvNotificationBadge;
+    private TextView tvName, tvEmail, tvPhone, tvNotificationBadge, tvActionsHeader;
     private EditText etName, etEmail, etPhone;
-    private Button btnLogout, btnEditSave, btnCancel;
+    private Button btnLogout, btnEditSave, btnCancel, btnDeleteProfile, btnLotteryGuidelines;
+    private View dividerDelete, dividerCancel, dividerGuidelines, bottomNav;
     private LinearLayout displayLayout, editLayout;
+    private ChipGroup cgInterests;
+    private Chip chipAcademic, chipSocial, chipSports, chipMusic;
+    private SwitchMaterial swNotifications;
     private FirebaseFirestore db;
     private String userId;
     private boolean isEditing = false;
@@ -50,13 +64,13 @@ public class EntrantProfileActivity extends AppCompatActivity {
         });
 
         db = FirebaseFirestore.getInstance();
-        
+
         SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
         userId = getIntent().getStringExtra("userId");
         if (userId == null) {
             userId = prefs.getString("userId", null);
         }
-        
+
         forceEdit = getIntent().getBooleanExtra("forceEdit", false);
 
         initializeViews();
@@ -64,9 +78,25 @@ public class EntrantProfileActivity extends AppCompatActivity {
         setupNavigation();
         checkUnreadNotifications();
 
+        // Handle back button
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (forceEdit) {
+                    Toast.makeText(EntrantProfileActivity.this, "Please complete your profile to continue", Toast.LENGTH_SHORT).show();
+                } else if (isEditing) {
+                    exitEditMode();
+                } else {
+                    setEnabled(false);
+                    getOnBackPressedDispatcher().onBackPressed();
+                }
+            }
+        });
+
         if (forceEdit) {
             enterEditMode();
-            Toast.makeText(this, "Please complete your profile to continue", Toast.LENGTH_LONG).show();
+        } else {
+            exitEditMode();
         }
 
         btnEditSave.setOnClickListener(v -> {
@@ -78,9 +108,7 @@ public class EntrantProfileActivity extends AppCompatActivity {
         });
 
         btnCancel.setOnClickListener(v -> {
-            if (forceEdit) {
-                Toast.makeText(this, "Profile completion is required", Toast.LENGTH_SHORT).show();
-            } else {
+            if (!forceEdit) {
                 exitEditMode();
             }
         });
@@ -92,6 +120,13 @@ public class EntrantProfileActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         });
+
+        btnDeleteProfile.setOnClickListener(v -> showDeleteConfirmationDialog());
+
+        btnLotteryGuidelines.setOnClickListener(v -> {
+            Intent intent = new Intent(this, EntrantLotteryGuidelinesActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void initializeViews() {
@@ -99,16 +134,39 @@ public class EntrantProfileActivity extends AppCompatActivity {
         tvEmail = findViewById(R.id.tv_profile_email);
         tvPhone = findViewById(R.id.tv_profile_phone);
         tvNotificationBadge = findViewById(R.id.tvNotificationBadge);
-        
-        etName = findViewById(R.id.et_edit_name); 
+        tvActionsHeader = findViewById(R.id.tv_actions_header);
+
+        etName = findViewById(R.id.et_edit_name);
         etEmail = findViewById(R.id.et_edit_email);
         etPhone = findViewById(R.id.et_edit_phone);
 
         btnLogout = findViewById(R.id.btn_log_out);
-        btnEditSave = findViewById(R.id.btn_edit_save); 
+        btnEditSave = findViewById(R.id.btn_edit_save);
         btnCancel = findViewById(R.id.btn_cancel_edit);
+        btnDeleteProfile = findViewById(R.id.btn_delete_profile);
+        btnLotteryGuidelines = findViewById(R.id.btn_lottery_guidelines);
+
+        dividerDelete = findViewById(R.id.divider_delete);
+        dividerCancel = findViewById(R.id.divider_cancel);
+        dividerGuidelines = findViewById(R.id.divider_guidelines);
+        bottomNav = findViewById(R.id.bottom_nav_container);
+
         displayLayout = findViewById(R.id.layout_profile_display);
         editLayout = findViewById(R.id.layout_profile_edit);
+
+        cgInterests = findViewById(R.id.cg_edit_interests);
+        chipAcademic = findViewById(R.id.chip_interest_academic);
+        chipSocial = findViewById(R.id.chip_interest_social);
+        chipSports = findViewById(R.id.chip_interest_sports);
+        chipMusic = findViewById(R.id.chip_interest_music);
+
+        swNotifications = findViewById(R.id.sw_notifications);
+        swNotifications.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (userId != null) {
+                db.collection(FirestorePaths.USERS).document(userId)
+                        .update("notificationsEnabled", isChecked);
+            }
+        });
     }
 
     private void loadUserProfile() {
@@ -116,14 +174,14 @@ public class EntrantProfileActivity extends AppCompatActivity {
 
         db.collection(FirestorePaths.USERS).document(userId).get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
-                // Fixed: unified field name to username
                 String username = documentSnapshot.getString("username");
                 String email = documentSnapshot.getString("email");
                 String phone = documentSnapshot.getString("phone");
+                Boolean notificationsEnabled = documentSnapshot.getBoolean("notificationsEnabled");
 
                 tvName.setText(username != null && !username.isEmpty() ? username : "Unknown");
                 tvEmail.setText(email != null && !email.isEmpty() ? email : "No Email");
-                
+
                 if (phone != null && !phone.isEmpty()) {
                     tvPhone.setText(phone);
                     tvPhone.setVisibility(View.VISIBLE);
@@ -134,11 +192,24 @@ public class EntrantProfileActivity extends AppCompatActivity {
                 etName.setText(username != null ? username : "");
                 etEmail.setText(email != null ? email : "");
                 etPhone.setText(phone != null ? phone : "");
-                
-                // If we were forced to edit but data is now present, we can exit edit mode
+
                 if (forceEdit && username != null && !username.isEmpty() && email != null && !email.isEmpty()) {
                     forceEdit = false;
                     exitEditMode();
+                }
+
+                List<String> interests = (List<String>) documentSnapshot.get("interests");
+                if (interests != null) {
+                    chipAcademic.setChecked(interests.contains("Academic"));
+                    chipSocial.setChecked(interests.contains("Social"));
+                    chipSports.setChecked(interests.contains("Sports"));
+                    chipMusic.setChecked(interests.contains("Music"));
+                }
+
+                if (notificationsEnabled != null) {
+                    swNotifications.setChecked(notificationsEnabled);
+                } else {
+                    swNotifications.setChecked(true); // Default to true
                 }
             }
         });
@@ -146,18 +217,46 @@ public class EntrantProfileActivity extends AppCompatActivity {
 
     private void enterEditMode() {
         isEditing = true;
-        if (displayLayout != null) displayLayout.setVisibility(View.GONE);
-        if (editLayout != null) editLayout.setVisibility(View.VISIBLE);
-        if (btnEditSave != null) btnEditSave.setText("Save");
-        if (btnCancel != null) btnCancel.setVisibility(View.VISIBLE);
+        displayLayout.setVisibility(View.GONE);
+        editLayout.setVisibility(View.VISIBLE);
+        btnEditSave.setText(forceEdit ? "Complete Profile" : "Save Changes");
+
+        // Hide options when editing
+        btnDeleteProfile.setVisibility(View.GONE);
+        dividerDelete.setVisibility(View.GONE);
+        btnLotteryGuidelines.setVisibility(View.GONE);
+        dividerGuidelines.setVisibility(View.GONE);
+
+        if (forceEdit) {
+            btnCancel.setVisibility(View.GONE);
+            dividerCancel.setVisibility(View.GONE);
+            btnLogout.setVisibility(View.GONE);
+            bottomNav.setVisibility(View.GONE);
+            tvActionsHeader.setVisibility(View.GONE);
+        } else {
+            btnCancel.setVisibility(View.VISIBLE);
+            dividerCancel.setVisibility(View.VISIBLE);
+            btnLogout.setVisibility(View.VISIBLE);
+            bottomNav.setVisibility(View.VISIBLE);
+            tvActionsHeader.setVisibility(View.VISIBLE);
+        }
     }
 
     private void exitEditMode() {
         isEditing = false;
-        if (displayLayout != null) displayLayout.setVisibility(View.VISIBLE);
-        if (editLayout != null) editLayout.setVisibility(View.GONE);
-        if (btnEditSave != null) btnEditSave.setText("Edit Profile");
-        if (btnCancel != null) btnCancel.setVisibility(View.GONE);
+        displayLayout.setVisibility(View.VISIBLE);
+        editLayout.setVisibility(View.GONE);
+        btnEditSave.setText("Edit Profile");
+
+        btnCancel.setVisibility(View.GONE);
+        dividerCancel.setVisibility(View.GONE);
+        btnDeleteProfile.setVisibility(View.VISIBLE);
+        dividerDelete.setVisibility(View.VISIBLE);
+        btnLotteryGuidelines.setVisibility(View.VISIBLE);
+        dividerGuidelines.setVisibility(View.VISIBLE);
+        btnLogout.setVisibility(View.VISIBLE);
+        bottomNav.setVisibility(View.VISIBLE);
+        tvActionsHeader.setVisibility(View.VISIBLE);
     }
 
     private void saveProfile() {
@@ -170,16 +269,26 @@ public class EntrantProfileActivity extends AppCompatActivity {
             return;
         }
 
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            Toast.makeText(this, "Please enter a valid email address", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        List<String> selectedInterests = new ArrayList<>();
+        if (chipAcademic.isChecked()) selectedInterests.add("Academic");
+        if (chipSocial.isChecked()) selectedInterests.add("Social");
+        if (chipSports.isChecked()) selectedInterests.add("Sports");
+        if (chipMusic.isChecked()) selectedInterests.add("Music");
+
         Map<String, Object> updates = new HashMap<>();
-        updates.put("username", username); // Fixed: unified field name to username
+        updates.put("username", username);
         updates.put("email", email);
-        updates.put("phone", phone); // Optional
+        updates.put("phone", phone);
+        updates.put("interests", selectedInterests);
 
         db.collection(FirestorePaths.USERS).document(userId).update(updates)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(this, "Profile updated", Toast.LENGTH_SHORT).show();
-                    
-                    // Update local prefs
                     SharedPreferences.Editor editor = getSharedPreferences("AppPrefs", MODE_PRIVATE).edit();
                     editor.putString("userName", username);
                     editor.apply();
@@ -195,6 +304,37 @@ public class EntrantProfileActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> Toast.makeText(this, "Update failed", Toast.LENGTH_SHORT).show());
     }
 
+    private void showDeleteConfirmationDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Delete Profile")
+                .setMessage("Warning: This action is permanent. All your profile data will be deleted and you will be logged out.")
+                .setPositiveButton("Delete Forever", (dialog, which) -> deleteUserProfile())
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
+    }
+
+    private void deleteUserProfile() {
+        if (userId == null) return;
+
+        db.collection(FirestorePaths.USERS).document(userId).delete()
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(this, "Profile deleted successfully", Toast.LENGTH_SHORT).show();
+                    logout();
+                })
+                .addOnFailureListener(e -> Toast.makeText(this, "Failed to delete profile: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+    }
+
+    private void logout() {
+        FirebaseAuth.getInstance().signOut();
+        SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
+        prefs.edit().clear().apply();
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+
     private void navigateToMain() {
         Intent intent = new Intent(this, EntrantMainActivity.class);
         intent.putExtra("userId", userId);
@@ -207,22 +347,16 @@ public class EntrantProfileActivity extends AppCompatActivity {
         View navHome = findViewById(R.id.nav_home);
         if (navHome != null) {
             navHome.setOnClickListener(v -> {
-                if (forceEdit) {
-                    Toast.makeText(this, "Please complete your profile first", Toast.LENGTH_SHORT).show();
-                } else {
-                    navigateToMain();
-                }
+                if (!forceEdit) navigateToMain();
             });
         }
-        
+
         View navHistory = findViewById(R.id.nav_history);
         if (navHistory != null) {
             navHistory.setOnClickListener(v -> {
-                if (forceEdit) {
-                    Toast.makeText(this, "Please complete your profile first", Toast.LENGTH_SHORT).show();
-                } else {
-                    Intent intent = new Intent(this, NotificationsActivity.class);
-                    intent.putExtra(NotificationsActivity.EXTRA_USER_ID, userId);
+                if (!forceEdit) {
+                    Intent intent = new Intent(this, EntrantEventHistoryActivity.class);
+                    intent.putExtra("userId", userId);
                     startActivity(intent);
                     finish();
                 }
@@ -232,21 +366,12 @@ public class EntrantProfileActivity extends AppCompatActivity {
         View navQrScan = findViewById(R.id.nav_qr_scan);
         if (navQrScan != null) {
             navQrScan.setOnClickListener(v -> {
-                if (forceEdit) {
-                    Toast.makeText(this, "Please complete your profile first", Toast.LENGTH_SHORT).show();
-                } else {
+                if (!forceEdit) {
                     Intent intent = new Intent(this, EntrantQrScanActivity.class);
                     intent.putExtra("userId", userId);
                     startActivity(intent);
                     finish();
                 }
-            });
-        }
-
-        View navProfile = findViewById(R.id.nav_profile);
-        if (navProfile != null) {
-            navProfile.setOnClickListener(v -> {
-                // Already here
             });
         }
     }
@@ -255,14 +380,5 @@ public class EntrantProfileActivity extends AppCompatActivity {
         if (userId == null || tvNotificationBadge == null) return;
         db.collection(FirestorePaths.userInbox(userId)).whereEqualTo("isRead", false).get()
                 .addOnSuccessListener(querySnapshot -> tvNotificationBadge.setVisibility(querySnapshot.isEmpty() ? View.GONE : View.VISIBLE));
-    }
-    
-    @Override
-    public void onBackPressed() {
-        if (forceEdit) {
-            Toast.makeText(this, "Please complete your profile to continue", Toast.LENGTH_SHORT).show();
-        } else {
-            super.onBackPressed();
-        }
     }
 }

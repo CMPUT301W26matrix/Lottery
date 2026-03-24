@@ -35,15 +35,34 @@
                     android:textSize="24sp"
                     android:textStyle="bold" />
 
-                <Button
-                    android:id="@+id/btnEditEvent"
-                    android:layout_width="wrap_content"
+                <ImageButton
+                    android:id="@+id/btnComments"
+                    android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:backgroundTint="@color/primary_blue"
-                    android:minHeight="40dp"
-                    android:paddingHorizontal="16dp"
-                    android:text="@string/edit_event"
-                    android:textAllCaps="false" />
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Comments"
+                    android:src="@drawable/ic_comment"
+                    app:tint="@color/primary_blue" />
+
+                <ImageButton
+                    android:id="@+id/btnCoOrganizers"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="8dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Manage Co-Organizers"
+                    android:src="@drawable/ic_group"
+                    app:tint="@color/primary_blue" />
+
+                <ImageButton
+                    android:id="@+id/btnEditEvent"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="8dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Edit Event"
+                    android:src="@drawable/ic_edit_note"
+                    app:tint="@color/primary_blue" />
             </LinearLayout>
 
             <com.google.android.material.card.MaterialCardView
@@ -76,23 +95,64 @@
                 android:textSize="22sp"
                 android:textStyle="bold" />
 
-            <!-- Geolocation Requirement Display (Merged with Upstream Chip Design) -->
-            <com.google.android.material.chip.Chip
-                android:id="@+id/tvLocationRequirement"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:clickable="false"
-                android:focusable="false"
-                android:text="@string/location_verification_required"
-                android:textColor="@color/primary_blue"
-                android:textSize="12sp"
-                android:visibility="gone"
-                app:checkedIconVisible="false"
-                app:chipBackgroundColor="@color/primary_light_blue"
-                app:chipIconVisible="false"
-                app:chipStrokeColor="@color/primary_blue"
-                app:chipStrokeWidth="1dp" />
+                android:orientation="horizontal">
+
+                <!-- Category Chip -->
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipCategory"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:text="Other"
+                    android:textColor="@color/primary_blue"
+                    android:textSize="12sp"
+                    app:checkedIconVisible="false"
+                    app:chipBackgroundColor="@color/white"
+                    app:chipIconVisible="false"
+                    app:chipStrokeColor="@color/primary_blue"
+                    app:chipStrokeWidth="1dp" />
+
+                <!-- Geolocation Requirement Chip -->
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/tvLocationRequirement"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:text="@string/location_verification_required"
+                    android:textColor="@color/primary_blue"
+                    android:textSize="12sp"
+                    android:visibility="gone"
+                    app:checkedIconVisible="false"
+                    app:chipBackgroundColor="@color/primary_light_blue"
+                    app:chipIconVisible="false"
+                    app:chipStrokeColor="@color/primary_blue"
+                    app:chipStrokeWidth="1dp" />
+
+                <!-- Private Event Chip -->
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipPrivate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:text="Private Event"
+                    android:textColor="@color/error_red"
+                    android:textSize="12sp"
+                    android:visibility="gone"
+                    app:checkedIconVisible="false"
+                    app:chipBackgroundColor="#FFEAEA"
+                    app:chipIconVisible="false"
+                    app:chipStrokeColor="@color/error_red"
+                    app:chipStrokeWidth="1dp" />
+            </LinearLayout>
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cvInfoCard"
@@ -287,18 +347,40 @@
                 android:gravity="center"
                 android:text="Waitlisted: 0 | Invited: 0 | Accepted: 0 | Cancelled: 0" />
 
-            <Button
-                android:id="@+id/btnViewWaitingList"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
                 android:layout_marginTop="16dp"
-                android:layout_marginBottom="24dp"
-                android:backgroundTint="@color/primary_blue"
-                android:text="View Waiting List"
-                android:textAllCaps="false"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:cornerRadius="12dp" />
+                android:layout_marginBottom="24dp">
+
+                <Button
+                    android:id="@+id/btnViewWaitingList"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:backgroundTint="@color/primary_blue"
+                    android:text="Waiting List"
+                    android:textAllCaps="false"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    app:cornerRadius="12dp" />
+
+                <Button
+                    android:id="@+id/btnInviteEntrant"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:backgroundTint="@color/accent_blue"
+                    android:text="Invite Entrant"
+                    android:textAllCaps="false"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:visibility="gone"
+                    app:cornerRadius="12dp" />
+            </LinearLayout>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

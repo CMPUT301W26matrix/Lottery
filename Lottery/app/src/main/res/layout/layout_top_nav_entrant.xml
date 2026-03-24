@@ -5,93 +5,66 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <!-- Search Bar -->
-    <com.google.android.material.search.SearchBar
-        android:id="@+id/top_search_bar"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
+    <!-- Search Section (Icon + Label) -->
+    <LinearLayout
+        android:id="@+id/llSearchToggle"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="8dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="Search..." />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <!-- Navigation Bar Card -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/top_bar_bg"
-        android:layout_width="match_parent"
+        <ImageView
+            android:id="@+id/ivSearchIcon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@android:drawable/ic_menu_search"
+            app:tint="@color/primary_blue" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="Search"
+            android:textColor="@color/primary_blue"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Notification Icon with Badge -->
+    <FrameLayout
+        android:id="@+id/ivNotificationIcon"
+        android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_marginTop="8dp"
-        app:cardBackgroundColor="@color/page_background"
-        app:cardCornerRadius="0dp"
-        app:cardElevation="4dp"
-        app:layout_constraintEnd_toEndOf="@id/top_search_bar"
-        app:layout_constraintStart_toStartOf="@id/top_search_bar"
-        app:layout_constraintTop_toBottomOf="@id/top_search_bar"
-        app:strokeWidth="0dp">
+        android:layout_marginEnd="16dp"
+        app:layout_constraintBottom_toBottomOf="@id/llSearchToggle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/llSearchToggle">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:baselineAligned="false"
-            android:orientation="horizontal"
-            android:weightSum="3">
+        <ImageView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_gravity="center"
+            android:src="@android:drawable/ic_popup_reminder"
+            app:tint="@color/primary_blue" />
 
-            <!-- Wait-Listed Tab -->
-            <LinearLayout
-                android:id="@+id/nav_wait_listed"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Wait-Listed"
-                    android:textColor="@color/primary_blue"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <!-- Invited Tab -->
-            <LinearLayout
-                android:id="@+id/nav_invited"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Invited"
-                    android:textColor="@color/text_gray"
-                    android:textSize="12sp" />
-            </LinearLayout>
-
-            <!-- Signed-Up Tab -->
-            <LinearLayout
-                android:id="@+id/nav_signed_up"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Signed-Up"
-                    android:textColor="@color/text_gray"
-                    android:textSize="12sp" />
-            </LinearLayout>
-
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+        <TextView
+            android:id="@+id/tvNotificationBadge"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_gravity="top|end"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/bg_notification_badge"
+            android:visibility="gone" />
+    </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

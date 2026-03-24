@@ -43,6 +43,8 @@ public class NotificationFragment extends DialogFragment {
         super.onAttach(context);
         if (context instanceof NotificationListener) {
             listener = (NotificationListener) context;
+        } else if (getParentFragment() instanceof NotificationListener) {
+            listener = (NotificationListener) getParentFragment();
         } else {
             // Check if fragment is attached to a parent fragment that implements the listener
             if (getParentFragment() instanceof NotificationListener) {
@@ -64,7 +66,7 @@ public class NotificationFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         View view = getLayoutInflater().inflate(R.layout.notification_fragment, null);
-        EditText input = view.findViewById(R.id.input_sampling_size);
+        EditText input = view.findViewById(R.id.etNotificationContent);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         return builder

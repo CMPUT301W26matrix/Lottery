@@ -176,8 +176,8 @@ public class EntrantQrScanActivity extends AppCompatActivity {
         });
 
         findViewById(R.id.nav_history).setOnClickListener(v -> {
-            Intent intent = new Intent(this, NotificationsActivity.class);
-            intent.putExtra(NotificationsActivity.EXTRA_USER_ID, userId);
+            Intent intent = new Intent(this, EntrantEventHistoryActivity.class);
+            intent.putExtra("userId", userId);
             startActivity(intent);
         });
 

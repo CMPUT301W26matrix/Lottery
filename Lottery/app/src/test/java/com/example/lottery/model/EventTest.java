@@ -25,11 +25,12 @@ public class EventTest {
         String qrCodeContent = "qr_content";
         String status = "open";
         String posterUri = "uri_test";
+        String category = "Music";
         Timestamp now = Timestamp.now();
 
         // Testing the full constructor with compliant fields
         Event event = new Event(eventId, title, details, organizerId, capacity,
-                waitingListLimit, qrCodeContent, status, posterUri, now, now, now, true, now, now);
+                waitingListLimit, qrCodeContent, status, posterUri, category, now, now, now, true, false, now, now);
 
         assertEquals(eventId, event.getEventId());
         assertEquals(title, event.getTitle());
@@ -40,8 +41,10 @@ public class EventTest {
         assertEquals(qrCodeContent, event.getQrCodeContent());
         assertEquals(status, event.getStatus());
         assertEquals(posterUri, event.getPosterUri());
+        assertEquals(category, event.getCategory());
         assertEquals(now, event.getScheduledDateTime());
         assertTrue(event.isRequireLocation());
+        assertFalse(event.isPrivate());
     }
 
     @Test

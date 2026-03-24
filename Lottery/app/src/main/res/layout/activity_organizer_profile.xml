@@ -142,8 +142,9 @@
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
-            <!-- Account Section -->
+            <!-- Actions Section -->
             <TextView
+                android:id="@+id/tv_actions_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="24dp"
@@ -169,6 +170,21 @@
                     android:orientation="vertical">
 
                     <Button
+                        android:id="@+id/btn_lottery_guidelines"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:text="Lottery Guidelines"
+                        android:textColor="@color/primary_blue" />
+
+                    <View
+                        android:id="@+id/divider_guidelines"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginHorizontal="16dp"
+                        android:background="@color/divider_gray" />
+
+                    <Button
                         android:id="@+id/btn_edit_save"
                         style="@style/Widget.Material3.Button.TextButton"
                         android:layout_width="match_parent"
@@ -177,10 +193,27 @@
                         android:textColor="@color/primary_blue" />
 
                     <View
+                        android:id="@+id/divider_delete"
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
                         android:layout_marginHorizontal="16dp"
                         android:background="@color/divider_gray" />
+
+                    <Button
+                        android:id="@+id/btn_delete_profile"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:text="Delete Profile"
+                        android:textColor="@color/error_red" />
+
+                    <View
+                        android:id="@+id/divider_cancel"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginHorizontal="16dp"
+                        android:background="@color/divider_gray"
+                        android:visibility="gone" />
 
                     <Button
                         android:id="@+id/btn_cancel_edit"

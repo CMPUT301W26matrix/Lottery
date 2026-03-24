@@ -1,5 +1,7 @@
 package com.example.lottery.util;
 
+import android.app.Activity;
+import android.content.Context;
 import android.net.Uri;
 import android.widget.ImageView;
 
@@ -25,6 +27,14 @@ public final class PosterImageLoader {
     public static void load(ImageView imageView, Object imageSource, @DrawableRes int placeholderResId) {
         if (imageView == null) {
             return;
+        }
+
+        Context context = imageView.getContext();
+        if (context instanceof Activity) {
+            Activity activity = (Activity) context;
+            if (activity.isDestroyed() || activity.isFinishing()) {
+                return;
+            }
         }
 
         Object model = imageSource;

@@ -26,6 +26,7 @@ public final class InvitationFlowUtil {
     public static final String STATUS_INVITED = "invited";
     public static final String STATUS_ACCEPTED = "accepted";
     public static final String STATUS_CANCELLED = "cancelled";
+    public static final String STATUS_NOT_SELECTED = "not_selected";
 
     // -------------------------------------------------------------------------
     // Canonical notification response values
@@ -56,8 +57,10 @@ public final class InvitationFlowUtil {
         if ("accepted".equalsIgnoreCase(normalized)) {
             return STATUS_ACCEPTED;
         }
-        if ("cancelled".equalsIgnoreCase(normalized) || "cancelled".equalsIgnoreCase(normalized) || 
-            "declined".equalsIgnoreCase(normalized) || "rejected".equalsIgnoreCase(normalized)) {
+        if ("not_selected".equalsIgnoreCase(normalized) || "rejected_by_draw".equalsIgnoreCase(normalized)) {
+            return STATUS_NOT_SELECTED;
+        }
+        if ("cancelled".equalsIgnoreCase(normalized) || "declined".equalsIgnoreCase(normalized) || "rejected".equalsIgnoreCase(normalized)) {
             return STATUS_CANCELLED;
         }
         return "";
@@ -93,6 +96,21 @@ public final class InvitationFlowUtil {
         return updates;
     }
 
+
+
+    /**
+     * Builds a Firestore update payload for marking an entrant as not selected.
+     *
+     * @return A map containing status and timestamp updates.
+     */
+    public static Map<String, Object> buildNotSelectedEntrantUpdate() {
+        Timestamp now = Timestamp.now();
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("status", STATUS_NOT_SELECTED);
+        updates.put("notSelectedAt", now);
+        return updates;
+    }
+
     /**
      * Builds a Firestore update payload for an entrant status based on a notification response.
      *
@@ -105,13 +123,13 @@ public final class InvitationFlowUtil {
         String timeField = "";
 
         switch (normalizedResponse) {
-            case RESPONSE_ACCEPTED: 
-                status = STATUS_ACCEPTED; 
+            case RESPONSE_ACCEPTED:
+                status = STATUS_ACCEPTED;
                 timeField = "acceptedAt";
                 break;
-            case RESPONSE_DECLINED: 
-            case RESPONSE_CANCELLED: 
-                status = STATUS_CANCELLED; 
+            case RESPONSE_DECLINED:
+            case RESPONSE_CANCELLED:
+                status = STATUS_CANCELLED;
                 timeField = "cancelledAt";
                 break;
         }
@@ -122,6 +140,20 @@ public final class InvitationFlowUtil {
         Timestamp now = Timestamp.now();
         updates.put("status", status);
         updates.put(timeField, now);
+        return updates;
+    }
+
+    /**
+     * Builds a Firestore update payload for an entrant joining the waitlist after an invitation.
+     *
+     * @return A map containing status and timestamp updates.
+     */
+    public static Map<String, Object> buildWaitlistJoinUpdate() {
+        Timestamp now = Timestamp.now();
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("status", STATUS_WAITLISTED);
+        updates.put("waitlistedAt", now);
+        updates.put("registeredAt", now);
         return updates;
     }
 

@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -63,7 +64,6 @@ public class WaitedListedListAdapter extends RecyclerView.Adapter<WaitedListedLi
         return new ViewHolder(view);
     }
 
-
     /**
      * binds the data to the TextView in each row
      *
@@ -73,15 +73,33 @@ public class WaitedListedListAdapter extends RecyclerView.Adapter<WaitedListedLi
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Entrant entrant = mData.get(position);
-        // Unified: use getUserName() instead of getEntrant_name()
         holder.tvEntrantName.setText(entrant.getUserName());
         holder.tvEntrantStatus.setText("");
+
+        if (context instanceof EntrantsListActivity) {
+            EntrantsListActivity activity = (EntrantsListActivity) context;
+            holder.cbSelect.setVisibility(View.VISIBLE);
+            
+            // Remove listener before setting checked state to avoid triggering it
+            holder.cbSelect.setOnCheckedChangeListener(null);
+            holder.cbSelect.setChecked(activity.isSelected(entrant.getUserId()));
+            
+            holder.cbSelect.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                activity.toggleSelection(entrant.getUserId());
+            });
+        } else {
+            holder.cbSelect.setVisibility(View.GONE);
+        }
+
         holder.btnViewDetails.setOnClickListener(v -> {
             boolean requireLocation = false;
+            String eventId = null;
             if (context instanceof EntrantsListActivity) {
-                requireLocation = ((EntrantsListActivity) context).isRequireLocation();
+                EntrantsListActivity activity = (EntrantsListActivity) context;
+                requireLocation = activity.isRequireLocation();
+                eventId = activity.getIntent().getStringExtra("eventId");
             }
-            EntrantDetailsFragment entrantDetailsFragment = EntrantDetailsFragment.newInstance(entrant, requireLocation);
+            EntrantDetailsFragment entrantDetailsFragment = EntrantDetailsFragment.newInstance(entrant, requireLocation, eventId);
             entrantDetailsFragment.show(((AppCompatActivity) context).getSupportFragmentManager(), "Entrant Details");
         });
     }
@@ -103,6 +121,7 @@ public class WaitedListedListAdapter extends RecyclerView.Adapter<WaitedListedLi
         TextView tvEntrantName;
         TextView tvEntrantStatus;
         Button btnViewDetails;
+        CheckBox cbSelect;
 
         /**
          * initialize ViewHolder
@@ -114,6 +133,7 @@ public class WaitedListedListAdapter extends RecyclerView.Adapter<WaitedListedLi
             tvEntrantName = itemView.findViewById(R.id.tvEntrantName);
             tvEntrantStatus = itemView.findViewById(R.id.tvEntrantStatus);
             btnViewDetails = itemView.findViewById(R.id.viewDetailsButton);
+            cbSelect = itemView.findViewById(R.id.cbEntrantSelect);
         }
     }
 }

@@ -22,6 +22,7 @@ import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.InvitationFlowUtil;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.WriteBatch;
@@ -31,6 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Activity that allows organizers to manage and send notifications to different groups of entrants.
@@ -234,47 +236,66 @@ public class OrganizerNotificationsActivity extends AppCompatActivity
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
                     WriteBatch batch = db.batch();
-                    int count = 0;
+                    int totalPotentialRecipients = querySnapshot.size();
+                    AtomicInteger processedCount = new AtomicInteger(0);
+                    AtomicInteger actualSentCount = new AtomicInteger(0);
+
+                    if (totalPotentialRecipients == 0) {
+                        Toast.makeText(this, "No recipients found in group: " + selectedGroup, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
 
                     for (QueryDocumentSnapshot doc : querySnapshot) {
                         String recipientUid = doc.getId();
-                        count++;
 
-                        DocumentReference recipientRef = db.collection(FirestorePaths.notificationRecipients(notificationId))
-                                .document(recipientUid);
-                        Map<String, Object> recData = new HashMap<>();
-                        recData.put("userId", recipientUid);
-                        recData.put("delivered", true);
-                        recData.put("isRead", false);
-                        recData.put("statusAtSendTime", targetStatus);
-                        recData.put("deliveredAt", Timestamp.now());
-                        batch.set(recipientRef, recData);
+                        // US 01.04.03: Respect notification preference
+                        db.collection(FirestorePaths.USERS).document(recipientUid).get().addOnCompleteListener(task -> {
+                            if (task.isSuccessful() && task.getResult() != null) {
+                                DocumentSnapshot userDoc = task.getResult();
+                                boolean enabled = userDoc.contains("notificationsEnabled") 
+                                        ? userDoc.getBoolean("notificationsEnabled") : true;
 
-                        DocumentReference inboxRef = db.collection(FirestorePaths.userInbox(recipientUid))
-                                .document(notificationId);
-                        
-                        NotificationItem inboxItem = new NotificationItem(
-                                notificationId,
-                                (String) globalNotif.get("title"),
-                                message,
-                                "general",
-                                selectedEventForNotification.getEventId(),
-                                selectedEventForNotification.getTitle(),
-                                (String) globalNotif.get("senderId"),
-                                "organizer",
-                                false,
-                                (Timestamp) globalNotif.get("createdAt")
-                        );
-                        batch.set(inboxRef, inboxItem);
-                    }
+                                if (enabled) {
+                                    DocumentReference recipientRef = db.collection(FirestorePaths.notificationRecipients(notificationId))
+                                            .document(recipientUid);
+                                    Map<String, Object> recData = new HashMap<>();
+                                    recData.put("userId", recipientUid);
+                                    recData.put("delivered", true);
+                                    recData.put("isRead", false);
+                                    recData.put("statusAtSendTime", targetStatus);
+                                    recData.put("deliveredAt", Timestamp.now());
+                                    batch.set(recipientRef, recData);
 
-                    if (count > 0) {
-                        final int finalCount = count;
-                        batch.update(db.collection(FirestorePaths.NOTIFICATIONS).document(notificationId), "recipientCount", count);
-                        batch.commit().addOnSuccessListener(unused -> 
-                            Toast.makeText(this, "Notification sent to " + finalCount + " recipients", Toast.LENGTH_SHORT).show());
-                    } else {
-                        Toast.makeText(this, "No recipients found in group: " + selectedGroup, Toast.LENGTH_SHORT).show();
+                                    DocumentReference inboxRef = db.collection(FirestorePaths.userInbox(recipientUid))
+                                            .document(notificationId);
+                                    
+                                    NotificationItem inboxItem = new NotificationItem(
+                                            notificationId,
+                                            (String) globalNotif.get("title"),
+                                            message,
+                                            "general",
+                                            selectedEventForNotification.getEventId(),
+                                            selectedEventForNotification.getTitle(),
+                                            (String) globalNotif.get("senderId"),
+                                            "organizer",
+                                            false,
+                                            (Timestamp) globalNotif.get("createdAt")
+                                    );
+                                    batch.set(inboxRef, inboxItem);
+                                    actualSentCount.incrementAndGet();
+                                }
+                            }
+
+                            if (processedCount.incrementAndGet() == totalPotentialRecipients) {
+                                if (actualSentCount.get() > 0) {
+                                    batch.update(db.collection(FirestorePaths.NOTIFICATIONS).document(notificationId), "recipientCount", actualSentCount.get());
+                                    batch.commit().addOnSuccessListener(unused -> 
+                                        Toast.makeText(this, "Notification sent to " + actualSentCount.get() + " recipients", Toast.LENGTH_SHORT).show());
+                                } else {
+                                    Toast.makeText(this, "All entrants in this group have notifications disabled", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
                     }
                 })
                 .addOnFailureListener(e -> Log.e(TAG, "Error fetching recipients", e));

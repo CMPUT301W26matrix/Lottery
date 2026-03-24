@@ -23,11 +23,24 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     private final List<NotificationItem> notifications;
     private final OnNotificationClickListener listener;
 
+    /**
+     * Creates a new NotificationAdapter.
+     *
+     * @param notifications list of notifications to display
+     * @param listener      click listener for notification interactions
+     */
     public NotificationAdapter(List<NotificationItem> notifications, OnNotificationClickListener listener) {
         this.notifications = notifications;
         this.listener = listener;
     }
 
+    /**
+     * Creates a new ViewHolder for notification items.
+     *
+     * @param parent   the parent view group
+     * @param viewType the view type
+     * @return a new {@link NotificationViewHolder}
+     */
     @NonNull
     @Override
     public NotificationViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -70,12 +83,13 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
     private String formatNotificationType(String type) {
         if (type == null) return "General";
-        
+
         switch (type.toLowerCase()) {
             case "event_invitation": return "Event Invitation";
             case "waitlist_promoted": return "Waitlist Update";
             case "draw_result": return "Draw Result";
             case "event_cancelled": return "Event Cancelled";
+            case "co_organizer_assignment": return "Co-Organizer";
             default: return "General";
         }
     }

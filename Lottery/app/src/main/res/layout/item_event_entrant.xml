@@ -97,19 +97,26 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginVertical="12dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="8dp"
             android:background="@color/divider_gray" />
 
         <!-- View Details Button (Always visible) -->
-        <Button
+        <TextView
             android:id="@+id/btnViewDetails"
-            style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/primary_blue"
-            android:text="@string/view_details"
-            android:textColor="@color/white"
-            app:cornerRadius="24dp" />
+            android:layout_gravity="center_horizontal"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="4dp"
+            android:text="View details"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"
+            android:fontFamily="sans-serif-medium"
+            android:textAllCaps="false" />
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

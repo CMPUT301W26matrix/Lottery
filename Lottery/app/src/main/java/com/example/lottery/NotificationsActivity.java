@@ -45,13 +45,33 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
      * Intent extra key used to pass the user's ID to this activity.
      */
     public static final String EXTRA_USER_ID = "userId";
-
+    /**
+     * List storing all notifications retrieved from Firestore.
+     */
     private final List<NotificationItem> notificationList = new ArrayList<>();
+    /**
+     * RecyclerView used to display notifications.
+     */
     private RecyclerView rvNotifications;
+    /**
+     * TextView shown when there are no notifications.
+     */
     private TextView tvNoNotifications;
+    /**
+     * Button used to navigate back from the notifications screen.
+     */
     private ImageButton btnBack;
+    /**
+     * Firestore database instance used to retrieve notifications.
+     */
     private FirebaseFirestore db;
+    /**
+     * Adapter used to bind notification data to the RecyclerView.
+     */
     private NotificationAdapter adapter;
+    /**
+     * ID of the currently logged-in user.
+     */
     private String userId;
 
     /**
@@ -240,27 +260,21 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
     public void onNotificationClick(NotificationItem item) {
         markNotificationRead(item);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(item.getTitle());
-        builder.setMessage(item.getMessage());
-
-        // Simple check for invitation type
         boolean isInvitation = "event_invitation".equalsIgnoreCase(item.getType());
 
-        if (isInvitation) {
-            builder.setPositiveButton(R.string.accept_invite, (dialog, which) -> {
-                updateUserStatusForEvent(item.getEventId(), InvitationFlowUtil.RESPONSE_ACCEPTED);
-            });
-
-            builder.setNegativeButton(R.string.reject, (dialog, which) -> {
-                updateUserStatusForEvent(item.getEventId(), InvitationFlowUtil.RESPONSE_DECLINED);
-            });
-
-            builder.setNeutralButton(R.string.close, (dialog, which) -> dialog.dismiss());
+        if (isInvitation && item.getEventId() != null) {
+            // US 01.05.06: Clicking an event_invitation should open the event in EntrantEventDetailsActivity
+            Intent intent = new Intent(this, EntrantEventDetailsActivity.class);
+            intent.putExtra(EntrantEventDetailsActivity.EXTRA_EVENT_ID, item.getEventId());
+            intent.putExtra(EntrantEventDetailsActivity.EXTRA_USER_ID, userId);
+            startActivity(intent);
         } else {
+            // For other notifications, show the message in a simple dialog
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(item.getTitle());
+            builder.setMessage(item.getMessage());
             builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
+            builder.show();
         }
-
-        builder.show();
     }
 }
