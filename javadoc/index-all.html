@@ -49,7 +49,7 @@ loadScripts(document, 'script');</script>
 <div class="header">
 <h1>Index</h1>
 </div>
-<a href="#I:A">A</a>&nbsp;<a href="#I:B">B</a>&nbsp;<a href="#I:C">C</a>&nbsp;<a href="#I:E">E</a>&nbsp;<a href="#I:F">F</a>&nbsp;<a href="#I:G">G</a>&nbsp;<a href="#I:I">I</a>&nbsp;<a href="#I:L">L</a>&nbsp;<a href="#I:M">M</a>&nbsp;<a href="#I:N">N</a>&nbsp;<a href="#I:O">O</a>&nbsp;<a href="#I:P">P</a>&nbsp;<a href="#I:Q">Q</a>&nbsp;<a href="#I:R">R</a>&nbsp;<a href="#I:S">S</a>&nbsp;<a href="#I:T">T</a>&nbsp;<a href="#I:U">U</a>&nbsp;<a href="#I:V">V</a>&nbsp;<a href="#I:W">W</a>&nbsp;<br><a href="allclasses-index.html">All&nbsp;Classes&nbsp;and&nbsp;Interfaces</a><span class="vertical-separator">|</span><a href="allpackages-index.html">All&nbsp;Packages</a><span class="vertical-separator">|</span><a href="constant-values.html">Constant&nbsp;Field&nbsp;Values</a><span class="vertical-separator">|</span><a href="serialized-form.html">Serialized&nbsp;Form</a>
+<a href="#I:A">A</a>&nbsp;<a href="#I:B">B</a>&nbsp;<a href="#I:C">C</a>&nbsp;<a href="#I:E">E</a>&nbsp;<a href="#I:F">F</a>&nbsp;<a href="#I:G">G</a>&nbsp;<a href="#I:H">H</a>&nbsp;<a href="#I:I">I</a>&nbsp;<a href="#I:L">L</a>&nbsp;<a href="#I:M">M</a>&nbsp;<a href="#I:N">N</a>&nbsp;<a href="#I:O">O</a>&nbsp;<a href="#I:P">P</a>&nbsp;<a href="#I:Q">Q</a>&nbsp;<a href="#I:R">R</a>&nbsp;<a href="#I:S">S</a>&nbsp;<a href="#I:T">T</a>&nbsp;<a href="#I:U">U</a>&nbsp;<a href="#I:V">V</a>&nbsp;<a href="#I:W">W</a>&nbsp;<br><a href="allclasses-index.html">All&nbsp;Classes&nbsp;and&nbsp;Interfaces</a><span class="vertical-separator">|</span><a href="allpackages-index.html">All&nbsp;Packages</a><span class="vertical-separator">|</span><a href="constant-values.html">Constant&nbsp;Field&nbsp;Values</a><span class="vertical-separator">|</span><a href="serialized-form.html">Serialized&nbsp;Form</a>
 <h2 class="title" id="I:A">A</h2>
 <dl class="index">
 <dt><a href="com/example/lottery/AdminBrowseEventsActivity.html" class="type-name-link" title="class in com.example.lottery">AdminBrowseEventsActivity</a> - Class in <a href="com/example/lottery/package-summary.html">com.example.lottery</a></dt>
@@ -115,9 +115,17 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Builds a Firestore update payload for marking an entrant as invited.</div>
 </dd>
+<dt><a href="com/example/lottery/util/InvitationFlowUtil.html#buildNotSelectedEntrantUpdate()" class="member-name-link">buildNotSelectedEntrantUpdate()</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/InvitationFlowUtil.html" title="class in com.example.lottery.util">InvitationFlowUtil</a></dt>
+<dd>
+<div class="block">Builds a Firestore update payload for marking an entrant as not selected.</div>
+</dd>
 <dt><a href="com/example/lottery/util/InvitationFlowUtil.html#buildReadNotificationUpdate()" class="member-name-link">buildReadNotificationUpdate()</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/InvitationFlowUtil.html" title="class in com.example.lottery.util">InvitationFlowUtil</a></dt>
 <dd>
 <div class="block">Builds a Firestore update payload for marking a notification as read.</div>
+</dd>
+<dt><a href="com/example/lottery/util/InvitationFlowUtil.html#buildWaitlistJoinUpdate()" class="member-name-link">buildWaitlistJoinUpdate()</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/InvitationFlowUtil.html" title="class in com.example.lottery.util">InvitationFlowUtil</a></dt>
+<dd>
+<div class="block">Builds a Firestore update payload for an entrant joining the waitlist after an invitation.</div>
 </dd>
 </dl>
 <h2 class="title" id="I:C">C</h2>
@@ -150,6 +158,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Full constructor for a comment.</div>
 </dd>
+<dt><a href="com/example/lottery/CommentAdapter.html" class="type-name-link" title="class in com.example.lottery">CommentAdapter</a> - Class in <a href="com/example/lottery/package-summary.html">com.example.lottery</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/CommentAdapter.html#%3Cinit%3E(java.util.List,boolean,java.lang.String)" class="member-name-link">CommentAdapter(List&lt;Comment&gt;, boolean, String)</a> - Constructor for class com.example.lottery.<a href="com/example/lottery/CommentAdapter.html" title="class in com.example.lottery">CommentAdapter</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/util/FirestorePaths.html#COMMENTS" class="member-name-link">COMMENTS</a> - Static variable in class com.example.lottery.util.<a href="com/example/lottery/util/FirestorePaths.html" title="class in com.example.lottery.util">FirestorePaths</a></dt>
 <dd>&nbsp;</dd>
 </dl>
@@ -172,6 +184,10 @@ loadScripts(document, 'script');</script>
 <div class="block">Adapter for displaying a list of entrants (Users) in a ListView.</div>
 </dd>
 <dt><a href="com/example/lottery/EntrantAdapter.html#%3Cinit%3E(android.content.Context,java.util.ArrayList)" class="member-name-link">EntrantAdapter(Context, ArrayList&lt;User&gt;)</a> - Constructor for class com.example.lottery.<a href="com/example/lottery/EntrantAdapter.html" title="class in com.example.lottery">EntrantAdapter</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/EntrantCommentBottomSheet.html" class="type-name-link" title="class in com.example.lottery">EntrantCommentBottomSheet</a> - Class in <a href="com/example/lottery/package-summary.html">com.example.lottery</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/EntrantCommentBottomSheet.html#%3Cinit%3E()" class="member-name-link">EntrantCommentBottomSheet()</a> - Constructor for class com.example.lottery.<a href="com/example/lottery/EntrantCommentBottomSheet.html" title="class in com.example.lottery">EntrantCommentBottomSheet</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/EntrantDetailsFragment.html" class="type-name-link" title="class in com.example.lottery">EntrantDetailsFragment</a> - Class in <a href="com/example/lottery/package-summary.html">com.example.lottery</a></dt>
 <dd>
@@ -210,6 +226,26 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/example/lottery/EntrantEventDetailsActivity.html#%3Cinit%3E()" class="member-name-link">EntrantEventDetailsActivity()</a> - Constructor for class com.example.lottery.<a href="com/example/lottery/EntrantEventDetailsActivity.html" title="class in com.example.lottery">EntrantEventDetailsActivity</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/EntrantEventHistoryActivity.html" class="type-name-link" title="class in com.example.lottery">EntrantEventHistoryActivity</a> - Class in <a href="com/example/lottery/package-summary.html">com.example.lottery</a></dt>
+<dd>
+<div class="block">Activity that displays the history of events an entrant has registered for.</div>
+</dd>
+<dt><a href="com/example/lottery/EntrantEventHistoryActivity.html#%3Cinit%3E()" class="member-name-link">EntrantEventHistoryActivity()</a> - Constructor for class com.example.lottery.<a href="com/example/lottery/EntrantEventHistoryActivity.html" title="class in com.example.lottery">EntrantEventHistoryActivity</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/EntrantHistoryAdapter.html" class="type-name-link" title="class in com.example.lottery">EntrantHistoryAdapter</a> - Class in <a href="com/example/lottery/package-summary.html">com.example.lottery</a></dt>
+<dd>
+<div class="block">Adapter for displaying the entrant's event registration history.</div>
+</dd>
+<dt><a href="com/example/lottery/EntrantHistoryAdapter.html#%3Cinit%3E(java.util.List,com.example.lottery.EntrantHistoryAdapter.OnItemClickListener)" class="member-name-link">EntrantHistoryAdapter(List&lt;EntrantHistoryAdapter.HistoryItem&gt;, EntrantHistoryAdapter.OnItemClickListener)</a> - Constructor for class com.example.lottery.<a href="com/example/lottery/EntrantHistoryAdapter.html" title="class in com.example.lottery">EntrantHistoryAdapter</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/EntrantHistoryAdapter.HistoryItem.html" class="type-name-link" title="class in com.example.lottery">EntrantHistoryAdapter.HistoryItem</a> - Class in <a href="com/example/lottery/package-summary.html">com.example.lottery</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/EntrantHistoryAdapter.OnItemClickListener.html" class="type-name-link" title="interface in com.example.lottery">EntrantHistoryAdapter.OnItemClickListener</a> - Interface in <a href="com/example/lottery/package-summary.html">com.example.lottery</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/EntrantLotteryGuidelinesActivity.html" class="type-name-link" title="class in com.example.lottery">EntrantLotteryGuidelinesActivity</a> - Class in <a href="com/example/lottery/package-summary.html">com.example.lottery</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/EntrantLotteryGuidelinesActivity.html#%3Cinit%3E()" class="member-name-link">EntrantLotteryGuidelinesActivity()</a> - Constructor for class com.example.lottery.<a href="com/example/lottery/EntrantLotteryGuidelinesActivity.html" title="class in com.example.lottery">EntrantLotteryGuidelinesActivity</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/EntrantMainActivity.html" class="type-name-link" title="class in com.example.lottery">EntrantMainActivity</a> - Class in <a href="com/example/lottery/package-summary.html">com.example.lottery</a></dt>
 <dd>
 <div class="block">Main activity for the entrant user role.</div>
@@ -234,6 +270,8 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/example/lottery/EntrantsListActivity.html#%3Cinit%3E()" class="member-name-link">EntrantsListActivity()</a> - Constructor for class com.example.lottery.<a href="com/example/lottery/EntrantsListActivity.html" title="class in com.example.lottery">EntrantsListActivity</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/EntrantHistoryAdapter.HistoryItem.html#event" class="member-name-link">event</a> - Variable in class com.example.lottery.<a href="com/example/lottery/EntrantHistoryAdapter.HistoryItem.html" title="class in com.example.lottery">EntrantHistoryAdapter.HistoryItem</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/Event.html" class="type-name-link" title="class in com.example.lottery.model">Event</a> - Class in <a href="com/example/lottery/model/package-summary.html">com.example.lottery.model</a></dt>
 <dd>
 <div class="block">Model class representing an event.</div>
@@ -242,7 +280,7 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Default constructor required for Firestore.</div>
 </dd>
-<dt><a href="com/example/lottery/model/Event.html#%3Cinit%3E(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.Integer,java.lang.Integer,java.lang.String,java.lang.String,java.lang.String,com.google.firebase.Timestamp,com.google.firebase.Timestamp,com.google.firebase.Timestamp,boolean,com.google.firebase.Timestamp,com.google.firebase.Timestamp)" class="member-name-link">Event(String, String, String, String, Integer, Integer, String, String, String, Timestamp, Timestamp, Timestamp, boolean, Timestamp, Timestamp)</a> - Constructor for class com.example.lottery.model.<a href="com/example/lottery/model/Event.html" title="class in com.example.lottery.model">Event</a></dt>
+<dt><a href="com/example/lottery/model/Event.html#%3Cinit%3E(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.Integer,java.lang.Integer,java.lang.String,java.lang.String,java.lang.String,java.lang.String,com.google.firebase.Timestamp,com.google.firebase.Timestamp,com.google.firebase.Timestamp,boolean,boolean,com.google.firebase.Timestamp,com.google.firebase.Timestamp)" class="member-name-link">Event(String, String, String, String, Integer, Integer, String, String, String, String, Timestamp, Timestamp, Timestamp, boolean, boolean, Timestamp, Timestamp)</a> - Constructor for class com.example.lottery.model.<a href="com/example/lottery/model/Event.html" title="class in com.example.lottery.model">Event</a></dt>
 <dd>
 <div class="block">Full constructor for target Firestore event document.</div>
 </dd>
@@ -343,6 +381,8 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/Event.html#getCapacity()" class="member-name-link">getCapacity()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Event.html" title="class in com.example.lottery.model">Event</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/model/Event.html#getCategory()" class="member-name-link">getCategory()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Event.html" title="class in com.example.lottery.model">Event</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/Comment.html#getCommentId()" class="member-name-link">getCommentId()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Comment.html" title="class in com.example.lottery.model">Comment</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/Comment.html#getContent()" class="member-name-link">getContent()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Comment.html" title="class in com.example.lottery.model">Comment</a></dt>
@@ -366,7 +406,9 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/example/lottery/model/EntrantEvent.html#getEmail()" class="member-name-link">getEmail()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/EntrantEvent.html" title="class in com.example.lottery.model">EntrantEvent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/User.html#getEmail()" class="member-name-link">getEmail()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/User.html" title="class in com.example.lottery.model">User</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Returns the email address of the user.</div>
+</dd>
 <dt><a href="com/example/lottery/model/Comment.html#getEventId()" class="member-name-link">getEventId()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Comment.html" title="class in com.example.lottery.model">Comment</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/Event.html#getEventId()" class="member-name-link">getEventId()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Event.html" title="class in com.example.lottery.model">Event</a></dt>
@@ -374,6 +416,8 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/example/lottery/model/NotificationItem.html#getEventId()" class="member-name-link">getEventId()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/NotificationItem.html" title="class in com.example.lottery.model">NotificationItem</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/NotificationItem.html#getEventTitle()" class="member-name-link">getEventTitle()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/NotificationItem.html" title="class in com.example.lottery.model">NotificationItem</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/model/User.html#getInterests()" class="member-name-link">getInterests()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/User.html" title="class in com.example.lottery.model">User</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/Entrant.html#getInvitedAt()" class="member-name-link">getInvitedAt()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Entrant.html" title="class in com.example.lottery.model">Entrant</a></dt>
 <dd>&nbsp;</dd>
@@ -385,7 +429,11 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">get total number of rows</div>
 </dd>
+<dt><a href="com/example/lottery/CommentAdapter.html#getItemCount()" class="member-name-link">getItemCount()</a> - Method in class com.example.lottery.<a href="com/example/lottery/CommentAdapter.html" title="class in com.example.lottery">CommentAdapter</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/EntrantEventAdapter.html#getItemCount()" class="member-name-link">getItemCount()</a> - Method in class com.example.lottery.<a href="com/example/lottery/EntrantEventAdapter.html" title="class in com.example.lottery">EntrantEventAdapter</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/EntrantHistoryAdapter.html#getItemCount()" class="member-name-link">getItemCount()</a> - Method in class com.example.lottery.<a href="com/example/lottery/EntrantHistoryAdapter.html" title="class in com.example.lottery">EntrantHistoryAdapter</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/EventAdapter.html#getItemCount()" class="member-name-link">getItemCount()</a> - Method in class com.example.lottery.<a href="com/example/lottery/EventAdapter.html" title="class in com.example.lottery">EventAdapter</a></dt>
 <dd>&nbsp;</dd>
@@ -394,6 +442,8 @@ loadScripts(document, 'script');</script>
 <div class="block">get total number of rows</div>
 </dd>
 <dt><a href="com/example/lottery/NotificationAdapter.html#getItemCount()" class="member-name-link">getItemCount()</a> - Method in class com.example.lottery.<a href="com/example/lottery/NotificationAdapter.html" title="class in com.example.lottery">NotificationAdapter</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/NotSelectedListAdapter.html#getItemCount()" class="member-name-link">getItemCount()</a> - Method in class com.example.lottery.<a href="com/example/lottery/NotSelectedListAdapter.html" title="class in com.example.lottery">NotSelectedListAdapter</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/OrganizerNotificationEventAdapter.html#getItemCount()" class="member-name-link">getItemCount()</a> - Method in class com.example.lottery.<a href="com/example/lottery/OrganizerNotificationEventAdapter.html" title="class in com.example.lottery">OrganizerNotificationEventAdapter</a></dt>
 <dd>&nbsp;</dd>
@@ -488,6 +538,11 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/example/lottery/model/EntrantEvent.html#getWaitlistedAt()" class="member-name-link">getWaitlistedAt()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/EntrantEvent.html" title="class in com.example.lottery.model">EntrantEvent</a></dt>
 <dd>&nbsp;</dd>
 </dl>
+<h2 class="title" id="I:H">H</h2>
+<dl class="index">
+<dt><a href="com/example/lottery/EntrantHistoryAdapter.HistoryItem.html#%3Cinit%3E(com.example.lottery.model.Event,java.lang.String)" class="member-name-link">HistoryItem(Event, String)</a> - Constructor for class com.example.lottery.<a href="com/example/lottery/EntrantHistoryAdapter.HistoryItem.html" title="class in com.example.lottery">EntrantHistoryAdapter.HistoryItem</a></dt>
+<dd>&nbsp;</dd>
+</dl>
 <h2 class="title" id="I:I">I</h2>
 <dl class="index">
 <dt><a href="com/example/lottery/util/FirestorePaths.html#INBOX" class="member-name-link">INBOX</a> - Static variable in class com.example.lottery.util.<a href="com/example/lottery/util/FirestorePaths.html" title="class in com.example.lottery.util">FirestorePaths</a></dt>
@@ -520,6 +575,8 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/User.html#isOrganizer()" class="member-name-link">isOrganizer()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/User.html" title="class in com.example.lottery.model">User</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/model/Event.html#isPrivate()" class="member-name-link">isPrivate()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Event.html" title="class in com.example.lottery.model">Event</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/NotificationItem.html#isRead()" class="member-name-link">isRead()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/NotificationItem.html" title="class in com.example.lottery.model">NotificationItem</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/util/EventValidationUtils.html#isRegistrationDeadlineValid(java.util.Date,java.util.Date)" class="member-name-link">isRegistrationDeadlineValid(Date, Date)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/EventValidationUtils.html" title="class in com.example.lottery.util">EventValidationUtils</a></dt>
@@ -529,6 +586,8 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/example/lottery/EntrantsListActivity.html#isRequireLocation()" class="member-name-link">isRequireLocation()</a> - Method in class com.example.lottery.<a href="com/example/lottery/EntrantsListActivity.html" title="class in com.example.lottery">EntrantsListActivity</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/Event.html#isRequireLocation()" class="member-name-link">isRequireLocation()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Event.html" title="class in com.example.lottery.model">Event</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/EntrantsListActivity.html#isSelected(java.lang.String)" class="member-name-link">isSelected(String)</a> - Method in class com.example.lottery.<a href="com/example/lottery/EntrantsListActivity.html" title="class in com.example.lottery">EntrantsListActivity</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/util/EventValidationUtils.html#isWaitingListLimitValid(java.lang.Integer)" class="member-name-link">isWaitingListLimitValid(Integer)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/EventValidationUtils.html" title="class in com.example.lottery.util">EventValidationUtils</a></dt>
 <dd>
@@ -569,12 +628,21 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">initialize a new fragment</div>
 </dd>
-<dt><a href="com/example/lottery/EntrantDetailsFragment.html#newInstance(com.example.lottery.model.EntrantEvent,boolean)" class="member-name-link">newInstance(EntrantEvent, boolean)</a> - Static method in class com.example.lottery.<a href="com/example/lottery/EntrantDetailsFragment.html" title="class in com.example.lottery">EntrantDetailsFragment</a></dt>
+<dt><a href="com/example/lottery/EntrantDetailsFragment.html#newInstance(com.example.lottery.model.EntrantEvent,boolean,java.lang.String)" class="member-name-link">newInstance(EntrantEvent, boolean, String)</a> - Static method in class com.example.lottery.<a href="com/example/lottery/EntrantDetailsFragment.html" title="class in com.example.lottery">EntrantDetailsFragment</a></dt>
 <dd>
-<div class="block">Overloaded method to support EntrantEvent as well if needed, 
- but internally we should probably unify on Entrant model for details view.</div>
+<div class="block">Overloaded method to support EntrantEvent as well if needed</div>
 </dd>
 <dt><a href="com/example/lottery/EntrantDetailsFragment.html#newInstance(com.example.lottery.model.Entrant,boolean)" class="member-name-link">newInstance(Entrant, boolean)</a> - Static method in class com.example.lottery.<a href="com/example/lottery/EntrantDetailsFragment.html" title="class in com.example.lottery">EntrantDetailsFragment</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/EntrantDetailsFragment.html#newInstance(com.example.lottery.model.Entrant,boolean,java.lang.String)" class="member-name-link">newInstance(Entrant, boolean, String)</a> - Static method in class com.example.lottery.<a href="com/example/lottery/EntrantDetailsFragment.html" title="class in com.example.lottery">EntrantDetailsFragment</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/EntrantCommentBottomSheet.html#newInstance(java.lang.String,java.lang.String,java.lang.String)" class="member-name-link">newInstance(String, String, String)</a> - Static method in class com.example.lottery.<a href="com/example/lottery/EntrantCommentBottomSheet.html" title="class in com.example.lottery">EntrantCommentBottomSheet</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/OrganizerInviteCoOrganizerDialogFragment.html#newInstance(java.lang.String,java.lang.String,java.lang.String)" class="member-name-link">newInstance(String, String, String)</a> - Static method in class com.example.lottery.<a href="com/example/lottery/OrganizerInviteCoOrganizerDialogFragment.html" title="class in com.example.lottery">OrganizerInviteCoOrganizerDialogFragment</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/OrganizerInviteEntrantDialogFragment.html#newInstance(java.lang.String,java.lang.String,java.lang.String)" class="member-name-link">newInstance(String, String, String)</a> - Static method in class com.example.lottery.<a href="com/example/lottery/OrganizerInviteEntrantDialogFragment.html" title="class in com.example.lottery">OrganizerInviteEntrantDialogFragment</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/EntrantCommentBottomSheet.html#newInstance(java.lang.String,java.lang.String,java.lang.String,boolean)" class="member-name-link">newInstance(String, String, String, boolean)</a> - Static method in class com.example.lottery.<a href="com/example/lottery/EntrantCommentBottomSheet.html" title="class in com.example.lottery">EntrantCommentBottomSheet</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/util/InvitationFlowUtil.html#normalizeEntrantStatus(java.lang.String)" class="member-name-link">normalizeEntrantStatus(String)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/InvitationFlowUtil.html" title="class in com.example.lottery.util">InvitationFlowUtil</a></dt>
 <dd>
@@ -589,7 +657,9 @@ loadScripts(document, 'script');</script>
 <div class="block">Adapter used to display notifications in a RecyclerView.</div>
 </dd>
 <dt><a href="com/example/lottery/NotificationAdapter.html#%3Cinit%3E(java.util.List,com.example.lottery.NotificationAdapter.OnNotificationClickListener)" class="member-name-link">NotificationAdapter(List&lt;NotificationItem&gt;, NotificationAdapter.OnNotificationClickListener)</a> - Constructor for class com.example.lottery.<a href="com/example/lottery/NotificationAdapter.html" title="class in com.example.lottery">NotificationAdapter</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Creates a new NotificationAdapter.</div>
+</dd>
 <dt><a href="com/example/lottery/NotificationAdapter.NotificationViewHolder.html" class="type-name-link" title="class in com.example.lottery">NotificationAdapter.NotificationViewHolder</a> - Class in <a href="com/example/lottery/package-summary.html">com.example.lottery</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/NotificationAdapter.OnNotificationClickListener.html" class="type-name-link" title="interface in com.example.lottery">NotificationAdapter.OnNotificationClickListener</a> - Interface in <a href="com/example/lottery/package-summary.html">com.example.lottery</a></dt>
@@ -634,6 +704,12 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/NotificationAdapter.NotificationViewHolder.html#%3Cinit%3E(android.view.View)" class="member-name-link">NotificationViewHolder(View)</a> - Constructor for class com.example.lottery.<a href="com/example/lottery/NotificationAdapter.NotificationViewHolder.html" title="class in com.example.lottery">NotificationAdapter.NotificationViewHolder</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/NotSelectedListAdapter.html" class="type-name-link" title="class in com.example.lottery">NotSelectedListAdapter</a> - Class in <a href="com/example/lottery/package-summary.html">com.example.lottery</a></dt>
+<dd>
+<div class="block">Adapter for entrants who were not selected during the lottery draw.</div>
+</dd>
+<dt><a href="com/example/lottery/NotSelectedListAdapter.ViewHolder.html" class="type-name-link" title="class in com.example.lottery">NotSelectedListAdapter.ViewHolder</a> - Class in <a href="com/example/lottery/package-summary.html">com.example.lottery</a></dt>
+<dd>&nbsp;</dd>
 </dl>
 <h2 class="title" id="I:O">O</h2>
 <dl class="index">
@@ -645,15 +721,17 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">check whether implemented the communication channel or not</div>
 </dd>
-<dt><a href="com/example/lottery/EntrantProfileActivity.html#onBackPressed()" class="member-name-link">onBackPressed()</a> - Method in class com.example.lottery.<a href="com/example/lottery/EntrantProfileActivity.html" title="class in com.example.lottery">EntrantProfileActivity</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/AdminImageAdapter.html#onBindViewHolder(com.example.lottery.AdminImageAdapter.ImageViewHolder,int)" class="member-name-link">onBindViewHolder(AdminImageAdapter.ImageViewHolder, int)</a> - Method in class com.example.lottery.<a href="com/example/lottery/AdminImageAdapter.html" title="class in com.example.lottery">AdminImageAdapter</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/CancelledListAdapter.html#onBindViewHolder(com.example.lottery.CancelledListAdapter.ViewHolder,int)" class="member-name-link">onBindViewHolder(CancelledListAdapter.ViewHolder, int)</a> - Method in class com.example.lottery.<a href="com/example/lottery/CancelledListAdapter.html" title="class in com.example.lottery">CancelledListAdapter</a></dt>
 <dd>
 <div class="block">binds the data to the TextView in each row</div>
 </dd>
+<dt><a href="com/example/lottery/CommentAdapter.html#onBindViewHolder(com.example.lottery.CommentAdapter.CommentViewHolder,int)" class="member-name-link">onBindViewHolder(CommentAdapter.CommentViewHolder, int)</a> - Method in class com.example.lottery.<a href="com/example/lottery/CommentAdapter.html" title="class in com.example.lottery">CommentAdapter</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/EntrantEventAdapter.html#onBindViewHolder(com.example.lottery.EntrantEventAdapter.EntrantEventViewHolder,int)" class="member-name-link">onBindViewHolder(EntrantEventAdapter.EntrantEventViewHolder, int)</a> - Method in class com.example.lottery.<a href="com/example/lottery/EntrantEventAdapter.html" title="class in com.example.lottery">EntrantEventAdapter</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/EntrantHistoryAdapter.html#onBindViewHolder(com.example.lottery.EntrantHistoryAdapter.ViewHolder,int)" class="member-name-link">onBindViewHolder(EntrantHistoryAdapter.ViewHolder, int)</a> - Method in class com.example.lottery.<a href="com/example/lottery/EntrantHistoryAdapter.html" title="class in com.example.lottery">EntrantHistoryAdapter</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/EventAdapter.html#onBindViewHolder(com.example.lottery.EventAdapter.EventViewHolder,int)" class="member-name-link">onBindViewHolder(EventAdapter.EventViewHolder, int)</a> - Method in class com.example.lottery.<a href="com/example/lottery/EventAdapter.html" title="class in com.example.lottery">EventAdapter</a></dt>
 <dd>&nbsp;</dd>
@@ -662,6 +740,8 @@ loadScripts(document, 'script');</script>
 <div class="block">binds the data to the TextView in each row</div>
 </dd>
 <dt><a href="com/example/lottery/NotificationAdapter.html#onBindViewHolder(com.example.lottery.NotificationAdapter.NotificationViewHolder,int)" class="member-name-link">onBindViewHolder(NotificationAdapter.NotificationViewHolder, int)</a> - Method in class com.example.lottery.<a href="com/example/lottery/NotificationAdapter.html" title="class in com.example.lottery">NotificationAdapter</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/NotSelectedListAdapter.html#onBindViewHolder(com.example.lottery.NotSelectedListAdapter.ViewHolder,int)" class="member-name-link">onBindViewHolder(NotSelectedListAdapter.ViewHolder, int)</a> - Method in class com.example.lottery.<a href="com/example/lottery/NotSelectedListAdapter.html" title="class in com.example.lottery">NotSelectedListAdapter</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/OrganizerNotificationEventAdapter.html#onBindViewHolder(com.example.lottery.OrganizerNotificationEventAdapter.ViewHolder,int)" class="member-name-link">onBindViewHolder(OrganizerNotificationEventAdapter.ViewHolder, int)</a> - Method in class com.example.lottery.<a href="com/example/lottery/OrganizerNotificationEventAdapter.html" title="class in com.example.lottery">OrganizerNotificationEventAdapter</a></dt>
 <dd>&nbsp;</dd>
@@ -696,10 +776,16 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Initialize the activity and binds UI views.</div>
 </dd>
+<dt><a href="com/example/lottery/EntrantCommentBottomSheet.html#onCreate(android.os.Bundle)" class="member-name-link">onCreate(Bundle)</a> - Method in class com.example.lottery.<a href="com/example/lottery/EntrantCommentBottomSheet.html" title="class in com.example.lottery">EntrantCommentBottomSheet</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/EntrantEventDetailsActivity.html#onCreate(android.os.Bundle)" class="member-name-link">onCreate(Bundle)</a> - Method in class com.example.lottery.<a href="com/example/lottery/EntrantEventDetailsActivity.html" title="class in com.example.lottery">EntrantEventDetailsActivity</a></dt>
 <dd>
 <div class="block">Initializes the activity, sets up view references, and triggers initial data loading.</div>
 </dd>
+<dt><a href="com/example/lottery/EntrantEventHistoryActivity.html#onCreate(android.os.Bundle)" class="member-name-link">onCreate(Bundle)</a> - Method in class com.example.lottery.<a href="com/example/lottery/EntrantEventHistoryActivity.html" title="class in com.example.lottery">EntrantEventHistoryActivity</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/EntrantLotteryGuidelinesActivity.html#onCreate(android.os.Bundle)" class="member-name-link">onCreate(Bundle)</a> - Method in class com.example.lottery.<a href="com/example/lottery/EntrantLotteryGuidelinesActivity.html" title="class in com.example.lottery">EntrantLotteryGuidelinesActivity</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/EntrantMainActivity.html#onCreate(android.os.Bundle)" class="member-name-link">onCreate(Bundle)</a> - Method in class com.example.lottery.<a href="com/example/lottery/EntrantMainActivity.html" title="class in com.example.lottery">EntrantMainActivity</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/EntrantProfileActivity.html#onCreate(android.os.Bundle)" class="member-name-link">onCreate(Bundle)</a> - Method in class com.example.lottery.<a href="com/example/lottery/EntrantProfileActivity.html" title="class in com.example.lottery">EntrantProfileActivity</a></dt>
@@ -722,12 +808,20 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/OrganizerEventDetailsActivity.html#onCreate(android.os.Bundle)" class="member-name-link">onCreate(Bundle)</a> - Method in class com.example.lottery.<a href="com/example/lottery/OrganizerEventDetailsActivity.html" title="class in com.example.lottery">OrganizerEventDetailsActivity</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/OrganizerInviteCoOrganizerDialogFragment.html#onCreate(android.os.Bundle)" class="member-name-link">onCreate(Bundle)</a> - Method in class com.example.lottery.<a href="com/example/lottery/OrganizerInviteCoOrganizerDialogFragment.html" title="class in com.example.lottery">OrganizerInviteCoOrganizerDialogFragment</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/OrganizerInviteEntrantDialogFragment.html#onCreate(android.os.Bundle)" class="member-name-link">onCreate(Bundle)</a> - Method in class com.example.lottery.<a href="com/example/lottery/OrganizerInviteEntrantDialogFragment.html" title="class in com.example.lottery">OrganizerInviteEntrantDialogFragment</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/OrganizerLotteryGuidelinesActivity.html#onCreate(android.os.Bundle)" class="member-name-link">onCreate(Bundle)</a> - Method in class com.example.lottery.<a href="com/example/lottery/OrganizerLotteryGuidelinesActivity.html" title="class in com.example.lottery">OrganizerLotteryGuidelinesActivity</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/OrganizerNotificationsActivity.html#onCreate(android.os.Bundle)" class="member-name-link">onCreate(Bundle)</a> - Method in class com.example.lottery.<a href="com/example/lottery/OrganizerNotificationsActivity.html" title="class in com.example.lottery">OrganizerNotificationsActivity</a></dt>
 <dd>
 <div class="block">Initializes the activity, sets up the RecyclerView, and loads the organizer's events.</div>
 </dd>
 <dt><a href="com/example/lottery/OrganizerProfileActivity.html#onCreate(android.os.Bundle)" class="member-name-link">onCreate(Bundle)</a> - Method in class com.example.lottery.<a href="com/example/lottery/OrganizerProfileActivity.html" title="class in com.example.lottery">OrganizerProfileActivity</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Initializes the activity, sets up the layout, and configures UI components.</div>
+</dd>
 <dt><a href="com/example/lottery/OrganizerQrCodeDetailActivity.html#onCreate(android.os.Bundle)" class="member-name-link">onCreate(Bundle)</a> - Method in class com.example.lottery.<a href="com/example/lottery/OrganizerQrCodeDetailActivity.html" title="class in com.example.lottery">OrganizerQrCodeDetailActivity</a></dt>
 <dd>
 <div class="block">Initializes the activity, sets up the Toolbar with back navigation,
@@ -735,7 +829,10 @@ loadScripts(document, 'script');</script>
  and generates and displays the QR code bitmap.</div>
 </dd>
 <dt><a href="com/example/lottery/OrganizerQrEventListActivity.html#onCreate(android.os.Bundle)" class="member-name-link">onCreate(Bundle)</a> - Method in class com.example.lottery.<a href="com/example/lottery/OrganizerQrEventListActivity.html" title="class in com.example.lottery">OrganizerQrEventListActivity</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Initializes the activity, sets up the Toolbar with back navigation,
+ configures the RecyclerView and adapter, and triggers event loading from Firestore.</div>
+</dd>
 <dt><a href="com/example/lottery/OrganizerUploadPosterDialogFragment.html#onCreate(android.os.Bundle)" class="member-name-link">onCreate(Bundle)</a> - Method in class com.example.lottery.<a href="com/example/lottery/OrganizerUploadPosterDialogFragment.html" title="class in com.example.lottery">OrganizerUploadPosterDialogFragment</a></dt>
 <dd>
 <div class="block">Initializes the ActivityResultLauncher for picking images from the device storage.</div>
@@ -743,9 +840,7 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/example/lottery/WaitingListActivity.html#onCreate(android.os.Bundle)" class="member-name-link">onCreate(Bundle)</a> - Method in class com.example.lottery.<a href="com/example/lottery/WaitingListActivity.html" title="class in com.example.lottery">WaitingListActivity</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/EntrantDetailsFragment.html#onCreateDialog(android.os.Bundle)" class="member-name-link">onCreateDialog(Bundle)</a> - Method in class com.example.lottery.<a href="com/example/lottery/EntrantDetailsFragment.html" title="class in com.example.lottery">EntrantDetailsFragment</a></dt>
-<dd>
-<div class="block">set up component for rendering the entrant details fragment</div>
-</dd>
+<dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/NotificationFragment.html#onCreateDialog(android.os.Bundle)" class="member-name-link">onCreateDialog(Bundle)</a> - Method in class com.example.lottery.<a href="com/example/lottery/NotificationFragment.html" title="class in com.example.lottery">NotificationFragment</a></dt>
 <dd>
 <div class="block">Creates and returns the notification composition dialog.</div>
@@ -758,13 +853,23 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">assemble the fragment</div>
 </dd>
+<dt><a href="com/example/lottery/EntrantCommentBottomSheet.html#onCreateView(android.view.LayoutInflater,android.view.ViewGroup,android.os.Bundle)" class="member-name-link">onCreateView(LayoutInflater, ViewGroup, Bundle)</a> - Method in class com.example.lottery.<a href="com/example/lottery/EntrantCommentBottomSheet.html" title="class in com.example.lottery">EntrantCommentBottomSheet</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/OrganizerInviteCoOrganizerDialogFragment.html#onCreateView(android.view.LayoutInflater,android.view.ViewGroup,android.os.Bundle)" class="member-name-link">onCreateView(LayoutInflater, ViewGroup, Bundle)</a> - Method in class com.example.lottery.<a href="com/example/lottery/OrganizerInviteCoOrganizerDialogFragment.html" title="class in com.example.lottery">OrganizerInviteCoOrganizerDialogFragment</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/OrganizerInviteEntrantDialogFragment.html#onCreateView(android.view.LayoutInflater,android.view.ViewGroup,android.os.Bundle)" class="member-name-link">onCreateView(LayoutInflater, ViewGroup, Bundle)</a> - Method in class com.example.lottery.<a href="com/example/lottery/OrganizerInviteEntrantDialogFragment.html" title="class in com.example.lottery">OrganizerInviteEntrantDialogFragment</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/AdminImageAdapter.html#onCreateViewHolder(android.view.ViewGroup,int)" class="member-name-link">onCreateViewHolder(ViewGroup, int)</a> - Method in class com.example.lottery.<a href="com/example/lottery/AdminImageAdapter.html" title="class in com.example.lottery">AdminImageAdapter</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/CancelledListAdapter.html#onCreateViewHolder(android.view.ViewGroup,int)" class="member-name-link">onCreateViewHolder(ViewGroup, int)</a> - Method in class com.example.lottery.<a href="com/example/lottery/CancelledListAdapter.html" title="class in com.example.lottery">CancelledListAdapter</a></dt>
 <dd>
 <div class="block">inflates the row layout from xml when needed</div>
 </dd>
+<dt><a href="com/example/lottery/CommentAdapter.html#onCreateViewHolder(android.view.ViewGroup,int)" class="member-name-link">onCreateViewHolder(ViewGroup, int)</a> - Method in class com.example.lottery.<a href="com/example/lottery/CommentAdapter.html" title="class in com.example.lottery">CommentAdapter</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/EntrantEventAdapter.html#onCreateViewHolder(android.view.ViewGroup,int)" class="member-name-link">onCreateViewHolder(ViewGroup, int)</a> - Method in class com.example.lottery.<a href="com/example/lottery/EntrantEventAdapter.html" title="class in com.example.lottery">EntrantEventAdapter</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/EntrantHistoryAdapter.html#onCreateViewHolder(android.view.ViewGroup,int)" class="member-name-link">onCreateViewHolder(ViewGroup, int)</a> - Method in class com.example.lottery.<a href="com/example/lottery/EntrantHistoryAdapter.html" title="class in com.example.lottery">EntrantHistoryAdapter</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/EventAdapter.html#onCreateViewHolder(android.view.ViewGroup,int)" class="member-name-link">onCreateViewHolder(ViewGroup, int)</a> - Method in class com.example.lottery.<a href="com/example/lottery/EventAdapter.html" title="class in com.example.lottery">EventAdapter</a></dt>
 <dd>&nbsp;</dd>
@@ -773,6 +878,10 @@ loadScripts(document, 'script');</script>
 <div class="block">inflates the row layout from xml when needed</div>
 </dd>
 <dt><a href="com/example/lottery/NotificationAdapter.html#onCreateViewHolder(android.view.ViewGroup,int)" class="member-name-link">onCreateViewHolder(ViewGroup, int)</a> - Method in class com.example.lottery.<a href="com/example/lottery/NotificationAdapter.html" title="class in com.example.lottery">NotificationAdapter</a></dt>
+<dd>
+<div class="block">Creates a new ViewHolder for notification items.</div>
+</dd>
+<dt><a href="com/example/lottery/NotSelectedListAdapter.html#onCreateViewHolder(android.view.ViewGroup,int)" class="member-name-link">onCreateViewHolder(ViewGroup, int)</a> - Method in class com.example.lottery.<a href="com/example/lottery/NotSelectedListAdapter.html" title="class in com.example.lottery">NotSelectedListAdapter</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/OrganizerNotificationEventAdapter.html#onCreateViewHolder(android.view.ViewGroup,int)" class="member-name-link">onCreateViewHolder(ViewGroup, int)</a> - Method in class com.example.lottery.<a href="com/example/lottery/OrganizerNotificationEventAdapter.html" title="class in com.example.lottery">OrganizerNotificationEventAdapter</a></dt>
 <dd>&nbsp;</dd>
@@ -787,7 +896,9 @@ loadScripts(document, 'script');</script>
 <div class="block">inflates the row layout from xml when needed</div>
 </dd>
 <dt><a href="com/example/lottery/EntrantsListActivity.html#onDestroy()" class="member-name-link">onDestroy()</a> - Method in class com.example.lottery.<a href="com/example/lottery/EntrantsListActivity.html" title="class in com.example.lottery">EntrantsListActivity</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">remove map allocated resources</div>
+</dd>
 <dt><a href="com/example/lottery/AdminBrowseEventsActivity.html#onEventClick(com.example.lottery.model.Event)" class="member-name-link">onEventClick(Event)</a> - Method in class com.example.lottery.<a href="com/example/lottery/AdminBrowseEventsActivity.html" title="class in com.example.lottery">AdminBrowseEventsActivity</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/EntrantEventAdapter.OnEventClickListener.html#onEventClick(com.example.lottery.model.Event)" class="member-name-link">onEventClick(Event)</a> - Method in interface com.example.lottery.<a href="com/example/lottery/EntrantEventAdapter.OnEventClickListener.html" title="interface in com.example.lottery">EntrantEventAdapter.OnEventClickListener</a></dt>
@@ -795,7 +906,9 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/example/lottery/EventAdapter.OnEventClickListener.html#onEventClick(com.example.lottery.model.Event)" class="member-name-link">onEventClick(Event)</a> - Method in interface com.example.lottery.<a href="com/example/lottery/EventAdapter.OnEventClickListener.html" title="interface in com.example.lottery">EventAdapter.OnEventClickListener</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/OrganizerBrowseEventsActivity.html#onEventClick(com.example.lottery.model.Event)" class="member-name-link">onEventClick(Event)</a> - Method in class com.example.lottery.<a href="com/example/lottery/OrganizerBrowseEventsActivity.html" title="class in com.example.lottery">OrganizerBrowseEventsActivity</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Handles clicks on individual event items in the RecyclerView.</div>
+</dd>
 <dt><a href="com/example/lottery/OrganizerQrEventAdapter.OnEventClickListener.html#onEventClick(com.example.lottery.model.Event)" class="member-name-link">onEventClick(Event)</a> - Method in interface com.example.lottery.<a href="com/example/lottery/OrganizerQrEventAdapter.OnEventClickListener.html" title="interface in com.example.lottery">OrganizerQrEventAdapter.OnEventClickListener</a></dt>
 <dd>
 <div class="block">Called when an event item has been clicked.</div>
@@ -816,8 +929,12 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Called when an image item has been clicked.</div>
 </dd>
-<dt><a href="com/example/lottery/EntrantsListActivity.html#onLowMemory()" class="member-name-link">onLowMemory()</a> - Method in class com.example.lottery.<a href="com/example/lottery/EntrantsListActivity.html" title="class in com.example.lottery">EntrantsListActivity</a></dt>
+<dt><a href="com/example/lottery/EntrantHistoryAdapter.OnItemClickListener.html#onItemClick(com.example.lottery.model.Event)" class="member-name-link">onItemClick(Event)</a> - Method in interface com.example.lottery.<a href="com/example/lottery/EntrantHistoryAdapter.OnItemClickListener.html" title="interface in com.example.lottery">EntrantHistoryAdapter.OnItemClickListener</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/EntrantsListActivity.html#onLowMemory()" class="member-name-link">onLowMemory()</a> - Method in class com.example.lottery.<a href="com/example/lottery/EntrantsListActivity.html" title="class in com.example.lottery">EntrantsListActivity</a></dt>
+<dd>
+<div class="block">control map memory use when system is busy</div>
+</dd>
 <dt><a href="com/example/lottery/EntrantsListActivity.html#onMapReady(com.google.android.gms.maps.GoogleMap)" class="member-name-link">onMapReady(GoogleMap)</a> - Method in class com.example.lottery.<a href="com/example/lottery/EntrantsListActivity.html" title="class in com.example.lottery">EntrantsListActivity</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/NotificationAdapter.OnNotificationClickListener.html#onNotificationClick(com.example.lottery.model.NotificationItem)" class="member-name-link">onNotificationClick(NotificationItem)</a> - Method in interface com.example.lottery.<a href="com/example/lottery/NotificationAdapter.OnNotificationClickListener.html" title="interface in com.example.lottery">NotificationAdapter.OnNotificationClickListener</a></dt>
@@ -827,7 +944,9 @@ loadScripts(document, 'script');</script>
 <div class="block">Handles clicks on notification items.</div>
 </dd>
 <dt><a href="com/example/lottery/EntrantsListActivity.html#onPause()" class="member-name-link">onPause()</a> - Method in class com.example.lottery.<a href="com/example/lottery/EntrantsListActivity.html" title="class in com.example.lottery">EntrantsListActivity</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">stop rendering map</div>
+</dd>
 <dt><a href="com/example/lottery/AdminBrowseEventsActivity.html#onResume()" class="member-name-link">onResume()</a> - Method in class com.example.lottery.<a href="com/example/lottery/AdminBrowseEventsActivity.html" title="class in com.example.lottery">AdminBrowseEventsActivity</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/AdminBrowseImagesActivity.html#onResume()" class="member-name-link">onResume()</a> - Method in class com.example.lottery.<a href="com/example/lottery/AdminBrowseImagesActivity.html" title="class in com.example.lottery">AdminBrowseImagesActivity</a></dt>
@@ -845,7 +964,9 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/example/lottery/EntrantQrScanActivity.html#onResume()" class="member-name-link">onResume()</a> - Method in class com.example.lottery.<a href="com/example/lottery/EntrantQrScanActivity.html" title="class in com.example.lottery">EntrantQrScanActivity</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/EntrantsListActivity.html#onResume()" class="member-name-link">onResume()</a> - Method in class com.example.lottery.<a href="com/example/lottery/EntrantsListActivity.html" title="class in com.example.lottery">EntrantsListActivity</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">interact with users</div>
+</dd>
 <dt><a href="com/example/lottery/NotificationsActivity.html#onResume()" class="member-name-link">onResume()</a> - Method in class com.example.lottery.<a href="com/example/lottery/NotificationsActivity.html" title="class in com.example.lottery">NotificationsActivity</a></dt>
 <dd>
 <div class="block">Refreshes the notification list whenever the activity becomes visible.</div>
@@ -855,9 +976,19 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/example/lottery/OrganizerEventDetailsActivity.html#onResume()" class="member-name-link">onResume()</a> - Method in class com.example.lottery.<a href="com/example/lottery/OrganizerEventDetailsActivity.html" title="class in com.example.lottery">OrganizerEventDetailsActivity</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/EntrantsListActivity.html#onStart()" class="member-name-link">onStart()</a> - Method in class com.example.lottery.<a href="com/example/lottery/EntrantsListActivity.html" title="class in com.example.lottery">EntrantsListActivity</a></dt>
+<dd>
+<div class="block">initialize mapview</div>
+</dd>
+<dt><a href="com/example/lottery/OrganizerInviteCoOrganizerDialogFragment.html#onStart()" class="member-name-link">onStart()</a> - Method in class com.example.lottery.<a href="com/example/lottery/OrganizerInviteCoOrganizerDialogFragment.html" title="class in com.example.lottery">OrganizerInviteCoOrganizerDialogFragment</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/OrganizerInviteEntrantDialogFragment.html#onStart()" class="member-name-link">onStart()</a> - Method in class com.example.lottery.<a href="com/example/lottery/OrganizerInviteEntrantDialogFragment.html" title="class in com.example.lottery">OrganizerInviteEntrantDialogFragment</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/EntrantEventDetailsActivity.html#onStop()" class="member-name-link">onStop()</a> - Method in class com.example.lottery.<a href="com/example/lottery/EntrantEventDetailsActivity.html" title="class in com.example.lottery">EntrantEventDetailsActivity</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/EntrantsListActivity.html#onStop()" class="member-name-link">onStop()</a> - Method in class com.example.lottery.<a href="com/example/lottery/EntrantsListActivity.html" title="class in com.example.lottery">EntrantsListActivity</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">inform mapview to free resources when stop using</div>
+</dd>
 <dt><a href="com/example/lottery/OrganizerBrowseEventsActivity.html" class="type-name-link" title="class in com.example.lottery">OrganizerBrowseEventsActivity</a> - Class in <a href="com/example/lottery/package-summary.html">com.example.lottery</a></dt>
 <dd>
 <div class="block">OrganizerBrowseEventsActivity serves as the organizer event browser, displaying a summary of published events.</div>
@@ -872,9 +1003,23 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/OrganizerEventDetailsActivity.html" class="type-name-link" title="class in com.example.lottery">OrganizerEventDetailsActivity</a> - Class in <a href="com/example/lottery/package-summary.html">com.example.lottery</a></dt>
 <dd>
-<div class="block">Activity to display the details of a specific event for the organizer.</div>
+<div class="block">Activity to display the details of a specific event and handle registration.</div>
 </dd>
 <dt><a href="com/example/lottery/OrganizerEventDetailsActivity.html#%3Cinit%3E()" class="member-name-link">OrganizerEventDetailsActivity()</a> - Constructor for class com.example.lottery.<a href="com/example/lottery/OrganizerEventDetailsActivity.html" title="class in com.example.lottery">OrganizerEventDetailsActivity</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/OrganizerInviteCoOrganizerDialogFragment.html" class="type-name-link" title="class in com.example.lottery">OrganizerInviteCoOrganizerDialogFragment</a> - Class in <a href="com/example/lottery/package-summary.html">com.example.lottery</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/OrganizerInviteCoOrganizerDialogFragment.html#%3Cinit%3E()" class="member-name-link">OrganizerInviteCoOrganizerDialogFragment()</a> - Constructor for class com.example.lottery.<a href="com/example/lottery/OrganizerInviteCoOrganizerDialogFragment.html" title="class in com.example.lottery">OrganizerInviteCoOrganizerDialogFragment</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/OrganizerInviteEntrantDialogFragment.html" class="type-name-link" title="class in com.example.lottery">OrganizerInviteEntrantDialogFragment</a> - Class in <a href="com/example/lottery/package-summary.html">com.example.lottery</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/OrganizerInviteEntrantDialogFragment.html#%3Cinit%3E()" class="member-name-link">OrganizerInviteEntrantDialogFragment()</a> - Constructor for class com.example.lottery.<a href="com/example/lottery/OrganizerInviteEntrantDialogFragment.html" title="class in com.example.lottery">OrganizerInviteEntrantDialogFragment</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/OrganizerLotteryGuidelinesActivity.html" class="type-name-link" title="class in com.example.lottery">OrganizerLotteryGuidelinesActivity</a> - Class in <a href="com/example/lottery/package-summary.html">com.example.lottery</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/OrganizerLotteryGuidelinesActivity.html#%3Cinit%3E()" class="member-name-link">OrganizerLotteryGuidelinesActivity()</a> - Constructor for class com.example.lottery.<a href="com/example/lottery/OrganizerLotteryGuidelinesActivity.html" title="class in com.example.lottery">OrganizerLotteryGuidelinesActivity</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/EntrantHistoryAdapter.HistoryItem.html#organizerName" class="member-name-link">organizerName</a> - Variable in class com.example.lottery.<a href="com/example/lottery/EntrantHistoryAdapter.HistoryItem.html" title="class in com.example.lottery">EntrantHistoryAdapter.HistoryItem</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/OrganizerNotificationEventAdapter.html" class="type-name-link" title="class in com.example.lottery">OrganizerNotificationEventAdapter</a> - Class in <a href="com/example/lottery/package-summary.html">com.example.lottery</a></dt>
 <dd>
@@ -951,6 +1096,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Creates an adapter for displaying a list of users.</div>
 </dd>
+<dt><a href="com/example/lottery/util/WaitlistPromotionUtil.html#promoteOneFromWaitlistIfNeeded(com.google.firebase.firestore.FirebaseFirestore,java.lang.String)" class="member-name-link">promoteOneFromWaitlistIfNeeded(FirebaseFirestore, String)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/WaitlistPromotionUtil.html" title="class in com.example.lottery.util">WaitlistPromotionUtil</a></dt>
+<dd>
+<div class="block">Checks for available capacity and promotes one waitlisted entrant if possible.</div>
+</dd>
 </dl>
 <h2 class="title" id="I:Q">Q</h2>
 <dl class="index">
@@ -990,10 +1139,13 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/example/lottery/SampleFragment.html#%3Cinit%3E()" class="member-name-link">SampleFragment()</a> - Constructor for class com.example.lottery.<a href="com/example/lottery/SampleFragment.html" title="class in com.example.lottery">SampleFragment</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/EntrantsListActivity.html#sampling(java.lang.String)" class="member-name-link">sampling(String)</a> - Method in class com.example.lottery.<a href="com/example/lottery/EntrantsListActivity.html" title="class in com.example.lottery">EntrantsListActivity</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">implement US 02.05.02, randomly sample a specific number of signed up entrants from the attendees</div>
+</dd>
 <dt><a href="com/example/lottery/EntrantsListActivity.html#sendNotification(java.lang.String)" class="member-name-link">sendNotification(String)</a> - Method in class com.example.lottery.<a href="com/example/lottery/EntrantsListActivity.html" title="class in com.example.lottery">EntrantsListActivity</a></dt>
 <dd>
-<div class="block">Sends a notification to the currently visible group of entrants.</div>
+<div class="block">Sends a notification specifically to entrants on the waiting list (US 02.07.01)
+ or to selected entrants (US 02.07.02).</div>
 </dd>
 <dt><a href="com/example/lottery/NotificationFragment.NotificationListener.html#sendNotification(java.lang.String)" class="member-name-link">sendNotification(String)</a> - Method in interface com.example.lottery.<a href="com/example/lottery/NotificationFragment.NotificationListener.html" title="interface in com.example.lottery">NotificationFragment.NotificationListener</a></dt>
 <dd>
@@ -1023,6 +1175,8 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/example/lottery/model/EntrantEvent.html#setCancelledAt(com.google.firebase.Timestamp)" class="member-name-link">setCancelledAt(Timestamp)</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/EntrantEvent.html" title="class in com.example.lottery.model">EntrantEvent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/Event.html#setCapacity(java.lang.Integer)" class="member-name-link">setCapacity(Integer)</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Event.html" title="class in com.example.lottery.model">Event</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/model/Event.html#setCategory(java.lang.String)" class="member-name-link">setCategory(String)</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Event.html" title="class in com.example.lottery.model">Event</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/Comment.html#setCommentId(java.lang.String)" class="member-name-link">setCommentId(String)</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Comment.html" title="class in com.example.lottery.model">Comment</a></dt>
 <dd>&nbsp;</dd>
@@ -1058,6 +1212,8 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/NotificationItem.html#setEventTitle(java.lang.String)" class="member-name-link">setEventTitle(String)</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/NotificationItem.html" title="class in com.example.lottery.model">NotificationItem</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/model/User.html#setInterests(java.util.List)" class="member-name-link">setInterests(List&lt;String&gt;)</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/User.html" title="class in com.example.lottery.model">User</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/Entrant.html#setInvitedAt(com.google.firebase.Timestamp)" class="member-name-link">setInvitedAt(Timestamp)</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Entrant.html" title="class in com.example.lottery.model">Entrant</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/EntrantEvent.html#setInvitedAt(com.google.firebase.Timestamp)" class="member-name-link">setInvitedAt(Timestamp)</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/EntrantEvent.html" title="class in com.example.lottery.model">EntrantEvent</a></dt>
@@ -1079,6 +1235,8 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/example/lottery/model/User.html#setPhone(java.lang.String)" class="member-name-link">setPhone(String)</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/User.html" title="class in com.example.lottery.model">User</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/Event.html#setPosterUri(java.lang.String)" class="member-name-link">setPosterUri(String)</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Event.html" title="class in com.example.lottery.model">Event</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/model/Event.html#setPrivate(boolean)" class="member-name-link">setPrivate(boolean)</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Event.html" title="class in com.example.lottery.model">Event</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/Event.html#setQrCodeContent(java.lang.String)" class="member-name-link">setQrCodeContent(String)</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Event.html" title="class in com.example.lottery.model">Event</a></dt>
 <dd>&nbsp;</dd>
@@ -1144,17 +1302,23 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">stores and recycles views as they are scrolled off screen</div>
 </dd>
+<dt><a href="com/example/lottery/EntrantHistoryAdapter.HistoryItem.html#status" class="member-name-link">status</a> - Variable in class com.example.lottery.<a href="com/example/lottery/EntrantHistoryAdapter.HistoryItem.html" title="class in com.example.lottery">EntrantHistoryAdapter.HistoryItem</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/util/InvitationFlowUtil.html#STATUS_ACCEPTED" class="member-name-link">STATUS_ACCEPTED</a> - Static variable in class com.example.lottery.util.<a href="com/example/lottery/util/InvitationFlowUtil.html" title="class in com.example.lottery.util">InvitationFlowUtil</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/util/InvitationFlowUtil.html#STATUS_CANCELLED" class="member-name-link">STATUS_CANCELLED</a> - Static variable in class com.example.lottery.util.<a href="com/example/lottery/util/InvitationFlowUtil.html" title="class in com.example.lottery.util">InvitationFlowUtil</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/util/InvitationFlowUtil.html#STATUS_INVITED" class="member-name-link">STATUS_INVITED</a> - Static variable in class com.example.lottery.util.<a href="com/example/lottery/util/InvitationFlowUtil.html" title="class in com.example.lottery.util">InvitationFlowUtil</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/util/InvitationFlowUtil.html#STATUS_NOT_SELECTED" class="member-name-link">STATUS_NOT_SELECTED</a> - Static variable in class com.example.lottery.util.<a href="com/example/lottery/util/InvitationFlowUtil.html" title="class in com.example.lottery.util">InvitationFlowUtil</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/util/InvitationFlowUtil.html#STATUS_WAITLISTED" class="member-name-link">STATUS_WAITLISTED</a> - Static variable in class com.example.lottery.util.<a href="com/example/lottery/util/InvitationFlowUtil.html" title="class in com.example.lottery.util">InvitationFlowUtil</a></dt>
 <dd>&nbsp;</dd>
 </dl>
 <h2 class="title" id="I:T">T</h2>
 <dl class="index">
+<dt><a href="com/example/lottery/EntrantsListActivity.html#toggleSelection(java.lang.String)" class="member-name-link">toggleSelection(String)</a> - Method in class com.example.lottery.<a href="com/example/lottery/EntrantsListActivity.html" title="class in com.example.lottery">EntrantsListActivity</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/Event.html#touch()" class="member-name-link">touch()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Event.html" title="class in com.example.lottery.model">Event</a></dt>
 <dd>
 <div class="block">Updates the updatedAt timestamp.</div>
@@ -1182,7 +1346,7 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Convenience constructor for basic profile information with userId.</div>
 </dd>
-<dt><a href="com/example/lottery/model/User.html#%3Cinit%3E(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,com.google.firebase.firestore.GeoPoint,boolean,com.google.firebase.Timestamp,com.google.firebase.Timestamp)" class="member-name-link">User(String, String, String, String, String, String, GeoPoint, boolean, Timestamp, Timestamp)</a> - Constructor for class com.example.lottery.model.<a href="com/example/lottery/model/User.html" title="class in com.example.lottery.model">User</a></dt>
+<dt><a href="com/example/lottery/model/User.html#%3Cinit%3E(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,com.google.firebase.firestore.GeoPoint,boolean,com.google.firebase.Timestamp,com.google.firebase.Timestamp,java.util.List)" class="member-name-link">User(String, String, String, String, String, String, GeoPoint, boolean, Timestamp, Timestamp, List&lt;String&gt;)</a> - Constructor for class com.example.lottery.model.<a href="com/example/lottery/model/User.html" title="class in com.example.lottery.model">User</a></dt>
 <dd>
 <div class="block">Full constructor.</div>
 </dd>
@@ -1222,8 +1386,14 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/example/lottery/WaitingListActivity.html#%3Cinit%3E()" class="member-name-link">WaitingListActivity()</a> - Constructor for class com.example.lottery.<a href="com/example/lottery/WaitingListActivity.html" title="class in com.example.lottery">WaitingListActivity</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/util/WaitlistPromotionUtil.html" class="type-name-link" title="class in com.example.lottery.util">WaitlistPromotionUtil</a> - Class in <a href="com/example/lottery/util/package-summary.html">com.example.lottery.util</a></dt>
+<dd>
+<div class="block">Utility to handle automatic promotion of entrants from the waitlist when a spot opens up.</div>
+</dd>
+<dt><a href="com/example/lottery/util/WaitlistPromotionUtil.html#%3Cinit%3E()" class="member-name-link">WaitlistPromotionUtil()</a> - Constructor for class com.example.lottery.util.<a href="com/example/lottery/util/WaitlistPromotionUtil.html" title="class in com.example.lottery.util">WaitlistPromotionUtil</a></dt>
+<dd>&nbsp;</dd>
 </dl>
-<a href="#I:A">A</a>&nbsp;<a href="#I:B">B</a>&nbsp;<a href="#I:C">C</a>&nbsp;<a href="#I:E">E</a>&nbsp;<a href="#I:F">F</a>&nbsp;<a href="#I:G">G</a>&nbsp;<a href="#I:I">I</a>&nbsp;<a href="#I:L">L</a>&nbsp;<a href="#I:M">M</a>&nbsp;<a href="#I:N">N</a>&nbsp;<a href="#I:O">O</a>&nbsp;<a href="#I:P">P</a>&nbsp;<a href="#I:Q">Q</a>&nbsp;<a href="#I:R">R</a>&nbsp;<a href="#I:S">S</a>&nbsp;<a href="#I:T">T</a>&nbsp;<a href="#I:U">U</a>&nbsp;<a href="#I:V">V</a>&nbsp;<a href="#I:W">W</a>&nbsp;<br><a href="allclasses-index.html">All&nbsp;Classes&nbsp;and&nbsp;Interfaces</a><span class="vertical-separator">|</span><a href="allpackages-index.html">All&nbsp;Packages</a><span class="vertical-separator">|</span><a href="constant-values.html">Constant&nbsp;Field&nbsp;Values</a><span class="vertical-separator">|</span><a href="serialized-form.html">Serialized&nbsp;Form</a></main>
+<a href="#I:A">A</a>&nbsp;<a href="#I:B">B</a>&nbsp;<a href="#I:C">C</a>&nbsp;<a href="#I:E">E</a>&nbsp;<a href="#I:F">F</a>&nbsp;<a href="#I:G">G</a>&nbsp;<a href="#I:H">H</a>&nbsp;<a href="#I:I">I</a>&nbsp;<a href="#I:L">L</a>&nbsp;<a href="#I:M">M</a>&nbsp;<a href="#I:N">N</a>&nbsp;<a href="#I:O">O</a>&nbsp;<a href="#I:P">P</a>&nbsp;<a href="#I:Q">Q</a>&nbsp;<a href="#I:R">R</a>&nbsp;<a href="#I:S">S</a>&nbsp;<a href="#I:T">T</a>&nbsp;<a href="#I:U">U</a>&nbsp;<a href="#I:V">V</a>&nbsp;<a href="#I:W">W</a>&nbsp;<br><a href="allclasses-index.html">All&nbsp;Classes&nbsp;and&nbsp;Interfaces</a><span class="vertical-separator">|</span><a href="allpackages-index.html">All&nbsp;Packages</a><span class="vertical-separator">|</span><a href="constant-values.html">Constant&nbsp;Field&nbsp;Values</a><span class="vertical-separator">|</span><a href="serialized-form.html">Serialized&nbsp;Form</a></main>
 </div>
 </div>
 </body>
