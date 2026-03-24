@@ -207,4 +207,23 @@
     <string name="filter_upcoming">Upcoming</string>
     <string name="filter_available">Available</string>
     <string name="filter_waitlist_open">Waitlist Open</string>
+
+    <!-- Profile Management -->
+    <string name="profile_image">Profile Image</string>
+    <string name="user_name_default">User Name</string>
+    <string name="email_default">user@example.com</string>
+    <string name="no_phone_number">No Phone Number</string>
+    <string name="role_entrant">Entrant</string>
+    <string name="name_hint">Name</string>
+    <string name="email_hint">Email</string>
+    <string name="phone_optional_hint">Phone (Optional)</string>
+    <string name="interests_label">Interests</string>
+    <string name="preferences_header">PREFERENCES</string>
+    <string name="enable_notifications">Enable Notifications</string>
+    <string name="receive_notifications_description">Receive organizer and admin notifications</string>
+    <string name="actions_header">ACTIONS</string>
+    <string name="lottery_guidelines">Lottery Guidelines</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="delete_profile">Delete Profile</string>
+    <string name="log_out">Log Out</string>
 </resources>
