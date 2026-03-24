@@ -3,6 +3,7 @@ package com.example.lottery;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,6 +35,7 @@ public class EntrantMainActivity extends AppCompatActivity {
     private TextView tvActiveCount, tvJoinedCount;
     private FirebaseFirestore db;
     private String userId;
+    private ImageButton filterBtn;
 
     /**
      * Initializes the activity, setting up the UI and loading data.
@@ -67,7 +69,7 @@ public class EntrantMainActivity extends AppCompatActivity {
         rvEvents = findViewById(R.id.rvEvents);
         emptyStateContainer = findViewById(R.id.emptyStateContainer);
         tvActiveCount = findViewById(R.id.tvActiveCount);
-        tvJoinedCount = findViewById(R.id.tvJoinedCount);
+        filterBtn = findViewById(R.id.filterSearchButton);
 
         adapter = new EntrantEventAdapter(eventList, this::openEventDetails);
         rvEvents.setLayoutManager(new LinearLayoutManager(this));
@@ -76,6 +78,7 @@ public class EntrantMainActivity extends AppCompatActivity {
         setupNavigation();
         loadEvents();
         loadStats();
+        setupFilter();
     }
 
     /**
@@ -171,4 +174,17 @@ public class EntrantMainActivity extends AppCompatActivity {
         intent.putExtra(EntrantEventDetailsActivity.EXTRA_USER_ID, userId);
         startActivity(intent);
     }
+
+    /**
+     * Handles filtering event search/browse feature
+     */
+    private void setupFilter() {
+        findViewById(R.id.filterSearchButton).setOnClickListener(v -> {
+            Intent intent = new Intent(this, FilterActivity.class);
+            // intent.putExtra("userId", userId);
+            startActivity(intent);
+    }
+        );
+    }
 }
+

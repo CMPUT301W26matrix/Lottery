@@ -6,19 +6,20 @@
     android:layout_height="wrap_content">
 
     <!-- Search Bar -->
+
+    <!-- Navigation Bar Card -->
     <com.google.android.material.search.SearchBar
         android:id="@+id/top_search_bar"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_width="356dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="3dp"
+        app:layout_constraintEnd_toStartOf="@+id/imageButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Search..." />
 
-    <!-- Navigation Bar Card -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/top_bar_bg"
         android:layout_width="match_parent"
@@ -93,5 +94,14 @@
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
+
+    <ImageButton
+        android:id="@+id/filterSearchButton"
+        android:layout_width="51dp"
+        android:layout_height="51dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/baseline_filter_alt_24" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

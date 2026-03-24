@@ -205,4 +205,9 @@
     <!-- Registration period ended strings -->
     <string name="registration_period_ended">Registration Period Over</string>
     <string name="cannot_join_event_lottery_drawn">You can no longer join this event as the lottery has already been drawn.</string>
+
+    <!-- Registration period ended strings -->
+    <string name="filter_events">Filter Your Events</string>
+    <string name="filter_text">Search for events based on their capacity and your availability</string>
+    <string name="filter_capacity">Input Desired Capacity</string>
 </resources>
