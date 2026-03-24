@@ -80,7 +80,7 @@
                 </LinearLayout>
 
                 <TextView
-                    android:id="@+id/tvNotificationBadge_hidden"
+                    android:id="@+id/tvNotificationBadge"
                     android:layout_width="18dp"
                     android:layout_height="18dp"
                     android:layout_alignParentTop="true"

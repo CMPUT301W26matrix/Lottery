@@ -56,7 +56,7 @@
             android:src="@android:drawable/ic_popup_reminder"
             app:tint="@color/primary_blue" />
 
-        <View
+        <TextView
             android:id="@+id/tvNotificationBadge"
             android:layout_width="10dp"
             android:layout_height="10dp"
