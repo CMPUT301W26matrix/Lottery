@@ -49,6 +49,10 @@
             android:name=".NotificationsActivity"
             android:exported="false" />
         <activity
+            android:name=".EntrantEventHistoryActivity"
+            android:exported="false"
+            android:label="My Events" />
+        <activity
             android:name=".EntrantEventDetailsActivity"
             android:exported="false" />
         <activity
@@ -116,6 +120,12 @@
             android:exported="false"
             android:label="@string/admin_image_preview_title"
             android:parentActivityName=".AdminBrowseImagesActivity" />
+        <activity
+            android:name=".EntrantLotteryGuidelinesActivity"
+            android:exported="false" />
+        <activity
+            android:name=".OrganizerLotteryGuidelinesActivity"
+            android:exported="false" />
 
     </application>
 

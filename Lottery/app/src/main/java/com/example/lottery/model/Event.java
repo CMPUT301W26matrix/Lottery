@@ -19,10 +19,12 @@ public class Event {
     private String qrCodeContent;
     private String status; // open, closed, cancelled
     private String posterUri;
+    private String category; // academic, social, sports, music, other
     private Timestamp scheduledDateTime;
     private Timestamp registrationDeadline;
     private Timestamp drawDate;
     private boolean requireLocation;
+    private boolean isPrivate;
     private Timestamp createdAt;
     private Timestamp updatedAt;
 
@@ -31,6 +33,8 @@ public class Event {
      */
     public Event() {
         this.status = "open";
+        this.category = "Other";
+        this.isPrivate = false;
     }
 
     /**
@@ -45,10 +49,12 @@ public class Event {
                  String qrCodeContent,
                  String status,
                  String posterUri,
+                 String category,
                  Timestamp scheduledDateTime,
                  Timestamp registrationDeadline,
                  Timestamp drawDate,
                  boolean requireLocation,
+                 boolean isPrivate,
                  Timestamp createdAt,
                  Timestamp updatedAt) {
         this.eventId = eventId;
@@ -60,10 +66,12 @@ public class Event {
         this.qrCodeContent = qrCodeContent;
         this.status = status;
         this.posterUri = posterUri;
+        this.category = category == null ? "Other" : category;
         this.scheduledDateTime = scheduledDateTime;
         this.registrationDeadline = registrationDeadline;
         this.drawDate = drawDate;
         this.requireLocation = requireLocation;
+        this.isPrivate = isPrivate;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -142,6 +150,14 @@ public class Event {
         this.posterUri = posterUri;
     }
 
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
     public Timestamp getScheduledDateTime() {
         return scheduledDateTime;
     }
@@ -172,6 +188,14 @@ public class Event {
 
     public void setRequireLocation(boolean requireLocation) {
         this.requireLocation = requireLocation;
+    }
+
+    public boolean isPrivate() {
+        return isPrivate;
+    }
+
+    public void setPrivate(boolean aPrivate) {
+        isPrivate = aPrivate;
     }
 
     public Timestamp getCreatedAt() {

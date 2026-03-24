@@ -4,13 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F5">
+    android:background="#F5F5F5"
+    android:id="@+id/main">
 
-    <!-- Standard Header Bar -->
+    <!-- Standard Header Bar with Background - Padding handled by EdgeToEdge in code -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/topBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#FFFFFF"
         android:paddingHorizontal="16dp"
         android:paddingVertical="12dp"
         app:layout_constraintTop_toTopOf="parent">

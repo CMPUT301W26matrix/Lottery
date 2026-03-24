@@ -1,21 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/notification_fragment"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
 
-    <TextView
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/send_notification_string"
-        android:textColor="@color/accent_blue"
-        android:textSize="36sp"
-        android:textStyle="bold" />
+        android:hint="Message content"
+        app:boxStrokeColor="@color/accent_blue"
+        app:hintTextColor="@color/accent_blue">
 
-    <EditText
-        android:id="@+id/input_sampling_size"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/notification_input_hint" />
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etNotificationContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="top"
+            android:inputType="textMultiLine"
+            android:minLines="3"
+            android:textSize="16sp" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
 </LinearLayout>

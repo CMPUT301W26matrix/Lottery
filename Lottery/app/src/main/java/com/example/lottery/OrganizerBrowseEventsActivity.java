@@ -97,7 +97,8 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
         View btnHome = findViewById(R.id.nav_home);
         if (btnHome != null) {
             btnHome.setOnClickListener(v -> {
-                // Already home
+                // Already home, just scroll to top
+                rvEvents.smoothScrollToPosition(0);
             });
         }
 

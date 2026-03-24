@@ -62,6 +62,7 @@
     <string name="entrants_list_toggle_button_group_waited_list_button_text">Waited</string>
     <string name="entrants_list_toggle_button_group_signed_up_button_text">Accepted</string>
     <string name="entrants_list_toggle_button_group_cancelled_button_text">Cancelled</string>
+    <string name="entrants_list_toggle_button_group_not_selected_button_text">Not Selected</string>
     <string name="entrants_list_toggle_button_group_invited_button_text">Invited</string>
     <string name="entrants_list_function_toggle_button_group_send_notification_text">Send Notification</string>
     <string name="entrants_list_function_toggle_button_group_view_location_text">View Location</string>
@@ -87,7 +88,7 @@
     <string name="your_events">Your Events</string>
     <string name="no_events_created_yet">No events created yet</string>
     <string name="nav_home">Home</string>
-    <string name="nav_history">Notifications</string>
+    <string name="nav_history">My Events</string>
     <string name="nav_profile">Profile</string>
     <string name="admin_event_browser_title">Lottery Admin</string>
     <string name="admin_event_browser_subtitle">Browse all published events</string>
@@ -155,11 +156,14 @@
     <string name="registration_time">Registration Time</string>
 
     <!-- Entrant Main Screen Strings -->
+    <string name="browse_events">Browse Events</string>
     <string name="your_wait_listed_events">Your Wait-Listed Events</string>
+    <string name="search_hint">Search events...</string>
 
     <!-- Empty State Messages -->
     <string name="no_wait_listed_events">You have no events in your wait list</string>
     <string name="join_events_to_see_them_here">Join events to see them here</string>
+    <string name="no_events_found">No events found matching your criteria</string>
 
     <!-- Event Item/Details Strings -->
     <string name="wait_listed">WAIT-LISTED</string>
@@ -189,4 +193,18 @@
     <string name="cannot_join_event_lottery_drawn">You can no longer join this event as the lottery has already been drawn.</string>
     <string name="entrant_counts">Entrant Counts</string>
     <string name="delete_image">Delete Image</string>
+
+    <!-- Browse Filters -->
+    <string name="filter_all">All</string>
+    <string name="filter_academic">Academic</string>
+    <string name="filter_social">Social</string>
+    <string name="filter_sports">Sports</string>
+    <string name="filter_music">Music</string>
+    <string name="filter_other">Other</string>
+    <string name="filter_all_dates">All Dates</string>
+    <string name="filter_today">Today</string>
+    <string name="filter_this_week">This Week</string>
+    <string name="filter_upcoming">Upcoming</string>
+    <string name="filter_available">Available</string>
+    <string name="filter_waitlist_open">Waitlist Open</string>
 </resources>

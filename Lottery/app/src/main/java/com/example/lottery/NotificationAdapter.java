@@ -76,6 +76,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             case "waitlist_promoted": return "Waitlist Update";
             case "draw_result": return "Draw Result";
             case "event_cancelled": return "Event Cancelled";
+            case "co_organizer_assignment": return "Co-Organizer";
             default: return "General";
         }
     }

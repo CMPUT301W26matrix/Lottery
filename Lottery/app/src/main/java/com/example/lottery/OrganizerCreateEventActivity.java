@@ -28,6 +28,8 @@ import com.example.lottery.util.EventValidationUtils;
 import com.example.lottery.util.PosterImageLoader;
 import com.example.lottery.util.QRCodeUtils;
 import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -61,7 +63,8 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
     private ImageView ivQRCodePreview, ivPosterPreview;
     private TextView tvQRCodeLabel, tvPosterStatus, tvHeader;
     private MaterialCardView cvQRCode;
-    private SwitchMaterial swRequireLocation, swLimitWaitingList;
+    private SwitchMaterial swRequireLocation, swLimitWaitingList, swIsPrivate;
+    private ChipGroup cgCategories;
 
     private String eventId = UUID.randomUUID().toString();
     private String qrCodeContent = "";
@@ -76,6 +79,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate started");
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_organizer_create_event);
 
@@ -95,6 +99,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         }
 
         if (userId == null) {
+            Log.e(TAG, "User ID is null, finishing activity");
             Toast.makeText(this, "Session expired", Toast.LENGTH_SHORT).show();
             finish();
             return;
@@ -123,12 +128,28 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         });
 
         btnGenerateQRCode.setOnClickListener(v -> generateAndDisplayQRCode());
-        btnCreateEvent.setOnClickListener(v -> validateAndSaveEvent());
+
+        btnCreateEvent.setOnClickListener(v -> {
+            Log.d(TAG, "Save/Launch button clicked");
+            validateAndSaveEvent();
+        });
 
         swLimitWaitingList.setOnCheckedChangeListener((buttonView, isChecked) -> {
             tilWaitingListLimit.setVisibility(isChecked ? View.VISIBLE : View.GONE);
             if (!isChecked) {
                 etWaitingListLimit.setText("");
+            }
+        });
+
+        swIsPrivate.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                // If private, clear QR code and hide related UI
+                qrCodeContent = "";
+                cvQRCode.setVisibility(View.GONE);
+                tvQRCodeLabel.setVisibility(View.GONE);
+                btnGenerateQRCode.setVisibility(View.GONE);
+            } else {
+                btnGenerateQRCode.setVisibility(View.VISIBLE);
             }
         });
 
@@ -213,8 +234,10 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
 
         swRequireLocation = findViewById(R.id.swRequireLocation);
         swLimitWaitingList = findViewById(R.id.swLimitWaitingList);
+        swIsPrivate = findViewById(R.id.swIsPrivate);
         tilWaitingListLimit = findViewById(R.id.tilWaitingListLimit);
         etWaitingListLimit = findViewById(R.id.etWaitingListLimit);
+        cgCategories = findViewById(R.id.cgCategories);
     }
 
     private void loadEventData(String existingEventId) {
@@ -228,6 +251,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             etMaxCapacity.setText(String.valueOf(event.getCapacity()));
             etEventDetails.setText(event.getDetails());
             swRequireLocation.setChecked(event.isRequireLocation());
+            swIsPrivate.setChecked(event.isPrivate());
 
             if (event.getWaitingListLimit() != null) {
                 swLimitWaitingList.setChecked(true);
@@ -255,8 +279,33 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             if (eventStartDate != null) etEventStart.setText(sdf.format(eventStartDate));
             if (regEndDate != null) etRegEnd.setText(sdf.format(regEndDate));
             if (drawDate != null) etDrawDate.setText(sdf.format(drawDate));
+
+            // Display QR code if it exists and event is not private
+            if (qrCodeContent != null && !qrCodeContent.isEmpty() && !event.isPrivate()) {
+                Bitmap qrBitmap = QRCodeUtils.generateQRCodeBitmap(qrCodeContent);
+                if (qrBitmap != null) {
+                    ivQRCodePreview.setImageBitmap(qrBitmap);
+                    tvQRCodeLabel.setVisibility(View.VISIBLE);
+                    cvQRCode.setVisibility(View.VISIBLE);
+                    btnGenerateQRCode.setVisibility(View.GONE);
+                }
+            } else if (event.isPrivate()) {
+                btnGenerateQRCode.setVisibility(View.GONE);
+            }
             
-            // Note: eventEndDate and registrationStartDate are removed as per new Event model
+            // Set category
+            if (event.getCategory() != null) {
+                for (int i = 0; i < cgCategories.getChildCount(); i++) {
+                    View child = cgCategories.getChildAt(i);
+                    if (child instanceof Chip) {
+                        Chip chip = (Chip) child;
+                        if (chip.getText().toString().equalsIgnoreCase(event.getCategory())) {
+                            chip.setChecked(true);
+                            break;
+                        }
+                    }
+                }
+            }
         });
     }
 
@@ -278,6 +327,10 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
     }
 
     private void generateAndDisplayQRCode() {
+        if (swIsPrivate.isChecked()) {
+            Toast.makeText(this, "Private events do not have promotional QR codes", Toast.LENGTH_SHORT).show();
+            return;
+        }
         qrCodeContent = QRCodeUtils.generateUniqueQrContent(eventId);
         Bitmap qrBitmap = QRCodeUtils.generateQRCodeBitmap(qrCodeContent);
         if (qrBitmap != null) {
@@ -310,25 +363,30 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
     }
 
     private void validateAndSaveEvent() {
-        String title = Objects.requireNonNull(etEventTitle.getText()).toString().trim();
-        String capacityStr = Objects.requireNonNull(etMaxCapacity.getText()).toString().trim();
-        String details = Objects.requireNonNull(etEventDetails.getText()).toString().trim();
-        String waitingLimitStr = Objects.requireNonNull(etWaitingListLimit.getText()).toString().trim();
+        Log.d(TAG, "Starting validation...");
+        String title = etEventTitle.getText() != null ? etEventTitle.getText().toString().trim() : "";
+        String capacityStr = etMaxCapacity.getText() != null ? etMaxCapacity.getText().toString().trim() : "";
+        String details = etEventDetails.getText() != null ? etEventDetails.getText().toString().trim() : "";
+        String waitingLimitStr = etWaitingListLimit.getText() != null ? etWaitingListLimit.getText().toString().trim() : "";
 
         if (title.isEmpty()) {
             Toast.makeText(this, "Event title is required", Toast.LENGTH_SHORT).show();
+            Log.w(TAG, "Validation failed: Title is empty");
             return;
         }
         if (eventStartDate == null) {
             Toast.makeText(this, "Event date and time are required", Toast.LENGTH_SHORT).show();
+            Log.w(TAG, "Validation failed: Event start date is null");
             return;
         }
         if (regEndDate == null) {
             Toast.makeText(this, "Registration deadline is required", Toast.LENGTH_SHORT).show();
+            Log.w(TAG, "Validation failed: Registration deadline is null");
             return;
         }
         if (!EventValidationUtils.isRegistrationDeadlineValid(regEndDate, eventStartDate)) {
             Toast.makeText(this, "Registration must end before the event starts", Toast.LENGTH_LONG).show();
+            Log.w(TAG, "Validation failed: Invalid registration deadline sequence");
             return;
         }
 
@@ -336,6 +394,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         if (swLimitWaitingList.isChecked()) {
             if (waitingLimitStr.isEmpty()) {
                 Toast.makeText(this, "Please enter a waiting list limit", Toast.LENGTH_SHORT).show();
+                Log.w(TAG, "Validation failed: Waiting list limit enabled but empty");
                 return;
             }
             try {
@@ -351,6 +410,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         }
 
         final Integer finalWaitingListLimit = waitingListLimit;
+        Log.d(TAG, "Validation passed, proceeding to persist event");
 
         if (isEditMode && finalWaitingListLimit != null) {
             db.collection(FirestorePaths.eventWaitingList(eventId)).get()
@@ -368,11 +428,14 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
     }
 
     private void persistEvent(String title, String capacityStr, String details, Integer waitingListLimit) {
+        Log.d(TAG, "persistEvent started");
         btnCreateEvent.setEnabled(false);
         if (isLocalUri(selectedPosterUri)) {
+            Log.d(TAG, "Local URI detected, uploading poster first");
             uploadPosterAndSaveEvent(title, capacityStr, details, waitingListLimit, selectedPosterUri);
             return;
         }
+        Log.d(TAG, "No local poster to upload, saving directly to Firestore");
         String posterUriToSave = selectedPosterUri != null ? selectedPosterUri.toString() : "";
         saveEventToFirestore(title, capacityStr, details, waitingListLimit, posterUriToSave);
     }
@@ -391,6 +454,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                     performUpload(title, capacityStr, details, waitingListLimit, posterUri);
                 } else {
                     btnCreateEvent.setEnabled(true);
+                    Log.e(TAG, "Anonymous sign-in failed", task.getException());
                     Toast.makeText(this, "Upload failed: Authentication error", Toast.LENGTH_SHORT).show();
                 }
             });
@@ -413,7 +477,10 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                     }
                     return posterRef.getDownloadUrl();
                 })
-                .addOnSuccessListener(downloadUri -> saveEventToFirestore(title, capacityStr, details, waitingListLimit, downloadUri.toString()))
+                .addOnSuccessListener(downloadUri -> {
+                    Log.d(TAG, "Poster uploaded successfully, URI: " + downloadUri);
+                    saveEventToFirestore(title, capacityStr, details, waitingListLimit, downloadUri.toString());
+                })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Failed to upload poster: " + e.getMessage());
                     Toast.makeText(this, "Poster upload unavailable, saving event without poster", Toast.LENGTH_LONG).show();
@@ -422,12 +489,27 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
     }
 
     private void saveEventToFirestore(String title, String capacityStr, String details, Integer waitingListLimit, String posterUriToSave) {
-        if (qrCodeContent.isEmpty()) {
+        Log.d(TAG, "saveEventToFirestore started");
+        
+        boolean isPrivate = swIsPrivate.isChecked();
+        
+        if (isPrivate) {
+            qrCodeContent = ""; // No promotional QR for private events
+        } else if (qrCodeContent == null || qrCodeContent.isEmpty()) {
             qrCodeContent = QRCodeUtils.generateUniqueQrContent(eventId);
         }
 
         int capacity = capacityStr.isEmpty() ? 0 : Integer.parseInt(capacityStr);
         boolean requireLocation = swRequireLocation.isChecked();
+
+        String category = "Other";
+        int checkedChipId = cgCategories.getCheckedChipId();
+        if (checkedChipId != View.NO_ID) {
+            Chip chip = findViewById(checkedChipId);
+            if (chip != null) {
+                category = chip.getText().toString();
+            }
+        }
 
         Event event = new Event();
         event.setEventId(eventId);
@@ -441,19 +523,23 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         event.setRegistrationDeadline(regEndDate != null ? new Timestamp(regEndDate) : null);
         event.setDrawDate(drawDate != null ? new Timestamp(drawDate) : null);
         event.setRequireLocation(requireLocation);
+        event.setPrivate(isPrivate);
         event.setPosterUri(posterUriToSave);
+        event.setCategory(category);
         event.touch();
 
         db.collection(FirestorePaths.EVENTS).document(eventId)
                 .set(event)
                 .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "Event saved to Firestore successfully");
                     deleteReplacedPosterIfNeeded(posterUriToSave);
                     Toast.makeText(this, isEditMode ? "Event Updated Successfully!" : "Event Launched Successfully!", Toast.LENGTH_SHORT).show();
                     finish();
                 })
                 .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to save event to Firestore", e);
                     btnCreateEvent.setEnabled(true);
-                    Toast.makeText(this, "Failed to save event", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Failed to save event: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
 

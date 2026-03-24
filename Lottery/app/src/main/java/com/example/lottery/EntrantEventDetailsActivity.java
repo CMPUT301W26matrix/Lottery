@@ -21,11 +21,14 @@ import com.example.lottery.model.EntrantEvent;
 import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.InvitationFlowUtil;
 import com.example.lottery.util.PosterImageLoader;
+import com.example.lottery.util.WaitlistPromotionUtil;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 
 import java.text.SimpleDateFormat;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Activity that displays detailed information about a specific event from an entrant's perspective.
@@ -52,11 +55,11 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
 
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
 
-    private TextView tvEventTitle, tvRegistrationPeriod, tvWaitlistCount, tvNotificationBadge, tvEventDescription;
+    private TextView tvEventTitle, tvRegistrationPeriod, tvWaitlistCount, tvNotificationBadge, tvEventDescription, tvCoOrganizerStatus;
     private Button btnWaitlistAction, btnAcceptInvite, btnDeclineInvite;
     private LinearLayout invitationButtonsContainer, registrationEndedContainer;
     private View navHome, navNotifications, navQrScan, navProfile;
-    private ImageButton btnClose;
+    private ImageButton btnClose, btnComments;
     private ImageView ivEventPoster;
 
     private FirebaseFirestore db;
@@ -70,6 +73,10 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     private boolean isInvited = false;
     private boolean hasAcceptedInvite = false;
     private boolean isCancelled = false;
+    private boolean wasWaitlisted = false;
+    private boolean isCoOrganizer = false;
+
+    private ListenerRegistration waitlistListener;
 
     /**
      * Initializes the activity, sets up view references, and triggers initial data loading.
@@ -97,6 +104,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         tvWaitlistCount = findViewById(R.id.tvWaitlistCount);
         tvNotificationBadge = findViewById(R.id.tvNotificationBadge);
         tvEventDescription = findViewById(R.id.tvEventDescription);
+        tvCoOrganizerStatus = findViewById(R.id.tvCoOrganizerStatus);
         btnWaitlistAction = findViewById(R.id.btnWaitlistAction);
 
         invitationButtonsContainer = findViewById(R.id.invitationButtonsContainer);
@@ -110,6 +118,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         navProfile = findViewById(R.id.nav_profile);
         
         btnClose = findViewById(R.id.btnBack);
+        btnComments = findViewById(R.id.btnComments);
         ivEventPoster = findViewById(R.id.ivEventPoster);
 
         SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
@@ -129,7 +138,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         }
 
         loadEventDetails();
-        checkUserEventStatus();
+        checkCoOrganizerStatus();
         loadWaitlistCount();
         checkUnreadNotifications();
 
@@ -137,6 +146,10 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         btnDeclineInvite.setOnClickListener(v -> declineInvitation());
 
         btnWaitlistAction.setOnClickListener(v -> {
+            if (isCoOrganizer) {
+                Toast.makeText(this, "Co-organizers cannot join the waitlist", Toast.LENGTH_SHORT).show();
+                return;
+            }
             if (hasAcceptedInvite) {
                 cancelAcceptedInvitation();
             } else if (isInWaitlist) {
@@ -146,8 +159,12 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
             }
         });
 
-        setupNavigation();
+        btnComments.setOnClickListener(v -> {
+            EntrantCommentBottomSheet bottomSheet = EntrantCommentBottomSheet.newInstance(eventId, userId, userName, isCoOrganizer);
+            bottomSheet.show(getSupportFragmentManager(), "comment_bottom_sheet");
+        });
 
+        setupNavigation();
         btnClose.setOnClickListener(v -> finish());
     }
 
@@ -167,8 +184,8 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
 
         if (navNotifications != null) {
             navNotifications.setOnClickListener(v -> {
-                Intent intent = new Intent(this, NotificationsActivity.class);
-                intent.putExtra(NotificationsActivity.EXTRA_USER_ID, userId);
+                Intent intent = new Intent(this, EntrantEventHistoryActivity.class);
+                intent.putExtra("userId", userId);
                 startActivity(intent);
             });
         }
@@ -188,7 +205,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                 startActivity(intent);
             });
         }
-        
+
         updateNavigationSelection();
     }
 
@@ -219,9 +236,18 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         super.onResume();
         if (eventId != null && userId != null) {
             loadEventDetails();
-            checkUserEventStatus();
+            checkCoOrganizerStatus();
             loadWaitlistCount();
             checkUnreadNotifications();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (waitlistListener != null) {
+            waitlistListener.remove();
+            waitlistListener = null;
         }
     }
 
@@ -232,17 +258,34 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         db.collection(FirestorePaths.EVENTS).document(eventId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (!documentSnapshot.exists()) return;
-
                     tvEventTitle.setText(documentSnapshot.getString("title"));
                     tvEventDescription.setText(documentSnapshot.getString("details"));
-                    
+
                     Timestamp end = documentSnapshot.getTimestamp("registrationDeadline");
                     if (end != null) {
                         tvRegistrationPeriod.setText(String.format("Deadline: %s", dateFormat.format(end.toDate())));
                     }
-
                     PosterImageLoader.load(ivEventPoster, documentSnapshot.getString("posterUri"), R.drawable.event_placeholder);
                 });
+    }
+
+    private void checkCoOrganizerStatus() {
+        db.collection(FirestorePaths.eventCoOrganizers(eventId)).document(userId).get()
+                .addOnSuccessListener(doc -> {
+                    isCoOrganizer = doc.exists();
+                    if (isCoOrganizer) {
+                        if (tvCoOrganizerStatus != null) {
+                            tvCoOrganizerStatus.setVisibility(View.VISIBLE);
+                            tvCoOrganizerStatus.setText("You are a co-organizer for this event");
+                        }
+                        btnWaitlistAction.setVisibility(View.GONE);
+                        invitationButtonsContainer.setVisibility(View.GONE);
+                    } else {
+                        if (tvCoOrganizerStatus != null) tvCoOrganizerStatus.setVisibility(View.GONE);
+                        checkUserEventStatus();
+                    }
+                })
+                .addOnFailureListener(e -> checkUserEventStatus());
     }
 
     /**
@@ -257,6 +300,10 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                         hasAcceptedInvite = InvitationFlowUtil.STATUS_ACCEPTED.equals(status);
                         isCancelled = InvitationFlowUtil.STATUS_CANCELLED.equals(status);
                         isInWaitlist = InvitationFlowUtil.STATUS_WAITLISTED.equals(status);
+
+                        // Check if they were ever waitlisted to distinguish US 01.05.07 from US 01.05.04
+                        wasWaitlisted = doc.getTimestamp("waitlistedAt") != null;
+
                         updateUIBasedOnStatus();
                     } else {
                         resetToDefaultState();
@@ -268,6 +315,8 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
      * Updates the visibility and text of action buttons based on the user's current event status.
      */
     private void updateUIBasedOnStatus() {
+        if (isCoOrganizer) return; // Handled in checkCoOrganizerStatus
+
         if (isInvited) {
             btnWaitlistAction.setVisibility(View.GONE);
             invitationButtonsContainer.setVisibility(View.VISIBLE);
@@ -294,6 +343,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         isInvited = false;
         hasAcceptedInvite = false;
         isCancelled = false;
+        wasWaitlisted = false;
         updateUIBasedOnStatus();
     }
 
@@ -301,9 +351,23 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
      * Performs the "Accept Invitation" action by updating the Firestore record.
      */
     private void acceptInvitation() {
+        Map<String, Object> updates;
+        if (isInvited && !wasWaitlisted) {
+            // US 01.05.07: Accepting an invitation to JOIN THE WAITING LIST for a private event
+            updates = InvitationFlowUtil.buildWaitlistJoinUpdate();
+        } else {
+            // US 01.05.04: Accepting a spot after being selected from the waitlist (lottery win)
+            updates = InvitationFlowUtil.buildEntrantStatusUpdateFromResponse(InvitationFlowUtil.RESPONSE_ACCEPTED);
+        }
+
         db.collection(FirestorePaths.eventWaitingList(eventId)).document(userId)
-                .update(InvitationFlowUtil.buildEntrantStatusUpdateFromResponse(InvitationFlowUtil.RESPONSE_ACCEPTED))
-                .addOnSuccessListener(unused -> checkUserEventStatus());
+                .update(updates)
+                .addOnSuccessListener(unused -> {
+                    checkUserEventStatus();
+                    if (!wasWaitlisted) {
+                        Toast.makeText(this, R.string.joined_waitlist, Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     /**
@@ -312,7 +376,11 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     private void declineInvitation() {
         db.collection(FirestorePaths.eventWaitingList(eventId)).document(userId)
                 .update(InvitationFlowUtil.buildEntrantStatusUpdateFromResponse(InvitationFlowUtil.RESPONSE_DECLINED))
-                .addOnSuccessListener(unused -> checkUserEventStatus());
+                .addOnSuccessListener(unused -> {
+                    checkUserEventStatus();
+                    // AUTO-PROMOTION: Check if someone else can take this spot
+                    WaitlistPromotionUtil.promoteOneFromWaitlistIfNeeded(db, eventId);
+                });
     }
 
     /**
@@ -321,17 +389,24 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     private void cancelAcceptedInvitation() {
         db.collection(FirestorePaths.eventWaitingList(eventId)).document(userId)
                 .update(InvitationFlowUtil.buildCancelledEntrantUpdate())
-                .addOnSuccessListener(unused -> checkUserEventStatus());
+                .addOnSuccessListener(unused -> {
+                    checkUserEventStatus();
+                    // AUTO-PROMOTION: Check if someone else can take this spot
+                    WaitlistPromotionUtil.promoteOneFromWaitlistIfNeeded(db, eventId);
+                });
     }
 
     /**
      * Retrieves the current count of people in the waitlist for this event.
      */
     private void loadWaitlistCount() {
-        db.collection(FirestorePaths.eventWaitingList(eventId))
+        if (waitlistListener != null) {
+            waitlistListener.remove();
+        }
+        waitlistListener = db.collection(FirestorePaths.eventWaitingList(eventId))
                 .whereEqualTo("status", InvitationFlowUtil.STATUS_WAITLISTED)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
+                .addSnapshotListener((queryDocumentSnapshots, e) -> {
+                    if (e != null || queryDocumentSnapshots == null) return;
                     waitlistCount = queryDocumentSnapshots.size();
                     tvWaitlistCount.setText(getString(R.string.people_in_waitlist, waitlistCount));
                 });
@@ -353,6 +428,10 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
      * Logic for joining the waitlist for the event.
      */
     private void joinWaitlist() {
+        if (isCoOrganizer) {
+            Toast.makeText(this, "Co-organizers cannot join the waitlist", Toast.LENGTH_SHORT).show();
+            return;
+        }
         Timestamp now = Timestamp.now();
         EntrantEvent record = new EntrantEvent();
         record.setUserId(userId);
@@ -361,12 +440,11 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         record.setStatus(InvitationFlowUtil.STATUS_WAITLISTED);
         record.setRegisteredAt(now);
         record.setWaitlistedAt(now);
-        
+
         db.collection(FirestorePaths.eventWaitingList(eventId)).document(userId)
                 .set(record)
                 .addOnSuccessListener(unused -> {
                     isInWaitlist = true;
-                    loadWaitlistCount();
                     updateUIBasedOnStatus();
                     Toast.makeText(this, R.string.joined_waitlist, Toast.LENGTH_SHORT).show();
                 });
@@ -380,7 +458,6 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                 .delete()
                 .addOnSuccessListener(unused -> {
                     isInWaitlist = false;
-                    loadWaitlistCount();
                     updateUIBasedOnStatus();
                     Toast.makeText(this, R.string.left_waitlist, Toast.LENGTH_SHORT).show();
                 });

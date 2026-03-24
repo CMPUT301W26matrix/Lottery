@@ -37,14 +37,14 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@android:drawable/ic_menu_today"
-                    app:tint="@color/primary_blue" />
+                    app:tint="@color/text_gray" />
 
                 <TextView
                     android:id="@+id/tv_nav_home"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/nav_home"
-                    android:textColor="@color/primary_blue"
+                    android:textColor="@color/text_gray"
                     android:textSize="11sp" />
             </LinearLayout>
 
@@ -67,7 +67,7 @@
                         android:id="@+id/iv_nav_history"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:src="@android:drawable/ic_lock_idle_alarm"
+                        android:src="@android:drawable/ic_menu_recent_history"
                         app:tint="@color/text_gray" />
 
                     <TextView
@@ -80,7 +80,7 @@
                 </LinearLayout>
 
                 <TextView
-                    android:id="@+id/tvNotificationBadge"
+                    android:id="@+id/tvNotificationBadge_hidden"
                     android:layout_width="18dp"
                     android:layout_height="18dp"
                     android:layout_alignParentTop="true"

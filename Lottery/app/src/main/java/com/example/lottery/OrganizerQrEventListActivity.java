@@ -6,10 +6,15 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -23,6 +28,7 @@ import java.util.List;
 
 /**
  * Activity that displays a list of events for the organizer to select and view their QR codes.
+ * Updated with Edge-to-Edge support to ensure UI respects notches and system bars.
  */
 public class OrganizerQrEventListActivity extends AppCompatActivity {
 
@@ -34,9 +40,19 @@ public class OrganizerQrEventListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_organizer_qr_event_list);
 
-        // Fix: Use the custom back button from the layout instead of a Toolbar
+        // Standard way to handle system bars (notches, status bars)
+        View mainView = findViewById(R.id.main);
+        if (mainView != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(mainView, (v, insets) -> {
+                Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+                return insets;
+            });
+        }
+
         ImageButton btnBack = findViewById(R.id.btnBack);
         if (btnBack != null) {
             btnBack.setOnClickListener(v -> finish());
@@ -123,7 +139,17 @@ public class OrganizerQrEventListActivity extends AppCompatActivity {
     }
 
     private void updateNavigationSelection() {
-        // Implementation for updating UI selection if needed
+        // Highlight current selection
+        View navQr = findViewById(R.id.nav_qr_code);
+        if (navQr instanceof LinearLayout) {
+            LinearLayout ll = (LinearLayout) navQr;
+            if (ll.getChildCount() >= 2) {
+                View iv = ll.getChildAt(0);
+                View tv = ll.getChildAt(1);
+                if (iv instanceof ImageView) ((ImageView) iv).setColorFilter(getResources().getColor(R.color.primary_blue));
+                if (tv instanceof TextView) ((TextView) tv).setTextColor(getResources().getColor(R.color.primary_blue));
+            }
+        }
     }
 
     private void loadEvents() {

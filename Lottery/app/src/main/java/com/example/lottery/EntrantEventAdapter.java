@@ -3,7 +3,6 @@ package com.example.lottery;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -85,7 +84,7 @@ public class EntrantEventAdapter extends RecyclerView.Adapter<EntrantEventAdapte
         private final TextView tvEventTitle;
         private final TextView tvEventDate;
         private final TextView tvEventDescription;
-        private final Button btnViewDetails;
+        private final TextView btnViewDetails;
 
         EntrantEventViewHolder(@NonNull View itemView) {
             super(itemView);

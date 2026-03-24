@@ -1,10 +1,12 @@
 package com.example.lottery;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,6 +21,7 @@ import com.example.lottery.model.Event;
 import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.InvitationFlowUtil;
 import com.example.lottery.util.PosterImageLoader;
+import com.google.android.material.chip.Chip;
 import com.example.lottery.util.SessionUtil;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -37,12 +40,15 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
     private ImageView ivEventPoster;
     private TextView tvEventTitle, tvScheduledDate, tvRegistrationDeadline, tvDrawDate, tvEventDetails, tvLocationRequirement;
     private TextView tvWaitingListCapacity, tvEntrantCounts;
-    private Button btnEditEvent;
+    private Chip chipCategory, chipPrivate;
+    private Button btnInviteEntrant;
+    private ImageButton btnEditEvent, btnComments, btnCoOrganizers;
     private FirebaseFirestore db;
 
     private Event currentEvent;
     private String eventId;
     private String userId;
+    private String userName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +71,12 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         tvLocationRequirement = findViewById(R.id.tvLocationRequirement);
         tvWaitingListCapacity = findViewById(R.id.tvWaitingListCapacity);
         tvEntrantCounts = findViewById(R.id.tvEntrantCounts);
+        chipCategory = findViewById(R.id.chipCategory);
+        chipPrivate = findViewById(R.id.chipPrivate);
         btnEditEvent = findViewById(R.id.btnEditEvent);
+        btnInviteEntrant = findViewById(R.id.btnInviteEntrant);
+        btnComments = findViewById(R.id.btnComments);
+        btnCoOrganizers = findViewById(R.id.btnCoOrganizers);
         Button btnViewWaitingList = findViewById(R.id.btnViewWaitingList);
 
         // Remove references to deleted UI components if they were in the layout but no longer in model
@@ -89,8 +100,14 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         }
 
         setupNavigation();
-        fetchEventDetails(eventId);
-        fetchEntrantCounts(eventId);
+
+        if (eventId != null) {
+            fetchEventDetails(eventId);
+            fetchEntrantCounts(eventId);
+        } else {
+            Toast.makeText(this, "Error: Event ID missing", Toast.LENGTH_SHORT).show();
+            finish();
+        }
 
         btnEditEvent.setOnClickListener(v -> handleEditEvent());
 
@@ -100,6 +117,36 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
             intent.putExtra("userId", userId);
             startActivity(intent);
         });
+
+        btnInviteEntrant.setOnClickListener(v -> openInviteDialog());
+
+        btnComments.setOnClickListener(v -> {
+            EntrantCommentBottomSheet bottomSheet = EntrantCommentBottomSheet.newInstance(
+                    eventId, userId, userName, true);
+            bottomSheet.show(getSupportFragmentManager(), "comment_bottom_sheet");
+        });
+
+        btnCoOrganizers.setOnClickListener(v -> openCoOrganizerDialog());
+    }
+
+    private void openInviteDialog() {
+        if (currentEvent == null) return;
+        OrganizerInviteEntrantDialogFragment dialog = OrganizerInviteEntrantDialogFragment.newInstance(
+                currentEvent.getEventId(),
+                currentEvent.getTitle(),
+                userId
+        );
+        dialog.show(getSupportFragmentManager(), "invite_entrant");
+    }
+
+    private void openCoOrganizerDialog() {
+        if (currentEvent == null) return;
+        OrganizerInviteCoOrganizerDialogFragment dialog = OrganizerInviteCoOrganizerDialogFragment.newInstance(
+                currentEvent.getEventId(),
+                currentEvent.getTitle(),
+                userId
+        );
+        dialog.show(getSupportFragmentManager(), "invite_co_organizer");
     }
 
     @Override
@@ -240,6 +287,20 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
 
         if (tvLocationRequirement != null) {
             tvLocationRequirement.setVisibility(event.isRequireLocation() ? View.VISIBLE : View.GONE);
+        }
+
+        // Update chips
+        if (chipCategory != null) {
+            chipCategory.setText(event.getCategory() != null ? event.getCategory() : "Other");
+        }
+
+        if (chipPrivate != null) {
+            chipPrivate.setVisibility(event.isPrivate() ? View.VISIBLE : View.GONE);
+        }
+
+        // Show/Hide Invite button based on private status
+        if (btnInviteEntrant != null) {
+            btnInviteEntrant.setVisibility(event.isPrivate() ? View.VISIBLE : View.GONE);
         }
 
         PosterImageLoader.load(ivEventPoster, event.getPosterUri(), R.drawable.event_placeholder);

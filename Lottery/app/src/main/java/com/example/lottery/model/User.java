@@ -2,6 +2,7 @@ package com.example.lottery.model;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.GeoPoint;
+import java.util.List;
 
 /**
  * Model class representing a user in the system.
@@ -58,6 +59,11 @@ public class User {
     private Timestamp updatedAt;
 
     /**
+     * List of user interests for event recommendations.
+     */
+    private List<String> interests;
+
+    /**
      * Default constructor required for Firestore.
      */
     public User() {
@@ -98,7 +104,8 @@ public class User {
                 GeoPoint location,
                 boolean notificationsEnabled,
                 Timestamp createdAt,
-                Timestamp updatedAt) {
+                Timestamp updatedAt,
+                List<String> interests) {
         this.userId = userId;
         this.deviceId = deviceId;
         this.email = email;
@@ -109,6 +116,7 @@ public class User {
         this.notificationsEnabled = notificationsEnabled;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+        this.interests = interests;
     }
 
     // Getters and Setters
@@ -207,6 +215,14 @@ public class User {
 
     public void setUpdatedAt(Timestamp updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public List<String> getInterests() {
+        return interests;
+    }
+
+    public void setInterests(List<String> interests) {
+        this.interests = interests;
     }
 
     // Helpers

@@ -231,8 +231,8 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
     }
 
     /**
-     * Handles clicks on notification items. Marks the item as read and displays its content in a dialog.
-     * Special handling is provided for event invitations.
+     * Handles clicks on notification items. Marks the item as read and navigates to event details or shows content.
+     * For event invitations, it opens the event details screen directly.
      *
      * @param item The clicked notification item.
      */
@@ -240,27 +240,21 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
     public void onNotificationClick(NotificationItem item) {
         markNotificationRead(item);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(item.getTitle());
-        builder.setMessage(item.getMessage());
-
-        // Simple check for invitation type
         boolean isInvitation = "event_invitation".equalsIgnoreCase(item.getType());
 
-        if (isInvitation) {
-            builder.setPositiveButton(R.string.accept_invite, (dialog, which) -> {
-                updateUserStatusForEvent(item.getEventId(), InvitationFlowUtil.RESPONSE_ACCEPTED);
-            });
-
-            builder.setNegativeButton(R.string.reject, (dialog, which) -> {
-                updateUserStatusForEvent(item.getEventId(), InvitationFlowUtil.RESPONSE_DECLINED);
-            });
-
-            builder.setNeutralButton(R.string.close, (dialog, which) -> dialog.dismiss());
+        if (isInvitation && item.getEventId() != null) {
+            // US 01.05.06: Clicking an event_invitation should open the event in EntrantEventDetailsActivity
+            Intent intent = new Intent(this, EntrantEventDetailsActivity.class);
+            intent.putExtra(EntrantEventDetailsActivity.EXTRA_EVENT_ID, item.getEventId());
+            intent.putExtra(EntrantEventDetailsActivity.EXTRA_USER_ID, userId);
+            startActivity(intent);
         } else {
+            // For other notifications, show the message in a simple dialog
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(item.getTitle());
+            builder.setMessage(item.getMessage());
             builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
+            builder.show();
         }
-
-        builder.show();
     }
 }
