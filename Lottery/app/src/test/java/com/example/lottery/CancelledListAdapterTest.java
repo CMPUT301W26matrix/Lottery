@@ -7,6 +7,8 @@ import android.content.Context;
 
 import androidx.test.core.app.ApplicationProvider;
 
+import com.example.lottery.model.EntrantEvent;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,7 +26,7 @@ import java.util.List;
 public class CancelledListAdapterTest {
 
     private CancelledListAdapter adapter;
-    private List<Entrant> entrantList;
+    private List<EntrantEvent> entrantList;
     private Context context;
 
     @Before
@@ -32,7 +34,7 @@ public class CancelledListAdapterTest {
         context = ApplicationProvider.getApplicationContext();
         entrantList = new ArrayList<>();
 
-        Entrant e = new Entrant();
+        EntrantEvent e = new EntrantEvent();
         e.setUserName("Cancelled User");
         entrantList.add(e);
 

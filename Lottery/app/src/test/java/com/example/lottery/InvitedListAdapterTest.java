@@ -7,6 +7,8 @@ import android.content.Context;
 
 import androidx.test.core.app.ApplicationProvider;
 
+import com.example.lottery.model.EntrantEvent;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,7 +26,7 @@ import java.util.List;
 public class InvitedListAdapterTest {
 
     private InvitedListAdapter adapter;
-    private List<Entrant> entrantList;
+    private List<EntrantEvent> entrantList;
     private Context context;
 
     @Before
@@ -32,10 +34,10 @@ public class InvitedListAdapterTest {
         context = ApplicationProvider.getApplicationContext();
         entrantList = new ArrayList<>();
 
-        Entrant e1 = new Entrant();
+        EntrantEvent e1 = new EntrantEvent();
         e1.setUserName("Alice");
 
-        Entrant e2 = new Entrant();
+        EntrantEvent e2 = new EntrantEvent();
         e2.setUserName("Bob");
 
         entrantList.add(e1);
