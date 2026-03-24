@@ -45,7 +45,7 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
     private FirebaseFirestore db;
     private List<User> userList = new ArrayList<>();
     private UserSearchAdapter adapter;
-    
+
     private TextInputEditText etSearch;
     private RecyclerView rvResults;
     private ProgressBar progressBar;
@@ -76,7 +76,7 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dialog_user_search, container, false);
-        
+
         etSearch = view.findViewById(R.id.etSearch);
         rvResults = view.findViewById(R.id.rvResults);
         progressBar = view.findViewById(R.id.progressBar);
@@ -132,17 +132,17 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                         User user = doc.toObject(User.class);
                         user.setUserId(doc.getId());
-                        
+
                         boolean match = false;
                         if (user.getUsername() != null && user.getUsername().toLowerCase().contains(lowerQuery)) match = true;
                         if (user.getEmail() != null && user.getEmail().toLowerCase().contains(lowerQuery)) match = true;
                         if (user.getPhone() != null && user.getPhone().contains(query)) match = true;
-                        
+
                         if (match) {
                             userList.add(user);
                         }
                     }
-                    
+
                     progressBar.setVisibility(View.GONE);
                     adapter.notifyDataSetChanged();
                     tvNoResults.setVisibility(userList.isEmpty() ? View.VISIBLE : View.GONE);
@@ -162,7 +162,7 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
         waitlistData.put("invitedAt", Timestamp.now());
 
         db.collection("events").document(eventId)
-                .collection("waiting_list").document(user.getUserId())
+                .collection(FirestorePaths.WAITING_LIST).document(user.getUserId())
                 .set(waitlistData)
                 .addOnSuccessListener(aVoid -> {
                     // 2. Send notification to user's inbox

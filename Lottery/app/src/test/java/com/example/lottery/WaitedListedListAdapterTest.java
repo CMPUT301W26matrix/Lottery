@@ -7,7 +7,7 @@ import android.content.Context;
 
 import androidx.test.core.app.ApplicationProvider;
 
-import com.example.lottery.model.Entrant;
+import com.example.lottery.model.EntrantEvent;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +26,7 @@ import java.util.List;
 public class WaitedListedListAdapterTest {
 
     private WaitedListedListAdapter adapter;
-    private List<Entrant> entrantList;
+    private List<EntrantEvent> entrantList;
     private Context context;
 
     @Before
@@ -34,7 +34,7 @@ public class WaitedListedListAdapterTest {
         context = ApplicationProvider.getApplicationContext();
         entrantList = new ArrayList<>();
 
-        Entrant e = new Entrant();
+        EntrantEvent e = new EntrantEvent();
         e.setUserName("Waitlisted User");
         entrantList.add(e);
 

@@ -5,14 +5,14 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import com.example.lottery.model.Entrant;
+import com.example.lottery.model.EntrantEvent;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.GeoPoint;
 
 import org.junit.Test;
 
 /**
- * Unit tests for the {@link Entrant} data model.
+ * Unit tests for the {@link EntrantEvent} data model.
  */
 public class EntrantTest {
 
@@ -21,7 +21,7 @@ public class EntrantTest {
      */
     @Test
     public void testDefaultConstructor() {
-        Entrant entrant = new Entrant();
+        EntrantEvent entrant = new EntrantEvent();
         assertNotNull(entrant);
         assertNull(entrant.getUserId());
     }
@@ -42,7 +42,7 @@ public class EntrantTest {
         Timestamp cancelledAt = null;
         GeoPoint location = new GeoPoint(45.0, -90.0);
 
-        Entrant entrant = new Entrant(userId, userName, email, status, registeredAt,
+        EntrantEvent entrant = new EntrantEvent(userId, userName, email, status, registeredAt,
                 waitlistedAt, invitedAt, acceptedAt, cancelledAt, location);
 
         assertEquals(userId, entrant.getUserId());
@@ -63,7 +63,7 @@ public class EntrantTest {
      */
     @Test
     public void testSettersAndGetters() {
-        Entrant entrant = new Entrant();
+        EntrantEvent entrant = new EntrantEvent();
 
         String userId = "user456";
         entrant.setUserId(userId);

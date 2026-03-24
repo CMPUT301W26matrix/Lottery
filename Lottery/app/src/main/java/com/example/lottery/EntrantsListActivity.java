@@ -22,7 +22,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.lottery.model.Entrant;
+import com.example.lottery.model.EntrantEvent;
 import com.example.lottery.model.NotificationItem;
 import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.InvitationFlowUtil;
@@ -83,11 +83,11 @@ public class EntrantsListActivity extends AppCompatActivity implements
 
     private FirebaseFirestore db;
 
-    private ArrayList<Entrant> entrantSignedUpArrayList;
-    private ArrayList<Entrant> entrantInvitedArrayList;
-    private ArrayList<Entrant> entrantCancelledArrayList;
-    private ArrayList<Entrant> entrantWaitedListArrayList;
-    private ArrayList<Entrant> entrantNotSelectedArrayList;
+    private ArrayList<EntrantEvent> entrantSignedUpArrayList;
+    private ArrayList<EntrantEvent> entrantInvitedArrayList;
+    private ArrayList<EntrantEvent> entrantCancelledArrayList;
+    private ArrayList<EntrantEvent> entrantWaitedListArrayList;
+    private ArrayList<EntrantEvent> entrantNotSelectedArrayList;
 
     private SignedUpListAdapter signedUpAdapter;
     private CancelledListAdapter cancelledAdapter;
@@ -280,7 +280,7 @@ public class EntrantsListActivity extends AppCompatActivity implements
                 .append(csvEscape("Email")).append(",")
                 .append(csvEscape("Status")).append("\n");
 
-        for (Entrant entrant : entrantSignedUpArrayList) {
+        for (EntrantEvent entrant : entrantSignedUpArrayList) {
             csvData.append(csvEscape(entrant.getUserId())).append(",")
                     .append(csvEscape(entrant.getUserName())).append(",")
                     .append(csvEscape(entrant.getEmail())).append(",")
@@ -351,7 +351,7 @@ public class EntrantsListActivity extends AppCompatActivity implements
                                 continue;
                             }
 
-                            Entrant entrant = new Entrant();
+                            EntrantEvent entrant = new EntrantEvent();
                             entrant.setUserId(userId);
                             entrant.setUserName(userName != null ? userName : "");
                             entrant.setEmail(email);
@@ -660,14 +660,14 @@ public class EntrantsListActivity extends AppCompatActivity implements
      *
      * @param list entrant we want to show their location on the map
      */
-    private void insertMarkers(ArrayList<Entrant> list) {
+    private void insertMarkers(ArrayList<EntrantEvent> list) {
         googleMap.clear();
 
         final LatLngBounds.Builder builder = new LatLngBounds.Builder();
         boolean hasLocations = false;
 
         for (int i = 0; i < list.size(); i++) {
-            Entrant entrant = list.get(i);
+            EntrantEvent entrant = list.get(i);
             GeoPoint geoLocation = entrant.getLocation();
             if (geoLocation == null) {
                 continue;

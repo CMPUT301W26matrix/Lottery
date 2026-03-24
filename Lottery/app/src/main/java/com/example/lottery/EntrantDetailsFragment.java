@@ -12,7 +12,6 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-import com.example.lottery.model.Entrant;
 import com.example.lottery.model.EntrantEvent;
 import com.example.lottery.util.InvitationFlowUtil;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -40,11 +39,11 @@ public class EntrantDetailsFragment extends DialogFragment {
      * @param requireLocation whether the event requires location
      * @return initialized fragment
      */
-    public static EntrantDetailsFragment newInstance(Entrant entrant, boolean requireLocation) {
+    public static EntrantDetailsFragment newInstance(EntrantEvent entrant, boolean requireLocation) {
         return newInstance(entrant, requireLocation, null);
     }
 
-    public static EntrantDetailsFragment newInstance(Entrant entrant, boolean requireLocation, String eventId) {
+    public static EntrantDetailsFragment newInstance(EntrantEvent entrant, boolean requireLocation, String eventId) {
         EntrantDetailsFragment fragment = new EntrantDetailsFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_ENTRANT, entrant);
@@ -54,27 +53,13 @@ public class EntrantDetailsFragment extends DialogFragment {
         return fragment;
     }
 
-    /**
-     * Overloaded method to support EntrantEvent as well if needed
-     */
-    public static EntrantDetailsFragment newInstance(EntrantEvent entrantEvent, boolean requireLocation, String eventId) {
-        Entrant entrant = new Entrant();
-        entrant.setUserId(entrantEvent.getUserId());
-        entrant.setUserName(entrantEvent.getUserName());
-        entrant.setLocation(entrantEvent.getLocation());
-        entrant.setEmail(entrantEvent.getEmail());
-        entrant.setStatus(entrantEvent.getStatus());
-        
-        return newInstance(entrant, requireLocation, eventId);
-    }
-
     @SuppressLint("SetTextI18n")
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        Entrant entrant = (Entrant) requireArguments().getSerializable(ARG_ENTRANT);
+        EntrantEvent entrant = (EntrantEvent) requireArguments().getSerializable(ARG_ENTRANT);
         boolean requireLocation = requireArguments().getBoolean(ARG_REQUIRE_LOCATION, false);
         String eventId = requireArguments().getString(ARG_EVENT_ID);
-        
+
         View view = getLayoutInflater().inflate(R.layout.entrant_details_fragment, null);
         TextView tvName = view.findViewById(R.id.details_name);
         TextView tvEmail = view.findViewById(R.id.details_email);
@@ -82,12 +67,15 @@ public class EntrantDetailsFragment extends DialogFragment {
         
         LinearLayout llLocation = view.findViewById(R.id.details_fragment_location);
 
+        // Unified: use getUserName()
         tvName.setText(entrant.getUserName() != null ? entrant.getUserName() : "Unknown");
         
+        // Try to get email from EntrantEvent object
         if (entrant.getEmail() != null && !entrant.getEmail().isEmpty()) {
             tvEmail.setText(entrant.getEmail());
         } else if (entrant.getUserId() != null) {
             tvEmail.setText("Loading...");
+            // Fetch email from users collection if not present in EntrantEvent
             FirebaseFirestore.getInstance().collection(FirestorePaths.USERS)
                     .document(entrant.getUserId())
                     .get()
@@ -138,7 +126,7 @@ public class EntrantDetailsFragment extends DialogFragment {
         return builder.create();
     }
 
-    private void showCancelConfirmation(String eventId, Entrant entrant) {
+    private void showCancelConfirmation(String eventId, EntrantEvent entrant) {
         new AlertDialog.Builder(getContext())
                 .setTitle("Cancel Entrant")
                 .setMessage("Are you sure you want to cancel this entrant? This action cannot be undone.")
@@ -149,7 +137,7 @@ public class EntrantDetailsFragment extends DialogFragment {
                 .show();
     }
 
-    private void cancelEntrant(String eventId, Entrant entrant) {
+    private void cancelEntrant(String eventId, EntrantEvent entrant) {
         FirebaseFirestore.getInstance()
                 .collection(FirestorePaths.eventWaitingList(eventId))
                 .document(entrant.getUserId())

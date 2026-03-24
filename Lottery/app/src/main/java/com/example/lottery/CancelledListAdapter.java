@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.lottery.model.Entrant;
+import com.example.lottery.model.EntrantEvent;
 
 import java.util.List;
 
@@ -31,7 +31,7 @@ public class CancelledListAdapter extends RecyclerView.Adapter<CancelledListAdap
     /**
      * data we will manipulate to display
      */
-    private final List<Entrant> mData;
+    private final List<EntrantEvent> mData;
     /**
      * context we want to interact
      */
@@ -43,7 +43,7 @@ public class CancelledListAdapter extends RecyclerView.Adapter<CancelledListAdap
      * @param context context we want to interact
      * @param data    data we will manipulate to display
      */
-    CancelledListAdapter(Context context, List<Entrant> data) {
+    CancelledListAdapter(Context context, List<EntrantEvent> data) {
         this.context = context;
         this.mData = data;
     }
@@ -71,7 +71,7 @@ public class CancelledListAdapter extends RecyclerView.Adapter<CancelledListAdap
      */
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Entrant entrant = mData.get(position);
+        EntrantEvent entrant = mData.get(position);
         // Unified: use getUserName() instead of getEntrant_name()
         holder.tvEntrantName.setText(entrant.getUserName());
         holder.tvEntrantStatus.setText("");
