@@ -121,6 +121,10 @@
             android:label="@string/admin_image_preview_title"
             android:parentActivityName=".AdminBrowseImagesActivity" />
         <activity
+            android:name=".AdminBrowseLogsActivity"
+            android:exported="false"
+            android:label="@string/admin_logs_title" />
+        <activity
             android:name=".EntrantLotteryGuidelinesActivity"
             android:exported="false" />
         <activity

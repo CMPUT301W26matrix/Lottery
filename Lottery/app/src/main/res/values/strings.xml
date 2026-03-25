@@ -102,6 +102,15 @@
     <string name="admin_organizer_label">Organizer: %1$s</string>
     <string name="admin_unknown_organizer">Unknown Organizer</string>
     <string name="admin_logs_coming_soon">Notification logs coming soon</string>
+    <string name="admin_logs_title">Notification Logs</string>
+    <string name="admin_logs_subtitle">All notifications sent by organizers</string>
+    <string name="admin_all_logs_title">All Logs</string>
+    <string name="admin_no_logs">No notification logs yet</string>
+    <string name="log_recipients_label">Recipients</string>
+    <string name="log_sent_at_label">Sent At</string>
+    <string name="admin_already_viewing_logs">Already viewing logs</string>
+    <string name="admin_unknown_event">Unknown Event</string>
+    <string name="log_no_timestamp">N/A</string>
     <string name="back">Back</string>
     <string name="unlimited">Unlimited</string>
 

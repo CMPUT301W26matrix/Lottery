@@ -132,8 +132,10 @@ public class AdminBrowseEventsActivity extends AppCompatActivity implements Even
 
         View btnLogs = findViewById(R.id.nav_logs);
         if (btnLogs != null) {
-            btnLogs.setOnClickListener(v ->
-                    Toast.makeText(this, R.string.admin_logs_coming_soon, Toast.LENGTH_SHORT).show());
+            btnLogs.setOnClickListener(v -> {
+                Intent intent = new Intent(this, AdminBrowseLogsActivity.class);
+                startActivity(intent);
+            });
         }
     }
 
@@ -157,7 +159,7 @@ public class AdminBrowseEventsActivity extends AppCompatActivity implements Even
                         try {
                             Event event = document.toObject(Event.class);
                             if (event == null) continue;
-                            
+
                             event.setEventId(document.getId());
                             eventList.add(event);
 

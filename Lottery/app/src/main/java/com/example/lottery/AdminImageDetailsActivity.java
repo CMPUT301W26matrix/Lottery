@@ -150,8 +150,10 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
 
         View btnLogs = findViewById(R.id.nav_logs);
         if (btnLogs != null) {
-            btnLogs.setOnClickListener(v ->
-                    Toast.makeText(this, R.string.admin_logs_coming_soon, Toast.LENGTH_SHORT).show());
+            btnLogs.setOnClickListener(v -> {
+                Intent intent = new Intent(this, AdminBrowseLogsActivity.class);
+                startActivity(intent);
+            });
         }
     }
 
