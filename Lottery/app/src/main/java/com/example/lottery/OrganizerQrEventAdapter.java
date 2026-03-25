@@ -18,7 +18,7 @@ import java.util.List;
  * <p>Key Responsibilities:
  * <ul>
  *   <li>Inflates the layout for individual event items in the QR selection list.</li>
- *   <li>Binds event data (title and date) to the view elements.</li>
+ *   <li>Binds event data (title) to the view elements.</li>
  *   <li>Handles user click interactions to trigger QR code display for a specific event.</li>
  * </ul>
  * </p>
@@ -57,7 +57,6 @@ public class OrganizerQrEventAdapter extends RecyclerView.Adapter<OrganizerQrEve
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Event event = events.get(position);
         holder.tvTitle.setText(event.getTitle());
-        holder.tvDate.setText(event.getScheduledDateTime() != null ? event.getScheduledDateTime().toString() : "No Date");
         holder.itemView.setOnClickListener(v -> listener.onEventClick(event));
     }
 
@@ -86,10 +85,6 @@ public class OrganizerQrEventAdapter extends RecyclerView.Adapter<OrganizerQrEve
          * TextView for displaying the event title.
          */
         TextView tvTitle;
-        /**
-         * TextView for displaying the event date.
-         */
-        TextView tvDate;
 
         /**
          * Constructs a new ViewHolder.
@@ -99,7 +94,6 @@ public class OrganizerQrEventAdapter extends RecyclerView.Adapter<OrganizerQrEve
         ViewHolder(View itemView) {
             super(itemView);
             tvTitle = itemView.findViewById(R.id.tvEventTitle);
-            tvDate = itemView.findViewById(R.id.tvEventDate);
         }
     }
 }

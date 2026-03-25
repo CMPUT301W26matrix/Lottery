@@ -114,7 +114,7 @@ public class OrganizerNotificationsActivityTest {
             onView(withId(R.id.btnNotifyWaiting)).perform(click());
 
             // Type message
-            onView(withId(R.id.input_sampling_size)).inRoot(isDialog())
+            onView(withId(R.id.etNotificationContent)).inRoot(isDialog())
                     .perform(typeText("Hello waiting list!"), closeSoftKeyboard());
 
             // Click Send

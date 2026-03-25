@@ -98,6 +98,15 @@
                     android:textColor="@color/primary_blue"
                     android:textSize="12sp"
                     android:textStyle="bold" />
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/cg_display_interests"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center"
+                    app:chipSpacingHorizontal="8dp" />
+
             </LinearLayout>
 
             <!-- Edit Layout -->

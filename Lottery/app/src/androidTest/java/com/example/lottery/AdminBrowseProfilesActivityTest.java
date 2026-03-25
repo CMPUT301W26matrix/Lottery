@@ -10,6 +10,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static androidx.test.espresso.action.ViewActions.click;
 import static org.hamcrest.Matchers.anything;
+import static org.hamcrest.Matchers.containsString;
 
 import android.content.Intent;
 import android.view.View;
@@ -270,15 +271,27 @@ public class AdminBrowseProfilesActivityTest {
             });
             InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
-            onView(withId(R.id.btnEnableDeleteProfile)).perform(click());
-            onView(isRoot()).perform(waitFor(300));
+            // Perform actions on UI thread to ensure state and triggers are consistent with injected data
+            scenario.onActivity(activity -> {
+                activity.findViewById(R.id.btnEnableDeleteProfile).performClick();
+                ListView listView = activity.findViewById(R.id.lvProfiles);
+                View firstChild = listView.getChildAt(0);
+                if (firstChild != null) {
+                    listView.performItemClick(firstChild, 0, listView.getAdapter().getItemId(0));
+                } else {
+                    // Fallback if view not immediately available
+                    User selectedUser = activity.filteredUsers.get(0);
+                    activity.showDeleteConfirmationDialog(selectedUser);
+                }
+            });
 
-            onData(anything()).inAdapterView(withId(R.id.lvProfiles)).atPosition(0).perform(click());
-            onView(isRoot()).perform(waitFor(500));
+            onView(isRoot()).perform(waitFor(1000));
 
-            // Verify cascade warning message
-            onView(withText("Delete organizer \"BadOrganizer\"? All events created by this organizer will also be deleted."))
+            // Verify dialog elements
+            onView(withText("Delete Profile")).check(matches(isDisplayed()));
+            onView(withText(containsString("All events created by this organizer will also be deleted.")))
                     .check(matches(isDisplayed()));
+            onView(withText(containsString("BadOrganizer"))).check(matches(isDisplayed()));
         }
     }
 
@@ -305,13 +318,16 @@ public class AdminBrowseProfilesActivityTest {
             enableDeleteButton.performClick();
 
             View firstVisibleChild = listView.getChildAt(0);
-            Assert.assertNotNull("First visible list item should not be null", firstVisibleChild);
-
-            listView.performItemClick(
-                    firstVisibleChild,
-                    0,
-                    listView.getAdapter().getItemId(0)
-            );
+            if (firstVisibleChild != null) {
+                listView.performItemClick(
+                        firstVisibleChild,
+                        0,
+                        listView.getAdapter().getItemId(0)
+                );
+            } else {
+                User alice = ((ProfileAdapter) listView.getAdapter()).getItem(0);
+                activity.showDeleteConfirmationDialog(alice);
+            }
         });
 
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();

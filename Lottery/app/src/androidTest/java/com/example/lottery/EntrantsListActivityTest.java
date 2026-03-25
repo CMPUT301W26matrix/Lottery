@@ -2,6 +2,7 @@ package com.example.lottery;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -36,13 +37,15 @@ public class EntrantsListActivityTest {
 
     /**
      * Verifies that all navigation buttons are displayed upon initialization.
+     * Uses scrollTo() for buttons inside HorizontalScrollView to ensure they are visible to Espresso.
      */
     @Test
     public void testInitializedPageVisibility() {
-        onView(withId(R.id.entrants_list_waited_list_btn)).check(matches(isDisplayed()));
-        onView(withId(R.id.entrants_list_invited_btn)).check(matches(isDisplayed()));
-        onView(withId(R.id.entrants_list_cancelled_btn)).check(matches(isDisplayed()));
-        onView(withId(R.id.entrants_list_signed_up_btn)).check(matches(isDisplayed()));
+        onView(withId(R.id.entrants_list_waited_list_btn)).perform(scrollTo()).check(matches(isDisplayed()));
+        onView(withId(R.id.entrants_list_invited_btn)).perform(scrollTo()).check(matches(isDisplayed()));
+        onView(withId(R.id.entrants_list_signed_up_btn)).perform(scrollTo()).check(matches(isDisplayed()));
+        onView(withId(R.id.entrants_list_cancelled_btn)).perform(scrollTo()).check(matches(isDisplayed()));
+        
         onView(withId(R.id.entrants_list_send_notification_btn)).check(matches(isDisplayed()));
         onView(withId(R.id.entrants_list_view_location_btn)).check(matches(isDisplayed()));
     }
@@ -52,7 +55,7 @@ public class EntrantsListActivityTest {
      */
     @Test
     public void testSwitchToSignedUpList() {
-        onView(withId(R.id.entrants_list_signed_up_btn)).perform(click());
+        onView(withId(R.id.entrants_list_signed_up_btn)).perform(scrollTo(), click());
         onView(withId(R.id.signed_up_entrants_list_layout)).check(matches(isDisplayed()));
 
         // Verify other layouts are hidden
@@ -67,9 +70,9 @@ public class EntrantsListActivityTest {
     @Test
     public void testSwitchToWaitedListedList() {
         // First switch to another tab to ensure we are testing a real transition
-        onView(withId(R.id.entrants_list_signed_up_btn)).perform(click());
+        onView(withId(R.id.entrants_list_signed_up_btn)).perform(scrollTo(), click());
         
-        onView(withId(R.id.entrants_list_waited_list_btn)).perform(click());
+        onView(withId(R.id.entrants_list_waited_list_btn)).perform(scrollTo(), click());
         onView(withId(R.id.waited_list_entrants_list_layout)).check(matches(isDisplayed()));
 
         onView(withId(R.id.signed_up_entrants_list_layout)).check(matches(not(isDisplayed())));
@@ -92,6 +95,7 @@ public class EntrantsListActivityTest {
      */
     @Test
     public void testClickSampleFragmentVisibility() {
+        // Removed scrollTo() because entrants_list_sample_btn is not inside a ScrollView.
         onView(withId(R.id.entrants_list_sample_btn)).perform(click());
         // Check for dialog elements (SampleFragment uses AlertDialog)
         onView(withText("Sample Winners")).check(matches(isDisplayed()));

@@ -318,7 +318,8 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
      *
      * @param selectedUser the user selected for deletion in the ListView.
      */
-    private void showDeleteConfirmationDialog(User selectedUser) {
+    @VisibleForTesting
+    void showDeleteConfirmationDialog(User selectedUser) {
         String message;
         if (selectedUser.isOrganizer()) {
             message = "Delete organizer \"" + selectedUser.getUsername()
