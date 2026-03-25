@@ -19,7 +19,6 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.lottery.util.FirestorePaths;
-import com.example.lottery.util.FirestorePaths;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.switchmaterial.SwitchMaterial;
@@ -43,7 +42,7 @@ public class EntrantProfileActivity extends AppCompatActivity {
     private Button btnLogout, btnEditSave, btnCancel, btnDeleteProfile, btnLotteryGuidelines;
     private View dividerDelete, dividerCancel, dividerGuidelines, bottomNav;
     private LinearLayout displayLayout, editLayout;
-    private ChipGroup cgInterests;
+    private ChipGroup cgEditInterests, cgDisplayInterests;
     private Chip chipAcademic, chipSocial, chipSports, chipMusic;
     private SwitchMaterial swNotifications;
     private FirebaseFirestore db;
@@ -154,7 +153,8 @@ public class EntrantProfileActivity extends AppCompatActivity {
         displayLayout = findViewById(R.id.layout_profile_display);
         editLayout = findViewById(R.id.layout_profile_edit);
 
-        cgInterests = findViewById(R.id.cg_edit_interests);
+        cgEditInterests = findViewById(R.id.cg_edit_interests);
+        cgDisplayInterests = findViewById(R.id.cg_display_interests);
         chipAcademic = findViewById(R.id.chip_interest_academic);
         chipSocial = findViewById(R.id.chip_interest_social);
         chipSports = findViewById(R.id.chip_interest_sports);
@@ -199,11 +199,20 @@ public class EntrantProfileActivity extends AppCompatActivity {
                 }
 
                 List<String> interests = (List<String>) documentSnapshot.get("interests");
+                cgDisplayInterests.removeAllViews();
                 if (interests != null) {
                     chipAcademic.setChecked(interests.contains("Academic"));
                     chipSocial.setChecked(interests.contains("Social"));
                     chipSports.setChecked(interests.contains("Sports"));
                     chipMusic.setChecked(interests.contains("Music"));
+
+                    for (String interest : interests) {
+                        Chip chip = new Chip(this);
+                        chip.setText(interest);
+                        chip.setClickable(false);
+                        chip.setCheckable(false);
+                        cgDisplayInterests.addView(chip);
+                    }
                 }
 
                 if (notificationsEnabled != null) {

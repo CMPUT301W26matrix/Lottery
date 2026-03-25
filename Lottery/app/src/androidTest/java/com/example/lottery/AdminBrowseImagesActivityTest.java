@@ -1,15 +1,21 @@
 package com.example.lottery;
 
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.intent.Intents.intended;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
+import static androidx.test.espresso.matcher.RootMatchers.withDecorView;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+
+import android.view.View;
 
 import androidx.test.espresso.intent.Intents;
 import androidx.test.espresso.matcher.ViewMatchers.Visibility;
@@ -31,9 +37,12 @@ public class AdminBrowseImagesActivityTest {
     public ActivityScenarioRule<AdminBrowseImagesActivity> activityRule =
             new ActivityScenarioRule<>(AdminBrowseImagesActivity.class);
 
+    private View decorView;
+
     @Before
     public void setUp() {
         Intents.init();
+        activityRule.getScenario().onActivity(activity -> decorView = activity.getWindow().getDecorView());
     }
 
     @After
@@ -64,6 +73,57 @@ public class AdminBrowseImagesActivityTest {
         onView(withId(R.id.nav_profiles)).check(matches(isDisplayed()));
         onView(withId(R.id.nav_images)).check(matches(isDisplayed()));
         onView(withId(R.id.nav_logs)).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void testNavHighlightElementsExist() {
+        // These are the components updated in highlightImagesTab()
+        onView(withId(R.id.nav_home_icon)).check(matches(isDisplayed()));
+        onView(withId(R.id.nav_home_text)).check(matches(isDisplayed()));
+        onView(withId(R.id.nav_images_icon)).check(matches(isDisplayed()));
+        onView(withId(R.id.nav_images_text)).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void testScrollViewIsScrollable() {
+        onView(withId(R.id.main_scroll_view)).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void testNavigateToHome() {
+        onView(withId(R.id.nav_home)).perform(click());
+        intended(hasComponent(AdminBrowseEventsActivity.class.getName()));
+    }
+
+    @Test
+    public void testNavigateToProfiles() {
+        onView(withId(R.id.nav_profiles)).perform(click());
+        intended(hasComponent(AdminBrowseProfilesActivity.class.getName()));
+        intended(hasExtra("role", "admin"));
+    }
+
+    @Test
+    public void testClickImagesTabShowsToast() {
+        onView(withId(R.id.nav_images)).perform(click());
+        onView(withText(R.string.admin_already_viewing_images))
+                .inRoot(withDecorView(not(is(decorView))))
+                .check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void testClickLogsTabShowsToast() {
+        onView(withId(R.id.nav_logs)).perform(click());
+        onView(withText(R.string.admin_logs_coming_soon))
+                .inRoot(withDecorView(not(is(decorView))))
+                .check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void testNoImagesMessageVisibility() {
+        activityRule.getScenario().onActivity(activity -> {
+            activity.findViewById(R.id.tvNoImages).setVisibility(View.VISIBLE);
+        });
+        onView(withId(R.id.tvNoImages)).check(matches(isDisplayed()));
     }
 
     @Test

@@ -35,7 +35,9 @@ public class EntrantMainActivityTest {
         try (ActivityScenario<EntrantMainActivity> scenario =
                      ActivityScenario.launch(intent)) {
 
-            onView(withText("Your Wait-Listed Events"))
+            // The title was changed from "Your Wait-Listed Events" to "Browse Events"
+            onView(withId(R.id.tvBrowseEventsTitle))
+                    .check(matches(withText(R.string.browse_events)))
                     .check(matches(isDisplayed()));
 
             onView(withId(R.id.rvEvents))
