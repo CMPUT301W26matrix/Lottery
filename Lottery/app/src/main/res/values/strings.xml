@@ -211,4 +211,5 @@
     <string name="edit_profile">Edit Profile</string>
     <string name="delete_profile">Delete Profile</string>
     <string name="log_out">Log Out</string>
+    <string name="no_entrant_locations_available">No entrant locations available for this event.</string>
 </resources>
