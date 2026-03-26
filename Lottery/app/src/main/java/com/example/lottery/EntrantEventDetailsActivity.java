@@ -1,8 +1,12 @@
 package com.example.lottery;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -12,7 +16,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -22,11 +31,17 @@ import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.InvitationFlowUtil;
 import com.example.lottery.util.PosterImageLoader;
 import com.example.lottery.util.WaitlistPromotionUtil;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.SetOptions;
 
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -39,10 +54,13 @@ import java.util.Map;
  *   <li>Monitor and display the entrant's current status for the event (waitlisted, invited, accepted, etc.).</li>
  *   <li>Provide UI actions for joining/leaving the waitlist or responding to invitations.</li>
  *   <li>Manage navigation within the entrant's scope.</li>
+ *   <li>US 02.02.02: Handle location collection if required by the event.</li>
  * </ul>
  * </p>
  */
 public class EntrantEventDetailsActivity extends AppCompatActivity {
+
+    private static final String TAG = "EntrantEventDetails";
 
     /**
      * Extra key for passing the Event ID.
@@ -63,6 +81,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     private ImageView ivEventPoster;
 
     private FirebaseFirestore db;
+    private FusedLocationProviderClient fusedLocationClient;
     private String eventId;
     private String userId;
     private String userName;
@@ -75,8 +94,20 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     private boolean isCancelled = false;
     private boolean wasWaitlisted = false;
     private boolean isCoOrganizer = false;
+    private boolean eventRequiresLocation = false;
+    private boolean userGeolocationEnabled = false;
 
     private ListenerRegistration waitlistListener;
+
+    private final ActivityResultLauncher<String[]> locationPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
+                if (result.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) ||
+                    result.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)) {
+                    startLocationCollection();
+                } else {
+                    Toast.makeText(this, "Location is required to proceed", Toast.LENGTH_LONG).show();
+                }
+            });
 
     /**
      * Initializes the activity, sets up view references, and triggers initial data loading.
@@ -92,6 +123,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_entrant_event_details);
 
         db = FirebaseFirestore.getInstance();
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -99,6 +131,57 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
             return insets;
         });
 
+        initializeViews();
+
+        SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
+        userId = getIntent().getStringExtra(EXTRA_USER_ID);
+        if (userId == null) {
+            userId = prefs.getString("userId", null);
+        }
+        userName = prefs.getString("userName", "");
+        userEmail = prefs.getString("userEmail", "");
+        
+        eventId = getIntent().getStringExtra(EXTRA_EVENT_ID);
+
+        if (eventId == null || userId == null) {
+            Toast.makeText(this, R.string.missing_event_or_user_info, Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
+        loadEventDetails();
+        loadUserProfileSettings();
+        checkCoOrganizerStatus();
+        loadWaitlistCount();
+        checkUnreadNotifications();
+
+        btnAcceptInvite.setOnClickListener(v -> handleActionWithLocationCheck(true));
+        btnDeclineInvite.setOnClickListener(v -> declineInvitation());
+
+        btnWaitlistAction.setOnClickListener(v -> {
+            if (isCoOrganizer) {
+                Toast.makeText(this, "Co-organizers cannot join the waitlist", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (hasAcceptedInvite) {
+                cancelAcceptedInvitation();
+            } else if (isInWaitlist) {
+                leaveWaitlist();
+            } else {
+                handleActionWithLocationCheck(false);
+            }
+        });
+
+        btnComments.setOnClickListener(v -> {
+            EntrantCommentBottomSheet bottomSheet = EntrantCommentBottomSheet.newInstance(eventId, userId, userName, isCoOrganizer);
+            bottomSheet.show(getSupportFragmentManager(), "comment_bottom_sheet");
+        });
+
+        setupNavigation();
+        btnClose.setOnClickListener(v -> finish());
+    }
+
+    private void initializeViews() {
         tvEventTitle = findViewById(R.id.tvEventTitle);
         tvRegistrationPeriod = findViewById(R.id.tvRegistrationPeriod);
         tvWaitlistCount = findViewById(R.id.tvWaitlistCount);
@@ -120,52 +203,16 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         btnClose = findViewById(R.id.btnBack);
         btnComments = findViewById(R.id.btnComments);
         ivEventPoster = findViewById(R.id.ivEventPoster);
+    }
 
-        SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
-        userId = getIntent().getStringExtra(EXTRA_USER_ID);
-        if (userId == null) {
-            userId = prefs.getString("userId", null);
-        }
-        userName = prefs.getString("userName", "");
-        userEmail = prefs.getString("userEmail", "");
-        
-        eventId = getIntent().getStringExtra(EXTRA_EVENT_ID);
-
-        if (eventId == null || userId == null) {
-            Toast.makeText(this, R.string.missing_event_or_user_info, Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
-
-        loadEventDetails();
-        checkCoOrganizerStatus();
-        loadWaitlistCount();
-        checkUnreadNotifications();
-
-        btnAcceptInvite.setOnClickListener(v -> acceptInvitation());
-        btnDeclineInvite.setOnClickListener(v -> declineInvitation());
-
-        btnWaitlistAction.setOnClickListener(v -> {
-            if (isCoOrganizer) {
-                Toast.makeText(this, "Co-organizers cannot join the waitlist", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            if (hasAcceptedInvite) {
-                cancelAcceptedInvitation();
-            } else if (isInWaitlist) {
-                leaveWaitlist();
-            } else {
-                joinWaitlist();
-            }
-        });
-
-        btnComments.setOnClickListener(v -> {
-            EntrantCommentBottomSheet bottomSheet = EntrantCommentBottomSheet.newInstance(eventId, userId, userName, isCoOrganizer);
-            bottomSheet.show(getSupportFragmentManager(), "comment_bottom_sheet");
-        });
-
-        setupNavigation();
-        btnClose.setOnClickListener(v -> finish());
+    private void loadUserProfileSettings() {
+        db.collection(FirestorePaths.USERS).document(userId).get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        Boolean geo = doc.getBoolean("geolocationEnabled");
+                        userGeolocationEnabled = geo != null && geo;
+                    }
+                });
     }
 
     /**
@@ -236,6 +283,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         super.onResume();
         if (eventId != null && userId != null) {
             loadEventDetails();
+            loadUserProfileSettings();
             checkCoOrganizerStatus();
             loadWaitlistCount();
             checkUnreadNotifications();
@@ -266,7 +314,66 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                         tvRegistrationPeriod.setText(String.format("Deadline: %s", dateFormat.format(end.toDate())));
                     }
                     PosterImageLoader.load(ivEventPoster, documentSnapshot.getString("posterUri"), R.drawable.event_placeholder);
+                    
+                    Boolean reqLoc = documentSnapshot.getBoolean("requireLocation");
+                    eventRequiresLocation = reqLoc != null && reqLoc;
                 });
+    }
+
+    private boolean isAcceptingInviteMode = false;
+
+    private void handleActionWithLocationCheck(boolean isInviteFlow) {
+        this.isAcceptingInviteMode = isInviteFlow;
+        if (!eventRequiresLocation) {
+            finalizeAction(null);
+            return;
+        }
+
+        if (!userGeolocationEnabled) {
+            showGeolocationDisabledDialog();
+            return;
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle("Location Required")
+                .setMessage("This event requires your location to proceed. Do you agree to provide it?")
+                .setPositiveButton("Agree", (dialog, which) -> startLocationCollection())
+                .setNegativeButton("Decline", null)
+                .show();
+    }
+
+    private void showGeolocationDisabledDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Geolocation Disabled")
+                .setMessage("This event requires geolocation. Please enable it in your Profile preferences to proceed.")
+                .setPositiveButton("Go to Profile", (dialog, which) -> {
+                    Intent intent = new Intent(this, EntrantProfileActivity.class);
+                    intent.putExtra("userId", userId);
+                    startActivity(intent);
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void startLocationCollection() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
+                    .addOnSuccessListener(this, location -> finalizeAction(location))
+                    .addOnFailureListener(e -> {
+                        Log.e(TAG, "Failed to get fresh location", e);
+                        finalizeAction(null);
+                    });
+        } else {
+            locationPermissionLauncher.launch(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION});
+        }
+    }
+
+    private void finalizeAction(Location location) {
+        if (isAcceptingInviteMode) {
+            acceptInvitation(location);
+        } else {
+            joinWaitlist(location);
+        }
     }
 
     private void checkCoOrganizerStatus() {
@@ -350,7 +457,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     /**
      * Performs the "Accept Invitation" action by updating the Firestore record.
      */
-    private void acceptInvitation() {
+    private void acceptInvitation(Location location) {
         Map<String, Object> updates;
         if (isInvited && !wasWaitlisted) {
             // US 01.05.07: Accepting an invitation to JOIN THE WAITING LIST for a private event
@@ -359,40 +466,19 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
             // US 01.05.04: Accepting a spot after being selected from the waitlist (lottery win)
             updates = InvitationFlowUtil.buildEntrantStatusUpdateFromResponse(InvitationFlowUtil.RESPONSE_ACCEPTED);
         }
+        
+        if (location != null) {
+            updates.put("location", new GeoPoint(location.getLatitude(), location.getLongitude()));
+        }
 
+        // Use set with merge option to ensure location is saved even if update fails
         db.collection(FirestorePaths.eventWaitingList(eventId)).document(userId)
-                .update(updates)
+                .set(updates, SetOptions.merge())
                 .addOnSuccessListener(unused -> {
                     checkUserEventStatus();
                     if (!wasWaitlisted) {
                         Toast.makeText(this, R.string.joined_waitlist, Toast.LENGTH_SHORT).show();
                     }
-                });
-    }
-
-    /**
-     * Performs the "Decline Invitation" action by updating the Firestore record.
-     */
-    private void declineInvitation() {
-        db.collection(FirestorePaths.eventWaitingList(eventId)).document(userId)
-                .update(InvitationFlowUtil.buildEntrantStatusUpdateFromResponse(InvitationFlowUtil.RESPONSE_DECLINED))
-                .addOnSuccessListener(unused -> {
-                    checkUserEventStatus();
-                    // AUTO-PROMOTION: Check if someone else can take this spot
-                    WaitlistPromotionUtil.promoteOneFromWaitlistIfNeeded(db, eventId);
-                });
-    }
-
-    /**
-     * Performs the "Cancel Membership" action for a user who previously accepted an invite.
-     */
-    private void cancelAcceptedInvitation() {
-        db.collection(FirestorePaths.eventWaitingList(eventId)).document(userId)
-                .update(InvitationFlowUtil.buildCancelledEntrantUpdate())
-                .addOnSuccessListener(unused -> {
-                    checkUserEventStatus();
-                    // AUTO-PROMOTION: Check if someone else can take this spot
-                    WaitlistPromotionUtil.promoteOneFromWaitlistIfNeeded(db, eventId);
                 });
     }
 
@@ -427,7 +513,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     /**
      * Logic for joining the waitlist for the event.
      */
-    private void joinWaitlist() {
+    private void joinWaitlist(Location location) {
         if (isCoOrganizer) {
             Toast.makeText(this, "Co-organizers cannot join the waitlist", Toast.LENGTH_SHORT).show();
             return;
@@ -440,13 +526,44 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         record.setStatus(InvitationFlowUtil.STATUS_WAITLISTED);
         record.setRegisteredAt(now);
         record.setWaitlistedAt(now);
+        
+        if (location != null) {
+            record.setLocation(new GeoPoint(location.getLatitude(), location.getLongitude()));
+        }
 
+        // Use set to ensure all fields (including location) are saved
         db.collection(FirestorePaths.eventWaitingList(eventId)).document(userId)
                 .set(record)
                 .addOnSuccessListener(unused -> {
                     isInWaitlist = true;
                     updateUIBasedOnStatus();
                     Toast.makeText(this, R.string.joined_waitlist, Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    /**
+     * Performs the "Decline Invitation" action by updating the Firestore record.
+     */
+    private void declineInvitation() {
+        db.collection(FirestorePaths.eventWaitingList(eventId)).document(userId)
+                .update(InvitationFlowUtil.buildEntrantStatusUpdateFromResponse(InvitationFlowUtil.RESPONSE_DECLINED))
+                .addOnSuccessListener(unused -> {
+                    checkUserEventStatus();
+                    // AUTO-PROMOTION: Check if someone else can take this spot
+                    WaitlistPromotionUtil.promoteOneFromWaitlistIfNeeded(db, eventId);
+                });
+    }
+
+    /**
+     * Performs the "Cancel Membership" action for a user who previously accepted an invite.
+     */
+    private void cancelAcceptedInvitation() {
+        db.collection(FirestorePaths.eventWaitingList(eventId)).document(userId)
+                .update(InvitationFlowUtil.buildCancelledEntrantUpdate())
+                .addOnSuccessListener(unused -> {
+                    checkUserEventStatus();
+                    // AUTO-PROMOTION: Check if someone else can take this spot
+                    WaitlistPromotionUtil.promoteOneFromWaitlistIfNeeded(db, eventId);
                 });
     }
 

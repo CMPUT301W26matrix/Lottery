@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.play.services.maps)
     implementation(libs.firebase.installations)
+    implementation("com.google.android.gms:play-services-location:21.0.1")
 
     testImplementation(libs.junit)
     testImplementation(libs.mockito.core)

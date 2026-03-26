@@ -27,6 +27,8 @@ import com.example.lottery.model.NotificationItem;
 import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.InvitationFlowUtil;
 import com.example.lottery.util.SessionUtil;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -229,17 +231,19 @@ public class EntrantsListActivity extends AppCompatActivity implements
          */
         btnViewLocation.setOnClickListener(v -> {
             if (googleMap != null) {
+                ArrayList<EntrantEvent> currentList;
                 if (waitedListEntrantsListLayout.getVisibility() == View.VISIBLE) {
-                    insertMarkers(entrantWaitedListArrayList);
+                    currentList = entrantWaitedListArrayList;
                 } else if (signedUpEntrantsListLayout.getVisibility() == View.VISIBLE) {
-                    insertMarkers(entrantSignedUpArrayList);
+                    currentList = entrantSignedUpArrayList;
                 } else if (cancelledEntrantsListLayout.getVisibility() == View.VISIBLE) {
-                    insertMarkers(entrantCancelledArrayList);
+                    currentList = entrantCancelledArrayList;
                 } else if (invitedEntrantsListLayout.getVisibility() == View.VISIBLE) {
-                    insertMarkers(entrantInvitedArrayList);
-                } else if (notSelectedEntrantsListLayout.getVisibility() == View.VISIBLE) {
-                    insertMarkers(entrantNotSelectedArrayList);
+                    currentList = entrantInvitedArrayList;
+                } else {
+                    currentList = entrantNotSelectedArrayList;
                 }
+                insertMarkers(currentList);
             }
             showLayout(viewLocationLayout);
         });
@@ -438,10 +442,13 @@ public class EntrantsListActivity extends AppCompatActivity implements
                     }
 
                     WriteBatch batch = db.batch();
+                    List<String> invitedIds = new ArrayList<>();
+                    List<String> notSelectedIds = new ArrayList<>();
 
                     // Update selected entrants to INVITED
                     for (int i = 0; i < sampleSize; i++) {
                         DocumentSnapshot documentSnapshot = waitlistedDocs.get(i);
+                        invitedIds.add(documentSnapshot.getId());
                         batch.update(
                                 documentSnapshot.getReference(),
                                 InvitationFlowUtil.buildInvitedEntrantUpdate()
@@ -451,6 +458,7 @@ public class EntrantsListActivity extends AppCompatActivity implements
                     // US 02.05.03: Update remaining waitlisted entrants to NOT_SELECTED
                     for (int i = sampleSize; i < waitlistedDocs.size(); i++) {
                         DocumentSnapshot documentSnapshot = waitlistedDocs.get(i);
+                        notSelectedIds.add(documentSnapshot.getId());
                         batch.update(
                                 documentSnapshot.getReference(),
                                 InvitationFlowUtil.buildNotSelectedEntrantUpdate()
@@ -458,13 +466,89 @@ public class EntrantsListActivity extends AppCompatActivity implements
                     }
 
                     batch.commit()
-                            .addOnSuccessListener(unused ->
-                                    Toast.makeText(this, "Sampling complete", Toast.LENGTH_SHORT).show()
-                            )
+                            .addOnSuccessListener(unused -> {
+                                Toast.makeText(this, "Sampling complete", Toast.LENGTH_SHORT).show();
+                                // NEW: Automatically notify winners and non-selected entrants
+                                autoNotifyDrawResults(invitedIds, true);
+                                autoNotifyDrawResults(notSelectedIds, false);
+                            })
                             .addOnFailureListener(e ->
                                     Log.e(TAG, "sampling commit failed", e)
                             );
                 });
+    }
+
+    /**
+     * Sends automatic system notifications to entrants after a lottery draw.
+     *
+     * @param userIds  List of user IDs to notify.
+     * @param isWinner Whether these users were selected as winners.
+     */
+    private void autoNotifyDrawResults(List<String> userIds, boolean isWinner) {
+        if (userIds.isEmpty()) return;
+
+        String notificationId = UUID.randomUUID().toString();
+        String title = isWinner ? "You've been invited!" : "Lottery Update";
+        String content = isWinner ?
+                "Congratulations! You have been selected for " + eventTitle + ". Please check event details to accept or decline." :
+                "We're sorry, you were not selected for " + eventTitle + " this time.";
+        String type = isWinner ? "event_invitation" : "draw_result";
+
+        Map<String, Object> globalNotif = new HashMap<>();
+        globalNotif.put("notificationId", notificationId);
+        globalNotif.put("title", title);
+        globalNotif.put("message", content);
+        globalNotif.put("type", type);
+        globalNotif.put("eventId", eventId);
+        globalNotif.put("eventTitle", eventTitle);
+        globalNotif.put("senderId", userId);
+        globalNotif.put("senderRole", "organizer");
+        globalNotif.put("createdAt", Timestamp.now());
+
+        db.collection(FirestorePaths.NOTIFICATIONS).document(notificationId)
+                .set(globalNotif)
+                .addOnSuccessListener(aVoid -> {
+                    // Send to the specified group of users
+                    processRecipientsByIds(userIds, notificationId, content, globalNotif);
+                });
+    }
+
+    /**
+     * Helper to process recipients using a pre-defined list of IDs.
+     */
+    private void processRecipientsByIds(List<String> recipientIds, String notificationId, String content, Map<String, Object> globalNotif) {
+        WriteBatch batch = db.batch();
+        int total = recipientIds.size();
+        AtomicInteger processedCount = new AtomicInteger(0);
+
+        for (String recipientUid : recipientIds) {
+            db.collection(FirestorePaths.USERS).document(recipientUid).get().addOnCompleteListener(task -> {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    DocumentSnapshot userDoc = task.getResult();
+                    boolean enabled = userDoc.contains("notificationsEnabled") ?
+                            userDoc.getBoolean("notificationsEnabled") : true;
+
+                    if (enabled) {
+                        Map<String, Object> recData = new HashMap<>();
+                        recData.put("userId", recipientUid);
+                        recData.put("isRead", false);
+                        recData.put("createdAt", Timestamp.now());
+                        batch.set(db.collection(FirestorePaths.notificationRecipients(notificationId)).document(recipientUid), recData);
+
+                        NotificationItem inboxItem = new NotificationItem(
+                                notificationId, (String) globalNotif.get("title"), content,
+                                (String) globalNotif.get("type"), eventId, eventTitle,
+                                (String) globalNotif.get("senderId"), "organizer", false, (Timestamp) globalNotif.get("createdAt")
+                        );
+                        batch.set(db.collection(FirestorePaths.userInbox(recipientUid)).document(notificationId), inboxItem);
+                    }
+                }
+
+                if (processedCount.incrementAndGet() == total) {
+                    batch.commit().addOnFailureListener(e -> Log.e(TAG, "Batch notification failed", e));
+                }
+            });
+        }
     }
 
     /**
@@ -583,7 +667,7 @@ public class EntrantsListActivity extends AppCompatActivity implements
                                 false,
                                 (Timestamp) globalNotif.get("createdAt")
                         );
-                        batch.set(inboxRef, inboxItem);
+                        batch.set(inboxItem, inboxItem);
                         sentCount.incrementAndGet();
                     }
                 }
@@ -659,6 +743,7 @@ public class EntrantsListActivity extends AppCompatActivity implements
      * @param list entrant we want to show their location on the map
      */
     private void insertMarkers(ArrayList<EntrantEvent> list) {
+        if (googleMap == null) return;
         googleMap.clear();
 
         final LatLngBounds.Builder builder = new LatLngBounds.Builder();
@@ -678,8 +763,22 @@ public class EntrantsListActivity extends AppCompatActivity implements
             hasLocations = true;
         }
 
-        if (!hasLocations) {
-            Toast.makeText(this, "No entrant locations available for this list.", Toast.LENGTH_SHORT).show();
+        if (hasLocations) {
+            try {
+                // Adjust zoom to show all markers
+                LatLngBounds bounds = builder.build();
+                int padding = 150; // offset from edges of the map in pixels
+                CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+                googleMap.animateCamera(cu);
+            } catch (IllegalStateException e) {
+                // Bounds could not be calculated if map size is unknown yet
+                Log.w(TAG, "Map bounds could not be calculated yet");
+            }
+        } else {
+            // Default: Focus on Edmonton, Canada if no data is present
+            LatLng edmonton = new LatLng(53.5461, -113.4938);
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(edmonton, 10f));
+            Toast.makeText(this, "Showing default area (Edmonton). No entrant locations available.", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -712,6 +811,11 @@ public class EntrantsListActivity extends AppCompatActivity implements
     public void onMapReady(@NonNull GoogleMap g) {
         googleMap = g;
         googleMap.getUiSettings().setZoomControlsEnabled(true);
+        googleMap.getUiSettings().setMyLocationButtonEnabled(true);
+
+        // Initial camera position: Canada
+        LatLng canadaCenter = new LatLng(56.1304, -106.3468);
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(canadaCenter, 3f));
     }
 
     /**
@@ -719,8 +823,8 @@ public class EntrantsListActivity extends AppCompatActivity implements
      */
     @Override
     public void onStart() {
-        mapView.onStart();
         super.onStart();
+        if (mapView != null) mapView.onStart();
     }
 
     /**
@@ -728,8 +832,8 @@ public class EntrantsListActivity extends AppCompatActivity implements
      */
     @Override
     public void onStop() {
-        mapView.onStop();
         super.onStop();
+        if (mapView != null) mapView.onStop();
     }
 
     /**
@@ -737,8 +841,8 @@ public class EntrantsListActivity extends AppCompatActivity implements
      */
     @Override
     public void onResume() {
-        mapView.onResume();
         super.onResume();
+        if (mapView != null) mapView.onResume();
     }
 
     /**
@@ -746,8 +850,8 @@ public class EntrantsListActivity extends AppCompatActivity implements
      */
     @Override
     public void onPause() {
+        if (mapView != null) mapView.onPause();
         super.onPause();
-        mapView.onPause();
     }
 
     /**
@@ -755,9 +859,15 @@ public class EntrantsListActivity extends AppCompatActivity implements
      */
     @Override
     public void onDestroy() {
-        super.onDestroy();
         if (entrantsReg != null) entrantsReg.remove();
-        mapView.onDestroy();
+        if (mapView != null) mapView.onDestroy();
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (mapView != null) mapView.onSaveInstanceState(outState);
     }
 
     /**
@@ -766,6 +876,6 @@ public class EntrantsListActivity extends AppCompatActivity implements
     @Override
     public void onLowMemory() {
         super.onLowMemory();
-        mapView.onLowMemory();
+        if (mapView != null) mapView.onLowMemory();
     }
 }
