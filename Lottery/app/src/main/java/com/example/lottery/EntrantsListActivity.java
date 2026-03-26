@@ -3,6 +3,7 @@ package com.example.lottery;
 import static java.lang.Long.min;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -27,20 +28,10 @@ import com.example.lottery.model.NotificationItem;
 import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.InvitationFlowUtil;
 import com.example.lottery.util.SessionUtil;
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.Timestamp;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -60,13 +51,12 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Activity to display entrants of different status of a event by list and map and able to sample they
+ * Activity to display entrants of different status of a event by list and able to sample they
  *
  * <p>Responsibilities:
  * <ul>
  *   <li>Fetch the 4 different status entrant collections from Firestore</li>
  *   <li>Render the 4 different status entrant list and implement view location and sample winners functionality</li>
- *   <li>implement US 02.02.02 Be Able To See On A Map Where Entrants Joined My Event</li>
  *   <li>implement US 02.05.02 Be able to sample number of attendees to register for the event</li>
  *   <li>implement US 02.06.01 Be able to view all chosen entrants</li>
  *   <li>implement US 02.06.02 Be able to see a list of all the cancelled entrants</li>
@@ -75,8 +65,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class EntrantsListActivity extends AppCompatActivity implements
         NotificationFragment.NotificationListener,
-        SampleFragment.SamplingListener,
-        OnMapReadyCallback {
+        SampleFragment.SamplingListener {
 
     private static final String TAG = "EntrantsListActivity";
 
@@ -98,12 +87,9 @@ public class EntrantsListActivity extends AppCompatActivity implements
     private NotSelectedListAdapter notSelectedAdapter;
 
     private LinearLayout invitedEntrantsListLayout, cancelledEntrantsListLayout,
-            signedUpEntrantsListLayout, waitedListEntrantsListLayout, notSelectedEntrantsListLayout, viewLocationLayout;
+            signedUpEntrantsListLayout, waitedListEntrantsListLayout, notSelectedEntrantsListLayout;
 
     private RecyclerView invitedEventsView, signedUpEventsView, waitedListEventsView, cancelledEntrantsView, notSelectedEntrantsView;
-
-    private GoogleMap googleMap;
-    private MapView mapView;
 
     private String eventId;
     private String userId;
@@ -156,9 +142,6 @@ public class EntrantsListActivity extends AppCompatActivity implements
                 exportAcceptedEntrantsToCsv(uri);
             }
         });
-
-        mapView.onCreate(savedInstanceState);
-        mapView.getMapAsync(this);
 
         entrantSignedUpArrayList = new ArrayList<>();
         entrantCancelledArrayList = new ArrayList<>();
@@ -223,24 +206,13 @@ public class EntrantsListActivity extends AppCompatActivity implements
         });
 
         /**
-         * switch to invited component to display the entrants list that have invited by the organizer
-         */
-
-        /**
-         * switch to view location component to display the entrants on the map
+         * navigate to the map screen to view entrant locations (US 02.02.02)
          */
         btnViewLocation.setOnClickListener(v -> {
-            showLayout(viewLocationLayout);
-            ArrayList<EntrantEvent> currentList;
-            switch (activeGroupStatus) {
-                case InvitationFlowUtil.STATUS_ACCEPTED: currentList = entrantSignedUpArrayList; break;
-                case InvitationFlowUtil.STATUS_CANCELLED: currentList = entrantCancelledArrayList; break;
-                case InvitationFlowUtil.STATUS_INVITED: currentList = entrantInvitedArrayList; break;
-                case InvitationFlowUtil.STATUS_NOT_SELECTED: currentList = entrantNotSelectedArrayList; break;
-                default: currentList = entrantWaitedListArrayList; break;
-            }
-            // Use post to ensure the MapView has laid out and has dimensions
-            mapView.post(() -> insertMarkers(currentList));
+            Intent intent = new Intent(this, EntrantMapActivity.class);
+            intent.putExtra("eventId", eventId);
+            intent.putExtra("status", activeGroupStatus);
+            startActivity(intent);
         });
 
         btnExportCsv.setOnClickListener(v -> {
@@ -701,57 +673,6 @@ public class EntrantsListActivity extends AppCompatActivity implements
         waitedListEntrantsListLayout = findViewById(R.id.waited_list_entrants_list_layout);
         invitedEntrantsListLayout = findViewById(R.id.invited_entrants_list_layout);
         notSelectedEntrantsListLayout = findViewById(R.id.not_selected_entrants_list_layout);
-        viewLocationLayout = findViewById(R.id.view_location_layout);
-        mapView = findViewById(R.id.mapView);
-    }
-
-    // Source - https://stackoverflow.com/a/30054797
-    // Posted by Ankit Khare, modified by community. See post 'Timeline' for change history
-    // Retrieved 2026-03-11, License - CC BY-SA 3.0
-
-    /**
-     * nsert makers of entrants' location into the map
-     *
-     * @param list entrant we want to show their location on the map
-     */
-    private void insertMarkers(ArrayList<EntrantEvent> list) {
-        if (googleMap == null) return;
-        googleMap.clear();
-
-        final LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        boolean hasLocations = false;
-
-        for (int i = 0; i < list.size(); i++) {
-            EntrantEvent entrant = list.get(i);
-            GeoPoint geoLocation = entrant.getLocation();
-            if (geoLocation == null) {
-                continue;
-            }
-
-            final LatLng position = new LatLng(geoLocation.getLatitude(), geoLocation.getLongitude());
-            final MarkerOptions options = new MarkerOptions().position(position);
-            googleMap.addMarker(options);
-            builder.include(position);
-            hasLocations = true;
-        }
-
-        if (hasLocations) {
-            try {
-                // Adjust zoom to show all markers
-                LatLngBounds bounds = builder.build();
-                int padding = 150; // offset from edges of the map in pixels
-                CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-                googleMap.animateCamera(cu);
-            } catch (IllegalStateException e) {
-                // Bounds could not be calculated if map size is unknown yet
-                Log.w(TAG, "Map bounds could not be calculated yet");
-            }
-        } else {
-            // Default: Focus on Edmonton, Canada if no data is present
-            LatLng edmonton = new LatLng(53.5461, -113.4938);
-            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(edmonton, 10f));
-            Toast.makeText(this, "Showing default area (Edmonton). No entrant locations available.", Toast.LENGTH_SHORT).show();
-        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -761,7 +682,6 @@ public class EntrantsListActivity extends AppCompatActivity implements
         waitedListEntrantsListLayout.setVisibility(waitedListEntrantsListLayout == target ? View.VISIBLE : View.GONE);
         invitedEntrantsListLayout.setVisibility(invitedEntrantsListLayout == target ? View.VISIBLE : View.GONE);
         notSelectedEntrantsListLayout.setVisibility(notSelectedEntrantsListLayout == target ? View.VISIBLE : View.GONE);
-        viewLocationLayout.setVisibility(viewLocationLayout == target ? View.VISIBLE : View.GONE);
 
         // US 02.07.01 & US 02.07.02: Notification buttons are only for the Waiting List
         boolean isWaitingList = target == waitedListEntrantsListLayout;
@@ -779,75 +699,12 @@ public class EntrantsListActivity extends AppCompatActivity implements
         }
     }
 
-    @Override
-    public void onMapReady(@NonNull GoogleMap g) {
-        googleMap = g;
-        googleMap.getUiSettings().setZoomControlsEnabled(true);
-        googleMap.getUiSettings().setMyLocationButtonEnabled(true);
-
-        // Initial camera position: Canada
-        LatLng canadaCenter = new LatLng(56.1304, -106.3468);
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(canadaCenter, 3f));
-    }
-
-    /**
-     * initialize mapview
-     */
-    @Override
-    public void onStart() {
-        super.onStart();
-        if (mapView != null) mapView.onStart();
-    }
-
-    /**
-     * inform mapview to free resources when stop using
-     */
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (mapView != null) mapView.onStop();
-    }
-
-    /**
-     * interact with users
-     */
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (mapView != null) mapView.onResume();
-    }
-
-    /**
-     * stop rendering map
-     */
-    @Override
-    public void onPause() {
-        if (mapView != null) mapView.onPause();
-        super.onPause();
-    }
-
     /**
      * remove map allocated resources
      */
     @Override
     public void onDestroy() {
         if (entrantsReg != null) entrantsReg.remove();
-        if (mapView != null) mapView.onDestroy();
         super.onDestroy();
-    }
-
-    @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if (mapView != null) mapView.onSaveInstanceState(outState);
-    }
-
-    /**
-     * control map memory use when system is busy
-     */
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-        if (mapView != null) mapView.onLowMemory();
     }
 }
