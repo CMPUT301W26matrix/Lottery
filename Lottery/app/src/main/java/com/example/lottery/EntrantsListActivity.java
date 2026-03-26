@@ -497,6 +497,8 @@ public class EntrantsListActivity extends AppCompatActivity implements
         globalNotif.put("senderId", userId);
         globalNotif.put("senderRole", "organizer");
         globalNotif.put("createdAt", now);
+        globalNotif.put("group", isNotifySelectedMode ? "selected" : "waitlisted");
+        globalNotif.put("recipientCount", 0);
 
         db.collection(FirestorePaths.NOTIFICATIONS).document(notificationId)
                 .set(globalNotif)
@@ -592,6 +594,7 @@ public class EntrantsListActivity extends AppCompatActivity implements
 
                 if (processedCount.incrementAndGet() == totalRecipients) {
                     if (sentCount.get() > 0) {
+                        batch.update(db.collection(FirestorePaths.NOTIFICATIONS).document(notificationId), "recipientCount", sentCount.get());
                         batch.commit()
                                 .addOnSuccessListener(unused ->
                                         Toast.makeText(this,

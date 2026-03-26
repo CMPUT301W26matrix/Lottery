@@ -150,8 +150,10 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
 
         View btnLogs = findViewById(R.id.nav_logs);
         if (btnLogs != null) {
-            btnLogs.setOnClickListener(v ->
-                    Toast.makeText(this, R.string.admin_logs_coming_soon, Toast.LENGTH_SHORT).show());
+            btnLogs.setOnClickListener(v -> {
+                Intent intent = new Intent(this, AdminBrowseLogsActivity.class);
+                startActivity(intent);
+            });
         }
     }
 
@@ -253,7 +255,7 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
     private void fetchOrganizerName(String organizerId) {
         db.collection("users").document(organizerId).get()
                 .addOnSuccessListener(doc -> {
-                    String name = doc.getString("name");
+                    String name = doc.getString("username");
                     tvOrganizerName.setText(getString(R.string.admin_organizer_label,
                             name != null ? name : getString(R.string.admin_unknown_organizer)));
                 })

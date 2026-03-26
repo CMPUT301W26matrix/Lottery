@@ -292,6 +292,8 @@ public class AdminBrowseProfilesActivityTest {
             onView(withText(containsString("All events created by this organizer will also be deleted.")))
                     .check(matches(isDisplayed()));
             onView(withText(containsString("BadOrganizer"))).check(matches(isDisplayed()));
+
+            onView(withText("Cancel")).perform(click());
         }
     }
 
@@ -349,6 +351,8 @@ public class AdminBrowseProfilesActivityTest {
                     .check(matches(isDisplayed()));
             onView(withText("Cancel"))
                     .check(matches(isDisplayed()));
+
+            onView(withText("Cancel")).perform(click());
         }
     }
 
