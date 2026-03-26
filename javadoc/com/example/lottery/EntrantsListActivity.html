@@ -106,19 +106,18 @@ loadScripts(document, 'script');</script>
 <section class="class-description" id="class-description">
 <dl class="notes">
 <dt>All Implemented Interfaces:</dt>
-<dd><code>android.content.ComponentCallbacks</code>, <code>android.content.ComponentCallbacks2</code>, <code>android.view.KeyEvent.Callback</code>, <code>android.view.LayoutInflater.Factory</code>, <code>android.view.LayoutInflater.Factory2</code>, <code>android.view.View.OnCreateContextMenuListener</code>, <code>android.view.Window.Callback</code>, <code>androidx.activity.contextaware.ContextAware</code>, <code>androidx.activity.FullyDrawnReporterOwner</code>, <code>androidx.activity.OnBackPressedDispatcherOwner</code>, <code>androidx.activity.result.ActivityResultCaller</code>, <code>androidx.activity.result.ActivityResultRegistryOwner</code>, <code>androidx.appcompat.app.ActionBarDrawerToggle.DelegateProvider</code>, <code>androidx.appcompat.app.AppCompatCallback</code>, <code>androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback</code>, <code>androidx.core.app.ActivityCompat.RequestPermissionsRequestCodeValidator</code>, <code>androidx.core.app.OnMultiWindowModeChangedProvider</code>, <code>androidx.core.app.OnNewIntentProvider</code>, <code>androidx.core.app.OnPictureInPictureModeChangedProvider</code>, <code>androidx.core.app.OnUserLeaveHintProvider</code>, <code>androidx.core.app.TaskStackBuilder.SupportParentable</code>, <code>androidx.core.content.OnConfigurationChangedProvider</code>, <code>androidx.core.content.OnTrimMemoryProvider</code>, <code>androidx.core.view.KeyEventDispatcher.Component</code>, <code>androidx.core.view.MenuHost</code>, <code>androidx.lifecycle.HasDefaultViewModelProviderFactory</code>, <code>androidx.lifecycle.LifecycleOwner</code>, <code>androidx.lifecycle.ViewModelStoreOwner</code>, <code>androidx.navigationevent.NavigationEventDispatcherOwner</code>, <code>androidx.savedstate.SavedStateRegistryOwner</code>, <code><a href="NotificationFragment.NotificationListener.html" title="interface in com.example.lottery">NotificationFragment.NotificationListener</a></code>, <code>com.google.android.gms.maps.OnMapReadyCallback</code></dd>
+<dd><code>android.content.ComponentCallbacks</code>, <code>android.content.ComponentCallbacks2</code>, <code>android.view.KeyEvent.Callback</code>, <code>android.view.LayoutInflater.Factory</code>, <code>android.view.LayoutInflater.Factory2</code>, <code>android.view.View.OnCreateContextMenuListener</code>, <code>android.view.Window.Callback</code>, <code>androidx.activity.contextaware.ContextAware</code>, <code>androidx.activity.FullyDrawnReporterOwner</code>, <code>androidx.activity.OnBackPressedDispatcherOwner</code>, <code>androidx.activity.result.ActivityResultCaller</code>, <code>androidx.activity.result.ActivityResultRegistryOwner</code>, <code>androidx.appcompat.app.ActionBarDrawerToggle.DelegateProvider</code>, <code>androidx.appcompat.app.AppCompatCallback</code>, <code>androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback</code>, <code>androidx.core.app.ActivityCompat.RequestPermissionsRequestCodeValidator</code>, <code>androidx.core.app.OnMultiWindowModeChangedProvider</code>, <code>androidx.core.app.OnNewIntentProvider</code>, <code>androidx.core.app.OnPictureInPictureModeChangedProvider</code>, <code>androidx.core.app.OnUserLeaveHintProvider</code>, <code>androidx.core.app.TaskStackBuilder.SupportParentable</code>, <code>androidx.core.content.OnConfigurationChangedProvider</code>, <code>androidx.core.content.OnTrimMemoryProvider</code>, <code>androidx.core.view.KeyEventDispatcher.Component</code>, <code>androidx.core.view.MenuHost</code>, <code>androidx.lifecycle.HasDefaultViewModelProviderFactory</code>, <code>androidx.lifecycle.LifecycleOwner</code>, <code>androidx.lifecycle.ViewModelStoreOwner</code>, <code>androidx.navigationevent.NavigationEventDispatcherOwner</code>, <code>androidx.savedstate.SavedStateRegistryOwner</code>, <code><a href="NotificationFragment.NotificationListener.html" title="interface in com.example.lottery">NotificationFragment.NotificationListener</a></code></dd>
 </dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">EntrantsListActivity</span>
 <span class="extends-implements">extends androidx.appcompat.app.AppCompatActivity
-implements <a href="NotificationFragment.NotificationListener.html" title="interface in com.example.lottery">NotificationFragment.NotificationListener</a>, com.google.android.gms.maps.OnMapReadyCallback</span></div>
-<div class="block">Activity to display entrants of different status of a event by list and map and able to sample they
+implements <a href="NotificationFragment.NotificationListener.html" title="interface in com.example.lottery">NotificationFragment.NotificationListener</a></span></div>
+<div class="block">Activity to display entrants of different status of a event by list and able to sample they
 
  <p>Responsibilities:
  <ul>
    <li>Fetch the 4 different status entrant collections from Firestore</li>
    <li>Render the 4 different status entrant list and implement view location and sample winners functionality</li>
-   <li>implement US 02.02.02 Be Able To See On A Map Where Entrants Joined My Event</li>
    <li>implement US 02.05.02 Be able to sample number of attendees to register for the event</li>
    <li>implement US 02.06.01 Be able to view all chosen entrants</li>
    <li>implement US 02.06.02 Be able to see a list of all the cancelled entrants</li>
@@ -199,34 +198,6 @@ implements <a href="NotificationFragment.NotificationListener.html" title="inter
 <div class="block">remove map allocated resources</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onLowMemory()" class="member-name-link">onLowMemory</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">control map memory use when system is busy</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onMapReady(com.google.android.gms.maps.GoogleMap)" class="member-name-link">onMapReady</a><wbr>(com.google.android.gms.maps.GoogleMap&nbsp;g)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onPause()" class="member-name-link">onPause</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">stop rendering map</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onResume()" class="member-name-link">onResume</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">interact with users</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onStart()" class="member-name-link">onStart</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">initialize mapview</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onStop()" class="member-name-link">onStop</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">inform mapview to free resources when stop using</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#sampling(java.lang.String)" class="member-name-link">sampling</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;size)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">implement US 02.05.02, randomly sample a specific number of signed up entrants from the attendees</div>
@@ -245,10 +216,10 @@ implements <a href="NotificationFragment.NotificationListener.html" title="inter
 </div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-androidx.appcompat.app.AppCompatActivity">Methods inherited from class&nbsp;androidx.appcompat.app.AppCompatActivity</h3>
-<code>addContentView, attachBaseContext, closeOptionsMenu, dispatchKeyEvent, findViewById, getDelegate, getDrawerToggleDelegate, getMenuInflater, getResources, getSupportActionBar, getSupportParentActivityIntent, invalidateOptionsMenu, onConfigurationChanged, onContentChanged, onCreateSupportNavigateUpTaskStack, onKeyDown, onLocalesChanged, onMenuItemSelected, onMenuOpened, onNightModeChanged, onPanelClosed, onPostCreate, onPostResume, onPrepareSupportNavigateUpTaskStack, onSupportActionModeFinished, onSupportActionModeStarted, onSupportContentChanged, onSupportNavigateUp, onTitleChanged, onWindowStartingSupportActionMode, openOptionsMenu, setContentView, setContentView, setContentView, setSupportActionBar, setSupportProgress, setSupportProgressBarIndeterminate, setSupportProgressBarIndeterminateVisibility, setSupportProgressBarVisibility, setTheme, startSupportActionMode, supportInvalidateOptionsMenu, supportNavigateUpTo, supportRequestWindowFeature, supportShouldUpRecreateTask</code></div>
+<code>addContentView, attachBaseContext, closeOptionsMenu, dispatchKeyEvent, findViewById, getDelegate, getDrawerToggleDelegate, getMenuInflater, getResources, getSupportActionBar, getSupportParentActivityIntent, invalidateOptionsMenu, onConfigurationChanged, onContentChanged, onCreateSupportNavigateUpTaskStack, onKeyDown, onLocalesChanged, onMenuItemSelected, onMenuOpened, onNightModeChanged, onPanelClosed, onPostCreate, onPostResume, onPrepareSupportNavigateUpTaskStack, onStart, onStop, onSupportActionModeFinished, onSupportActionModeStarted, onSupportContentChanged, onSupportNavigateUp, onTitleChanged, onWindowStartingSupportActionMode, openOptionsMenu, setContentView, setContentView, setContentView, setSupportActionBar, setSupportProgress, setSupportProgressBarIndeterminate, setSupportProgressBarIndeterminateVisibility, setSupportProgressBarVisibility, setTheme, startSupportActionMode, supportInvalidateOptionsMenu, supportNavigateUpTo, supportRequestWindowFeature, supportShouldUpRecreateTask</code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-androidx.fragment.app.FragmentActivity">Methods inherited from class&nbsp;androidx.fragment.app.FragmentActivity</h3>
-<code>dump, getSupportFragmentManager, getSupportLoaderManager, onActivityResult, onAttachFragment, onCreateView, onCreateView, onRequestPermissionsResult, onResumeFragments, onStateNotSaved, setEnterSharedElementCallback, setExitSharedElementCallback, startActivityFromFragment, startActivityFromFragment, startIntentSenderFromFragment, supportFinishAfterTransition, supportPostponeEnterTransition, supportStartPostponedEnterTransition, validateRequestPermissionsRequestCode</code></div>
+<code>dump, getSupportFragmentManager, getSupportLoaderManager, onActivityResult, onAttachFragment, onCreateView, onCreateView, onPause, onRequestPermissionsResult, onResume, onResumeFragments, onStateNotSaved, setEnterSharedElementCallback, setExitSharedElementCallback, startActivityFromFragment, startActivityFromFragment, startIntentSenderFromFragment, supportFinishAfterTransition, supportPostponeEnterTransition, supportStartPostponedEnterTransition, validateRequestPermissionsRequestCode</code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-androidx.activity.ComponentActivity">Methods inherited from class&nbsp;androidx.activity.ComponentActivity</h3>
 <code>addMenuProvider, addMenuProvider, addMenuProvider, addOnConfigurationChangedListener, addOnContextAvailableListener, addOnMultiWindowModeChangedListener, addOnNewIntentListener, addOnPictureInPictureModeChangedListener, addOnTrimMemoryListener, addOnUserLeaveHintListener, getActivityResultRegistry, getDefaultViewModelCreationExtras, getDefaultViewModelProviderFactory, getFullyDrawnReporter, getLastCustomNonConfigurationInstance, getLifecycle, getNavigationEventDispatcher, getOnBackPressedDispatcher, getSavedStateRegistry, getViewModelStore, initializeViewTreeOwners, invalidateMenu, onBackPressed, onCreatePanelMenu, onMultiWindowModeChanged, onMultiWindowModeChanged, onNewIntent, onPictureInPictureModeChanged, onPictureInPictureModeChanged, onPreparePanel, onRetainCustomNonConfigurationInstance, onRetainNonConfigurationInstance, onSaveInstanceState, onTrimMemory, onUserLeaveHint, peekAvailableContext, registerForActivityResult, registerForActivityResult, removeMenuProvider, removeOnConfigurationChangedListener, removeOnContextAvailableListener, removeOnMultiWindowModeChangedListener, removeOnNewIntentListener, removeOnPictureInPictureModeChangedListener, removeOnTrimMemoryListener, removeOnUserLeaveHintListener, reportFullyDrawn, startActivityForResult, startActivityForResult, startIntentSenderForResult, startIntentSenderForResult</code></div>
@@ -257,7 +228,7 @@ implements <a href="NotificationFragment.NotificationListener.html" title="inter
 <code>dispatchKeyShortcutEvent, getExtraData, putExtraData, shouldDumpInternalState, superDispatchKeyEvent</code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-android.app.Activity">Methods inherited from class&nbsp;android.app.Activity</h3>
-<code>clearOverrideActivityTransition, closeContextMenu, createPendingResult, dismissDialog, dismissKeyboardShortcutsHelper, dispatchGenericMotionEvent, dispatchPopulateAccessibilityEvent, dispatchTouchEvent, dispatchTrackballEvent, enterPictureInPictureMode, enterPictureInPictureMode, finish, finishActivity, finishActivityFromChild, finishAffinity, finishAfterTransition, finishAndRemoveTask, finishFromChild, getActionBar, getApplication, getCaller, getCallingActivity, getCallingPackage, getChangingConfigurations, getComponentName, getContentScene, getContentTransitionManager, getCurrentCaller, getCurrentFocus, getFragmentManager, getInitialCaller, getIntent, getLastNonConfigurationInstance, getLaunchedFromPackage, getLaunchedFromUid, getLayoutInflater, getLoaderManager, getLocalClassName, getMaxNumPictureInPictureActions, getMediaController, getOnBackInvokedDispatcher, getParent, getParentActivityIntent, getPreferences, getReferrer, getRequestedOrientation, getSearchEvent, getSplashScreen, getSystemService, getTaskId, getTitle, getTitleColor, getVoiceInteractor, getVolumeControlStream, getWindow, getWindowManager, hasWindowFocus, isActivityTransitionRunning, isChangingConfigurations, isChild, isDestroyed, isFinishing, isImmersive, isInMultiWindowMode, isInPictureInPictureMode, isLaunchedFromBubble, isLocalVoiceInteractionSupported, isTaskRoot, isVoiceInteraction, isVoiceInteractionRoot, managedQuery, moveTaskToBack, navigateUpTo, navigateUpToFromChild, onActionModeFinished, onActionModeStarted, onActivityReenter, onActivityResult, onApplyThemeResource, onAttachedToWindow, onAttachFragment, onChildTitleChanged, onContextItemSelected, onContextMenuClosed, onCreate, onCreateContextMenu, onCreateDescription, onCreateDialog, onCreateDialog, onCreateNavigateUpTaskStack, onCreateOptionsMenu, onCreatePanelView, onCreateThumbnail, onDetachedFromWindow, onEnterAnimationComplete, onGenericMotionEvent, onGetDirectActions, onKeyLongPress, onKeyMultiple, onKeyShortcut, onKeyUp, onLocalVoiceInteractionStarted, onLocalVoiceInteractionStopped, onNavigateUp, onNavigateUpFromChild, onNewIntent, onOptionsItemSelected, onOptionsMenuClosed, onPerformDirectAction, onPictureInPictureRequested, onPictureInPictureUiStateChanged, onPostCreate, onPrepareDialog, onPrepareDialog, onPrepareNavigateUpTaskStack, onPrepareOptionsMenu, onProvideAssistContent, onProvideAssistData, onProvideKeyboardShortcuts, onProvideReferrer, onRequestPermissionsResult, onRestart, onRestoreInstanceState, onRestoreInstanceState, onSaveInstanceState, onSearchRequested, onSearchRequested, onTopResumedActivityChanged, onTouchEvent, onTrackballEvent, onUserInteraction, onVisibleBehindCanceled, onWindowAttributesChanged, onWindowFocusChanged, onWindowStartingActionMode, onWindowStartingActionMode, openContextMenu, overrideActivityTransition, overrideActivityTransition, overridePendingTransition, overridePendingTransition, postponeEnterTransition, recreate, registerActivityLifecycleCallbacks, registerComponentCallbacks, registerForContextMenu, registerScreenCaptureCallback, releaseInstance, removeDialog, requestDragAndDropPermissions, requestFullscreenMode, requestOpenInBrowserEducation, requestPermissions, requestPermissions, requestShowKeyboardShortcuts, requestVisibleBehind, requestWindowFeature, requireViewById, runOnUiThread, setActionBar, setAllowCrossUidActivitySwitchFromBelow, setContentTransitionManager, setDefaultKeyMode, setEnterSharedElementCallback, setExitSharedElementCallback, setFeatureDrawable, setFeatureDrawableAlpha, setFeatureDrawableResource, setFeatureDrawableUri, setFinishOnTouchOutside, setImmersive, setInheritShowWhenLocked, setIntent, setIntent, setLocusContext, setMediaController, setPictureInPictureParams, setProgress, setProgressBarIndeterminate, setProgressBarIndeterminateVisibility, setProgressBarVisibility, setRecentsScreenshotEnabled, setRequestedOrientation, setResult, setResult, setSecondaryProgress, setShouldDockBigOverlays, setShowWhenLocked, setTaskDescription, setTitle, setTitle, setTitleColor, setTranslucent, setTurnScreenOn, setVisible, setVolumeControlStream, setVrModeEnabled, shouldDockBigOverlays, shouldShowRequestPermissionRationale, shouldShowRequestPermissionRationale, shouldUpRecreateTask, showAssist, showDialog, showDialog, showLockTaskEscapeMessage, startActionMode, startActionMode, startActivities, startActivities, startActivity, startActivity, startActivityFromChild, startActivityFromChild, startActivityFromFragment, startActivityFromFragment, startActivityIfNeeded, startActivityIfNeeded, startIntentSender, startIntentSender, startIntentSenderFromChild, startIntentSenderFromChild, startLocalVoiceInteraction, startLockTask, startManagingCursor, startNextMatchingActivity, startNextMatchingActivity, startPostponedEnterTransition, startSearch, stopLocalVoiceInteraction, stopLockTask, stopManagingCursor, takeKeyEvents, triggerSearch, unregisterActivityLifecycleCallbacks, unregisterComponentCallbacks, unregisterForContextMenu, unregisterScreenCaptureCallback</code></div>
+<code>clearOverrideActivityTransition, closeContextMenu, createPendingResult, dismissDialog, dismissKeyboardShortcutsHelper, dispatchGenericMotionEvent, dispatchPopulateAccessibilityEvent, dispatchTouchEvent, dispatchTrackballEvent, enterPictureInPictureMode, enterPictureInPictureMode, finish, finishActivity, finishActivityFromChild, finishAffinity, finishAfterTransition, finishAndRemoveTask, finishFromChild, getActionBar, getApplication, getCaller, getCallingActivity, getCallingPackage, getChangingConfigurations, getComponentName, getContentScene, getContentTransitionManager, getCurrentCaller, getCurrentFocus, getFragmentManager, getInitialCaller, getIntent, getLastNonConfigurationInstance, getLaunchedFromPackage, getLaunchedFromUid, getLayoutInflater, getLoaderManager, getLocalClassName, getMaxNumPictureInPictureActions, getMediaController, getOnBackInvokedDispatcher, getParent, getParentActivityIntent, getPreferences, getReferrer, getRequestedOrientation, getSearchEvent, getSplashScreen, getSystemService, getTaskId, getTitle, getTitleColor, getVoiceInteractor, getVolumeControlStream, getWindow, getWindowManager, hasWindowFocus, isActivityTransitionRunning, isChangingConfigurations, isChild, isDestroyed, isFinishing, isImmersive, isInMultiWindowMode, isInPictureInPictureMode, isLaunchedFromBubble, isLocalVoiceInteractionSupported, isTaskRoot, isVoiceInteraction, isVoiceInteractionRoot, managedQuery, moveTaskToBack, navigateUpTo, navigateUpToFromChild, onActionModeFinished, onActionModeStarted, onActivityReenter, onActivityResult, onApplyThemeResource, onAttachedToWindow, onAttachFragment, onChildTitleChanged, onContextItemSelected, onContextMenuClosed, onCreate, onCreateContextMenu, onCreateDescription, onCreateDialog, onCreateDialog, onCreateNavigateUpTaskStack, onCreateOptionsMenu, onCreatePanelView, onCreateThumbnail, onDetachedFromWindow, onEnterAnimationComplete, onGenericMotionEvent, onGetDirectActions, onKeyLongPress, onKeyMultiple, onKeyShortcut, onKeyUp, onLocalVoiceInteractionStarted, onLocalVoiceInteractionStopped, onLowMemory, onNavigateUp, onNavigateUpFromChild, onNewIntent, onOptionsItemSelected, onOptionsMenuClosed, onPerformDirectAction, onPictureInPictureRequested, onPictureInPictureUiStateChanged, onPostCreate, onPrepareDialog, onPrepareDialog, onPrepareNavigateUpTaskStack, onPrepareOptionsMenu, onProvideAssistContent, onProvideAssistData, onProvideKeyboardShortcuts, onProvideReferrer, onRequestPermissionsResult, onRestart, onRestoreInstanceState, onRestoreInstanceState, onSaveInstanceState, onSearchRequested, onSearchRequested, onTopResumedActivityChanged, onTouchEvent, onTrackballEvent, onUserInteraction, onVisibleBehindCanceled, onWindowAttributesChanged, onWindowFocusChanged, onWindowStartingActionMode, onWindowStartingActionMode, openContextMenu, overrideActivityTransition, overrideActivityTransition, overridePendingTransition, overridePendingTransition, postponeEnterTransition, recreate, registerActivityLifecycleCallbacks, registerComponentCallbacks, registerForContextMenu, registerScreenCaptureCallback, releaseInstance, removeDialog, requestDragAndDropPermissions, requestFullscreenMode, requestOpenInBrowserEducation, requestPermissions, requestPermissions, requestShowKeyboardShortcuts, requestVisibleBehind, requestWindowFeature, requireViewById, runOnUiThread, setActionBar, setAllowCrossUidActivitySwitchFromBelow, setContentTransitionManager, setDefaultKeyMode, setEnterSharedElementCallback, setExitSharedElementCallback, setFeatureDrawable, setFeatureDrawableAlpha, setFeatureDrawableResource, setFeatureDrawableUri, setFinishOnTouchOutside, setImmersive, setInheritShowWhenLocked, setIntent, setIntent, setLocusContext, setMediaController, setPictureInPictureParams, setProgress, setProgressBarIndeterminate, setProgressBarIndeterminateVisibility, setProgressBarVisibility, setRecentsScreenshotEnabled, setRequestedOrientation, setResult, setResult, setSecondaryProgress, setShouldDockBigOverlays, setShowWhenLocked, setTaskDescription, setTitle, setTitle, setTitleColor, setTranslucent, setTurnScreenOn, setVisible, setVolumeControlStream, setVrModeEnabled, shouldDockBigOverlays, shouldShowRequestPermissionRationale, shouldShowRequestPermissionRationale, shouldUpRecreateTask, showAssist, showDialog, showDialog, showLockTaskEscapeMessage, startActionMode, startActionMode, startActivities, startActivities, startActivity, startActivity, startActivityFromChild, startActivityFromChild, startActivityFromFragment, startActivityFromFragment, startActivityIfNeeded, startActivityIfNeeded, startIntentSender, startIntentSender, startIntentSenderFromChild, startIntentSenderFromChild, startLocalVoiceInteraction, startLockTask, startManagingCursor, startNextMatchingActivity, startNextMatchingActivity, startPostponedEnterTransition, startSearch, stopLocalVoiceInteraction, stopLockTask, stopManagingCursor, takeKeyEvents, triggerSearch, unregisterActivityLifecycleCallbacks, unregisterComponentCallbacks, unregisterForContextMenu, unregisterScreenCaptureCallback</code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-android.view.ContextThemeWrapper">Methods inherited from class&nbsp;android.view.ContextThemeWrapper</h3>
 <code>applyOverrideConfiguration, getAssets, getTheme, setTheme</code></div>
@@ -352,61 +323,6 @@ implements <a href="NotificationFragment.NotificationListener.html" title="inter
 </section>
 </li>
 <li>
-<section class="detail" id="onMapReady(com.google.android.gms.maps.GoogleMap)">
-<h3>onMapReady</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onMapReady</span><wbr><span class="parameters">(@NonNull
- com.google.android.gms.maps.GoogleMap&nbsp;g)</span></div>
-<dl class="notes">
-<dt>Specified by:</dt>
-<dd><code>onMapReady</code>&nbsp;in interface&nbsp;<code>com.google.android.gms.maps.OnMapReadyCallback</code></dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="onStart()">
-<h3>onStart</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onStart</span>()</div>
-<div class="block">initialize mapview</div>
-<dl class="notes">
-<dt>Overrides:</dt>
-<dd><code>onStart</code>&nbsp;in class&nbsp;<code>androidx.appcompat.app.AppCompatActivity</code></dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="onStop()">
-<h3>onStop</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onStop</span>()</div>
-<div class="block">inform mapview to free resources when stop using</div>
-<dl class="notes">
-<dt>Overrides:</dt>
-<dd><code>onStop</code>&nbsp;in class&nbsp;<code>androidx.appcompat.app.AppCompatActivity</code></dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="onResume()">
-<h3>onResume</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onResume</span>()</div>
-<div class="block">interact with users</div>
-<dl class="notes">
-<dt>Overrides:</dt>
-<dd><code>onResume</code>&nbsp;in class&nbsp;<code>androidx.fragment.app.FragmentActivity</code></dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="onPause()">
-<h3>onPause</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onPause</span>()</div>
-<div class="block">stop rendering map</div>
-<dl class="notes">
-<dt>Overrides:</dt>
-<dd><code>onPause</code>&nbsp;in class&nbsp;<code>androidx.fragment.app.FragmentActivity</code></dd>
-</dl>
-</section>
-</li>
-<li>
 <section class="detail" id="onDestroy()">
 <h3>onDestroy</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onDestroy</span>()</div>
@@ -414,19 +330,6 @@ implements <a href="NotificationFragment.NotificationListener.html" title="inter
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code>onDestroy</code>&nbsp;in class&nbsp;<code>androidx.appcompat.app.AppCompatActivity</code></dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="onLowMemory()">
-<h3>onLowMemory</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onLowMemory</span>()</div>
-<div class="block">control map memory use when system is busy</div>
-<dl class="notes">
-<dt>Specified by:</dt>
-<dd><code>onLowMemory</code>&nbsp;in interface&nbsp;<code>android.content.ComponentCallbacks</code></dd>
-<dt>Overrides:</dt>
-<dd><code>onLowMemory</code>&nbsp;in class&nbsp;<code>android.app.Activity</code></dd>
 </dl>
 </section>
 </li>
