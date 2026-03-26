@@ -475,10 +475,8 @@ public class EntrantsListActivity extends AppCompatActivity implements
      */
     @Override
     public void sendNotification(String content) {
-        String currentUserId = FirebaseAuth.getInstance().getUid();
-
         // Authorization check: Only the organizer can send notifications
-        if (currentUserId == null || (organizerId != null && !currentUserId.equals(organizerId))) {
+        if (userId == null || (organizerId != null && !userId.equals(organizerId))) {
             Toast.makeText(this, "Error: Only the organizer can send notifications", Toast.LENGTH_SHORT).show();
             return;
         }
