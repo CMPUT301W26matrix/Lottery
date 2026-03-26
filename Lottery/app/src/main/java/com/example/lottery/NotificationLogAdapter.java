@@ -129,7 +129,7 @@ public class NotificationLogAdapter extends RecyclerView.Adapter<NotificationLog
                 db.collection(FirestorePaths.USERS).document(senderId).get()
                         .addOnSuccessListener(doc -> {
                             if (getBindingAdapterPosition() != bindPosition) return;
-                            String name = doc.getString("name");
+                            String name = doc.getString("username");
                             tvOrganizer.setText(itemView.getContext().getString(
                                     R.string.admin_organizer_label,
                                     name != null ? name : senderId));

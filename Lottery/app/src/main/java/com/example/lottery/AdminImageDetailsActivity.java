@@ -255,7 +255,7 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
     private void fetchOrganizerName(String organizerId) {
         db.collection("users").document(organizerId).get()
                 .addOnSuccessListener(doc -> {
-                    String name = doc.getString("name");
+                    String name = doc.getString("username");
                     tvOrganizerName.setText(getString(R.string.admin_organizer_label,
                             name != null ? name : getString(R.string.admin_unknown_organizer)));
                 })
