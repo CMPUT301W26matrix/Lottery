@@ -230,22 +230,17 @@ public class EntrantsListActivity extends AppCompatActivity implements
          * switch to view location component to display the entrants on the map
          */
         btnViewLocation.setOnClickListener(v -> {
-            if (googleMap != null) {
-                ArrayList<EntrantEvent> currentList;
-                if (waitedListEntrantsListLayout.getVisibility() == View.VISIBLE) {
-                    currentList = entrantWaitedListArrayList;
-                } else if (signedUpEntrantsListLayout.getVisibility() == View.VISIBLE) {
-                    currentList = entrantSignedUpArrayList;
-                } else if (cancelledEntrantsListLayout.getVisibility() == View.VISIBLE) {
-                    currentList = entrantCancelledArrayList;
-                } else if (invitedEntrantsListLayout.getVisibility() == View.VISIBLE) {
-                    currentList = entrantInvitedArrayList;
-                } else {
-                    currentList = entrantNotSelectedArrayList;
-                }
-                insertMarkers(currentList);
-            }
             showLayout(viewLocationLayout);
+            ArrayList<EntrantEvent> currentList;
+            switch (activeGroupStatus) {
+                case InvitationFlowUtil.STATUS_ACCEPTED: currentList = entrantSignedUpArrayList; break;
+                case InvitationFlowUtil.STATUS_CANCELLED: currentList = entrantCancelledArrayList; break;
+                case InvitationFlowUtil.STATUS_INVITED: currentList = entrantInvitedArrayList; break;
+                case InvitationFlowUtil.STATUS_NOT_SELECTED: currentList = entrantNotSelectedArrayList; break;
+                default: currentList = entrantWaitedListArrayList; break;
+            }
+            // Use post to ensure the MapView has laid out and has dimensions
+            mapView.post(() -> insertMarkers(currentList));
         });
 
         btnExportCsv.setOnClickListener(v -> {
@@ -340,33 +335,12 @@ public class EntrantsListActivity extends AppCompatActivity implements
 
                     if (querySnapshot != null) {
                         for (QueryDocumentSnapshot snapshot : querySnapshot) {
-                            // Unified: remove all fallback getters
-                            String userId = snapshot.getString("userId");
-                            String userName = snapshot.getString("userName");
-                            String email = snapshot.getString("email");
-                            Timestamp registeredAt = snapshot.getTimestamp("registeredAt");
-                            Timestamp invitedAt = snapshot.getTimestamp("invitedAt");
-                            Timestamp acceptedAt = snapshot.getTimestamp("acceptedAt");
-                            Timestamp cancelledAt = snapshot.getTimestamp("cancelledAt");
-                            GeoPoint location = snapshot.getGeoPoint("location");
-                            String status = snapshot.getString("status");
-
-                            if (userId == null || userId.trim().isEmpty()) {
-                                continue;
+                            EntrantEvent entrant = snapshot.toObject(EntrantEvent.class);
+                            if (entrant.getUserId() == null) {
+                                entrant.setUserId(snapshot.getId());
                             }
 
-                            EntrantEvent entrant = new EntrantEvent();
-                            entrant.setUserId(userId);
-                            entrant.setUserName(userName != null ? userName : "");
-                            entrant.setEmail(email);
-                            entrant.setStatus(status);
-                            entrant.setRegisteredAt(registeredAt);
-                            entrant.setInvitedAt(invitedAt);
-                            entrant.setAcceptedAt(acceptedAt);
-                            entrant.setCancelledAt(cancelledAt);
-                            entrant.setLocation(location);
-
-                            String normalizedStatus = InvitationFlowUtil.normalizeEntrantStatus(status);
+                            String normalizedStatus = InvitationFlowUtil.normalizeEntrantStatus(entrant.getStatus());
 
                             if (InvitationFlowUtil.STATUS_WAITLISTED.equals(normalizedStatus)) {
                                 entrantWaitedListArrayList.add(entrant);
@@ -468,7 +442,6 @@ public class EntrantsListActivity extends AppCompatActivity implements
                     batch.commit()
                             .addOnSuccessListener(unused -> {
                                 Toast.makeText(this, "Sampling complete", Toast.LENGTH_SHORT).show();
-                                // NEW: Automatically notify winners and non-selected entrants
                                 autoNotifyDrawResults(invitedIds, true);
                                 autoNotifyDrawResults(notSelectedIds, false);
                             })
@@ -508,7 +481,6 @@ public class EntrantsListActivity extends AppCompatActivity implements
         db.collection(FirestorePaths.NOTIFICATIONS).document(notificationId)
                 .set(globalNotif)
                 .addOnSuccessListener(aVoid -> {
-                    // Send to the specified group of users
                     processRecipientsByIds(userIds, notificationId, content, globalNotif);
                 });
     }
@@ -667,7 +639,7 @@ public class EntrantsListActivity extends AppCompatActivity implements
                                 false,
                                 (Timestamp) globalNotif.get("createdAt")
                         );
-                        batch.set(inboxItem, inboxItem);
+                        batch.set(inboxRef, inboxItem);
                         sentCount.incrementAndGet();
                     }
                 }
