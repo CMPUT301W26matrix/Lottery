@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 /**
  * Model class representing an entrant's participation record in an event's waiting list.
- *
+ * <p>
  * Target Firestore path:
  * events/{eventId}/waitingList/{userId}
  */

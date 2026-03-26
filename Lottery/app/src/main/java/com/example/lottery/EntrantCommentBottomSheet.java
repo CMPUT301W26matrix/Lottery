@@ -19,7 +19,6 @@ import com.example.lottery.util.FirestorePaths;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;

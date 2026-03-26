@@ -79,7 +79,7 @@ public class OrganizerProfileActivity extends AppCompatActivity {
         if (forceEdit) {
             enterEditMode();
             Toast.makeText(this, "Please complete your profile to continue", Toast.LENGTH_LONG).show();
-        }else {
+        } else {
             exitEditMode();
         }
 
@@ -377,8 +377,10 @@ public class OrganizerProfileActivity extends AppCompatActivity {
                 if (ll.getChildCount() >= 2) {
                     View iv = ll.getChildAt(0);
                     View tv = ll.getChildAt(1);
-                    if (iv instanceof ImageView) ((ImageView) iv).setColorFilter(getResources().getColor(R.color.text_gray));
-                    if (tv instanceof TextView) ((TextView) tv).setTextColor(getResources().getColor(R.color.text_gray));
+                    if (iv instanceof ImageView)
+                        ((ImageView) iv).setColorFilter(getResources().getColor(R.color.text_gray));
+                    if (tv instanceof TextView)
+                        ((TextView) tv).setTextColor(getResources().getColor(R.color.text_gray));
                 }
             }
         }
@@ -391,8 +393,10 @@ public class OrganizerProfileActivity extends AppCompatActivity {
                 if (ll.getChildCount() >= 2) {
                     View iv = ll.getChildAt(0);
                     View tv = ll.getChildAt(1);
-                    if (iv instanceof ImageView) ((ImageView) iv).setColorFilter(getResources().getColor(R.color.primary_blue));
-                    if (tv instanceof TextView) ((TextView) tv).setTextColor(getResources().getColor(R.color.primary_blue));
+                    if (iv instanceof ImageView)
+                        ((ImageView) iv).setColorFilter(getResources().getColor(R.color.primary_blue));
+                    if (tv instanceof TextView)
+                        ((TextView) tv).setTextColor(getResources().getColor(R.color.primary_blue));
                 }
             }
         }

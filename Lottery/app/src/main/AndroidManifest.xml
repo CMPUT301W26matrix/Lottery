@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <queries>
         <package android:name="com.google.android.gms" />
@@ -64,7 +67,8 @@
         <activity
             android:name=".EntrantProfileActivity"
             android:exported="false" />
-        <activity android:name=".AdminBrowseProfilesActivity"
+        <activity
+            android:name=".AdminBrowseProfilesActivity"
             android:exported="false" />
         <activity
             android:name=".OrganizerCreateEventActivity"
@@ -121,10 +125,17 @@
             android:label="@string/admin_image_preview_title"
             android:parentActivityName=".AdminBrowseImagesActivity" />
         <activity
+            android:name=".AdminBrowseLogsActivity"
+            android:exported="false"
+            android:label="@string/admin_logs_title" />
+        <activity
             android:name=".EntrantLotteryGuidelinesActivity"
             android:exported="false" />
         <activity
             android:name=".OrganizerLotteryGuidelinesActivity"
+            android:exported="false" />
+        <activity
+            android:name=".EntrantMapActivity"
             android:exported="false" />
 
     </application>

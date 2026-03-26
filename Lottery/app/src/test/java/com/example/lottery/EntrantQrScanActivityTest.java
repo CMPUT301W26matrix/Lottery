@@ -1,10 +1,8 @@
 package com.example.lottery;
 
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.*;
 
 import android.content.Intent;
-import android.os.Bundle;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -16,7 +14,7 @@ import org.robolectric.annotation.Config;
 
 /**
  * Unit tests for {@link EntrantQrScanActivity} using Robolectric.
- * 
+ *
  * <p>Validates:
  * <ul>
  *   <li>Activity initialization and intent handling.</li>
@@ -46,7 +44,7 @@ public class EntrantQrScanActivityTest {
     public void setUp() {
         Intent intent = new Intent();
         intent.putExtra("userId", "testUser123");
-        
+
         controller = Robolectric.buildActivity(EntrantQrScanActivity.class, intent);
         activity = controller.setup().get();
     }

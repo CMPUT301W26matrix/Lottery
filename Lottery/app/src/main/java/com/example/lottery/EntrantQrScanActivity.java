@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,9 +47,6 @@ public class EntrantQrScanActivity extends AppCompatActivity {
 
     private static final String TAG = "EntrantQrScanActivity";
     private String userId;
-    private TextView tvNotificationBadge;
-    private FirebaseFirestore db;
-
     /**
      * Launcher for the camera-based QR code scanner.
      */
@@ -62,7 +58,6 @@ public class EntrantQrScanActivity extends AppCompatActivity {
                     handleScanResult(result.getContents());
                 }
             });
-
     /**
      * Launcher for picking an image from the gallery.
      */
@@ -72,6 +67,8 @@ public class EntrantQrScanActivity extends AppCompatActivity {
                     decodeQrFromImage(uri);
                 }
             });
+    private TextView tvNotificationBadge;
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

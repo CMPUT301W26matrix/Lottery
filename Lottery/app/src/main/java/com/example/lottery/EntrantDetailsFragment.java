@@ -13,9 +13,9 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.lottery.model.EntrantEvent;
+import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.InvitationFlowUtil;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.example.lottery.util.FirestorePaths;
 
 /**
  * fragment for showing details of an entrant in an event
@@ -35,7 +35,7 @@ public class EntrantDetailsFragment extends DialogFragment {
 
     /**
      *
-     * @param entrant the entrant we will display
+     * @param entrant         the entrant we will display
      * @param requireLocation whether the event requires location
      * @return initialized fragment
      */
@@ -64,12 +64,12 @@ public class EntrantDetailsFragment extends DialogFragment {
         TextView tvName = view.findViewById(R.id.details_name);
         TextView tvEmail = view.findViewById(R.id.details_email);
         TextView tvLocation = view.findViewById(R.id.details_location);
-        
+
         LinearLayout llLocation = view.findViewById(R.id.details_fragment_location);
 
         // Unified: use getUserName()
         tvName.setText(entrant.getUserName() != null ? entrant.getUserName() : "Unknown");
-        
+
         // Try to get email from EntrantEvent object
         if (entrant.getEmail() != null && !entrant.getEmail().isEmpty()) {
             tvEmail.setText(entrant.getEmail());
@@ -95,7 +95,7 @@ public class EntrantDetailsFragment extends DialogFragment {
         } else {
             tvEmail.setText("N/A");
         }
-        
+
         if (requireLocation) {
             llLocation.setVisibility(View.VISIBLE);
             if (entrant.getLocation() != null) {

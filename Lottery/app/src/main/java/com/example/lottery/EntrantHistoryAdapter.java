@@ -20,25 +20,9 @@ import java.util.Locale;
  */
 public class EntrantHistoryAdapter extends RecyclerView.Adapter<EntrantHistoryAdapter.ViewHolder> {
 
-    public static class HistoryItem {
-        public Event event;
-        public String status;
-        public String organizerName;
-
-        public HistoryItem(Event event, String status) {
-            this.event = event;
-            this.status = status;
-        }
-    }
-
     private final List<HistoryItem> historyItems;
     private final OnItemClickListener listener;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault());
-
-    public interface OnItemClickListener {
-        void onItemClick(Event event);
-    }
-
     public EntrantHistoryAdapter(List<HistoryItem> historyItems, OnItemClickListener listener) {
         this.historyItems = historyItems;
         this.listener = listener;
@@ -62,7 +46,7 @@ public class EntrantHistoryAdapter extends RecyclerView.Adapter<EntrantHistoryAd
         } else {
             holder.tvDate.setText("Date TBD");
         }
-        
+
         // Show Organizer Name if available
         if (item.organizerName != null && !item.organizerName.isEmpty()) {
             holder.tvOrganizer.setVisibility(View.VISIBLE);
@@ -76,15 +60,15 @@ public class EntrantHistoryAdapter extends RecyclerView.Adapter<EntrantHistoryAd
         // Set status badge
         holder.tvStatus.setVisibility(View.VISIBLE);
         String status = InvitationFlowUtil.normalizeEntrantStatus(item.status);
-        
+
         // Map internal status to user-friendly labels
         String displayStatus = status.toUpperCase();
         if (InvitationFlowUtil.STATUS_INVITED.equals(status)) displayStatus = "SELECTED";
         if (InvitationFlowUtil.STATUS_ACCEPTED.equals(status)) displayStatus = "CONFIRMED";
         if (InvitationFlowUtil.STATUS_WAITLISTED.equals(status)) displayStatus = "WAITING LIST";
-        
+
         holder.tvStatus.setText(displayStatus);
-        
+
         // Style status badge
         if ("SELECTED".equals(displayStatus)) {
             holder.tvStatus.setBackgroundResource(R.drawable.bg_status_badge); // Assuming this is a standout color
@@ -97,6 +81,21 @@ public class EntrantHistoryAdapter extends RecyclerView.Adapter<EntrantHistoryAd
     @Override
     public int getItemCount() {
         return historyItems.size();
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(Event event);
+    }
+
+    public static class HistoryItem {
+        public Event event;
+        public String status;
+        public String organizerName;
+
+        public HistoryItem(Event event, String status) {
+            this.event = event;
+            this.status = status;
+        }
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {

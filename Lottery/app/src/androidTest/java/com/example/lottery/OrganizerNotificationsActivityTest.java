@@ -42,13 +42,13 @@ public class OrganizerNotificationsActivityTest {
         scenario.onActivity(activity -> {
             RecyclerView rv = activity.findViewById(R.id.rvOrganizerEvents);
             OrganizerNotificationEventAdapter adapter = (OrganizerNotificationEventAdapter) rv.getAdapter();
-            
+
             List<Event> mockList = new ArrayList<>();
             Event event = new Event();
             event.setEventId("event_123");
             event.setTitle("Mock Test Event");
             mockList.add(event);
-            
+
             // Replace the list in the adapter
             try {
                 java.lang.reflect.Field field = adapter.getClass().getDeclaredField("eventList");

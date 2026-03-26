@@ -2,11 +2,12 @@ package com.example.lottery.model;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.GeoPoint;
+
 import java.util.List;
 
 /**
  * Model class representing a user in the system.
- *
+ * <p>
  * Target Firestore path:
  * users/{userId}
  */
@@ -168,6 +169,7 @@ public class User {
 
     /**
      * Alias for getUsername() to maintain compatibility with older code.
+     *
      * @return the username
      */
     public String getName() {
@@ -176,6 +178,7 @@ public class User {
 
     /**
      * Alias for getPhone() to maintain compatibility with older code.
+     *
      * @return the phone number
      */
     public String getPhoneNumber() {

@@ -10,6 +10,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -21,8 +22,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
-import androidx.annotation.VisibleForTesting;
-
 import java.util.ArrayList;
 
 /**
@@ -33,18 +32,16 @@ import java.util.ArrayList;
  */
 public class AdminBrowseProfilesActivity extends AppCompatActivity {
 
-    private ListView lvProfiles;
-    private TextView tvEmptyProfiles;
-    private Button btnEnableDeletion;
-
-    private MaterialButton btnFilterAll;
-    private MaterialButton btnFilterEntrant;
-    private MaterialButton btnFilterOrganizer;
-
     @VisibleForTesting
     ArrayList<User> allUsers;
     @VisibleForTesting
     ArrayList<User> filteredUsers;
+    private ListView lvProfiles;
+    private TextView tvEmptyProfiles;
+    private Button btnEnableDeletion;
+    private MaterialButton btnFilterAll;
+    private MaterialButton btnFilterEntrant;
+    private MaterialButton btnFilterOrganizer;
     private ProfileAdapter profileAdapter;
 
     private FirebaseFirestore db;
@@ -231,8 +228,10 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
 
         View btnLogs = findViewById(R.id.nav_logs);
         if (btnLogs != null) {
-            btnLogs.setOnClickListener(v ->
-                    Toast.makeText(this, R.string.admin_logs_coming_soon, Toast.LENGTH_SHORT).show());
+            btnLogs.setOnClickListener(v -> {
+                Intent intent = new Intent(this, AdminBrowseLogsActivity.class);
+                startActivity(intent);
+            });
         }
     }
 

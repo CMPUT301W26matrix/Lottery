@@ -62,11 +62,11 @@ public class EventAdapterTest {
         when(mockDb.collection(anyString())).thenReturn(mockCollection);
         when(mockCollection.document(anyString())).thenReturn(mockDocument);
         when(mockDocument.collection(anyString())).thenReturn(mockSubCollection);
-        
+
         // Crucial: .get() must return a non-null Task to avoid NPE in bind()
         when(mockCollection.get()).thenReturn(mockTask);
         when(mockSubCollection.get()).thenReturn(mockTask);
-        
+
         // Mock Task fluent API
         when(mockTask.addOnSuccessListener(any())).thenReturn(mockTask);
         when(mockTask.addOnFailureListener(any())).thenReturn(mockTask);

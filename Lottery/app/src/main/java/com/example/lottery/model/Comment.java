@@ -5,7 +5,7 @@ import com.google.firebase.firestore.ServerTimestamp;
 
 /**
  * Model class representing a comment on an event.
- *
+ * <p>
  * Target Firestore path:
  * events/{eventId}/comments/{commentId}
  */
@@ -17,13 +17,13 @@ public class Comment {
     private String authorName;
     private String authorRole; // entrant / organizer / admin
     private String content;
-    
+
     @ServerTimestamp
     private Timestamp createdAt;
-    
+
     @ServerTimestamp
     private Timestamp updatedAt;
-    
+
     private boolean deleted;
 
     /**
@@ -35,8 +35,8 @@ public class Comment {
     /**
      * Full constructor for a comment.
      */
-    public Comment(String commentId, String eventId, String authorId, String authorName, 
-                   String authorRole, String content, Timestamp createdAt, 
+    public Comment(String commentId, String eventId, String authorId, String authorName,
+                   String authorRole, String content, Timestamp createdAt,
                    Timestamp updatedAt, boolean deleted) {
         this.commentId = commentId;
         this.eventId = eventId;

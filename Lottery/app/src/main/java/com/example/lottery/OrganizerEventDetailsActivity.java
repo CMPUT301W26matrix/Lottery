@@ -1,7 +1,6 @@
 package com.example.lottery;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -21,8 +20,8 @@ import com.example.lottery.model.Event;
 import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.InvitationFlowUtil;
 import com.example.lottery.util.PosterImageLoader;
-import com.google.android.material.chip.Chip;
 import com.example.lottery.util.SessionUtil;
+import com.google.android.material.chip.Chip;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
@@ -264,10 +263,18 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
                     for (com.google.firebase.firestore.DocumentSnapshot doc : queryDocumentSnapshots) {
                         String status = InvitationFlowUtil.normalizeEntrantStatus(doc.getString("status"));
                         switch (status) {
-                            case InvitationFlowUtil.STATUS_WAITLISTED: waitlisted++; break;
-                            case InvitationFlowUtil.STATUS_INVITED: invited++; break;
-                            case InvitationFlowUtil.STATUS_ACCEPTED: accepted++; break;
-                            case InvitationFlowUtil.STATUS_CANCELLED: cancelled++; break;
+                            case InvitationFlowUtil.STATUS_WAITLISTED:
+                                waitlisted++;
+                                break;
+                            case InvitationFlowUtil.STATUS_INVITED:
+                                invited++;
+                                break;
+                            case InvitationFlowUtil.STATUS_ACCEPTED:
+                                accepted++;
+                                break;
+                            case InvitationFlowUtil.STATUS_CANCELLED:
+                                cancelled++;
+                                break;
                         }
                     }
 

@@ -41,16 +41,16 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
     @Override
     public void onBindViewHolder(@NonNull CommentViewHolder holder, int position) {
         Comment comment = comments.get(position);
-        
+
         // Display author name with "(Organizer)" marker if role is organizer
         String authorDisplayName = comment.getAuthorName() != null ? comment.getAuthorName() : "Anonymous";
         if ("organizer".equalsIgnoreCase(comment.getAuthorRole())) {
             authorDisplayName += " (Organizer)";
         }
         holder.tvAuthorName.setText(authorDisplayName);
-        
+
         holder.tvCommentContent.setText(comment.getContent());
-        
+
         if (comment.getCreatedAt() != null) {
             holder.tvCommentTime.setText(dateFormat.format(comment.getCreatedAt().toDate()));
         } else {

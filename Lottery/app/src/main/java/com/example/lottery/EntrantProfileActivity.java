@@ -34,6 +34,7 @@ import java.util.Map;
  * EntrantProfileActivity displays and manages the personal profile of an entrant user.
  * US 01.02.04: Implements profile deletion and session management.
  * US 01.04.03: Implements notification opt-out settings.
+ * US 02.02.02: Implements geolocation opt-in/out settings.
  */
 public class EntrantProfileActivity extends AppCompatActivity {
 
@@ -44,7 +45,7 @@ public class EntrantProfileActivity extends AppCompatActivity {
     private LinearLayout displayLayout, editLayout;
     private ChipGroup cgEditInterests, cgDisplayInterests;
     private Chip chipAcademic, chipSocial, chipSports, chipMusic;
-    private SwitchMaterial swNotifications;
+    private SwitchMaterial swNotifications, swGeolocation;
     private FirebaseFirestore db;
     private String userId;
     private boolean isEditing = false;
@@ -167,6 +168,14 @@ public class EntrantProfileActivity extends AppCompatActivity {
                         .update("notificationsEnabled", isChecked);
             }
         });
+
+        swGeolocation = findViewById(R.id.sw_geolocation);
+        swGeolocation.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (userId != null) {
+                db.collection(FirestorePaths.USERS).document(userId)
+                        .update("geolocationEnabled", isChecked);
+            }
+        });
     }
 
     private void loadUserProfile() {
@@ -178,6 +187,7 @@ public class EntrantProfileActivity extends AppCompatActivity {
                 String email = documentSnapshot.getString("email");
                 String phone = documentSnapshot.getString("phone");
                 Boolean notificationsEnabled = documentSnapshot.getBoolean("notificationsEnabled");
+                Boolean geolocationEnabled = documentSnapshot.getBoolean("geolocationEnabled");
 
                 tvName.setText(username != null && !username.isEmpty() ? username : "Unknown");
                 tvEmail.setText(email != null && !email.isEmpty() ? email : "No Email");
@@ -219,6 +229,12 @@ public class EntrantProfileActivity extends AppCompatActivity {
                     swNotifications.setChecked(notificationsEnabled);
                 } else {
                     swNotifications.setChecked(true); // Default to true
+                }
+
+                if (geolocationEnabled != null) {
+                    swGeolocation.setChecked(geolocationEnabled);
+                } else {
+                    swGeolocation.setChecked(false); // Default to false
                 }
             }
         });

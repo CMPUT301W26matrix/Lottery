@@ -23,7 +23,6 @@ import com.example.lottery.util.FirestorePaths;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
@@ -43,7 +42,7 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
     private String senderId;
 
     private FirebaseFirestore db;
-    private List<User> userList = new ArrayList<>();
+    private final List<User> userList = new ArrayList<>();
     private UserSearchAdapter adapter;
 
     private TextInputEditText etSearch;
@@ -88,7 +87,8 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
 
         etSearch.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -96,7 +96,8 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
             }
 
             @Override
-            public void afterTextChanged(Editable s) {}
+            public void afterTextChanged(Editable s) {
+            }
         });
 
         return view;
@@ -133,10 +134,11 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
                         User user = doc.toObject(User.class);
                         user.setUserId(doc.getId());
 
-                        boolean match = false;
-                        if (user.getUsername() != null && user.getUsername().toLowerCase().contains(lowerQuery)) match = true;
-                        if (user.getEmail() != null && user.getEmail().toLowerCase().contains(lowerQuery)) match = true;
-                        if (user.getPhone() != null && user.getPhone().contains(query)) match = true;
+                        boolean match = user.getUsername() != null && user.getUsername().toLowerCase().contains(lowerQuery);
+                        if (user.getEmail() != null && user.getEmail().toLowerCase().contains(lowerQuery))
+                            match = true;
+                        if (user.getPhone() != null && user.getPhone().contains(query))
+                            match = true;
 
                         if (match) {
                             userList.add(user);
@@ -212,10 +214,6 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
         private final List<User> users;
         private final OnUserClickListener listener;
 
-        interface OnUserClickListener {
-            void onUserClick(User user);
-        }
-
         UserSearchAdapter(List<User> users, OnUserClickListener listener) {
             this.users = users;
             this.listener = listener;
@@ -241,8 +239,13 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
             return users.size();
         }
 
+        interface OnUserClickListener {
+            void onUserClick(User user);
+        }
+
         static class ViewHolder extends RecyclerView.ViewHolder {
             TextView text1, text2;
+
             ViewHolder(View v) {
                 super(v);
                 text1 = v.findViewById(android.R.id.text1);

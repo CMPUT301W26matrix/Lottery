@@ -23,8 +23,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.lottery.model.Event;
-import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.EventValidationUtils;
+import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.PosterImageLoader;
 import com.example.lottery.util.QRCodeUtils;
 import com.google.android.material.card.MaterialCardView;
@@ -45,7 +45,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -406,11 +405,21 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                     String formattedDate = String.format(Locale.getDefault(), "%02d/%02d/%04d %02d:%02d", month + 1, day, year, hour, min);
                     editText.setText(formattedDate);
                     switch (fieldType) {
-                        case "eventStart": eventStartDate = date; break;
-                        case "eventEnd": eventEndDate = date; break;
-                        case "regStart": regStartDate = date; break;
-                        case "regEnd": regEndDate = date; break;
-                        case "drawDate": drawDate = date; break;
+                        case "eventStart":
+                            eventStartDate = date;
+                            break;
+                        case "eventEnd":
+                            eventEndDate = date;
+                            break;
+                        case "regStart":
+                            regStartDate = date;
+                            break;
+                        case "regEnd":
+                            regEndDate = date;
+                            break;
+                        case "drawDate":
+                            drawDate = date;
+                            break;
                     }
                 }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true).show(),
                 calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)
@@ -620,7 +629,8 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
     }
 
     private void deleteReplacedPosterIfNeeded(String newPosterUri) {
-        if (existingPosterUri == null || existingPosterUri.isEmpty() || existingPosterUri.equals(newPosterUri)) return;
+        if (existingPosterUri == null || existingPosterUri.isEmpty() || existingPosterUri.equals(newPosterUri))
+            return;
         try {
             if (existingPosterUri.startsWith("gs://") || existingPosterUri.contains("firebasestorage.googleapis.com")) {
                 FirebaseStorage.getInstance().getReferenceFromUrl(existingPosterUri).delete()

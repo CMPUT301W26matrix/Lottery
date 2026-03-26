@@ -50,7 +50,7 @@ public class NotificationFragment extends DialogFragment {
             if (getParentFragment() instanceof NotificationListener) {
                 listener = (NotificationListener) getParentFragment();
             } else {
-                throw new RuntimeException(context.toString() + " or parent fragment must implement NotificationListener");
+                throw new RuntimeException(context + " or parent fragment must implement NotificationListener");
             }
         }
     }

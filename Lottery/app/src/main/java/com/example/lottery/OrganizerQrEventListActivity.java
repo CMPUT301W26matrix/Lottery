@@ -171,8 +171,10 @@ public class OrganizerQrEventListActivity extends AppCompatActivity {
             if (ll.getChildCount() >= 2) {
                 View iv = ll.getChildAt(0);
                 View tv = ll.getChildAt(1);
-                if (iv instanceof ImageView) ((ImageView) iv).setColorFilter(getResources().getColor(R.color.primary_blue));
-                if (tv instanceof TextView) ((TextView) tv).setTextColor(getResources().getColor(R.color.primary_blue));
+                if (iv instanceof ImageView)
+                    ((ImageView) iv).setColorFilter(getResources().getColor(R.color.primary_blue));
+                if (tv instanceof TextView)
+                    ((TextView) tv).setTextColor(getResources().getColor(R.color.primary_blue));
             }
         }
     }
