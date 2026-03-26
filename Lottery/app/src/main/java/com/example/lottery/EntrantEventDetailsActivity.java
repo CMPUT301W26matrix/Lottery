@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -43,6 +44,9 @@ import java.util.Map;
  * </p>
  */
 public class EntrantEventDetailsActivity extends AppCompatActivity {
+
+    private static final String PREFS_NAME = "AppPrefs";
+    private static final String KEY_ACCESSIBILITY_MODE = "accessibility_mode";
 
     /**
      * Extra key for passing the Event ID.
@@ -166,6 +170,8 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
 
         setupNavigation();
         btnClose.setOnClickListener(v -> finish());
+
+        applyAccessibilityMode();
     }
 
     /**
@@ -461,5 +467,89 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                     updateUIBasedOnStatus();
                     Toast.makeText(this, R.string.left_waitlist, Toast.LENGTH_SHORT).show();
                 });
+    }
+
+    /**
+     * Applies accessibility mode styling to the event details screen.
+     * Enlarges key UI elements without breaking layout.
+     */
+    private void applyAccessibilityMode() {
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        boolean isEnabled = prefs.getBoolean(KEY_ACCESSIBILITY_MODE, false);
+
+        float titleSize = isEnabled ? 26f : 24f;
+        float subtitleSize = isEnabled ? 15f : 13f;
+        float descSize = isEnabled ? 16f : 14f;
+        float buttonTextSize = isEnabled ? 18f : 16f;
+
+        int buttonHeight = isEnabled ? dpToPx(56) : dpToPx(48);
+
+        if (tvEventTitle != null) {
+            tvEventTitle.setTextSize(titleSize);
+        }
+
+        if (tvRegistrationPeriod != null) {
+            tvRegistrationPeriod.setTextSize(subtitleSize);
+        }
+
+        if (tvWaitlistCount != null) {
+            tvWaitlistCount.setTextSize(subtitleSize);
+        }
+
+        if (tvEventDescription != null) {
+            tvEventDescription.setTextSize(descSize);
+        }
+
+        if (tvCoOrganizerStatus != null) {
+            tvCoOrganizerStatus.setTextSize(descSize);
+        }
+
+        if (btnWaitlistAction != null) {
+            btnWaitlistAction.setTextSize(buttonTextSize);
+            btnWaitlistAction.setMinHeight(buttonHeight);
+        }
+
+        if (btnAcceptInvite != null) {
+            btnAcceptInvite.setTextSize(buttonTextSize);
+            btnAcceptInvite.setMinHeight(buttonHeight);
+        }
+
+        if (btnDeclineInvite != null) {
+            btnDeclineInvite.setTextSize(buttonTextSize);
+            btnDeclineInvite.setMinHeight(buttonHeight);
+        }
+
+        // Bottom navigation labels
+        View bottomNavContainer = findViewById(R.id.bottomNav);
+        float navTextSize = isEnabled ? 14.5f : 12f;
+
+        if (bottomNavContainer != null) {
+            updateBottomNavTextRecursively(bottomNavContainer, navTextSize);
+        }
+    }
+
+    /**
+     * Recursively updates only the TextViews inside the bottom navigation container.
+     */
+    private void updateBottomNavTextRecursively(View view, float textSize) {
+        if (view instanceof TextView) {
+            ((TextView) view).setTextSize(textSize);
+            return;
+        }
+
+        if (view instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) view;
+            for (int i = 0; i < group.getChildCount(); i++) {
+                updateBottomNavTextRecursively(group.getChildAt(i), textSize);
+            }
+        }
+    }
+
+
+    /**
+     * Converts dp to pixels.
+     */
+    private int dpToPx(int dp) {
+        return (int) (dp * getResources().getDisplayMetrics().density);
     }
 }
