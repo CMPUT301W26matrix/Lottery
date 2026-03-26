@@ -78,8 +78,8 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
      * Initializes the activity, sets up the RecyclerView, and starts loading notifications.
      *
      * @param savedInstanceState If the activity is being re-initialized after
-     *     previously being shut down then this Bundle contains the data it most
-     *     recently supplied in {@link #onSaveInstanceState}. <b>Note: Otherwise it is null.</b>
+     *                           previously being shut down then this Bundle contains the data it most
+     *                           recently supplied in {@link #onSaveInstanceState}. <b>Note: Otherwise it is null.</b>
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {

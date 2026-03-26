@@ -18,7 +18,6 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -41,7 +40,6 @@ import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.SetOptions;
 
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -60,8 +58,6 @@ import java.util.Map;
  */
 public class EntrantEventDetailsActivity extends AppCompatActivity {
 
-    private static final String TAG = "EntrantEventDetails";
-
     /**
      * Extra key for passing the Event ID.
      */
@@ -70,7 +66,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
      * Extra key for passing the User ID.
      */
     public static final String EXTRA_USER_ID = "userId";
-
+    private static final String TAG = "EntrantEventDetails";
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
 
     private TextView tvEventTitle, tvRegistrationPeriod, tvWaitlistCount, tvNotificationBadge, tvEventDescription, tvCoOrganizerStatus;
@@ -98,11 +94,11 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     private boolean userGeolocationEnabled = false;
 
     private ListenerRegistration waitlistListener;
-
+    private boolean isAcceptingInviteMode = false;
     private final ActivityResultLauncher<String[]> locationPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
                 if (result.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) ||
-                    result.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)) {
+                        result.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)) {
                     startLocationCollection();
                 } else {
                     Toast.makeText(this, "Location is required to proceed", Toast.LENGTH_LONG).show();
@@ -113,8 +109,8 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
      * Initializes the activity, sets up view references, and triggers initial data loading.
      *
      * @param savedInstanceState If the activity is being re-initialized after
-     *     previously being shut down then this Bundle contains the data it most
-     *     recently supplied in {@link #onSaveInstanceState}.  <b>Note: Otherwise it is null.</b>
+     *                           previously being shut down then this Bundle contains the data it most
+     *                           recently supplied in {@link #onSaveInstanceState}.  <b>Note: Otherwise it is null.</b>
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,7 +136,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         }
         userName = prefs.getString("userName", "");
         userEmail = prefs.getString("userEmail", "");
-        
+
         eventId = getIntent().getStringExtra(EXTRA_EVENT_ID);
 
         if (eventId == null || userId == null) {
@@ -199,7 +195,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         navNotifications = findViewById(R.id.nav_history);
         navQrScan = findViewById(R.id.nav_qr_scan);
         navProfile = findViewById(R.id.nav_profile);
-        
+
         btnClose = findViewById(R.id.btnBack);
         btnComments = findViewById(R.id.btnComments);
         ivEventPoster = findViewById(R.id.ivEventPoster);
@@ -314,13 +310,11 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                         tvRegistrationPeriod.setText(String.format("Deadline: %s", dateFormat.format(end.toDate())));
                     }
                     PosterImageLoader.load(ivEventPoster, documentSnapshot.getString("posterUri"), R.drawable.event_placeholder);
-                    
+
                     Boolean reqLoc = documentSnapshot.getBoolean("requireLocation");
                     eventRequiresLocation = reqLoc != null && reqLoc;
                 });
     }
-
-    private boolean isAcceptingInviteMode = false;
 
     private void handleActionWithLocationCheck(boolean isInviteFlow) {
         this.isAcceptingInviteMode = isInviteFlow;
@@ -388,7 +382,8 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                         btnWaitlistAction.setVisibility(View.GONE);
                         invitationButtonsContainer.setVisibility(View.GONE);
                     } else {
-                        if (tvCoOrganizerStatus != null) tvCoOrganizerStatus.setVisibility(View.GONE);
+                        if (tvCoOrganizerStatus != null)
+                            tvCoOrganizerStatus.setVisibility(View.GONE);
                         checkUserEventStatus();
                     }
                 })
@@ -466,7 +461,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
             // US 01.05.04: Accepting a spot after being selected from the waitlist (lottery win)
             updates = InvitationFlowUtil.buildEntrantStatusUpdateFromResponse(InvitationFlowUtil.RESPONSE_ACCEPTED);
         }
-        
+
         if (location != null) {
             updates.put("location", new GeoPoint(location.getLatitude(), location.getLongitude()));
         }
@@ -526,7 +521,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         record.setStatus(InvitationFlowUtil.STATUS_WAITLISTED);
         record.setRegisteredAt(now);
         record.setWaitlistedAt(now);
-        
+
         if (location != null) {
             record.setLocation(new GeoPoint(location.getLatitude(), location.getLongitude()));
         }
@@ -579,4 +574,6 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                     Toast.makeText(this, R.string.left_waitlist, Toast.LENGTH_SHORT).show();
                 });
     }
+
+
 }

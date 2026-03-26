@@ -29,12 +29,11 @@ import java.util.List;
  */
 public class EntrantEventHistoryActivity extends AppCompatActivity {
 
+    private final List<EntrantHistoryAdapter.HistoryItem> historyList = new ArrayList<>();
     private RecyclerView rvEventHistory;
     private View emptyStateContainer;
     private ProgressBar progressBar;
     private EntrantHistoryAdapter adapter;
-    private final List<EntrantHistoryAdapter.HistoryItem> historyList = new ArrayList<>();
-
     private FirebaseFirestore db;
     private String userId;
 

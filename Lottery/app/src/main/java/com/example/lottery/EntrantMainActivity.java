@@ -58,14 +58,14 @@ public class EntrantMainActivity extends AppCompatActivity {
     private TextInputEditText etSearch;
     private ChipGroup cgBrowseTabs, cgCategories, cgQuickFilters;
     private MaterialButton btnTimeFilter;
-    
+
     private String currentBrowseTab = TAB_ALL;
     private String currentSearchQuery = "";
     private String currentCategory = TAB_ALL;
     private String currentTimeFilter = "All Dates";
     private boolean filterAvailable = false;
     private boolean filterWaitlistOpen = false;
-    private List<String> userInterests = new ArrayList<>();
+    private final List<String> userInterests = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,14 +139,18 @@ public class EntrantMainActivity extends AppCompatActivity {
         // Wire search input changes to filtering
         etSearch.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 currentSearchQuery = s.toString().toLowerCase().trim();
                 applyFilters();
             }
+
             @Override
-            public void afterTextChanged(Editable s) {}
+            public void afterTextChanged(Editable s) {
+            }
         });
 
         cgBrowseTabs.setOnCheckedStateChangeListener((group, checkedIds) -> {
@@ -274,14 +278,14 @@ public class EntrantMainActivity extends AppCompatActivity {
 
     private void applyFilters() {
         filteredEventList.clear();
-        
+
         Date now = new Date();
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.HOUR_OF_DAY, 23);
         cal.set(Calendar.MINUTE, 59);
         cal.set(Calendar.SECOND, 59);
         Date endOfToday = cal.getTime();
-        
+
         cal.setTime(now);
         cal.add(Calendar.DAY_OF_YEAR, 7);
         Date endOfWeek = cal.getTime();
@@ -300,7 +304,8 @@ public class EntrantMainActivity extends AppCompatActivity {
 
             // 3. Category filter
             if (!TAB_ALL.equalsIgnoreCase(currentCategory)) {
-                if (event.getCategory() == null || !event.getCategory().equalsIgnoreCase(currentCategory)) continue;
+                if (event.getCategory() == null || !event.getCategory().equalsIgnoreCase(currentCategory))
+                    continue;
             }
 
             // 4. Time filter
@@ -318,15 +323,20 @@ public class EntrantMainActivity extends AppCompatActivity {
 
             // 5. Quick filter: Available (Registration still open and draw hasn't occurred)
             if (filterAvailable) {
-                if (event.getRegistrationDeadline() != null && event.getRegistrationDeadline().toDate().before(now)) continue;
-                if (event.getDrawDate() != null && event.getDrawDate().toDate().before(now)) continue;
-                if (event.getScheduledDateTime() != null && event.getScheduledDateTime().toDate().before(now)) continue;
+                if (event.getRegistrationDeadline() != null && event.getRegistrationDeadline().toDate().before(now))
+                    continue;
+                if (event.getDrawDate() != null && event.getDrawDate().toDate().before(now))
+                    continue;
+                if (event.getScheduledDateTime() != null && event.getScheduledDateTime().toDate().before(now))
+                    continue;
             }
 
             // 6. Quick filter: Waitlist Open (Waitlist capacity remains)
             if (filterWaitlistOpen) {
-                if (event.getWaitingListLimit() != null && event.getWaitingListLimit() <= 0) continue;
-                if (event.getRegistrationDeadline() != null && event.getRegistrationDeadline().toDate().before(now)) continue;
+                if (event.getWaitingListLimit() != null && event.getWaitingListLimit() <= 0)
+                    continue;
+                if (event.getRegistrationDeadline() != null && event.getRegistrationDeadline().toDate().before(now))
+                    continue;
             }
 
             filteredEventList.add(event);

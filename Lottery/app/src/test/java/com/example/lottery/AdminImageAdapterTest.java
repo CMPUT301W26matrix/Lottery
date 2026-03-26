@@ -54,7 +54,8 @@ public class AdminImageAdapterTest {
         event2.setScheduledDateTime(null);
         imageList.add(event2);
 
-        adapter = new AdminImageAdapter(imageList, event -> {});
+        adapter = new AdminImageAdapter(imageList, event -> {
+        });
     }
 
     @Test
@@ -64,7 +65,8 @@ public class AdminImageAdapterTest {
 
     @Test
     public void testItemCountEmpty() {
-        AdminImageAdapter emptyAdapter = new AdminImageAdapter(new ArrayList<>(), event -> {});
+        AdminImageAdapter emptyAdapter = new AdminImageAdapter(new ArrayList<>(), event -> {
+        });
         assertEquals(0, emptyAdapter.getItemCount());
     }
 

@@ -15,7 +15,6 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -101,7 +100,7 @@ public class EntrantsListActivity extends AppCompatActivity implements
     private ListenerRegistration entrantsReg;
     private String activeGroupStatus = InvitationFlowUtil.STATUS_WAITLISTED;
 
-    private Set<String> selectedEntrantIds = new HashSet<>();
+    private final Set<String> selectedEntrantIds = new HashSet<>();
     private boolean isNotifySelectedMode = false;
 
     private ActivityResultLauncher<String> createCsvLauncher;
@@ -546,7 +545,7 @@ public class EntrantsListActivity extends AppCompatActivity implements
     private void sendToWholeWaitlist(String notificationId, String content, Map<String, Object> globalNotif) {
         // Strict targeting: always send to WAITLISTED entrants only for US 02.07.01
         Query query = db.collection(FirestorePaths.eventWaitingList(eventId))
-                    .whereEqualTo("status", InvitationFlowUtil.STATUS_WAITLISTED);
+                .whereEqualTo("status", InvitationFlowUtil.STATUS_WAITLISTED);
 
         query.get().addOnSuccessListener(querySnapshot -> {
             processRecipients(querySnapshot.getDocuments(), notificationId, content, globalNotif, "waiting list entrants");

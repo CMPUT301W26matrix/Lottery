@@ -5,7 +5,7 @@ import com.google.firebase.firestore.PropertyName;
 
 /**
  * Model class representing a notification in a user's inbox.
- *
+ * <p>
  * Target Firestore path:
  * users/{userId}/inbox/{notificationId}
  */

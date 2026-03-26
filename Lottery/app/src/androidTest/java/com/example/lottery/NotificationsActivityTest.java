@@ -17,7 +17,6 @@ import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
-import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -36,7 +35,7 @@ import java.util.List;
 
 /**
  * TEMPORARILY DISABLED: Stable instrumented tests for NotificationsActivity.
- *
+ * <p>
  * REASON:
  * - This test suite is currently blocked by a Firestore/protobuf runtime dependency conflict during androidTest.
  * - Error: java.lang.RuntimeException: Internal error in Cloud Firestore
@@ -46,15 +45,6 @@ import java.util.List;
 @Ignore("Blocked by Firestore/protobuf androidTest runtime conflict. Revisit after dependency cleanup.")
 @RunWith(AndroidJUnit4.class)
 public class NotificationsActivityTest {
-
-    private ActivityScenario<NotificationsActivity> launchActivity() {
-        Intent intent = new Intent(
-                InstrumentationRegistry.getInstrumentation().getTargetContext(),
-                NotificationsActivity.class
-        );
-        intent.putExtra(NotificationsActivity.EXTRA_USER_ID, "test-user-123");
-        return ActivityScenario.launch(intent);
-    }
 
     private static ViewAction waitFor(final long millis) {
         return new ViewAction() {
@@ -73,6 +63,15 @@ public class NotificationsActivityTest {
                 uiController.loopMainThreadForAtLeast(millis);
             }
         };
+    }
+
+    private ActivityScenario<NotificationsActivity> launchActivity() {
+        Intent intent = new Intent(
+                InstrumentationRegistry.getInstrumentation().getTargetContext(),
+                NotificationsActivity.class
+        );
+        intent.putExtra(NotificationsActivity.EXTRA_USER_ID, "test-user-123");
+        return ActivityScenario.launch(intent);
     }
 
     private NotificationItem createNotification(

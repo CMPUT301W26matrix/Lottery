@@ -41,7 +41,7 @@ public class EntrantMapActivity extends AppCompatActivity implements OnMapReadyC
     private String eventId;
     private String status;
     private FirebaseFirestore db;
-    private ArrayList<EntrantEvent> entrants = new ArrayList<>();
+    private final ArrayList<EntrantEvent> entrants = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,17 +146,41 @@ public class EntrantMapActivity extends AppCompatActivity implements OnMapReadyC
     }
 
     @Override
-    public void onStart() { super.onStart(); if (mapView != null) mapView.onStart(); }
+    public void onStart() {
+        super.onStart();
+        if (mapView != null) mapView.onStart();
+    }
+
     @Override
-    public void onResume() { super.onResume(); if (mapView != null) mapView.onResume(); }
+    public void onResume() {
+        super.onResume();
+        if (mapView != null) mapView.onResume();
+    }
+
     @Override
-    public void onPause() { if (mapView != null) mapView.onPause(); super.onPause(); }
+    public void onPause() {
+        if (mapView != null) mapView.onPause();
+        super.onPause();
+    }
+
     @Override
-    public void onStop() { super.onStop(); if (mapView != null) mapView.onStop(); }
+    public void onStop() {
+        super.onStop();
+        if (mapView != null) mapView.onStop();
+    }
+
     @Override
-    public void onDestroy() { if (mapView != null) mapView.onDestroy(); super.onDestroy(); }
+    public void onDestroy() {
+        if (mapView != null) mapView.onDestroy();
+        super.onDestroy();
+    }
+
     @Override
-    public void onLowMemory() { super.onLowMemory(); if (mapView != null) mapView.onLowMemory(); }
+    public void onLowMemory() {
+        super.onLowMemory();
+        if (mapView != null) mapView.onLowMemory();
+    }
+
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);

@@ -51,8 +51,8 @@ public class WaitlistPromotionUtil {
                                     if (InvitationFlowUtil.STATUS_INVITED.equals(status) ||
                                             InvitationFlowUtil.STATUS_ACCEPTED.equals(status)) {
                                         activeCount++;
-                                    } else if (InvitationFlowUtil.STATUS_WAITLISTED.equals(status) || 
-                                               InvitationFlowUtil.STATUS_NOT_SELECTED.equals(status)) {
+                                    } else if (InvitationFlowUtil.STATUS_WAITLISTED.equals(status) ||
+                                            InvitationFlowUtil.STATUS_NOT_SELECTED.equals(status)) {
                                         // Both waitlisted and those previously not selected are eligible for promotion
                                         eligibleDocs.add(doc);
                                     }
@@ -81,7 +81,7 @@ public class WaitlistPromotionUtil {
         // Even if notifications are disabled, the status update (promotion) must still happen.
         db.collection(FirestorePaths.USERS).document(targetUserId).get()
                 .addOnSuccessListener(userDoc -> {
-                    boolean enabled = userDoc.contains("notificationsEnabled") 
+                    boolean enabled = userDoc.contains("notificationsEnabled")
                             ? userDoc.getBoolean("notificationsEnabled") : true;
 
                     WriteBatch batch = db.batch();

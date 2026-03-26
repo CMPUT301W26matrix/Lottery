@@ -14,29 +14,28 @@ import java.util.Map;
  */
 public final class InvitationFlowUtil {
 
-    private InvitationFlowUtil() {
-        // Utility class
-    }
+    public static final String STATUS_WAITLISTED = "waitlisted";
 
     // -------------------------------------------------------------------------
     // Canonical entrant status values stored in Firestore
     // -------------------------------------------------------------------------
-
-    public static final String STATUS_WAITLISTED = "waitlisted";
     public static final String STATUS_INVITED = "invited";
     public static final String STATUS_ACCEPTED = "accepted";
     public static final String STATUS_CANCELLED = "cancelled";
     public static final String STATUS_NOT_SELECTED = "not_selected";
+    public static final String RESPONSE_NONE = "none";
 
     // -------------------------------------------------------------------------
     // Canonical notification response values
     // -------------------------------------------------------------------------
-
-    public static final String RESPONSE_NONE = "none";
     public static final String RESPONSE_ACCEPTED = "accepted";
     public static final String RESPONSE_DECLINED = "declined";
     public static final String RESPONSE_DISMISSED = "dismissed";
     public static final String RESPONSE_CANCELLED = "cancelled";
+
+    private InvitationFlowUtil() {
+        // Utility class
+    }
 
     /**
      * Normalizes a raw entrant status string into its canonical form.
@@ -77,9 +76,12 @@ public final class InvitationFlowUtil {
         String normalized = rawResponse.trim().toLowerCase(Locale.US);
 
         if ("accepted".equals(normalized) || "accept".equals(normalized)) return RESPONSE_ACCEPTED;
-        if ("declined".equals(normalized) || "decline".equals(normalized) || "rejected".equals(normalized) || "reject".equals(normalized)) return RESPONSE_DECLINED;
-        if ("dismissed".equals(normalized) || "dismiss".equals(normalized)) return RESPONSE_DISMISSED;
-        if ("cancelled".equals(normalized) || "canceled".equals(normalized)) return RESPONSE_CANCELLED;
+        if ("declined".equals(normalized) || "decline".equals(normalized) || "rejected".equals(normalized) || "reject".equals(normalized))
+            return RESPONSE_DECLINED;
+        if ("dismissed".equals(normalized) || "dismiss".equals(normalized))
+            return RESPONSE_DISMISSED;
+        if ("cancelled".equals(normalized) || "canceled".equals(normalized))
+            return RESPONSE_CANCELLED;
         return RESPONSE_NONE;
     }
 
@@ -95,7 +97,6 @@ public final class InvitationFlowUtil {
         updates.put("invitedAt", now);
         return updates;
     }
-
 
 
     /**

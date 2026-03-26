@@ -1,15 +1,13 @@
 package com.example.lottery;
 
-import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static androidx.test.espresso.action.ViewActions.click;
-import static org.hamcrest.Matchers.anything;
 import static org.hamcrest.Matchers.containsString;
 
 import android.content.Intent;
@@ -34,15 +32,6 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class AdminBrowseProfilesActivityTest {
 
-    private ActivityScenario<AdminBrowseProfilesActivity> launchAdminActivity() {
-        Intent intent = new Intent(
-                InstrumentationRegistry.getInstrumentation().getTargetContext(),
-                AdminBrowseProfilesActivity.class
-        );
-        intent.putExtra("role", "admin");
-        return ActivityScenario.launch(intent);
-    }
-
     private static ViewAction waitFor(final long millis) {
         return new ViewAction() {
             @Override
@@ -60,6 +49,15 @@ public class AdminBrowseProfilesActivityTest {
                 uiController.loopMainThreadForAtLeast(millis);
             }
         };
+    }
+
+    private ActivityScenario<AdminBrowseProfilesActivity> launchAdminActivity() {
+        Intent intent = new Intent(
+                InstrumentationRegistry.getInstrumentation().getTargetContext(),
+                AdminBrowseProfilesActivity.class
+        );
+        intent.putExtra("role", "admin");
+        return ActivityScenario.launch(intent);
     }
 
     @Test

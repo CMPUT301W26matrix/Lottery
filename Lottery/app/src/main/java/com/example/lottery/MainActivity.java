@@ -3,7 +3,6 @@ package com.example.lottery;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -78,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Handles login using the device's unique ID combined with the role (role_FID).
+     *
      * @param role The role chosen by the user ("ENTRANT" or "ORGANIZER").
      */
     private void handleDeviceLogin(String role) {
@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
                 String fid = task.getResult();
                 // userId is role-prefixed (lowercase in ID for consistency with existing DB)
                 String userId = role.toLowerCase() + "_" + fid;
-                
+
                 db.collection(FirestorePaths.USERS).document(userId).get().addOnCompleteListener(userTask -> {
                     if (userTask.isSuccessful()) {
                         DocumentSnapshot document = userTask.getResult();
@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
 
         userData.put("userId", userId);
         userData.put("role", role);
-        userData.put("deviceId", fid); 
+        userData.put("deviceId", fid);
         userData.put("username", ""); // Fixed: unified name to username
         userData.put("email", "");
         userData.put("phone", "");
@@ -137,11 +137,11 @@ public class MainActivity extends AppCompatActivity {
         String userId = document.getId();
         String username = document.getString("username"); // Fixed: unified name to username
         String email = document.getString("email");
-        
+
         // Update last activity timestamp
         db.collection(FirestorePaths.USERS).document(userId)
                 .update("updatedAt", Timestamp.now());
-        
+
         saveSessionLocally(userId, role, fid, username);
 
         if (username == null || username.trim().isEmpty() || email == null || email.trim().isEmpty()) {
@@ -171,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
             intent = new Intent(this, OrganizerProfileActivity.class);
         }
         intent.putExtra("userId", userId);
-        intent.putExtra("forceEdit", true); 
+        intent.putExtra("forceEdit", true);
         startActivity(intent);
         finish();
     }

@@ -122,6 +122,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/name_hint">
+
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_edit_name"
                         android:layout_width="match_parent"
@@ -133,6 +134,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:hint="@string/email_hint">
+
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_edit_email"
                         android:layout_width="match_parent"
@@ -145,6 +147,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:hint="@string/phone_optional_hint">
+
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_edit_phone"
                         android:layout_width="match_parent"
@@ -174,32 +177,32 @@
                         style="@style/Widget.Material3.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/filter_academic"
-                        android:checkable="true" />
+                        android:checkable="true"
+                        android:text="@string/filter_academic" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chip_interest_social"
                         style="@style/Widget.Material3.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/filter_social"
-                        android:checkable="true" />
+                        android:checkable="true"
+                        android:text="@string/filter_social" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chip_interest_sports"
                         style="@style/Widget.Material3.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/filter_sports"
-                        android:checkable="true" />
+                        android:checkable="true"
+                        android:text="@string/filter_sports" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chip_interest_music"
                         style="@style/Widget.Material3.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/filter_music"
-                        android:checkable="true" />
+                        android:checkable="true"
+                        android:text="@string/filter_music" />
 
                 </com.google.android.material.chip.ChipGroup>
             </LinearLayout>

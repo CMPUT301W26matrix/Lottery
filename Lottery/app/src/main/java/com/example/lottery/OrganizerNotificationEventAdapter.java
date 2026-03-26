@@ -28,23 +28,9 @@ import java.util.Locale;
  */
 public class OrganizerNotificationEventAdapter extends RecyclerView.Adapter<OrganizerNotificationEventAdapter.ViewHolder> {
 
-    /**
-     * Listener interface for handling clicks on notification group buttons.
-     */
-    public interface OnNotificationGroupClickListener {
-        /**
-         * Called when a specific group (Waitlist, Invited, or Cancelled) is clicked for an event.
-         *
-         * @param event The event associated with the notification.
-         * @param group The group identifier (e.g., "waitlisted", "invited", "cancelled").
-         */
-        void onGroupClick(Event event, String group);
-    }
-
     private final List<Event> eventList;
     private final OnNotificationGroupClickListener listener;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
-
     /**
      * Constructs a new OrganizerNotificationEventAdapter.
      *
@@ -93,6 +79,19 @@ public class OrganizerNotificationEventAdapter extends RecyclerView.Adapter<Orga
     @Override
     public int getItemCount() {
         return eventList.size();
+    }
+
+    /**
+     * Listener interface for handling clicks on notification group buttons.
+     */
+    public interface OnNotificationGroupClickListener {
+        /**
+         * Called when a specific group (Waitlist, Invited, or Cancelled) is clicked for an event.
+         *
+         * @param event The event associated with the notification.
+         * @param group The group identifier (e.g., "waitlisted", "invited", "cancelled").
+         */
+        void onGroupClick(Event event, String group);
     }
 
     /**

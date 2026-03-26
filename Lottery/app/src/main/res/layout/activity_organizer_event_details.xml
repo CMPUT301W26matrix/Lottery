@@ -342,24 +342,24 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
-                android:textColor="@color/text_gray"
-                android:textSize="14sp"
                 android:gravity="center"
-                android:text="Waitlisted: 0 | Invited: 0 | Accepted: 0 | Cancelled: 0" />
+                android:text="Waitlisted: 0 | Invited: 0 | Accepted: 0 | Cancelled: 0"
+                android:textColor="@color/text_gray"
+                android:textSize="14sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
                 android:layout_marginTop="16dp"
-                android:layout_marginBottom="24dp">
+                android:layout_marginBottom="24dp"
+                android:orientation="horizontal">
 
                 <Button
                     android:id="@+id/btnViewWaitingList"
                     android:layout_width="0dp"
                     android:layout_height="48dp"
-                    android:layout_weight="1"
                     android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
                     android:backgroundTint="@color/primary_blue"
                     android:text="Waiting List"
                     android:textAllCaps="false"
@@ -371,8 +371,8 @@
                     android:id="@+id/btnInviteEntrant"
                     android:layout_width="0dp"
                     android:layout_height="48dp"
-                    android:layout_weight="1"
                     android:layout_marginStart="8dp"
+                    android:layout_weight="1"
                     android:backgroundTint="@color/accent_blue"
                     android:text="Invite Entrant"
                     android:textAllCaps="false"

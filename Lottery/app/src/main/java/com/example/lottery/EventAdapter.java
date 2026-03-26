@@ -94,7 +94,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
                             String status = InvitationFlowUtil.normalizeEntrantStatus(doc.getString("status"));
                             if (InvitationFlowUtil.STATUS_WAITLISTED.equals(status)) {
                                 waitlisted++;
-                            } else if (InvitationFlowUtil.STATUS_INVITED.equals(status) 
+                            } else if (InvitationFlowUtil.STATUS_INVITED.equals(status)
                                     || InvitationFlowUtil.STATUS_ACCEPTED.equals(status)) {
                                 selected++;
                             }
@@ -107,7 +107,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
                         } else {
                             tvWaiting.setText(String.valueOf(waitlisted));
                         }
-                        
+
                         tvSelected.setText(String.valueOf(selected));
                     })
                     .addOnFailureListener(e -> {
@@ -125,7 +125,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
 
         private void updateStatusUI(String status) {
             if (status == null) status = "open";
-            
+
             switch (status.toLowerCase()) {
                 case "open":
                     tvStatus.setText("OPEN");
