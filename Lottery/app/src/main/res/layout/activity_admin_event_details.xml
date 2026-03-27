@@ -42,7 +42,7 @@
                     android:backgroundTint="@color/primary_blue"
                     android:minHeight="40dp"
                     android:paddingHorizontal="16dp"
-                    android:text="Delete Event"
+                    android:text="@string/delete_event"
                     android:textAllCaps="false" />
             </LinearLayout>
 
