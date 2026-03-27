@@ -46,26 +46,24 @@ public class EntrantMainActivity extends AppCompatActivity {
 
     private final List<Event> masterEventList = new ArrayList<>();
     private final List<Event> filteredEventList = new ArrayList<>();
+    private final List<String> userInterests = new ArrayList<>();
     private RecyclerView rvEvents;
     private EntrantEventAdapter adapter;
     private View emptyStateContainer;
     private View tvNotificationBadge;
     private FirebaseFirestore db;
     private String userId;
-
     private View llSearchToggle;
     private TextInputLayout tilSearch;
     private TextInputEditText etSearch;
     private ChipGroup cgBrowseTabs, cgCategories, cgQuickFilters;
     private MaterialButton btnTimeFilter;
-
     private String currentBrowseTab = TAB_ALL;
     private String currentSearchQuery = "";
     private String currentCategory = TAB_ALL;
     private String currentTimeFilter = "All Dates";
     private boolean filterAvailable = false;
     private boolean filterWaitlistOpen = false;
-    private final List<String> userInterests = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

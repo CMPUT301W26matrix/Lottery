@@ -95,15 +95,6 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
 
     private ListenerRegistration waitlistListener;
     private boolean isAcceptingInviteMode = false;
-    private final ActivityResultLauncher<String[]> locationPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
-                if (result.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) ||
-                        result.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)) {
-                    startLocationCollection();
-                } else {
-                    Toast.makeText(this, "Location is required to proceed", Toast.LENGTH_LONG).show();
-                }
-            });
 
     /**
      * Initializes the activity, sets up view references, and triggers initial data loading.
@@ -176,6 +167,16 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         setupNavigation();
         btnClose.setOnClickListener(v -> finish());
     }
+
+    private final ActivityResultLauncher<String[]> locationPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
+                if (result.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) ||
+                        result.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)) {
+                    startLocationCollection();
+                } else {
+                    Toast.makeText(this, "Location is required to proceed", Toast.LENGTH_LONG).show();
+                }
+            });
 
     private void initializeViews() {
         tvEventTitle = findViewById(R.id.tvEventTitle);
@@ -301,7 +302,11 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     private void loadEventDetails() {
         db.collection(FirestorePaths.EVENTS).document(eventId).get()
                 .addOnSuccessListener(documentSnapshot -> {
-                    if (!documentSnapshot.exists()) return;
+                    if (!documentSnapshot.exists()) {
+                        Toast.makeText(this, R.string.event_not_found, Toast.LENGTH_SHORT).show();
+                        finish();
+                        return;
+                    }
                     tvEventTitle.setText(documentSnapshot.getString("title"));
                     tvEventDescription.setText(documentSnapshot.getString("details"));
 

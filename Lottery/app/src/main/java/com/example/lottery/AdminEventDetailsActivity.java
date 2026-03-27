@@ -19,11 +19,18 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.lottery.model.Event;
 import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.PosterImageLoader;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.storage.FirebaseStorage;
 
 import java.text.SimpleDateFormat;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 /**
  * AdminEventDetailsActivity displays a read-only administrator view of a specific event.
@@ -110,7 +117,7 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
             return;
         }
 
-        fetchEventDetails();
+        // onResume handles the initial fetch as well as subsequent refreshes
     }
 
     @Override
@@ -180,40 +187,238 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
 
         btnDeleteEvent.setEnabled(false);
 
-        // Fixed: Use unified sub-collection name "waitingList" instead of "entrants"
-        db.collection(FirestorePaths.EVENTS)
-                .document(eventId)
-                .collection(FirestorePaths.WAITING_LIST)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    int totalEntrants = queryDocumentSnapshots.size();
-                    if (totalEntrants == 0) {
-                        deleteEventDocument();
+        // Step 1: Collect all affected user IDs before deleting sub-collections
+        collectAffectedUserIds(userIds -> {
+            // Step 2: Clean inbox entries for all affected users
+            deleteInboxEntriesForUsers(userIds, inboxSuccess -> {
+                if (!inboxSuccess) {
+                    abortDelete("Failed to clean up user inbox entries. Please retry.");
+                    return;
+                }
+                // Step 3: Delete sub-collections in parallel
+                deleteSubCollections(subCollSuccess -> {
+                    if (!subCollSuccess) {
+                        abortDelete("Failed to fully clean up event data. Please retry.");
                         return;
                     }
+                    // Step 4: Delete notifications (recipients → parent)
+                    deleteEventNotifications(notifSuccess -> {
+                        if (!notifSuccess) {
+                            abortDelete("Failed to clean up notifications. Please retry.");
+                            return;
+                        }
+                        // Step 5: Read poster URI from Firestore and delete from Storage
+                        readAndDeletePoster(() -> deleteEventDocument());
+                    });
+                });
+            });
+        });
+    }
 
-                    int[] deletedEntrants = {0};
-                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        document.getReference()
-                                .delete()
-                                .addOnSuccessListener(unused -> {
-                                    deletedEntrants[0]++;
-                                    if (deletedEntrants[0] == totalEntrants) {
-                                        deleteEventDocument();
+    private void abortDelete(String message) {
+        Log.e(TAG, message);
+        runOnUiThread(() -> {
+            btnDeleteEvent.setEnabled(true);
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    private void collectAffectedUserIds(Consumer<Set<String>> onComplete) {
+        Set<String> userIds = new HashSet<>();
+        AtomicInteger done = new AtomicInteger(0);
+        Runnable checkDone = () -> {
+            if (done.incrementAndGet() == 2) {
+                onComplete.accept(userIds);
+            }
+        };
+        db.collection(FirestorePaths.eventWaitingList(eventId)).get()
+                .addOnSuccessListener(snap -> {
+                    for (QueryDocumentSnapshot doc : snap) {
+                        userIds.add(doc.getId());
+                    }
+                    checkDone.run();
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Failed to read waitingList for inbox cleanup", e);
+                    checkDone.run();
+                });
+        db.collection(FirestorePaths.eventCoOrganizers(eventId)).get()
+                .addOnSuccessListener(snap -> {
+                    for (QueryDocumentSnapshot doc : snap) {
+                        userIds.add(doc.getId());
+                    }
+                    checkDone.run();
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Failed to read coOrganizers for inbox cleanup", e);
+                    checkDone.run();
+                });
+    }
+
+    private void deleteInboxEntriesForUsers(Set<String> userIds, Consumer<Boolean> onComplete) {
+        if (userIds.isEmpty()) {
+            onComplete.accept(true);
+            return;
+        }
+        AtomicInteger processed = new AtomicInteger(0);
+        AtomicBoolean hasFailure = new AtomicBoolean(false);
+        int total = userIds.size();
+        for (String userId : userIds) {
+            db.collection(FirestorePaths.userInbox(userId))
+                    .whereEqualTo("eventId", eventId)
+                    .get()
+                    .addOnSuccessListener(snap -> {
+                        if (snap.isEmpty()) {
+                            if (processed.incrementAndGet() == total) {
+                                onComplete.accept(!hasFailure.get());
+                            }
+                            return;
+                        }
+                        AtomicInteger deleted = new AtomicInteger(0);
+                        int docTotal = snap.size();
+                        for (QueryDocumentSnapshot doc : snap) {
+                            doc.getReference().delete()
+                                    .addOnCompleteListener(task -> {
+                                        if (!task.isSuccessful()) {
+                                            Log.w(TAG, "Failed to delete inbox entry for user " + userId, task.getException());
+                                            hasFailure.set(true);
+                                        }
+                                        if (deleted.incrementAndGet() == docTotal) {
+                                            if (processed.incrementAndGet() == total) {
+                                                onComplete.accept(!hasFailure.get());
+                                            }
+                                        }
+                                    });
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.w(TAG, "Failed to query inbox for user " + userId, e);
+                        hasFailure.set(true);
+                        if (processed.incrementAndGet() == total) {
+                            onComplete.accept(false);
+                        }
+                    });
+        }
+    }
+
+    private void deleteSubCollections(Consumer<Boolean> onComplete) {
+        AtomicInteger subCollsDone = new AtomicInteger(0);
+        AtomicBoolean allSuccess = new AtomicBoolean(true);
+        Consumer<Boolean> onEachDone = success -> {
+            if (!success) {
+                allSuccess.set(false);
+            }
+            if (subCollsDone.incrementAndGet() == 3) {
+                onComplete.accept(allSuccess.get());
+            }
+        };
+        deleteAllDocuments(db.collection(FirestorePaths.eventWaitingList(eventId)), onEachDone);
+        deleteAllDocuments(db.collection(FirestorePaths.eventCoOrganizers(eventId)), onEachDone);
+        deleteAllDocuments(db.collection(FirestorePaths.eventComments(eventId)), onEachDone);
+    }
+
+    private void deleteAllDocuments(CollectionReference colRef, Consumer<Boolean> onComplete) {
+        colRef.get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (querySnapshot.isEmpty()) {
+                        onComplete.accept(true);
+                        return;
+                    }
+                    int total = querySnapshot.size();
+                    AtomicInteger completed = new AtomicInteger(0);
+                    AtomicBoolean hasFailure = new AtomicBoolean(false);
+                    for (QueryDocumentSnapshot doc : querySnapshot) {
+                        doc.getReference().delete()
+                                .addOnCompleteListener(task -> {
+                                    if (!task.isSuccessful()) {
+                                        Log.e(TAG, "Error deleting doc in " + colRef.getPath(), task.getException());
+                                        hasFailure.set(true);
                                     }
-                                })
-                                .addOnFailureListener(e -> {
-                                    Log.e(TAG, "Error deleting event entrant", e);
-                                    btnDeleteEvent.setEnabled(true);
-                                    Toast.makeText(this, "Failed to delete event entrants", Toast.LENGTH_SHORT).show();
+                                    if (completed.incrementAndGet() == total) {
+                                        onComplete.accept(!hasFailure.get());
+                                    }
                                 });
                     }
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error fetching event entrants", e);
-                    btnDeleteEvent.setEnabled(true);
-                    Toast.makeText(this, "Failed to delete event entrants", Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "Error fetching " + colRef.getPath(), e);
+                    onComplete.accept(false);
                 });
+    }
+
+    private void deleteEventNotifications(Consumer<Boolean> onComplete) {
+        db.collection(FirestorePaths.NOTIFICATIONS)
+                .whereEqualTo("eventId", eventId)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (querySnapshot.isEmpty()) {
+                        onComplete.accept(true);
+                        return;
+                    }
+                    int total = querySnapshot.size();
+                    AtomicInteger completed = new AtomicInteger(0);
+                    AtomicBoolean hasFailure = new AtomicBoolean(false);
+                    for (QueryDocumentSnapshot notifDoc : querySnapshot) {
+                        String notifId = notifDoc.getId();
+                        deleteAllDocuments(
+                                db.collection(FirestorePaths.notificationRecipients(notifId)),
+                                recipientSuccess -> {
+                                    if (!recipientSuccess) {
+                                        hasFailure.set(true);
+                                        Log.e(TAG, "Recipients cleanup failed for " + notifId + ", skipping parent delete");
+                                        if (completed.incrementAndGet() == total) {
+                                            onComplete.accept(false);
+                                        }
+                                        return;
+                                    }
+                                    notifDoc.getReference().delete()
+                                            .addOnCompleteListener(task -> {
+                                                if (!task.isSuccessful()) {
+                                                    Log.e(TAG, "Error deleting notification " + notifId, task.getException());
+                                                    hasFailure.set(true);
+                                                }
+                                                if (completed.incrementAndGet() == total) {
+                                                    onComplete.accept(!hasFailure.get());
+                                                }
+                                            });
+                                });
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error querying notifications for event", e);
+                    onComplete.accept(false);
+                });
+    }
+
+    private void readAndDeletePoster(Runnable onComplete) {
+        db.collection(FirestorePaths.EVENTS).document(eventId).get()
+                .addOnSuccessListener(doc -> {
+                    String posterUri = doc.exists() ? doc.getString("posterUri") : null;
+                    deletePosterFromStorage(posterUri, onComplete);
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Failed to read event for poster cleanup", e);
+                    onComplete.run();
+                });
+    }
+
+    private void deletePosterFromStorage(String posterUri, Runnable onComplete) {
+        if (posterUri == null || posterUri.trim().isEmpty()) {
+            onComplete.run();
+            return;
+        }
+        try {
+            FirebaseStorage.getInstance().getReferenceFromUrl(posterUri).delete()
+                    .addOnCompleteListener(task -> {
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "Failed to delete poster from storage", task.getException());
+                        }
+                        onComplete.run();
+                    });
+        } catch (IllegalArgumentException e) {
+            Log.w(TAG, "Invalid poster URI, skipping storage delete", e);
+            onComplete.run();
+        }
     }
 
     /**
@@ -290,7 +495,6 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
             tvLocationRequirement.setVisibility(View.GONE);
         }
 
-        String posterUriString = event.getPosterUri();
-        PosterImageLoader.load(ivEventPoster, posterUriString, R.drawable.event_placeholder);
+        PosterImageLoader.load(ivEventPoster, event.getPosterUri(), R.drawable.event_placeholder);
     }
 }

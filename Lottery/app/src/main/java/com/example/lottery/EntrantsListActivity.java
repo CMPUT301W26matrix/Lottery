@@ -67,40 +67,31 @@ public class EntrantsListActivity extends AppCompatActivity implements
         SampleFragment.SamplingListener {
 
     private static final String TAG = "EntrantsListActivity";
-
+    private final Set<String> selectedEntrantIds = new HashSet<>();
     private Button btnSwitchSignedUp, btnSwitchCancelled, btnSwitchWaitedList,
             btnSendNotification, btnNotifySelected, btnViewLocation, btnSampleWinners, btnSwitchInvited, btnSwitchNotSelected, btnExportCsv;
-
     private FirebaseFirestore db;
-
     private ArrayList<EntrantEvent> entrantSignedUpArrayList;
     private ArrayList<EntrantEvent> entrantInvitedArrayList;
     private ArrayList<EntrantEvent> entrantCancelledArrayList;
     private ArrayList<EntrantEvent> entrantWaitedListArrayList;
     private ArrayList<EntrantEvent> entrantNotSelectedArrayList;
-
     private SignedUpListAdapter signedUpAdapter;
     private CancelledListAdapter cancelledAdapter;
     private WaitedListedListAdapter waitedListAdapter;
     private InvitedListAdapter invitedAdapter;
     private NotSelectedListAdapter notSelectedAdapter;
-
     private LinearLayout invitedEntrantsListLayout, cancelledEntrantsListLayout,
             signedUpEntrantsListLayout, waitedListEntrantsListLayout, notSelectedEntrantsListLayout;
-
     private RecyclerView invitedEventsView, signedUpEventsView, waitedListEventsView, cancelledEntrantsView, notSelectedEntrantsView;
-
     private String eventId;
     private String userId;
     private String eventTitle = "Event";
     private String organizerId;
     private long capacity, maxSampleSize;
     private boolean requireLocation = false;
-
     private ListenerRegistration entrantsReg;
     private String activeGroupStatus = InvitationFlowUtil.STATUS_WAITLISTED;
-
-    private final Set<String> selectedEntrantIds = new HashSet<>();
     private boolean isNotifySelectedMode = false;
 
     private ActivityResultLauncher<String> createCsvLauncher;

@@ -36,13 +36,11 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
     private static final String ARG_EVENT_ID = "eventId";
     private static final String ARG_EVENT_TITLE = "eventTitle";
     private static final String ARG_SENDER_ID = "senderId";
-
+    private final List<User> userList = new ArrayList<>();
     private String eventId;
     private String eventTitle;
     private String senderId;
-
     private FirebaseFirestore db;
-    private final List<User> userList = new ArrayList<>();
     private UserSearchAdapter adapter;
 
     private TextInputEditText etSearch;

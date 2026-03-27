@@ -35,20 +35,19 @@ import java.util.ArrayList;
 public class EntrantMapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private static final String TAG = "EntrantMapActivity";
-
+    private final ArrayList<EntrantEvent> entrants = new ArrayList<>();
     private GoogleMap googleMap;
     private MapView mapView;
     private String eventId;
     private String status;
     private FirebaseFirestore db;
-    private final ArrayList<EntrantEvent> entrants = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_entrant_map);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.view_location_layout), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
