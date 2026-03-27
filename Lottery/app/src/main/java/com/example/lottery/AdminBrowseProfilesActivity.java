@@ -3,6 +3,7 @@ package com.example.lottery;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -18,11 +19,18 @@ import androidx.core.content.ContextCompat;
 import com.example.lottery.model.User;
 import com.example.lottery.util.FirestorePaths;
 import com.google.android.material.button.MaterialButton;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.WriteBatch;
+import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 /**
  * Allows administrators to browse all user profiles in the system.
@@ -31,6 +39,8 @@ import java.util.ArrayList;
  * When deleting an organizer, their associated events are also removed.
  */
 public class AdminBrowseProfilesActivity extends AppCompatActivity {
+
+    private static final String TAG = "AdminBrowseProfiles";
 
     @VisibleForTesting
     ArrayList<User> allUsers;
@@ -79,7 +89,7 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
         // Simple admin-only access check
         String role = getIntent().getStringExtra("role");
         if (role == null || !role.equals("admin")) {
-            Toast.makeText(this, "Access denied", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.access_denied, Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
@@ -186,7 +196,7 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
             btnEnableDeletion.setText(R.string.deletion_active);
             btnEnableDeletion.setBackgroundTintList(ColorStateList.valueOf(
                     ContextCompat.getColor(this, android.R.color.holo_red_dark)));
-            Toast.makeText(this, "Click a profile to delete", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.click_profile_to_delete, Toast.LENGTH_SHORT).show();
         } else {
             btnEnableDeletion.setText(R.string.enable_deletion);
             btnEnableDeletion.setBackgroundTintList(ColorStateList.valueOf(
@@ -214,7 +224,7 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
         View btnProfiles = findViewById(R.id.nav_profiles);
         if (btnProfiles != null) {
             btnProfiles.setOnClickListener(v ->
-                    Toast.makeText(this, "Already viewing profiles", Toast.LENGTH_SHORT).show());
+                    Toast.makeText(this, R.string.already_viewing_profiles, Toast.LENGTH_SHORT).show());
         }
 
         View btnImages = findViewById(R.id.nav_images);
@@ -307,7 +317,7 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
                     tvEmptyProfiles.setText(R.string.failed_to_load_profiles);
                     tvEmptyProfiles.setVisibility(View.VISIBLE);
                     lvProfiles.setVisibility(View.GONE);
-                    Toast.makeText(AdminBrowseProfilesActivity.this, "Error loading profiles", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AdminBrowseProfilesActivity.this, R.string.error_loading_profiles, Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -321,20 +331,19 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
     void showDeleteConfirmationDialog(User selectedUser) {
         String message;
         if (selectedUser.isOrganizer()) {
-            message = "Delete organizer \"" + selectedUser.getUsername()
-                    + "\"? All events created by this organizer will also be deleted.";
+            message = getString(R.string.confirm_delete_organizer, selectedUser.getUsername());
         } else {
-            message = "Delete profile for " + selectedUser.getUsername() + "?";
+            message = getString(R.string.confirm_delete_profile_message, selectedUser.getUsername());
         }
 
         new AlertDialog.Builder(this)
-                .setTitle("Delete Profile")
+                .setTitle(R.string.delete_profile)
                 .setMessage(message)
-                .setPositiveButton("Confirm", (dialog, which) -> {
+                .setPositiveButton(R.string.confirm, (dialog, which) -> {
                     deleteProfile(selectedUser);
                     setDeleteMode(false);
                 })
-                .setNegativeButton("Cancel", (dialog, which) -> setDeleteMode(false))
+                .setNegativeButton(R.string.cancel, (dialog, which) -> setDeleteMode(false))
                 .show();
     }
 
@@ -352,12 +361,12 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
     }
 
     /**
-     * Deletes all events created by the given organizer, then deletes the organizer's profile.
+     * Deletes all events created by the given organizer, then deletes
+     * the organizer's profile.
      *
      * @param organizer the organizer whose events and profile should be removed.
      */
     private void deleteOrganizerAndEvents(User organizer) {
-        // Query all events owned by this organizer and delete them
         db.collection(FirestorePaths.EVENTS)
                 .whereEqualTo("organizerId", organizer.getUserId())
                 .get()
@@ -367,19 +376,205 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
                         return;
                     }
 
-                    WriteBatch batch = db.batch();
+                    List<String> eventIds = new ArrayList<>();
                     for (QueryDocumentSnapshot doc : snapshots) {
-                        batch.delete(doc.getReference());
+                        eventIds.add(doc.getId());
                     }
-                    batch.commit()
-                            .addOnSuccessListener(unused -> deleteUserDocument(organizer))
-                            .addOnFailureListener(e ->
-                                    Toast.makeText(this, "Failed to delete organizer's events",
-                                            Toast.LENGTH_SHORT).show());
+                    deleteEventsSequentially(eventIds, 0, organizer);
                 })
                 .addOnFailureListener(e ->
-                        Toast.makeText(this, "Failed to delete organizer's events",
+                        Toast.makeText(this, R.string.failed_to_delete_organizer_events,
                                 Toast.LENGTH_SHORT).show());
+    }
+
+    /**
+     * Walks through the event list one-by-one, running the full 5-step cleanup
+     * for each event before moving to the next.
+     */
+    private void deleteEventsSequentially(List<String> eventIds, int index, User organizer) {
+        if (index >= eventIds.size()) {
+            deleteUserDocument(organizer);
+            return;
+        }
+        String eventId = eventIds.get(index);
+        fullDeleteEvent(eventId, success -> {
+            if (!success) {
+                Log.e(TAG, "Failed to fully delete event " + eventId + ", continuing with next");
+            }
+            deleteEventsSequentially(eventIds, index + 1, organizer);
+        });
+    }
+
+    /**
+     * Performs the full 5-step event deletion, mirroring
+     * {@link AdminEventDetailsActivity#deleteEvent()}.
+     * <p>
+     * Steps: collectAffectedUserIds, deleteInboxEntries,
+     * deleteSubCollections, deleteEventNotifications,
+     * readAndDeletePoster, deleteEventDocument
+     */
+    private void fullDeleteEvent(String eventId, Consumer<Boolean> onComplete) {
+        // Step 1
+        collectAffectedUserIds(eventId, userIds -> {
+            // Step 2
+            deleteInboxEntriesForUsers(eventId, userIds, inboxOk -> {
+                // Step 3
+                deleteSubCollections(eventId, subOk -> {
+                    // Step 4
+                    deleteEventNotifications(eventId, notifOk -> {
+                        // Step 5
+                        readAndDeletePoster(eventId, () ->
+                                deleteEventDocument(eventId, onComplete));
+                    });
+                });
+            });
+        });
+    }
+
+    private void collectAffectedUserIds(String eventId, Consumer<Set<String>> onComplete) {
+        Set<String> userIds = new HashSet<>();
+        AtomicInteger done = new AtomicInteger(0);
+        Runnable checkDone = () -> {
+            if (done.incrementAndGet() == 2) onComplete.accept(userIds);
+        };
+        db.collection(FirestorePaths.eventWaitingList(eventId)).get()
+                .addOnSuccessListener(snap -> {
+                    for (QueryDocumentSnapshot doc : snap) userIds.add(doc.getId());
+                    checkDone.run();
+                })
+                .addOnFailureListener(e -> checkDone.run());
+        db.collection(FirestorePaths.eventCoOrganizers(eventId)).get()
+                .addOnSuccessListener(snap -> {
+                    for (QueryDocumentSnapshot doc : snap) userIds.add(doc.getId());
+                    checkDone.run();
+                })
+                .addOnFailureListener(e -> checkDone.run());
+    }
+
+    private void deleteInboxEntriesForUsers(String eventId, Set<String> userIds, Consumer<Boolean> onComplete) {
+        if (userIds.isEmpty()) {
+            onComplete.accept(true);
+            return;
+        }
+        AtomicInteger processed = new AtomicInteger(0);
+        AtomicBoolean hasFailure = new AtomicBoolean(false);
+        int total = userIds.size();
+        for (String userId : userIds) {
+            db.collection(FirestorePaths.userInbox(userId))
+                    .whereEqualTo("eventId", eventId).get()
+                    .addOnSuccessListener(snap -> {
+                        if (snap.isEmpty()) {
+                            if (processed.incrementAndGet() == total)
+                                onComplete.accept(!hasFailure.get());
+                            return;
+                        }
+                        AtomicInteger deleted = new AtomicInteger(0);
+                        int docTotal = snap.size();
+                        for (QueryDocumentSnapshot doc : snap) {
+                            doc.getReference().delete().addOnCompleteListener(task -> {
+                                if (!task.isSuccessful()) hasFailure.set(true);
+                                if (deleted.incrementAndGet() == docTotal && processed.incrementAndGet() == total)
+                                    onComplete.accept(!hasFailure.get());
+                            });
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        hasFailure.set(true);
+                        if (processed.incrementAndGet() == total) onComplete.accept(false);
+                    });
+        }
+    }
+
+    private void deleteSubCollections(String eventId, Consumer<Boolean> onComplete) {
+        AtomicInteger done = new AtomicInteger(0);
+        AtomicBoolean allOk = new AtomicBoolean(true);
+        Consumer<Boolean> each = ok -> {
+            if (!ok) allOk.set(false);
+            if (done.incrementAndGet() == 3) onComplete.accept(allOk.get());
+        };
+        deleteAllDocuments(db.collection(FirestorePaths.eventWaitingList(eventId)), each);
+        deleteAllDocuments(db.collection(FirestorePaths.eventCoOrganizers(eventId)), each);
+        deleteAllDocuments(db.collection(FirestorePaths.eventComments(eventId)), each);
+    }
+
+    private void deleteAllDocuments(CollectionReference colRef, Consumer<Boolean> onComplete) {
+        colRef.get()
+                .addOnSuccessListener(snap -> {
+                    if (snap.isEmpty()) {
+                        onComplete.accept(true);
+                        return;
+                    }
+                    int total = snap.size();
+                    AtomicInteger completed = new AtomicInteger(0);
+                    AtomicBoolean hasFailure = new AtomicBoolean(false);
+                    for (QueryDocumentSnapshot doc : snap) {
+                        doc.getReference().delete().addOnCompleteListener(task -> {
+                            if (!task.isSuccessful()) hasFailure.set(true);
+                            if (completed.incrementAndGet() == total)
+                                onComplete.accept(!hasFailure.get());
+                        });
+                    }
+                })
+                .addOnFailureListener(e -> onComplete.accept(false));
+    }
+
+    private void deleteEventNotifications(String eventId, Consumer<Boolean> onComplete) {
+        db.collection(FirestorePaths.NOTIFICATIONS)
+                .whereEqualTo("eventId", eventId).get()
+                .addOnSuccessListener(snap -> {
+                    if (snap.isEmpty()) {
+                        onComplete.accept(true);
+                        return;
+                    }
+                    int total = snap.size();
+                    AtomicInteger completed = new AtomicInteger(0);
+                    AtomicBoolean hasFailure = new AtomicBoolean(false);
+                    for (QueryDocumentSnapshot notifDoc : snap) {
+                        String notifId = notifDoc.getId();
+                        deleteAllDocuments(
+                                db.collection(FirestorePaths.notificationRecipients(notifId)),
+                                recipientOk -> {
+                                    if (!recipientOk) hasFailure.set(true);
+                                    notifDoc.getReference().delete().addOnCompleteListener(task -> {
+                                        if (!task.isSuccessful()) hasFailure.set(true);
+                                        if (completed.incrementAndGet() == total)
+                                            onComplete.accept(!hasFailure.get());
+                                    });
+                                });
+                    }
+                })
+                .addOnFailureListener(e -> onComplete.accept(false));
+    }
+
+    private void readAndDeletePoster(String eventId, Runnable onComplete) {
+        db.collection(FirestorePaths.EVENTS).document(eventId).get()
+                .addOnSuccessListener(doc -> {
+                    String posterUri = doc.exists() ? doc.getString("posterUri") : null;
+                    deletePosterFromStorage(posterUri, onComplete);
+                })
+                .addOnFailureListener(e -> onComplete.run());
+    }
+
+    private void deletePosterFromStorage(String posterUri, Runnable onComplete) {
+        if (posterUri == null || posterUri.trim().isEmpty()) {
+            onComplete.run();
+            return;
+        }
+        try {
+            FirebaseStorage.getInstance().getReferenceFromUrl(posterUri).delete()
+                    .addOnCompleteListener(task -> onComplete.run());
+        } catch (IllegalArgumentException e) {
+            onComplete.run();
+        }
+    }
+
+    private void deleteEventDocument(String eventId, Consumer<Boolean> onComplete) {
+        db.collection(FirestorePaths.EVENTS).document(eventId).delete()
+                .addOnSuccessListener(unused -> onComplete.accept(true))
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to delete event document " + eventId, e);
+                    onComplete.accept(false);
+                });
     }
 
     /**
@@ -392,11 +587,11 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
                 .document(selectedUser.getUserId())
                 .delete()
                 .addOnSuccessListener(unused -> {
-                    Toast.makeText(this, "Profile deleted", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.profile_deleted, Toast.LENGTH_SHORT).show();
                     allUsers.remove(selectedUser);
                     applyFilter();
                 })
                 .addOnFailureListener(e ->
-                        Toast.makeText(this, "Failed to delete profile", Toast.LENGTH_SHORT).show());
+                        Toast.makeText(this, R.string.failed_to_delete_profile, Toast.LENGTH_SHORT).show());
     }
 }

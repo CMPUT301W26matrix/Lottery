@@ -176,13 +176,30 @@
     <string name="delete_event">Delete Event</string>
     <string name="confirm_deletion">Confirm Deletion</string>
     <string name="confirm_delete_event">Do you want to delete this event?</string>
+    <string name="confirm_delete_image">Do you want to delete this poster image?</string>
     <string name="delete">Delete</string>
+    <string name="confirm">Confirm</string>
     <string name="error_event_id_empty">Event ID is empty</string>
     <string name="event_deleted_successfully">Event deleted successfully</string>
     <string name="failed_to_delete_event">Failed to delete event</string>
     <string name="failed_to_clean_inbox">Failed to clean up user inbox entries. Please retry.</string>
     <string name="failed_to_clean_event_data">Failed to fully clean up event data. Please retry.</string>
     <string name="failed_to_clean_notifications">Failed to clean up notifications. Please retry.</string>
+    <string name="no_image_to_delete">No image to delete</string>
+    <string name="failed_to_delete_image_storage">Failed to delete image from storage</string>
+    <string name="image_deleted">Image deleted</string>
+    <string name="failed_to_delete_image">Failed to delete image</string>
+
+    <!-- Admin Profile Management -->
+    <string name="access_denied">Access denied</string>
+    <string name="click_profile_to_delete">Click a profile to delete</string>
+    <string name="already_viewing_profiles">Already viewing profiles</string>
+    <string name="confirm_delete_organizer">Delete organizer \"%1$s\"? All events created by this organizer will also be deleted.</string>
+    <string name="confirm_delete_profile_message">Delete profile for %1$s?</string>
+    <string name="profile_deleted">Profile deleted</string>
+    <string name="failed_to_delete_profile">Failed to delete profile</string>
+    <string name="failed_to_delete_organizer_events">Failed to delete organizer\'s events</string>
+    <string name="error_loading_profiles">Error loading profiles</string>
 
     <!-- Browse Filters -->
     <string name="filter_all">All</string>
