@@ -33,9 +33,9 @@ public class ProfileAdapterTest {
     public void setUp() {
         context = ApplicationProvider.getApplicationContext();
         users = new ArrayList<>();
-        users.add(new User("John Doe", "john@example.com", "1234567890"));
-        users.add(new User("Jane Smith", "jane@example.com", ""));
-        users.add(new User("No Phone", "none@example.com", null));
+        users.add(new User("u-1", "John Doe", "john@example.com", "1234567890"));
+        users.add(new User("u-2", "Jane Smith", "jane@example.com", ""));
+        users.add(new User("u-3", "No Phone", "none@example.com", null));
 
         adapter = new ProfileAdapter(context, users);
     }
@@ -47,7 +47,7 @@ public class ProfileAdapterTest {
 
     @Test
     public void testGetItem() {
-        assertEquals("First item name should match", "John Doe", adapter.getItem(0).getName());
+        assertEquals("First item name should match", "John Doe", adapter.getItem(0).getUsername());
         assertEquals("Second item email should match", "jane@example.com", adapter.getItem(1).getEmail());
     }
 

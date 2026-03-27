@@ -63,11 +63,9 @@ public class ProfileAdapter extends ArrayAdapter<User> {
         TextView tvProfilePhone = convertView.findViewById(R.id.tvProfilePhone);
 
         if (user != null) {
-            // Unified: use getUsername() instead of getName()
             tvProfileName.setText(user.getUsername() != null ? user.getUsername() : "Unknown");
             tvProfileEmail.setText(user.getEmail());
 
-            // Unified: use getPhone() instead of getPhoneNumber()
             String phone = user.getPhone();
             if (phone == null || phone.isEmpty()) {
                 tvProfilePhone.setText("No phone number");

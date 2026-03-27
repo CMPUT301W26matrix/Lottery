@@ -22,11 +22,11 @@ public class UserTest {
      */
     @Test
     public void constructor_storesNameEmailAndPhoneCorrectly() {
-        User user = new User("Alice", "alice@email.com", "7801234567");
+        User user = new User("user-1", "Alice", "alice@email.com", "7801234567");
 
-        assertEquals("Alice", user.getName());
+        assertEquals("Alice", user.getUsername());
         assertEquals("alice@email.com", user.getEmail());
-        assertEquals("7801234567", user.getPhoneNumber());
+        assertEquals("7801234567", user.getPhone());
     }
 
     /**
@@ -34,11 +34,11 @@ public class UserTest {
      */
     @Test
     public void constructor_allowsEmptyPhoneNumber() {
-        User user = new User("Bob", "bob@email.com", "");
+        User user = new User("user-2", "Bob", "bob@email.com", "");
 
-        assertEquals("Bob", user.getName());
+        assertEquals("Bob", user.getUsername());
         assertEquals("bob@email.com", user.getEmail());
-        assertEquals("", user.getPhoneNumber());
+        assertEquals("", user.getPhone());
     }
 
     /**
@@ -49,9 +49,9 @@ public class UserTest {
         User user = new User("user-123", "Alice", "alice@email.com", "7801234567");
 
         assertEquals("user-123", user.getUserId());
-        assertEquals("Alice", user.getName());
+        assertEquals("Alice", user.getUsername());
         assertEquals("alice@email.com", user.getEmail());
-        assertEquals("7801234567", user.getPhoneNumber());
+        assertEquals("7801234567", user.getPhone());
     }
 
     @Test
