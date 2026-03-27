@@ -173,6 +173,16 @@
     <string name="registration_period_ended">Registration Period Over</string>
     <string name="cannot_join_event_lottery_drawn">You can no longer join this event as the lottery has already been drawn.</string>
     <string name="delete_image">Delete Image</string>
+    <string name="delete_event">Delete Event</string>
+    <string name="confirm_deletion">Confirm Deletion</string>
+    <string name="confirm_delete_event">Do you want to delete this event?</string>
+    <string name="delete">Delete</string>
+    <string name="error_event_id_empty">Event ID is empty</string>
+    <string name="event_deleted_successfully">Event deleted successfully</string>
+    <string name="failed_to_delete_event">Failed to delete event</string>
+    <string name="failed_to_clean_inbox">Failed to clean up user inbox entries. Please retry.</string>
+    <string name="failed_to_clean_event_data">Failed to fully clean up event data. Please retry.</string>
+    <string name="failed_to_clean_notifications">Failed to clean up notifications. Please retry.</string>
 
     <!-- Browse Filters -->
     <string name="filter_all">All</string>
