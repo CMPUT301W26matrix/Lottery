@@ -20,6 +20,7 @@ import com.example.lottery.model.Event;
 import com.example.lottery.util.PosterImageLoader;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageException;
 
 /**
  * AdminImageDetailsActivity displays a full-size poster preview for administrators.
@@ -29,7 +30,7 @@ import com.google.firebase.storage.FirebaseStorage;
  *   <li>Fetches the event record from Firestore using the supplied event ID.</li>
  *   <li>Renders the poster at full width, event title, organizer name, and description.</li>
  *   <li>Looks up the organizer name from the users collection via organizerId.</li>
- *   <li>Provides a delete button (to be repurposed for image-only deletion later).</li>
+ *   <li>Provides a delete button for administrators to remove poster images.</li>
  *   <li>Keeps the custom admin bottom navigation active on the details screen.</li>
  * </ul>
  * </p>
@@ -56,7 +57,7 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
      */
     private TextView tvEventDetails;
     /**
-     * Button for deleting the event (to be repurposed for image deletion).
+     * Button for deleting the poster image.
      */
     private Button btnDeleteImage;
     /**
@@ -158,36 +159,59 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * Launches a confirmation dialog before deleting the event.
+     * Launches a confirmation dialog before deleting the poster image.
      */
     private void showDeleteConfirmationDialog() {
         new AlertDialog.Builder(this).setTitle("Confirm Deletion").setMessage("Do you want to delete this poster image?")
-                .setPositiveButton("Delete", (dialog, which) -> DeleteImage())
+                .setPositiveButton("Delete", (dialog, which) -> deleteImage())
                 .setNegativeButton("Cancel", null).show();
     }
 
     /**
      * Deletes the poster image from Firebase Storage and clears the posterUri in Firestore.
+     * Storage deletion completes before the Firestore field is cleared.
      */
-    private void DeleteImage() {
+    private void deleteImage() {
         if (eventId == null || eventId.isEmpty()) {
             Toast.makeText(this, "Event ID is empty", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        if (currentPosterUri == null || currentPosterUri.isEmpty()) {
+            Toast.makeText(this, "No image to delete", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         btnDeleteImage.setEnabled(false);
 
-        // Delete file from Firebase Storage if it's a Firebase URL
-        if (currentPosterUri != null
-                && (currentPosterUri.contains("firebasestorage.googleapis.com")
-                || currentPosterUri.startsWith("gs://"))) {
+        // Delete file from Firebase Storage first, then clear Firestore
+        if (currentPosterUri.contains("firebasestorage.googleapis.com")
+                || currentPosterUri.startsWith("gs://")) {
             FirebaseStorage.getInstance()
                     .getReferenceFromUrl(currentPosterUri)
                     .delete()
-                    .addOnFailureListener(e -> Log.e(TAG, "Failed to delete storage file", e));
+                    .addOnSuccessListener(unused -> clearPosterUriInFirestore())
+                    .addOnFailureListener(e -> {
+                        if (e instanceof StorageException
+                                && ((StorageException) e).getErrorCode() == StorageException.ERROR_OBJECT_NOT_FOUND) {
+                            Log.w(TAG, "Storage file already deleted, clearing Firestore reference");
+                            clearPosterUriInFirestore();
+                        } else {
+                            Log.e(TAG, "Failed to delete storage file", e);
+                            btnDeleteImage.setEnabled(true);
+                            Toast.makeText(this, "Failed to delete image from storage", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        } else {
+            // Clear the Firestore field for non-firestore uri
+            clearPosterUriInFirestore();
         }
+    }
 
-        // Clear posterUri in Firestore
+    /**
+     * Clears the posterUri field in Firestore after the storage file has been removed.
+     */
+    private void clearPosterUriInFirestore() {
         db.collection("events").document(eventId)
                 .update("posterUri", null)
                 .addOnSuccessListener(unused -> {
@@ -238,6 +262,7 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
         tvEventDetails.setText(event.getDetails());
         currentPosterUri = event.getPosterUri();
         PosterImageLoader.load(ivEventPoster, currentPosterUri, R.drawable.event_placeholder);
+        btnDeleteImage.setEnabled(currentPosterUri != null && !currentPosterUri.isEmpty());
 
         if (event.getOrganizerId() != null) {
             fetchOrganizerName(event.getOrganizerId());

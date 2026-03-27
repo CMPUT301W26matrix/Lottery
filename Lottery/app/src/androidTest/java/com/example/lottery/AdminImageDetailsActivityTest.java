@@ -1,6 +1,8 @@
 package com.example.lottery;
 
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
@@ -66,6 +68,29 @@ public class AdminImageDetailsActivityTest {
             onView(withId(R.id.nav_profiles)).check(matches(isDisplayed()));
             onView(withId(R.id.nav_images)).check(matches(isDisplayed()));
             onView(withId(R.id.nav_logs)).check(matches(isDisplayed()));
+        }
+    }
+
+    @Test
+    public void testDeleteButtonShowsConfirmationDialog() {
+        try (ActivityScenario<AdminImageDetailsActivity> ignored = launchWithEventId()) {
+            onView(withId(R.id.btnDeleteImage)).perform(click());
+            onView(withText("Confirm Deletion")).check(matches(isDisplayed()));
+            onView(withText("Do you want to delete this poster image?")).check(matches(isDisplayed()));
+            onView(withText("Delete")).check(matches(isDisplayed()));
+            onView(withText("Cancel")).check(matches(isDisplayed()));
+        }
+    }
+
+    @Test
+    public void testDeleteConfirmationCancelDismissesDialog() {
+        try (ActivityScenario<AdminImageDetailsActivity> ignored = launchWithEventId()) {
+            onView(withId(R.id.btnDeleteImage)).perform(click());
+            onView(withText("Cancel")).perform(click());
+
+            onView(withText("Confirm Deletion")).check(doesNotExist());
+            onView(withText("Do you want to delete this poster image?")).check(doesNotExist());
+            onView(withId(R.id.btnDeleteImage)).check(matches(isDisplayed()));
         }
     }
 
