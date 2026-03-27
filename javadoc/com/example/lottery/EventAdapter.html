@@ -98,8 +98,8 @@ loadScripts(document, 'script');</script>
  <p>Key Responsibilities:
  <ul>
    <li>Binds event metadata to RecyclerView items.</li>
-   <li>Dynamically fetches and displays counts from the 'waitingList' subcollection.</li>
-   <li>Visualizes event status (OPEN/CLOSED/CANCELLED) using the document 'status' field.</li>
+   <li>Fetches and caches waitingList counts per event (one query per eventId).</li>
+   <li>Visualizes event status (OPEN/CLOSED/PENDING) derived from event dates.</li>
  </ul>
  </p></div>
 </section>
@@ -148,17 +148,22 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getItemCount()" class="member-name-link">getItemCount</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onBindViewHolder(com.example.lottery.EventAdapter.EventViewHolder,int)" class="member-name-link">onBindViewHolder</a><wbr>(com.example.lottery.EventAdapter.EventViewHolder&nbsp;holder,
- int&nbsp;position)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#clearCountsCache()" class="member-name-link">clearCountsCache</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Clears the cached waitingList counts so the next bind triggers a fresh fetch.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getItemCount()" class="member-name-link">getItemCount</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.example.lottery.EventAdapter.EventViewHolder</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onCreateViewHolder(android.view.ViewGroup,int)" class="member-name-link">onCreateViewHolder</a><wbr>(android.view.ViewGroup&nbsp;parent,
- int&nbsp;viewType)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onBindViewHolder(com.example.lottery.EventAdapter.EventViewHolder,int)" class="member-name-link">onBindViewHolder</a><wbr>(com.example.lottery.EventAdapter.EventViewHolder&nbsp;holder,
+ int&nbsp;position)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.example.lottery.EventAdapter.EventViewHolder</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onCreateViewHolder(android.view.ViewGroup,int)" class="member-name-link">onCreateViewHolder</a><wbr>(android.view.ViewGroup&nbsp;parent,
+ int&nbsp;viewType)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
@@ -194,6 +199,13 @@ loadScripts(document, 'script');</script>
 <section class="method-details" id="method-detail">
 <h2>Method Details</h2>
 <ul class="member-list">
+<li>
+<section class="detail" id="clearCountsCache()">
+<h3>clearCountsCache</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">clearCountsCache</span>()</div>
+<div class="block">Clears the cached waitingList counts so the next bind triggers a fresh fetch.</div>
+</section>
+</li>
 <li>
 <section class="detail" id="onCreateViewHolder(android.view.ViewGroup,int)">
 <h3>onCreateViewHolder</h3>
