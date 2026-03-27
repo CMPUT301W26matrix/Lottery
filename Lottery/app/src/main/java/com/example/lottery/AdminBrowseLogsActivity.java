@@ -1,14 +1,17 @@
 package com.example.lottery;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -64,6 +67,7 @@ public class AdminBrowseLogsActivity extends AppCompatActivity {
         rvLogs.setAdapter(adapter);
 
         setupNavigation();
+        highlightLogsTab();
     }
 
     /**
@@ -109,6 +113,32 @@ public class AdminBrowseLogsActivity extends AppCompatActivity {
         if (btnLogs != null) {
             btnLogs.setOnClickListener(v ->
                     Toast.makeText(this, R.string.admin_already_viewing_logs, Toast.LENGTH_SHORT).show());
+        }
+    }
+
+    /**
+     * Highlights the current logs tab without changing the shared layout defaults.
+     */
+    private void highlightLogsTab() {
+        int activeColor = ContextCompat.getColor(this, R.color.primary_blue);
+        int inactiveColor = ContextCompat.getColor(this, R.color.text_gray);
+
+        ImageView homeIcon = findViewById(R.id.nav_home_icon);
+        TextView homeText = findViewById(R.id.nav_home_text);
+        ImageView logsIcon = findViewById(R.id.nav_logs_icon);
+        TextView logsText = findViewById(R.id.nav_logs_text);
+
+        if (homeIcon != null) {
+            homeIcon.setImageTintList(ColorStateList.valueOf(inactiveColor));
+        }
+        if (homeText != null) {
+            homeText.setTextColor(inactiveColor);
+        }
+        if (logsIcon != null) {
+            logsIcon.setImageTintList(ColorStateList.valueOf(activeColor));
+        }
+        if (logsText != null) {
+            logsText.setTextColor(activeColor);
         }
     }
 
