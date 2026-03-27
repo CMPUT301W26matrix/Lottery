@@ -45,12 +45,12 @@ public class AdminBrowseEventsActivityTest {
         onView(withId(R.id.tvAppTitle)).perform(scrollTo()).check(matches(isDisplayed()));
         onView(withId(R.id.tvAppTitle)).check(matches(withText(R.string.admin_event_browser_title)));
 
-        onView(withId(R.id.tvOrganizerLabel)).perform(scrollTo()).check(matches(isDisplayed()));
-        onView(withId(R.id.tvOrganizerLabel))
+        onView(withId(R.id.tvSubtitle)).perform(scrollTo()).check(matches(isDisplayed()));
+        onView(withId(R.id.tvSubtitle))
                 .check(matches(withText(R.string.admin_event_browser_subtitle)));
 
-        onView(withId(R.id.tvYourEventsTitle)).perform(scrollTo()).check(matches(isDisplayed()));
-        onView(withId(R.id.tvYourEventsTitle))
+        onView(withId(R.id.tvAllEventsTitle)).perform(scrollTo()).check(matches(isDisplayed()));
+        onView(withId(R.id.tvAllEventsTitle))
                 .check(matches(withText(R.string.admin_all_events_title)));
 
         // RecyclerView starts empty, only check it's VISIBLE or not

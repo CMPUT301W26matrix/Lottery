@@ -30,7 +30,7 @@ public class Event {
     private Integer capacity;
     private Integer waitingListLimit;
     private String qrCodeContent;
-    private String status; // open, closed, cancelled
+    private String status; // open, closed
     private String posterUri;
     private String category; // academic, social, sports, music, other
     private Timestamp scheduledDateTime;

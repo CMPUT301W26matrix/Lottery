@@ -146,6 +146,7 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
         if (btnProfiles != null) {
             btnProfiles.setOnClickListener(v -> {
                 Intent intent = new Intent(this, AdminBrowseProfilesActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 intent.putExtra("role", "admin");
                 startActivity(intent);
                 finish();
@@ -156,6 +157,7 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
         if (btnImages != null) {
             btnImages.setOnClickListener(v -> {
                 Intent intent = new Intent(this, AdminBrowseImagesActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
                 finish();
             });
@@ -165,7 +167,9 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
         if (btnLogs != null) {
             btnLogs.setOnClickListener(v -> {
                 Intent intent = new Intent(this, AdminBrowseLogsActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
+                finish();
             });
         }
     }
@@ -174,14 +178,14 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
      * Launches a confirmation dialog before deleting the event for confirmation.
      */
     private void showDeleteConfirmationDialog() {
-        new AlertDialog.Builder(this).setTitle("Confirm Deletion").setMessage("Do you want to delete this event?")
-                .setPositiveButton("Delete", (dialog, which) -> deleteEvent())
-                .setNegativeButton("Cancel", null).show();
+        new AlertDialog.Builder(this).setTitle(R.string.confirm_deletion).setMessage(R.string.confirm_delete_event)
+                .setPositiveButton(R.string.delete, (dialog, which) -> deleteEvent())
+                .setNegativeButton(R.string.cancel, null).show();
     }
 
     private void deleteEvent() {
         if (eventId == null || eventId.isEmpty()) {
-            Toast.makeText(this, "Event ID is empty", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.error_event_id_empty, Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -192,23 +196,23 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
             // Step 2: Clean inbox entries for all affected users
             deleteInboxEntriesForUsers(userIds, inboxSuccess -> {
                 if (!inboxSuccess) {
-                    abortDelete("Failed to clean up user inbox entries. Please retry.");
+                    abortDelete(getString(R.string.failed_to_clean_inbox));
                     return;
                 }
                 // Step 3: Delete sub-collections in parallel
                 deleteSubCollections(subCollSuccess -> {
                     if (!subCollSuccess) {
-                        abortDelete("Failed to fully clean up event data. Please retry.");
+                        abortDelete(getString(R.string.failed_to_clean_event_data));
                         return;
                     }
                     // Step 4: Delete notifications (recipients → parent)
                     deleteEventNotifications(notifSuccess -> {
                         if (!notifSuccess) {
-                            abortDelete("Failed to clean up notifications. Please retry.");
+                            abortDelete(getString(R.string.failed_to_clean_notifications));
                             return;
                         }
                         // Step 5: Read poster URI from Firestore and delete from Storage
-                        readAndDeletePoster(() -> deleteEventDocument());
+                        readAndDeletePoster(this::deleteEventDocument);
                     });
                 });
             });
@@ -302,13 +306,13 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
     }
 
     private void deleteSubCollections(Consumer<Boolean> onComplete) {
-        AtomicInteger subCollsDone = new AtomicInteger(0);
+        AtomicInteger subCallsDone = new AtomicInteger(0);
         AtomicBoolean allSuccess = new AtomicBoolean(true);
         Consumer<Boolean> onEachDone = success -> {
             if (!success) {
                 allSuccess.set(false);
             }
-            if (subCollsDone.incrementAndGet() == 3) {
+            if (subCallsDone.incrementAndGet() == 3) {
                 onComplete.accept(allSuccess.get());
             }
         };
@@ -429,14 +433,13 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
                 .document(eventId)
                 .delete()
                 .addOnSuccessListener(unused -> {
-                    Toast.makeText(this, "Event deleted successfully", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(this, AdminBrowseEventsActivity.class));
+                    Toast.makeText(this, R.string.event_deleted_successfully, Toast.LENGTH_SHORT).show();
                     finish();
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error deleting event", e);
                     btnDeleteEvent.setEnabled(true);
-                    Toast.makeText(this, "Failed to delete event", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.failed_to_delete_event, Toast.LENGTH_SHORT).show();
                 });
     }
 

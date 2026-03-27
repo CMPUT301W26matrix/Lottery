@@ -176,14 +176,15 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
     private void loadOrganizerEvents() {
         if (userId == null) return;
 
+        adapter.clearCountsCache();
         db.collection(FirestorePaths.EVENTS)
                 .whereEqualTo("organizerId", userId)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     eventList.clear();
-                    int openCount = 0;
-                    int closedCount = 0;
-                    int cancelledCount = 0;
+                    int active = 0;
+                    int closed = 0;
+                    int pending = 0;
 
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         try {
@@ -191,13 +192,17 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
                             event.setEventId(document.getId());
                             eventList.add(event);
 
-                            String status = event.getStatus();
-                            if ("open".equalsIgnoreCase(status)) {
-                                openCount++;
-                            } else if ("closed".equalsIgnoreCase(status)) {
-                                closedCount++;
-                            } else if ("cancelled".equalsIgnoreCase(status)) {
-                                cancelledCount++;
+                            String displayStatus = EventAdapter.resolveDisplayStatus(event);
+                            switch (displayStatus) {
+                                case "open":
+                                    active++;
+                                    break;
+                                case "pending":
+                                    pending++;
+                                    break;
+                                default:
+                                    closed++;
+                                    break;
                             }
                         } catch (Exception e) {
                             Log.e(TAG, "Error mapping document " + document.getId(), e);
@@ -205,7 +210,7 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
                     }
 
                     adapter.notifyDataSetChanged();
-                    updateSummaryStats(openCount, closedCount, cancelledCount, eventList.size());
+                    updateSummaryStats(active, closed, pending, eventList.size());
                     tvNoEvents.setVisibility(eventList.isEmpty() ? View.VISIBLE : View.GONE);
                 })
                 .addOnFailureListener(e -> {

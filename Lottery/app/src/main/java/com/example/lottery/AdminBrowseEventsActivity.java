@@ -1,14 +1,17 @@
 package com.example.lottery;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -21,7 +24,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -107,6 +109,8 @@ public class AdminBrowseEventsActivity extends AppCompatActivity implements Even
      * Sets up click listeners for the admin navigation elements.
      */
     private void setupNavigation() {
+        highlightEventsTab();
+
         View btnHome = findViewById(R.id.nav_home);
         if (btnHome != null) {
             btnHome.setOnClickListener(v ->
@@ -140,12 +144,57 @@ public class AdminBrowseEventsActivity extends AppCompatActivity implements Even
     }
 
     /**
+     * Highlights the Events tab in the bottom navigation to match the pattern of other admin screens.
+     */
+    private void highlightEventsTab() {
+        int activeColor = ContextCompat.getColor(this, R.color.primary_blue);
+        int inactiveColor = ContextCompat.getColor(this, R.color.text_gray);
+
+        ImageView homeIcon = findViewById(R.id.nav_home_icon);
+        TextView homeText = findViewById(R.id.nav_home_text);
+
+        if (homeIcon != null) {
+            homeIcon.setImageTintList(ColorStateList.valueOf(activeColor));
+        }
+        if (homeText != null) {
+            homeText.setTextColor(activeColor);
+        }
+
+        ImageView profilesIcon = findViewById(R.id.nav_profiles_icon);
+        TextView profilesText = findViewById(R.id.nav_profiles_text);
+        ImageView imagesIcon = findViewById(R.id.nav_images_icon);
+        TextView imagesText = findViewById(R.id.nav_images_text);
+        ImageView logsIcon = findViewById(R.id.nav_logs_icon);
+        TextView logsText = findViewById(R.id.nav_logs_text);
+
+        if (profilesIcon != null) {
+            profilesIcon.setImageTintList(ColorStateList.valueOf(inactiveColor));
+        }
+        if (profilesText != null) {
+            profilesText.setTextColor(inactiveColor);
+        }
+        if (imagesIcon != null) {
+            imagesIcon.setImageTintList(ColorStateList.valueOf(inactiveColor));
+        }
+        if (imagesText != null) {
+            imagesText.setTextColor(inactiveColor);
+        }
+        if (logsIcon != null) {
+            logsIcon.setImageTintList(ColorStateList.valueOf(inactiveColor));
+        }
+        if (logsText != null) {
+            logsText.setTextColor(inactiveColor);
+        }
+    }
+
+    /**
      * Loads events from the Firestore 'events' collection.
      *
      * <p>This method clears the existing list, fetches all documents, and repopulates the list.
      * After fetching, it updates the RecyclerView and the summary statistics UI.</p>
      */
     private void loadEvents() {
+        adapter.clearCountsCache();
         db.collection(FirestorePaths.EVENTS)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -153,27 +202,25 @@ public class AdminBrowseEventsActivity extends AppCompatActivity implements Even
                     int active = 0;
                     int closed = 0;
                     int pending = 0;
-                    Date now = new Date();
 
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         try {
                             Event event = document.toObject(Event.class);
-                            if (event == null) continue;
 
                             event.setEventId(document.getId());
                             eventList.add(event);
 
-                            // Logical classification based on spec fields
-                            if (event.getDrawDate() != null
-                                    && event.getRegistrationDeadline() != null
-                                    && event.getRegistrationDeadline().toDate().before(now)
-                                    && event.getDrawDate().toDate().after(now)) {
-                                pending++;
-                            } else if (event.getScheduledDateTime() != null
-                                    && event.getScheduledDateTime().toDate().after(now)) {
-                                active++;
-                            } else {
-                                closed++;
+                            String displayStatus = EventAdapter.resolveDisplayStatus(event);
+                            switch (displayStatus) {
+                                case "open":
+                                    active++;
+                                    break;
+                                case "pending":
+                                    pending++;
+                                    break;
+                                default:
+                                    closed++;
+                                    break;
                             }
                         } catch (Exception e) {
                             Log.e(TAG, "Error mapping document " + document.getId(), e);
@@ -205,12 +252,13 @@ public class AdminBrowseEventsActivity extends AppCompatActivity implements Even
         tvTotalCount.setText(String.valueOf(total));
     }
 
-    @Override
+
     /**
      * Handles clicks on individual event items in the RecyclerView.
      *
      * @param event The Event object that was clicked.
      */
+    @Override
     public void onEventClick(Event event) {
         Intent intent = new Intent(this, AdminEventDetailsActivity.class);
         intent.putExtra("eventId", event.getEventId());
