@@ -102,7 +102,12 @@ public class NotificationLogAdapter extends RecyclerView.Adapter<NotificationLog
                     : itemView.getContext().getString(R.string.admin_unknown_event));
 
             String group = (String) log.get("group");
-            tvGroup.setText(group != null ? group.toUpperCase(Locale.getDefault()) : "");
+            if (group != null && !group.isEmpty()) {
+                tvGroup.setText(group.toUpperCase(Locale.getDefault()));
+                tvGroup.setVisibility(View.VISIBLE);
+            } else {
+                tvGroup.setVisibility(View.GONE);
+            }
 
             String message = (String) log.get("message");
             tvMessage.setText(message != null ? message : "");
