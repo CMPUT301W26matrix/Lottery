@@ -303,8 +303,6 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         db.collection(FirestorePaths.EVENTS).document(eventId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (!documentSnapshot.exists()) {
-                        Toast.makeText(this, R.string.event_not_found, Toast.LENGTH_SHORT).show();
-                        finish();
                         return;
                     }
                     tvEventTitle.setText(documentSnapshot.getString("title"));

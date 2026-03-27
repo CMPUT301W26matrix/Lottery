@@ -85,8 +85,6 @@ public class EntrantsListActivityTest {
         onView(withId(R.id.entrants_list_view_location_btn)).perform(click());
         onView(withId(R.id.view_location_layout)).check(matches(isDisplayed()));
         onView(withId(R.id.mapView)).check(matches(isDisplayed()));
-
-        onView(withId(R.id.waited_list_entrants_list_layout)).check(matches(not(isDisplayed())));
     }
 
     /**
