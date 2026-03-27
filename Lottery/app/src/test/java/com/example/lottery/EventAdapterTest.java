@@ -47,27 +47,22 @@ public class EventAdapterTest {
         context = ApplicationProvider.getApplicationContext();
         context.setTheme(R.style.Theme_Lottery);
 
-        // Mock FirebaseFirestore.getInstance()
         FirebaseFirestore mockDb = mock(FirebaseFirestore.class);
         mockedFirestore = mockStatic(FirebaseFirestore.class);
         mockedFirestore.when(FirebaseFirestore::getInstance).thenReturn(mockDb);
 
-        // Mock Firestore chain calls used in bind()
         CollectionReference mockCollection = mock(CollectionReference.class);
         DocumentReference mockDocument = mock(DocumentReference.class);
         CollectionReference mockSubCollection = mock(CollectionReference.class);
         Task<QuerySnapshot> mockTask = mock(Task.class);
 
-        // Ensure every collection/document call returns a valid mock
         when(mockDb.collection(anyString())).thenReturn(mockCollection);
         when(mockCollection.document(anyString())).thenReturn(mockDocument);
         when(mockDocument.collection(anyString())).thenReturn(mockSubCollection);
 
-        // Crucial: .get() must return a non-null Task to avoid NPE in bind()
         when(mockCollection.get()).thenReturn(mockTask);
         when(mockSubCollection.get()).thenReturn(mockTask);
 
-        // Mock Task fluent API
         when(mockTask.addOnSuccessListener(any())).thenReturn(mockTask);
         when(mockTask.addOnFailureListener(any())).thenReturn(mockTask);
 
@@ -77,7 +72,7 @@ public class EventAdapterTest {
         event.setTitle("Test Event");
         event.setCapacity(100);
         event.setStatus("open");
-        event.setScheduledDateTime(new Timestamp(new java.util.Date(System.currentTimeMillis() + 86400000))); // Future
+        event.setScheduledDateTime(new Timestamp(new java.util.Date(System.currentTimeMillis() + 86400000)));
         eventList.add(event);
 
         adapter = new EventAdapter(eventList, event1 -> {
@@ -117,7 +112,33 @@ public class EventAdapterTest {
 
         assertEquals("Test Event", tvTitle.getText().toString());
         assertEquals("100", tvCapacity.getText().toString());
-        // Updated from "ACTIVE" to "OPEN" to match EventAdapter.updateStatusUI logic
         assertEquals("OPEN", tvStatus.getText().toString());
+    }
+
+    @Test
+    public void testResolveDisplayStatus_open() {
+        Event event = new Event();
+        event.setScheduledDateTime(new Timestamp(new java.util.Date(System.currentTimeMillis() + 86400000)));
+        assertEquals("open", EventAdapter.resolveDisplayStatus(event));
+    }
+
+    @Test
+    public void testResolveDisplayStatus_closed() {
+        Event event = new Event();
+        event.setScheduledDateTime(new Timestamp(new java.util.Date(System.currentTimeMillis() - 86400000)));
+        assertEquals("closed", EventAdapter.resolveDisplayStatus(event));
+    }
+
+    @Test
+    public void testResolveDisplayStatus_pending() {
+        Event event = new Event();
+        event.setRegistrationDeadline(new Timestamp(new java.util.Date(System.currentTimeMillis() - 86400000)));
+        event.setDrawDate(new Timestamp(new java.util.Date(System.currentTimeMillis() + 86400000)));
+        assertEquals("pending", EventAdapter.resolveDisplayStatus(event));
+    }
+
+    @Test
+    public void testResolveDisplayStatus_null() {
+        assertEquals("closed", EventAdapter.resolveDisplayStatus(null));
     }
 }
