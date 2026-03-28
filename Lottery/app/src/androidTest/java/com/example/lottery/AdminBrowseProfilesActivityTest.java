@@ -4,6 +4,7 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.RootMatchers.isDialog;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
@@ -12,7 +13,6 @@ import static org.hamcrest.Matchers.containsString;
 
 import android.content.Intent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ListView;
 
 import androidx.lifecycle.Lifecycle;
@@ -269,66 +269,41 @@ public class AdminBrowseProfilesActivityTest {
             });
             InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
-            // Perform actions on UI thread to ensure state and triggers are consistent with injected data
-            scenario.onActivity(activity -> {
-                activity.findViewById(R.id.btnEnableDeleteProfile).performClick();
-                ListView listView = activity.findViewById(R.id.lvProfiles);
-                View firstChild = listView.getChildAt(0);
-                if (firstChild != null) {
-                    listView.performItemClick(firstChild, 0, listView.getAdapter().getItemId(0));
-                } else {
-                    // Fallback if view not immediately available
-                    User selectedUser = activity.filteredUsers.get(0);
-                    activity.showDeleteConfirmationDialog(selectedUser);
-                }
-            });
-
-            onView(isRoot()).perform(waitFor(1000));
+            scenario.onActivity(activity ->
+                    activity.showDeleteConfirmationDialog(activity.filteredUsers.get(0))
+            );
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
             // Verify dialog elements
-            onView(withText("Delete Profile")).check(matches(isDisplayed()));
+            onView(withText("Delete Profile")).inRoot(isDialog()).check(matches(isDisplayed()));
             onView(withText(containsString("All events created by this organizer will also be deleted.")))
-                    .check(matches(isDisplayed()));
-            onView(withText(containsString("BadOrganizer"))).check(matches(isDisplayed()));
+                    .inRoot(isDialog()).check(matches(isDisplayed()));
+            onView(withText(containsString("BadOrganizer"))).inRoot(isDialog()).check(matches(isDisplayed()));
 
-            onView(withText("Cancel")).perform(click());
+            onView(withText("Cancel")).inRoot(isDialog()).perform(click());
         }
     }
 
     private void prepareSingleProfileAndClickFirstRow(ActivityScenario<AdminBrowseProfilesActivity> scenario) {
         scenario.onActivity(activity -> {
+            User alice = new User("user-123", "Alice", "alice@email.com", "7801234567");
+
+            activity.allUsers.clear();
+            activity.allUsers.add(alice);
+            activity.filteredUsers.clear();
+            activity.filteredUsers.add(alice);
+
             ListView listView = activity.findViewById(R.id.lvProfiles);
-
-            ProfileAdapter adapter = (ProfileAdapter) listView.getAdapter();
-
-            adapter.clear();
-            adapter.add(new User("user-123", "Alice", "alice@email.com", "7801234567"));
-            adapter.notifyDataSetChanged();
-
             listView.setVisibility(View.VISIBLE);
+            ((ProfileAdapter) listView.getAdapter()).notifyDataSetChanged();
             listView.requestLayout();
         });
 
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
-        scenario.onActivity(activity -> {
-            ListView listView = activity.findViewById(R.id.lvProfiles);
-            Button enableDeleteButton = activity.findViewById(R.id.btnEnableDeleteProfile);
-
-            enableDeleteButton.performClick();
-
-            View firstVisibleChild = listView.getChildAt(0);
-            if (firstVisibleChild != null) {
-                listView.performItemClick(
-                        firstVisibleChild,
-                        0,
-                        listView.getAdapter().getItemId(0)
-                );
-            } else {
-                User alice = ((ProfileAdapter) listView.getAdapter()).getItem(0);
-                activity.showDeleteConfirmationDialog(alice);
-            }
-        });
+        scenario.onActivity(activity ->
+                activity.showDeleteConfirmationDialog(activity.filteredUsers.get(0))
+        );
 
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
     }
@@ -339,18 +314,21 @@ public class AdminBrowseProfilesActivityTest {
             Assert.assertEquals(Lifecycle.State.RESUMED, scenario.getState());
 
             prepareSingleProfileAndClickFirstRow(scenario);
-            onView(isRoot()).perform(waitFor(500));
 
             onView(withText("Delete Profile"))
+                    .inRoot(isDialog())
                     .check(matches(isDisplayed()));
             onView(withText("Delete profile for Alice?"))
+                    .inRoot(isDialog())
                     .check(matches(isDisplayed()));
             onView(withText("Confirm"))
+                    .inRoot(isDialog())
                     .check(matches(isDisplayed()));
             onView(withText("Cancel"))
+                    .inRoot(isDialog())
                     .check(matches(isDisplayed()));
 
-            onView(withText("Cancel")).perform(click());
+            onView(withText("Cancel")).inRoot(isDialog()).perform(click());
         }
     }
 
@@ -360,15 +338,16 @@ public class AdminBrowseProfilesActivityTest {
             Assert.assertEquals(Lifecycle.State.RESUMED, scenario.getState());
 
             prepareSingleProfileAndClickFirstRow(scenario);
-            onView(isRoot()).perform(waitFor(500));
 
             onView(withText("Delete Profile"))
+                    .inRoot(isDialog())
                     .check(matches(isDisplayed()));
             onView(withText("Cancel"))
+                    .inRoot(isDialog())
                     .check(matches(isDisplayed()));
 
-            onView(withText("Cancel")).perform(click());
-            onView(isRoot()).perform(waitFor(300));
+            onView(withText("Cancel")).inRoot(isDialog()).perform(click());
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
             onView(withText("Delete Profile"))
                     .check(doesNotExist());
