@@ -17,21 +17,22 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.installations.FirebaseInstallations;
+import android.provider.Settings;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * MainActivity serves as the entry point where users choose their role.
- * Identification is based on the device's unique ID (FID) combined with the chosen role (role_FID).
- * This ensures that a single device can maintain separate profiles for different roles.
+ * Identification is based on the device's ANDROID_ID combined with the chosen role.
+ * This ensures that a single device can maintain separate profiles
+ * for different roles, and the identity persists across app reinstalls.
  */
 public class MainActivity extends AppCompatActivity {
 
     private static final String KEY_USER_ID = "userId";
     private static final String KEY_USER_ROLE = "userRole";
-    private static final String KEY_FID = "fid";
+    private static final String KEY_DEVICE_ID = "deviceId";
 
     private FirebaseFirestore db;
     private SharedPreferences sharedPreferences;
@@ -76,33 +77,33 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Handles login using the device's unique ID combined with the role (role_FID).
+     * Handles login using the device's ANDROID_ID combined with the role (role_androidId).
      *
      * @param role The role chosen by the user ("ENTRANT" or "ORGANIZER").
      */
     private void handleDeviceLogin(String role) {
-        FirebaseInstallations.getInstance().getId().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                String fid = task.getResult();
-                // userId is role-prefixed (lowercase in ID for consistency with existing DB)
-                String userId = role.toLowerCase() + "_" + fid;
+        String androidId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
 
-                db.collection(FirestorePaths.USERS).document(userId).get().addOnCompleteListener(userTask -> {
-                    if (userTask.isSuccessful()) {
-                        DocumentSnapshot document = userTask.getResult();
-                        if (document != null && document.exists()) {
-                            loginUser(document, role, fid);
-                        } else {
-                            createNewUser(userId, role, fid);
-                        }
-                    } else {
-                        Exception ex = userTask.getException();
-                        String msg = (ex != null && ex.getMessage() != null) ? ex.getMessage() : "Unknown error";
-                        Toast.makeText(this, "Login failed: " + msg, Toast.LENGTH_SHORT).show();
-                    }
-                });
+        if (androidId == null || androidId.isEmpty()) {
+            Toast.makeText(this, "Could not get Device ID", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // userId is role-prefixed (lowercase in ID for consistency with existing DB)
+        String userId = role.toLowerCase() + "_" + androidId;
+
+        db.collection(FirestorePaths.USERS).document(userId).get().addOnCompleteListener(userTask -> {
+            if (userTask.isSuccessful()) {
+                DocumentSnapshot document = userTask.getResult();
+                if (document != null && document.exists()) {
+                    loginUser(document, role, androidId);
+                } else {
+                    createNewUser(userId, role, androidId);
+                }
             } else {
-                Toast.makeText(this, "Could not get Device ID", Toast.LENGTH_SHORT).show();
+                Exception ex = userTask.getException();
+                String msg = (ex != null && ex.getMessage() != null) ? ex.getMessage() : "Unknown error";
+                Toast.makeText(this, "Login failed: " + msg, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -110,13 +111,13 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Creates a new user document in Firestore with role isolation.
      */
-    private void createNewUser(String userId, String role, String fid) {
+    private void createNewUser(String userId, String role, String androidId) {
         Map<String, Object> userData = new HashMap<>();
         Timestamp now = Timestamp.now();
 
         userData.put("userId", userId);
         userData.put("role", role);
-        userData.put("deviceId", fid);
+        userData.put("deviceId", androidId);
         userData.put("username", ""); // Fixed: unified name to username
         userData.put("email", "");
         userData.put("phone", "");
@@ -125,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
         userData.put("notificationsEnabled", true);
 
         db.collection(FirestorePaths.USERS).document(userId).set(userData).addOnSuccessListener(aVoid -> {
-            saveSessionLocally(userId, role, fid, "");
+            saveSessionLocally(userId, role, androidId, "");
             navigateToProfileCompletion(role, userId);
         }).addOnFailureListener(e -> {
             Toast.makeText(this, "Failed to create account: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -135,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Logs in an existing user and updates activity timestamp.
      */
-    private void loginUser(DocumentSnapshot document, String role, String fid) {
+    private void loginUser(DocumentSnapshot document, String role, String androidId) {
         String userId = document.getId();
         String username = document.getString("username"); // Fixed: unified name to username
         String email = document.getString("email");
@@ -144,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
         db.collection(FirestorePaths.USERS).document(userId)
                 .update("updatedAt", Timestamp.now());
 
-        saveSessionLocally(userId, role, fid, username);
+        saveSessionLocally(userId, role, androidId, username);
 
         if (username == null || username.trim().isEmpty() || email == null || email.trim().isEmpty()) {
             navigateToProfileCompletion(role, userId);
@@ -156,11 +157,11 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Persists the current session details locally.
      */
-    private void saveSessionLocally(String userId, String role, String fid, String username) {
+    private void saveSessionLocally(String userId, String role, String androidId, String username) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(KEY_USER_ID, userId);
         editor.putString(KEY_USER_ROLE, role);
-        editor.putString(KEY_FID, fid);
+        editor.putString(KEY_DEVICE_ID, androidId);
         editor.putString("userName", username); // Key userName is used in SP throughout the app
         editor.apply();
     }
