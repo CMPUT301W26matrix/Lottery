@@ -122,7 +122,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         btnInviteEntrant.setOnClickListener(v -> openInviteDialog());
 
         btnComments.setOnClickListener(v -> {
-            EntrantCommentBottomSheet bottomSheet = EntrantCommentBottomSheet.newInstance(
+            CommentBottomSheet bottomSheet = CommentBottomSheet.newInstance(
                     eventId, userId, userName, true);
             bottomSheet.show(getSupportFragmentManager(), "comment_bottom_sheet");
         });

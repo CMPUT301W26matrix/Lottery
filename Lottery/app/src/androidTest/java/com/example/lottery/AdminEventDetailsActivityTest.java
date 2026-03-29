@@ -69,6 +69,18 @@ public class AdminEventDetailsActivityTest {
         }
     }
 
+    // US 03.10.01: Admin should have access to comments for moderation
+    @Test
+    public void testCommentsButtonIsDisplayed() {
+        Context context = ApplicationProvider.getApplicationContext();
+        Intent intent = new Intent(context, AdminEventDetailsActivity.class);
+        intent.putExtra("eventId", "admin_event_id");
+
+        try (ActivityScenario<AdminEventDetailsActivity> ignored = ActivityScenario.launch(intent)) {
+            onView(withId(R.id.btnComments)).check(matches(isDisplayed()));
+        }
+    }
+
     @Test
     public void testAdminScreenDoesNotExposeOrganizerEditButton() {
         Context context = ApplicationProvider.getApplicationContext();

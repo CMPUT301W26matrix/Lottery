@@ -205,8 +205,8 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         btnDownloadTicket.setOnClickListener(v -> generateAndOpenConfirmationTicket());
 
         btnComments.setOnClickListener(v -> {
-            EntrantCommentBottomSheet bottomSheet =
-                    EntrantCommentBottomSheet.newInstance(eventId, userId, userName, isCoOrganizer);
+            CommentBottomSheet bottomSheet =
+                    CommentBottomSheet.newInstance(eventId, userId, userName, isCoOrganizer);
             bottomSheet.show(getSupportFragmentManager(), "comment_bottom_sheet");
         });
 
