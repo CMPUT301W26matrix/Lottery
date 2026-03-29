@@ -45,7 +45,8 @@
             android:layout_gravity="center"
             android:text="No comments yet"
             android:textColor="@color/text_gray"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            android:visibility="gone" />
     </FrameLayout>
 
     <!-- Polished Input Area -->

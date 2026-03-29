@@ -1,6 +1,7 @@
 package com.example.lottery;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 import android.content.Context;
@@ -208,7 +209,7 @@ public class CommentAdapterTest {
         TextView tvTime = holder.itemView.findViewById(R.id.tvCommentTime);
         assertNotNull(tvTime.getText());
         // Timestamp is formatted, so it should not be empty
-        assert(!tvTime.getText().toString().isEmpty());
+        assertFalse(tvTime.getText().toString().isEmpty());
     }
 
     // US 01.08.02: Comment timestamp should be empty when null
