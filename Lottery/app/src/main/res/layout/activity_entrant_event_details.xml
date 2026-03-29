@@ -149,7 +149,7 @@
                 android:layout_height="48dp"
                 android:layout_marginTop="12dp"
                 android:backgroundTint="@color/primary_blue"
-                android:text="Download Confirmation Ticket"
+                android:text="@string/download_confirmation_ticket"
                 android:textAllCaps="false"
                 android:textColor="@android:color/white"
                 android:textSize="15sp"

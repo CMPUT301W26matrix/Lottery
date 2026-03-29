@@ -42,6 +42,8 @@ import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.SetOptions;
 
+import android.content.ActivityNotFoundException;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -123,6 +125,14 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
 
     private ListenerRegistration waitlistListener;
     private boolean isAcceptingInviteMode = false;
+    /**
+     * True once event metadata has been successfully loaded from Firestore.
+     */
+    private boolean eventDetailsLoaded = false;
+    /**
+     * True if the most recent event metadata fetch failed.
+     */
+    private boolean eventDetailsFailed = false;
 
     /**
      * Initializes the activity, sets up view references, and triggers initial data loading.
@@ -349,6 +359,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
      * Fetches event metadata from Firestore and populates the UI.
      */
     private void loadEventDetails() {
+        eventDetailsFailed = false;
         db.collection(FirestorePaths.EVENTS).document(eventId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (!documentSnapshot.exists()) {
@@ -373,6 +384,11 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
 
                     Boolean reqLoc = documentSnapshot.getBoolean("requireLocation");
                     eventRequiresLocation = reqLoc != null && reqLoc;
+                    eventDetailsLoaded = true;
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to load event details", e);
+                    eventDetailsFailed = true;
                 });
     }
 
@@ -549,23 +565,22 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
      * Generates a confirmation ticket PDF and opens it using an external PDF viewer.
      */
     private void generateAndOpenConfirmationTicket() {
+        if (!eventDetailsLoaded) {
+            Toast.makeText(this,
+                    eventDetailsFailed ? R.string.event_details_load_failed : R.string.event_details_loading,
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         try {
-            String safeEventTitle = tvEventTitle.getText() != null
-                    ? tvEventTitle.getText().toString().trim()
+            String eventTitle = tvEventTitle.getText() != null
+                    ? tvEventTitle.getText().toString()
                     : "";
-
-            if (safeEventTitle.isEmpty()) {
-                safeEventTitle = "Event";
-            }
-
-            String safeUserName = (userName != null && !userName.trim().isEmpty())
-                    ? userName.trim()
-                    : "Entrant";
 
             File pdfFile = ConfirmationTicketGenerator.generateTicket(
                     this,
-                    safeEventTitle,
-                    safeUserName,
+                    eventTitle,
+                    userName,
                     eventId
             );
 
@@ -580,16 +595,16 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
             openPdfIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             openPdfIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
 
-            Intent chooser = Intent.createChooser(openPdfIntent, "Open Confirmation Ticket");
+            Intent chooser = Intent.createChooser(openPdfIntent, getString(R.string.open_confirmation_ticket));
             startActivity(chooser);
 
-            Toast.makeText(this, "Confirmation ticket generated.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.ticket_generated, Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
             Log.e(TAG, "Failed to generate confirmation ticket", e);
-            Toast.makeText(this, "Failed to generate confirmation ticket.", Toast.LENGTH_LONG).show();
-        } catch (Exception e) {
+            Toast.makeText(this, R.string.ticket_generation_failed, Toast.LENGTH_LONG).show();
+        } catch (ActivityNotFoundException e) {
             Log.e(TAG, "No app available to open PDF", e);
-            Toast.makeText(this, "Ticket created, but no PDF app was found.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.ticket_no_pdf_app, Toast.LENGTH_LONG).show();
         }
     }
 

@@ -108,6 +108,15 @@ public class EntrantEventDetailsActivityTest {
     }
 
     /**
+     * Verifies that the confirmation ticket button has the correct text from string resources.
+     */
+    @Test
+    public void testDownloadTicketButtonHasCorrectText() {
+        onView(withId(R.id.btnDownloadTicket))
+                .check(matches(withText(R.string.download_confirmation_ticket)));
+    }
+
+    /**
      * Verifies that the entrant screen does not expose organizer-only editing controls.
      */
     @Test
