@@ -239,4 +239,13 @@
     <string name="delete_profile">Delete Profile</string>
     <string name="log_out">Log Out</string>
     <string name="no_entrant_locations_available">No entrant locations available for this event.</string>
+
+    <!-- Confirmation Ticket -->
+    <string name="download_confirmation_ticket">Download Confirmation Ticket</string>
+    <string name="open_confirmation_ticket">Open Confirmation Ticket</string>
+    <string name="ticket_generated">Confirmation ticket generated.</string>
+    <string name="ticket_generation_failed">Failed to generate confirmation ticket.</string>
+    <string name="ticket_no_pdf_app">Ticket created, but no PDF app was found.</string>
+    <string name="event_details_loading">Event details are still loading, please wait.</string>
+    <string name="event_details_load_failed">Failed to load event details. Please try again later.</string>
 </resources>
