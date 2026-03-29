@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -108,9 +109,15 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
         tvEventDetails = findViewById(R.id.tvEventDetails);
         tvLocationRequirement = findViewById(R.id.tvLocationRequirement);
         btnDeleteEvent = findViewById(R.id.btnDeleteEvent);
+        ImageButton btnComments = findViewById(R.id.btnComments);
 
         // Set click listener for the delete button
         btnDeleteEvent.setOnClickListener(v -> showDeleteConfirmationDialog());
+
+        btnComments.setOnClickListener(v -> {
+            CommentBottomSheet bottomSheet = CommentBottomSheet.newInstanceForAdmin(eventId);
+            bottomSheet.show(getSupportFragmentManager(), "comment_bottom_sheet");
+        });
 
         setupNavigation();
 

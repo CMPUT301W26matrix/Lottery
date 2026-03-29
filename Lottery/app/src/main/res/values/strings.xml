@@ -82,7 +82,7 @@
     <string name="nav_profile">Profile</string>
     <string name="admin_event_browser_title">Lottery Admin</string>
     <string name="admin_event_browser_subtitle">Browse all published events</string>
-    <string name="admin_event_details_title">Admin Event Details</string>
+    <string name="admin_event_details_title">Event Details</string>
     <string name="admin_all_events_title">All Events</string>
     <string name="admin_no_events">No events available</string>
     <string name="admin_browse_events_active_tab">Browsing all events</string>
