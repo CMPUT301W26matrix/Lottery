@@ -119,7 +119,8 @@ loadScripts(document, 'script');</script>
    <li>Monitor and display the entrant's current status for the event (waitlisted, invited, accepted, etc.).</li>
    <li>Provide UI actions for joining/leaving the waitlist or responding to invitations.</li>
    <li>Manage navigation within the entrant's scope.</li>
-   <li>US 02.02.02: Handle location collection if required by the event.</li>
+   <li>Handle location collection if required by the event.</li>
+   <li>Allow accepted entrants to generate and open a confirmation ticket PDF.</li>
  </ul>
  </p></div>
 </section>
@@ -210,7 +211,9 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onStop()" class="member-name-link">onStop</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Removes active listeners when the activity stops.</div>
+</div>
 </div>
 </div>
 </div>
@@ -318,7 +321,7 @@ loadScripts(document, 'script');</script>
 <dt>Parameters:</dt>
 <dd><code>savedInstanceState</code> - If the activity is being re-initialized after
                            previously being shut down then this Bundle contains the data it most
-                           recently supplied in <code>ComponentActivity.onSaveInstanceState(android.os.Bundle)</code>.  <b>Note: Otherwise it is null.</b></dd>
+                           recently supplied in <code>ComponentActivity.onSaveInstanceState(android.os.Bundle)</code>. Otherwise it is null.</dd>
 </dl>
 </section>
 </li>
@@ -337,6 +340,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="onStop()">
 <h3>onStop</h3>
 <div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onStop</span>()</div>
+<div class="block">Removes active listeners when the activity stops.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code>onStop</code>&nbsp;in class&nbsp;<code>androidx.appcompat.app.AppCompatActivity</code></dd>
