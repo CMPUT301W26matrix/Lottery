@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lottery.model.Event;
 import com.example.lottery.model.User;
+import com.example.lottery.util.AdminRoleManager;
 import com.example.lottery.util.FirestorePaths;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
@@ -52,13 +53,15 @@ public class EntrantMainActivity extends AppCompatActivity {
     private View tvNotificationBadge;
     private FirebaseFirestore db;
     private String userId;
+    private boolean isAdminRole = false;
+    private String adminUserId;
 
     private View llSearchToggle;
     private TextInputLayout tilSearch;
     private TextInputEditText etSearch;
     private ChipGroup cgBrowseTabs, cgCategories, cgQuickFilters;
     private MaterialButton btnTimeFilter;
-    
+
     private String currentBrowseTab = TAB_ALL;
     private String currentSearchQuery = "";
     private String currentCategory = TAB_ALL;
@@ -84,6 +87,12 @@ public class EntrantMainActivity extends AppCompatActivity {
             Toast.makeText(this, "User ID missing", Toast.LENGTH_SHORT).show();
             finish();
             return;
+        }
+
+        // Check if this is an admin role session
+        isAdminRole = getIntent().getBooleanExtra("isAdminRole", false);
+        if (isAdminRole) {
+            adminUserId = AdminRoleManager.getAdminUserId(this);
         }
 
         db = FirebaseFirestore.getInstance();
@@ -207,6 +216,10 @@ public class EntrantMainActivity extends AppCompatActivity {
         findViewById(R.id.nav_home).setOnClickListener(v -> {
             Intent intent = new Intent(this, EntrantMainActivity.class);
             intent.putExtra("userId", userId);
+            intent.putExtra("isAdminRole", isAdminRole);
+            if (isAdminRole) {
+                intent.putExtra("adminUserId", adminUserId);
+            }
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
         });
@@ -214,24 +227,45 @@ public class EntrantMainActivity extends AppCompatActivity {
         findViewById(R.id.nav_history).setOnClickListener(v -> {
             Intent intent = new Intent(this, EntrantEventHistoryActivity.class);
             intent.putExtra("userId", userId);
+            intent.putExtra("isAdminRole", isAdminRole);
+            if (isAdminRole) {
+                intent.putExtra("adminUserId", adminUserId);
+            }
             startActivity(intent);
         });
 
         findViewById(R.id.nav_qr_scan).setOnClickListener(v -> {
             Intent intent = new Intent(this, EntrantQrScanActivity.class);
             intent.putExtra("userId", userId);
+            intent.putExtra("isAdminRole", isAdminRole);
+            if (isAdminRole) {
+                intent.putExtra("adminUserId", adminUserId);
+            }
             startActivity(intent);
         });
 
         findViewById(R.id.nav_profile).setOnClickListener(v -> {
-            Intent intent = new Intent(this, EntrantProfileActivity.class);
-            intent.putExtra("userId", userId);
-            startActivity(intent);
+            // If this is an admin role session, go to AdminProfileActivity
+            if (isAdminRole && adminUserId != null) {
+                Intent intent = new Intent(this, AdminProfileActivity.class);
+                intent.putExtra("userId", adminUserId);
+                startActivity(intent);
+                finish();
+            } else {
+                // Regular entrant goes to their profile
+                Intent intent = new Intent(this, EntrantProfileActivity.class);
+                intent.putExtra("userId", userId);
+                startActivity(intent);
+            }
         });
 
         findViewById(R.id.ivNotificationIcon).setOnClickListener(v -> {
             Intent intent = new Intent(this, NotificationsActivity.class);
             intent.putExtra(NotificationsActivity.EXTRA_USER_ID, userId);
+            intent.putExtra("isAdminRole", isAdminRole);
+            if (isAdminRole) {
+                intent.putExtra("adminUserId", adminUserId);
+            }
             startActivity(intent);
         });
     }
@@ -274,14 +308,14 @@ public class EntrantMainActivity extends AppCompatActivity {
 
     private void applyFilters() {
         filteredEventList.clear();
-        
+
         Date now = new Date();
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.HOUR_OF_DAY, 23);
         cal.set(Calendar.MINUTE, 59);
         cal.set(Calendar.SECOND, 59);
         Date endOfToday = cal.getTime();
-        
+
         cal.setTime(now);
         cal.add(Calendar.DAY_OF_YEAR, 7);
         Date endOfWeek = cal.getTime();
@@ -387,6 +421,10 @@ public class EntrantMainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, EntrantEventDetailsActivity.class);
         intent.putExtra(EntrantEventDetailsActivity.EXTRA_EVENT_ID, event.getEventId());
         intent.putExtra(EntrantEventDetailsActivity.EXTRA_USER_ID, userId);
+        intent.putExtra("isAdminRole", isAdminRole);
+        if (isAdminRole) {
+            intent.putExtra("adminUserId", adminUserId);
+        }
         startActivity(intent);
     }
 }

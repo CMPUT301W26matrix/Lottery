@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lottery.model.Event;
+import com.example.lottery.util.AdminRoleManager;
 import com.example.lottery.util.FirestorePaths;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -65,6 +66,8 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
      */
     private FirebaseFirestore db;
     private String userId;
+    private boolean isAdminRole = false;
+    private String adminUserId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +88,12 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
         if (userId == null) {
             SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
             userId = prefs.getString("userId", null);
+        }
+
+        // Check if this is an admin role session
+        isAdminRole = getIntent().getBooleanExtra("isAdminRole", false);
+        if (isAdminRole) {
+            adminUserId = AdminRoleManager.getAdminUserId(this);
         }
 
         if (userId == null) {
@@ -120,6 +129,10 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
             btnCreate.setOnClickListener(v -> {
                 Intent intent = new Intent(this, OrganizerCreateEventActivity.class);
                 intent.putExtra("userId", userId);
+                intent.putExtra("isAdminRole", isAdminRole);
+                if (isAdminRole) {
+                    intent.putExtra("adminUserId", adminUserId);
+                }
                 startActivity(intent);
             });
         }
@@ -137,6 +150,10 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
             btnNotifications.setOnClickListener(v -> {
                 Intent intent = new Intent(this, OrganizerNotificationsActivity.class);
                 intent.putExtra("userId", userId);
+                intent.putExtra("isAdminRole", isAdminRole);
+                if (isAdminRole) {
+                    intent.putExtra("adminUserId", adminUserId);
+                }
                 startActivity(intent);
             });
         }
@@ -146,6 +163,10 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
             btnQr.setOnClickListener(v -> {
                 Intent intent = new Intent(this, OrganizerQrEventListActivity.class);
                 intent.putExtra("userId", userId);
+                intent.putExtra("isAdminRole", isAdminRole);
+                if (isAdminRole) {
+                    intent.putExtra("adminUserId", adminUserId);
+                }
                 startActivity(intent);
             });
         }
@@ -153,9 +174,18 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
         View btnProfile = findViewById(R.id.nav_profile);
         if (btnProfile != null) {
             btnProfile.setOnClickListener(v -> {
-                Intent intent = new Intent(this, OrganizerProfileActivity.class);
-                intent.putExtra("userId", userId);
-                startActivity(intent);
+                // If this is an admin role session, go to AdminProfileActivity
+                if (isAdminRole && adminUserId != null) {
+                    Intent intent = new Intent(this, AdminProfileActivity.class);
+                    intent.putExtra("userId", adminUserId);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    // Regular organizer goes to their profile
+                    Intent intent = new Intent(this, OrganizerProfileActivity.class);
+                    intent.putExtra("userId", userId);
+                    startActivity(intent);
+                }
             });
         }
     }
@@ -239,6 +269,10 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
         Intent intent = new Intent(this, OrganizerEventDetailsActivity.class);
         intent.putExtra("eventId", event.getEventId());
         intent.putExtra("userId", userId);
+        intent.putExtra("isAdminRole", isAdminRole);
+        if (isAdminRole) {
+            intent.putExtra("adminUserId", adminUserId);
+        }
         startActivity(intent);
     }
 }

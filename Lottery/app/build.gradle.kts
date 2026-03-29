@@ -84,6 +84,9 @@ dependencies {
     // Glide for image loading
     implementation("com.github.bumptech.glide:glide:4.16.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
+
+    // For UI Testing
+    androidTestImplementation("androidx.test.uiautomator:uiautomator:2.3.0")
 }
 
 tasks.register<Javadoc>("generateJavadoc") {

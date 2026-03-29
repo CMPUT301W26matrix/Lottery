@@ -14,6 +14,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.lottery.util.AdminRoleManager;
 import com.example.lottery.util.FirestorePaths;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -228,6 +229,9 @@ public class AdminProfileActivity extends AppCompatActivity {
      * @param roleUserId The user ID for the role
      */
     private void navigateToRoleMain(String role, String roleUserId) {
+        // Set the admin role session flag before navigating
+        AdminRoleManager.setAdminRoleSession(this, adminUserId);
+
         Intent intent;
         if ("ENTRANT".equalsIgnoreCase(role)) {
             intent = new Intent(this, EntrantMainActivity.class);
@@ -235,6 +239,7 @@ public class AdminProfileActivity extends AppCompatActivity {
             intent = new Intent(this, OrganizerBrowseEventsActivity.class);
         }
         intent.putExtra("userId", roleUserId);
+        intent.putExtra("isAdminRole", true); // Add flag for role detection
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
         finish();
@@ -255,5 +260,4 @@ public class AdminProfileActivity extends AppCompatActivity {
         finish();
     }
 
-    }
 }

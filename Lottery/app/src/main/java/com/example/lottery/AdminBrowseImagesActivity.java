@@ -61,6 +61,7 @@ public class AdminBrowseImagesActivity extends AppCompatActivity implements Admi
      * Firebase Firestore instance for database operations.
      */
     private FirebaseFirestore db;
+    private String userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +76,12 @@ public class AdminBrowseImagesActivity extends AppCompatActivity implements Admi
         });
 
         db = FirebaseFirestore.getInstance();
+
+        // Get userId from intent or shared preferences
+        userId = getIntent().getStringExtra("userId");
+        if (userId == null) {
+            userId = getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("userId", null);
+        }
 
         rvImages = findViewById(R.id.rvImages);
         tvNoImages = findViewById(R.id.tvNoImages);
@@ -105,6 +112,7 @@ public class AdminBrowseImagesActivity extends AppCompatActivity implements Admi
         if (btnHome != null) {
             btnHome.setOnClickListener(v -> {
                 Intent intent = new Intent(this, AdminBrowseEventsActivity.class);
+                intent.putExtra("userId", userId);
                 startActivity(intent);
                 finish();
             });
@@ -131,6 +139,15 @@ public class AdminBrowseImagesActivity extends AppCompatActivity implements Admi
             btnLogs.setOnClickListener(v ->
                     Toast.makeText(this, R.string.admin_logs_coming_soon, Toast.LENGTH_SHORT).show());
         }
+
+        View btnSettings = findViewById(R.id.nav_admin_settings);
+        if (btnSettings != null) {
+            btnSettings.setOnClickListener(v -> {
+                Intent intent = new Intent(this, AdminProfileActivity.class);
+                intent.putExtra("userId", userId);
+                startActivity(intent);
+            });
+        }
     }
 
     /**
@@ -144,6 +161,8 @@ public class AdminBrowseImagesActivity extends AppCompatActivity implements Admi
         TextView homeText = findViewById(R.id.nav_home_text);
         ImageView imagesIcon = findViewById(R.id.nav_images_icon);
         TextView imagesText = findViewById(R.id.nav_images_text);
+        ImageView settingsIcon = findViewById(R.id.nav_settings_icon);
+        TextView settingsText = findViewById(R.id.nav_settings_text);
 
         if (homeIcon != null) {
             homeIcon.setImageTintList(ColorStateList.valueOf(inactiveColor));
@@ -156,6 +175,12 @@ public class AdminBrowseImagesActivity extends AppCompatActivity implements Admi
         }
         if (imagesText != null) {
             imagesText.setTextColor(activeColor);
+        }
+        if (settingsIcon != null) {
+            settingsIcon.setImageTintList(ColorStateList.valueOf(inactiveColor));
+        }
+        if (settingsText != null) {
+            settingsText.setTextColor(inactiveColor);
         }
     }
 

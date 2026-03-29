@@ -50,6 +50,7 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private boolean isDeletionModeEnabled = false;
     private String currentFilter = "ALL";
+    private String userId;
 
     /**
      * Initializes the activity, binds UI views, sets up filtering and deletion controls,
@@ -70,6 +71,12 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
         btnFilterOrganizer = findViewById(R.id.btnFilterOrganizer);
 
         db = FirebaseFirestore.getInstance();
+
+        // Get userId from intent or shared preferences
+        userId = getIntent().getStringExtra("userId");
+        if (userId == null) {
+            userId = getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("userId", null);
+        }
 
         allUsers = new ArrayList<>();
         filteredUsers = new ArrayList<>();
@@ -209,6 +216,7 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
             btnHome.setOnClickListener(v -> {
                 Intent intent = new Intent(AdminBrowseProfilesActivity.this, AdminBrowseEventsActivity.class);
                 intent.putExtra("role", "admin");
+                intent.putExtra("userId", userId);
                 startActivity(intent);
                 finish();
             });
@@ -224,6 +232,7 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
         if (btnImages != null) {
             btnImages.setOnClickListener(v -> {
                 Intent intent = new Intent(this, AdminBrowseImagesActivity.class);
+                intent.putExtra("userId", userId);
                 startActivity(intent);
                 finish();
             });
@@ -233,6 +242,15 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
         if (btnLogs != null) {
             btnLogs.setOnClickListener(v ->
                     Toast.makeText(this, R.string.admin_logs_coming_soon, Toast.LENGTH_SHORT).show());
+        }
+
+        View btnProfile = findViewById(R.id.nav_profile);
+        if (btnProfile != null) {
+            btnProfile.setOnClickListener(v -> {
+                Intent intent = new Intent(this, AdminProfileActivity.class);
+                intent.putExtra("userId", userId);
+                startActivity(intent);
+            });
         }
     }
 
@@ -247,6 +265,8 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
         TextView homeText = findViewById(R.id.nav_home_text);
         ImageView profilesIcon = findViewById(R.id.nav_profiles_icon);
         TextView profilesText = findViewById(R.id.nav_profiles_text);
+        ImageView profileIcon = findViewById(R.id.nav_settings_icon);
+        TextView profileText = findViewById(R.id.nav_settings_text);
 
         if (homeIcon != null) {
             homeIcon.setImageTintList(ColorStateList.valueOf(inactiveColor));
@@ -259,6 +279,12 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
         }
         if (profilesText != null) {
             profilesText.setTextColor(activeColor);
+        }
+        if (profileIcon != null) {
+            profileIcon.setImageTintList(ColorStateList.valueOf(inactiveColor));
+        }
+        if (profileText != null) {
+            profileText.setTextColor(inactiveColor);
         }
     }
 

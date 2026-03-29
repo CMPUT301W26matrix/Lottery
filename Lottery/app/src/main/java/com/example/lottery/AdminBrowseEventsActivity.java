@@ -66,6 +66,7 @@ public class AdminBrowseEventsActivity extends AppCompatActivity implements Even
      * Firebase Firestore instance for database operations.
      */
     private FirebaseFirestore db;
+    private String userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +81,12 @@ public class AdminBrowseEventsActivity extends AppCompatActivity implements Even
         });
 
         db = FirebaseFirestore.getInstance();
+
+        // Get userId from intent or shared preferences
+        userId = getIntent().getStringExtra("userId");
+        if (userId == null) {
+            userId = getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("userId", null);
+        }
 
         rvEvents = findViewById(R.id.rvEvents);
         tvNoEvents = findViewById(R.id.tvNoEvents);
@@ -109,8 +116,10 @@ public class AdminBrowseEventsActivity extends AppCompatActivity implements Even
     private void setupNavigation() {
         View btnHome = findViewById(R.id.nav_home);
         if (btnHome != null) {
-            btnHome.setOnClickListener(v ->
-                    Toast.makeText(this, R.string.admin_browse_events_active_tab, Toast.LENGTH_SHORT).show());
+            btnHome.setOnClickListener(v -> {
+                // Already on home, scroll to top or do nothing
+                rvEvents.smoothScrollToPosition(0);
+            });
         }
 
         View btnProfiles = findViewById(R.id.nav_profiles);
@@ -135,6 +144,15 @@ public class AdminBrowseEventsActivity extends AppCompatActivity implements Even
             btnLogs.setOnClickListener(v ->
                     Toast.makeText(this, R.string.admin_logs_coming_soon, Toast.LENGTH_SHORT).show());
         }
+
+        View btnSettings = findViewById(R.id.nav_admin_settings);
+        if (btnSettings != null) {
+            btnSettings.setOnClickListener(v -> {
+                Intent intent = new Intent(this, AdminProfileActivity.class);
+                intent.putExtra("userId", userId);
+                startActivity(intent);
+            });
+        }
     }
 
     /**
@@ -157,7 +175,7 @@ public class AdminBrowseEventsActivity extends AppCompatActivity implements Even
                         try {
                             Event event = document.toObject(Event.class);
                             if (event == null) continue;
-                            
+
                             event.setEventId(document.getId());
                             eventList.add(event);
 
