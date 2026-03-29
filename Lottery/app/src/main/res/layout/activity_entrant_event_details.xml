@@ -143,6 +143,18 @@
                 android:textColor="@android:color/white"
                 android:textSize="16sp" />
 
+            <Button
+                android:id="@+id/btnDownloadTicket"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="12dp"
+                android:backgroundTint="@color/primary_blue"
+                android:text="@string/download_confirmation_ticket"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                android:textSize="15sp"
+                android:visibility="gone" />
+
             <!-- Two-button layout for Accept/Decline Invitation -->
             <LinearLayout
                 android:id="@+id/invitationButtonsContainer"
