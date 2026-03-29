@@ -57,8 +57,6 @@ dependencies {
     testImplementation(libs.mockito.core)
     testImplementation(libs.robolectric)
     testImplementation(libs.androidx.test.core)
-    debugImplementation("androidx.fragment:fragment-testing:1.8.6")
-    debugImplementation("androidx.fragment:fragment-testing-manifest:1.8.6")
 
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
