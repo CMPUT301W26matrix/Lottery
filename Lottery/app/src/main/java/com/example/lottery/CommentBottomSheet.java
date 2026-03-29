@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -42,6 +43,7 @@ public class CommentBottomSheet extends BottomSheetDialogFragment {
     private CommentAdapter adapter;
     private List<Comment> commentList;
     private EditText etComment;
+    private TextView tvEmptyComments;
 
     public static CommentBottomSheet newInstance(String eventId, String userId, String userName) {
         return newInstance(eventId, userId, userName, false);
@@ -87,6 +89,7 @@ public class CommentBottomSheet extends BottomSheetDialogFragment {
 
         RecyclerView rvComments = view.findViewById(R.id.rvComments);
         etComment = view.findViewById(R.id.etComment);
+        tvEmptyComments = view.findViewById(R.id.tvEmptyComments);
         ImageButton btnPostComment = view.findViewById(R.id.btnPostComment);
 
         commentList = new ArrayList<>();
@@ -130,6 +133,7 @@ public class CommentBottomSheet extends BottomSheetDialogFragment {
                         }
                     }
                     adapter.notifyDataSetChanged();
+                    tvEmptyComments.setVisibility(commentList.isEmpty() ? View.VISIBLE : View.GONE);
                 });
     }
 
