@@ -305,8 +305,10 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                     if (!documentSnapshot.exists()) {
                         return;
                     }
-                    tvEventTitle.setText(documentSnapshot.getString("title"));
-                    tvEventDescription.setText(documentSnapshot.getString("details"));
+                    String title = documentSnapshot.getString("title");
+                    String details = documentSnapshot.getString("details");
+                    tvEventTitle.setText(title != null ? title : "");
+                    tvEventDescription.setText(details != null ? details : "");
 
                     Timestamp end = documentSnapshot.getTimestamp("registrationDeadline");
                     if (end != null) {
@@ -316,7 +318,9 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
 
                     Boolean reqLoc = documentSnapshot.getBoolean("requireLocation");
                     eventRequiresLocation = reqLoc != null && reqLoc;
-                });
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Failed to load event details", Toast.LENGTH_SHORT).show());
     }
 
     private void handleActionWithLocationCheck(boolean isInviteFlow) {

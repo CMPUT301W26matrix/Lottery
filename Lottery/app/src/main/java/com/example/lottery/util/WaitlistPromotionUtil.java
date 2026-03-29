@@ -4,9 +4,10 @@ import android.util.Log;
 
 import com.example.lottery.model.NotificationItem;
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.WriteBatch;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,98 +25,186 @@ public class WaitlistPromotionUtil {
 
     /**
      * Checks for available capacity and promotes one waitlisted entrant if possible.
-     * Triggered automatically when an invited entrant declines.
+     * Uses a Firestore transaction to prevent race conditions when multiple declines
+     * happen concurrently.
      *
      * @param db      The Firestore instance.
      * @param eventId The ID of the event to check.
      */
     public static void promoteOneFromWaitlistIfNeeded(FirebaseFirestore db, String eventId) {
-        db.collection(FirestorePaths.EVENTS).document(eventId).get()
-                .addOnSuccessListener(eventDoc -> {
-                    if (!eventDoc.exists()) return;
+        DocumentReference eventRef = db.collection(FirestorePaths.EVENTS).document(eventId);
 
-                    // Use getLong("capacity") to match EntrantsListActivity logic
-                    Long capacityVal = eventDoc.getLong("capacity");
-                    final long capacity = capacityVal != null ? capacityVal : 0L;
+        // First fetch the waitlist outside the transaction (reads from collections
+        // are not supported inside transactions without document references).
+        // The transaction will re-read the event doc to get a consistent capacity.
+        db.collection(FirestorePaths.eventWaitingList(eventId)).get()
+                .addOnSuccessListener(waitlistSnapshot ->
+                        runPromotionTransaction(db, eventId, eventRef, waitlistSnapshot))
+                .addOnFailureListener(e -> Log.e(TAG, "Error fetching waitlist for promotion", e));
+    }
 
-                    final String eventTitle = eventDoc.getString("title");
-                    final String organizerId = eventDoc.getString("organizerId"); // Assumed field name for sender identity
+    private static void runPromotionTransaction(FirebaseFirestore db, String eventId,
+                                                 DocumentReference eventRef,
+                                                 QuerySnapshot waitlistSnapshot) {
+        db.runTransaction(transaction -> {
+            // Re-read event inside transaction for consistent capacity check
+            DocumentSnapshot eventDoc = transaction.get(eventRef);
+            if (!eventDoc.exists()) return null;
 
-                    db.collection(FirestorePaths.eventWaitingList(eventId)).get()
-                            .addOnSuccessListener(querySnapshot -> {
-                                List<DocumentSnapshot> eligibleDocs = new ArrayList<>();
-                                int activeCount = 0; // count of those already invited or accepted
+            Long capacityVal = eventDoc.getLong("capacity");
+            final long capacity = capacityVal != null ? capacityVal : 0L;
 
-                                for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
-                                    String status = InvitationFlowUtil.normalizeEntrantStatus(doc.getString("status"));
-                                    if (InvitationFlowUtil.STATUS_INVITED.equals(status) ||
-                                            InvitationFlowUtil.STATUS_ACCEPTED.equals(status)) {
-                                        activeCount++;
-                                    } else if (InvitationFlowUtil.STATUS_WAITLISTED.equals(status) ||
-                                            InvitationFlowUtil.STATUS_NOT_SELECTED.equals(status)) {
-                                        // Both waitlisted and those previously not selected are eligible for promotion
-                                        eligibleDocs.add(doc);
-                                    }
-                                }
+            List<DocumentSnapshot> eligibleDocs = new ArrayList<>();
+            int activeCount = 0;
 
-                                // Promote one if there's room and someone is eligible
-                                if (activeCount < capacity && !eligibleDocs.isEmpty()) {
-                                    Collections.shuffle(eligibleDocs);
-                                    DocumentSnapshot selectedEntrant = eligibleDocs.get(0);
-                                    String targetUserId = selectedEntrant.getId();
+            for (DocumentSnapshot doc : waitlistSnapshot.getDocuments()) {
+                // Re-read each entrant doc inside the transaction for consistency
+                DocumentSnapshot fresh = transaction.get(doc.getReference());
+                String status = InvitationFlowUtil.normalizeEntrantStatus(fresh.getString("status"));
+                if (InvitationFlowUtil.STATUS_INVITED.equals(status) ||
+                        InvitationFlowUtil.STATUS_ACCEPTED.equals(status)) {
+                    activeCount++;
+                } else if (InvitationFlowUtil.STATUS_WAITLISTED.equals(status) ||
+                        InvitationFlowUtil.STATUS_NOT_SELECTED.equals(status)) {
+                    eligibleDocs.add(fresh);
+                }
+            }
 
-                                    performPromotion(db, eventId, eventTitle, organizerId, targetUserId, selectedEntrant);
-                                }
-                            })
-                            .addOnFailureListener(e -> Log.e(TAG, "Error fetching waitlist for promotion", e));
-                })
-                .addOnFailureListener(e -> Log.e(TAG, "Error fetching event for promotion", e));
+            if (activeCount < capacity && !eligibleDocs.isEmpty()) {
+                Collections.shuffle(eligibleDocs);
+                DocumentSnapshot selected = eligibleDocs.get(0);
+                String targetUserId = selected.getId();
+                String eventTitle = eventDoc.getString("title");
+                String organizerId = eventDoc.getString("organizerId");
+
+                // 1. Read user doc BEFORE any writes (Firestore requires all reads before writes)
+                DocumentReference userRef = db.collection(FirestorePaths.USERS).document(targetUserId);
+                DocumentSnapshot userDoc = transaction.get(userRef);
+                Boolean notifPref = userDoc.getBoolean("notificationsEnabled");
+                boolean enabled = notifPref == null || notifPref;
+
+                // 2. Update entrant status to 'invited'
+                transaction.update(selected.getReference(),
+                        InvitationFlowUtil.buildInvitedEntrantUpdate());
+
+                // 3. Write notification inside the same transaction if enabled
+                if (enabled) {
+                    String notificationId = UUID.randomUUID().toString();
+                    NotificationItem notification = new NotificationItem(
+                            notificationId,
+                            "You've been selected!",
+                            "A spot opened up for " + (eventTitle != null ? eventTitle : "an event") + ". You are invited to join!",
+                            "waitlist_promoted",
+                            eventId,
+                            eventTitle,
+                            organizerId != null ? organizerId : "",
+                            "ORGANIZER",
+                            false,
+                            Timestamp.now()
+                    );
+                    DocumentReference inboxRef = db.collection(FirestorePaths.userInbox(targetUserId))
+                            .document(notificationId);
+                    transaction.set(inboxRef, notification);
+                }
+
+                return targetUserId;
+            }
+            return null;
+        }).addOnSuccessListener(targetUserId -> {
+            if (targetUserId != null) {
+                Log.d(TAG, "Successfully promoted " + targetUserId + " for event " + eventId);
+            }
+        }).addOnFailureListener(e -> {
+            Log.e(TAG, "Promotion transaction failed, retrying without notification for event " + eventId, e);
+            // Fallback: promote without notification to ensure spot is filled
+            runFallbackPromotion(db, eventId, eventRef, waitlistSnapshot);
+        });
     }
 
     /**
-     * Executes the status update and notification delivery in a single atomic batch.
+     * Fallback promotion that only updates entrant status without reading user preferences
+     * or writing notifications. Used when the full transaction fails (e.g., user doc missing).
      */
-    private static void performPromotion(FirebaseFirestore db, String eventId, String eventTitle,
-                                         String organizerId, String targetUserId, DocumentSnapshot doc) {
-        // We first check the user's notification preference.
-        // Even if notifications are disabled, the status update (promotion) must still happen.
-        db.collection(FirestorePaths.USERS).document(targetUserId).get()
-                .addOnSuccessListener(userDoc -> {
-                    boolean enabled = userDoc.contains("notificationsEnabled")
-                            ? userDoc.getBoolean("notificationsEnabled") : true;
+    private static void runFallbackPromotion(FirebaseFirestore db, String eventId,
+                                              DocumentReference eventRef,
+                                              QuerySnapshot waitlistSnapshot) {
+        db.runTransaction(transaction -> {
+            DocumentSnapshot eventDoc = transaction.get(eventRef);
+            if (!eventDoc.exists()) return null;
 
-                    WriteBatch batch = db.batch();
-                    String notificationId = UUID.randomUUID().toString();
+            Long capacityVal = eventDoc.getLong("capacity");
+            final long capacity = capacityVal != null ? capacityVal : 0L;
 
-                    // 1. Update entrant status to 'invited' - ALWAYS DO THIS
-                    batch.update(doc.getReference(), InvitationFlowUtil.buildInvitedEntrantUpdate());
+            List<DocumentSnapshot> eligibleDocs = new ArrayList<>();
+            int activeCount = 0;
 
-                    // 2. Create notification for the newly selected entrant - ONLY IF ENABLED
-                    if (enabled) {
-                        NotificationItem notification = new NotificationItem(
-                                notificationId,
-                                "You've been selected!",
-                                "A spot opened up for " + (eventTitle != null ? eventTitle : "an event") + ". You are invited to join!",
-                                "waitlist_promoted",
-                                eventId,
-                                eventTitle,
-                                organizerId != null ? organizerId : "",
-                                "ORGANIZER",
-                                false,
-                                Timestamp.now()
-                        );
-                        batch.set(db.collection(FirestorePaths.userInbox(targetUserId)).document(notificationId), notification);
-                    }
+            for (DocumentSnapshot doc : waitlistSnapshot.getDocuments()) {
+                DocumentSnapshot fresh = transaction.get(doc.getReference());
+                String status = InvitationFlowUtil.normalizeEntrantStatus(fresh.getString("status"));
+                if (InvitationFlowUtil.STATUS_INVITED.equals(status) ||
+                        InvitationFlowUtil.STATUS_ACCEPTED.equals(status)) {
+                    activeCount++;
+                } else if (InvitationFlowUtil.STATUS_WAITLISTED.equals(status) ||
+                        InvitationFlowUtil.STATUS_NOT_SELECTED.equals(status)) {
+                    eligibleDocs.add(fresh);
+                }
+            }
 
-                    batch.commit()
-                            .addOnSuccessListener(unused -> Log.d(TAG, "Successfully promoted " + targetUserId + " for event " + eventId))
-                            .addOnFailureListener(e -> Log.e(TAG, "Failed to commit promotion batch", e));
+            if (activeCount < capacity && !eligibleDocs.isEmpty()) {
+                Collections.shuffle(eligibleDocs);
+                DocumentSnapshot selected = eligibleDocs.get(0);
+                transaction.update(selected.getReference(),
+                        InvitationFlowUtil.buildInvitedEntrantUpdate());
+                return selected.getId();
+            }
+            return null;
+        }).addOnSuccessListener(targetUserId -> {
+            if (targetUserId != null) {
+                Log.d(TAG, "Fallback promoted " + targetUserId + " for event " + eventId);
+                // Best-effort notification delivery after fallback promotion
+                deliverNotificationBestEffort(db, eventId, targetUserId);
+            }
+        }).addOnFailureListener(e -> Log.e(TAG, "Fallback promotion also failed for event " + eventId, e));
+    }
+
+    /**
+     * Best-effort notification delivery after a fallback promotion.
+     * Reads event title/organizer and user preference, then writes notification if enabled.
+     * Failures are logged but do not affect the already-committed promotion.
+     */
+    private static void deliverNotificationBestEffort(FirebaseFirestore db, String eventId,
+                                                       String targetUserId) {
+        db.collection(FirestorePaths.EVENTS).document(eventId).get()
+                .addOnSuccessListener(eventDoc -> {
+                    String eventTitle = eventDoc.getString("title");
+                    String organizerId = eventDoc.getString("organizerId");
+
+                    db.collection(FirestorePaths.USERS).document(targetUserId).get()
+                            .addOnSuccessListener(userDoc -> {
+                                Boolean notifPref = userDoc.getBoolean("notificationsEnabled");
+                                boolean enabled = notifPref == null || notifPref;
+                                if (!enabled) return;
+
+                                String notificationId = UUID.randomUUID().toString();
+                                NotificationItem notification = new NotificationItem(
+                                        notificationId,
+                                        "You've been selected!",
+                                        "A spot opened up for " + (eventTitle != null ? eventTitle : "an event") + ". You are invited to join!",
+                                        "waitlist_promoted",
+                                        eventId,
+                                        eventTitle,
+                                        organizerId != null ? organizerId : "",
+                                        "ORGANIZER",
+                                        false,
+                                        Timestamp.now()
+                                );
+                                db.collection(FirestorePaths.userInbox(targetUserId))
+                                        .document(notificationId)
+                                        .set(notification)
+                                        .addOnFailureListener(e -> Log.w(TAG, "Best-effort notification failed", e));
+                            })
+                            .addOnFailureListener(e -> Log.w(TAG, "Could not read user for best-effort notification", e));
                 })
-                .addOnFailureListener(e -> {
-                    // Fallback: If we can't read the user doc, we still promote them (fail-safe for business logic)
-                    WriteBatch batch = db.batch();
-                    batch.update(doc.getReference(), InvitationFlowUtil.buildInvitedEntrantUpdate());
-                    batch.commit();
-                });
+                .addOnFailureListener(e -> Log.w(TAG, "Could not read event for best-effort notification", e));
     }
 }

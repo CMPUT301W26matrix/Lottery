@@ -108,22 +108,6 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         }
 
         setupNavigation();
-
-        if (eventId != null) {
-            fetchEventDetails(eventId);
-            fetchEntrantCounts(eventId);
-        } else {
-            Toast.makeText(this, "Error: Event ID missing", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
-        if (userId == null) {
-            Toast.makeText(this, R.string.missing_user_info, Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
-
-        setupNavigation();
         fetchEventDetails(eventId);
         fetchEntrantCounts(eventId);
 

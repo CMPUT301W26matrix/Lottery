@@ -172,7 +172,7 @@ public class EntrantMainActivity extends AppCompatActivity {
                 currentCategory = TAB_ALL;
             } else {
                 Chip chip = findViewById(checkedIds.get(0));
-                currentCategory = chip.getText().toString();
+                currentCategory = chip != null ? chip.getText().toString() : TAB_ALL;
             }
             applyFilters();
         });
@@ -246,6 +246,7 @@ public class EntrantMainActivity extends AppCompatActivity {
                     masterEventList.clear();
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         Event event = document.toObject(Event.class);
+                        if (event == null) continue;
                         event.setEventId(document.getId());
                         masterEventList.add(event);
                     }
@@ -259,7 +260,7 @@ public class EntrantMainActivity extends AppCompatActivity {
      */
     private void fetchUserInterests() {
         if (userId == null) return;
-        db.collection("users").document(userId).get()
+        db.collection(FirestorePaths.USERS).document(userId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     userInterests.clear();
                     if (documentSnapshot.exists()) {
