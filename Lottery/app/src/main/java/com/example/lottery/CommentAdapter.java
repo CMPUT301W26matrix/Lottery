@@ -59,7 +59,11 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
 
         if (isOrganizer) {
             holder.btnDeleteComment.setVisibility(View.VISIBLE);
-            holder.btnDeleteComment.setOnClickListener(v -> deleteComment(comment, holder.getAdapterPosition(), v));
+            holder.btnDeleteComment.setOnClickListener(v -> {
+                int pos = holder.getAdapterPosition();
+                if (pos == RecyclerView.NO_POSITION) return;
+                deleteComment(comment, pos, v);
+            });
         } else {
             holder.btnDeleteComment.setVisibility(View.GONE);
         }

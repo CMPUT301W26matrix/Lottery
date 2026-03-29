@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lottery.model.Event;
+import com.example.lottery.util.FirestorePaths;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -168,7 +169,7 @@ public class AdminBrowseImagesActivity extends AppCompatActivity implements Admi
      * non-null and non-empty string fields in a single query.</p>
      */
     private void loadImages() {
-        db.collection("events")
+        db.collection(FirestorePaths.EVENTS)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     imageList.clear();

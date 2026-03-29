@@ -145,7 +145,7 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
         progressBar.setVisibility(View.VISIBLE);
         tvNoResults.setVisibility(View.GONE);
 
-        db.collection("users")
+        db.collection(FirestorePaths.USERS)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     userList.clear();
@@ -224,8 +224,8 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
                 Timestamp.now()
         );
 
-        db.collection("users").document(targetUser.getUserId())
-                .collection("inbox").document(notificationId)
+        db.collection(FirestorePaths.USERS).document(targetUser.getUserId())
+                .collection(FirestorePaths.INBOX).document(notificationId)
                 .set(notification)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(getContext(), targetUser.getUsername() + " is now a co-organizer!", Toast.LENGTH_SHORT).show();

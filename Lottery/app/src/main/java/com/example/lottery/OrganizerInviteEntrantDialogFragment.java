@@ -122,7 +122,7 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
         tvNoResults.setVisibility(View.GONE);
 
         // Search by username, email, or phone (simplified: searching by username start)
-        db.collection("users")
+        db.collection(FirestorePaths.USERS)
                 .whereEqualTo("role", "ENTRANT")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -161,7 +161,7 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
         waitlistData.put("status", "invited");
         waitlistData.put("invitedAt", Timestamp.now());
 
-        db.collection("events").document(eventId)
+        db.collection(FirestorePaths.EVENTS).document(eventId)
                 .collection(FirestorePaths.WAITING_LIST).document(user.getUserId())
                 .set(waitlistData)
                 .addOnSuccessListener(aVoid -> {
@@ -195,8 +195,8 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
                 Timestamp.now()
         );
 
-        db.collection("users").document(targetUser.getUserId())
-                .collection("inbox").document(notificationId)
+        db.collection(FirestorePaths.USERS).document(targetUser.getUserId())
+                .collection(FirestorePaths.INBOX).document(notificationId)
                 .set(notification)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(getContext(), "Invitation sent!", Toast.LENGTH_SHORT).show();

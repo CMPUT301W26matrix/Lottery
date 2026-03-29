@@ -96,7 +96,9 @@ public class MainActivity extends AppCompatActivity {
                             createNewUser(userId, role, fid);
                         }
                     } else {
-                        Toast.makeText(this, "Login failed: " + userTask.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        Exception ex = userTask.getException();
+                        String msg = (ex != null && ex.getMessage() != null) ? ex.getMessage() : "Unknown error";
+                        Toast.makeText(this, "Login failed: " + msg, Toast.LENGTH_SHORT).show();
                     }
                 });
             } else {

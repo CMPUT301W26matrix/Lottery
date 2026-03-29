@@ -365,9 +365,10 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                     if (!documentSnapshot.exists()) {
                         return;
                     }
-
-                    tvEventTitle.setText(documentSnapshot.getString("title"));
-                    tvEventDescription.setText(documentSnapshot.getString("details"));
+                    String title = documentSnapshot.getString("title");
+                    String details = documentSnapshot.getString("details");
+                    tvEventTitle.setText(title != null ? title : "");
+                    tvEventDescription.setText(details != null ? details : "");
 
                     Timestamp end = documentSnapshot.getTimestamp("registrationDeadline");
                     if (end != null) {
@@ -389,6 +390,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Failed to load event details", e);
                     eventDetailsFailed = true;
+                    Toast.makeText(this, "Failed to load event details", Toast.LENGTH_SHORT).show();
                 });
     }
 

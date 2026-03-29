@@ -584,7 +584,14 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             qrCodeContent = QRCodeUtils.generateUniqueQrContent(eventId);
         }
 
-        int capacity = capacityStr.isEmpty() ? 0 : Integer.parseInt(capacityStr);
+        int capacity;
+        try {
+            capacity = capacityStr.isEmpty() ? 0 : Integer.parseInt(capacityStr);
+        } catch (NumberFormatException e) {
+            Toast.makeText(this, "Invalid number for capacity", Toast.LENGTH_SHORT).show();
+            btnCreateEvent.setEnabled(true);
+            return;
+        }
         boolean requireLocation = swRequireLocation.isChecked();
 
         String category = "Other";
