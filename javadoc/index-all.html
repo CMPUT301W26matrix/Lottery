@@ -288,7 +288,7 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Default constructor required for Firestore.</div>
 </dd>
-<dt><a href="com/example/lottery/model/Event.html#%3Cinit%3E(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.Integer,java.lang.Integer,java.lang.String,java.lang.String,java.lang.String,java.lang.String,com.google.firebase.Timestamp,com.google.firebase.Timestamp,com.google.firebase.Timestamp,boolean,boolean,com.google.firebase.Timestamp,com.google.firebase.Timestamp)" class="member-name-link">Event(String, String, String, String, Integer, Integer, String, String, String, String, Timestamp, Timestamp, Timestamp, boolean, boolean, Timestamp, Timestamp)</a> - Constructor for class com.example.lottery.model.<a href="com/example/lottery/model/Event.html" title="class in com.example.lottery.model">Event</a></dt>
+<dt><a href="com/example/lottery/model/Event.html#%3Cinit%3E(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.Integer,java.lang.Integer,java.lang.String,java.lang.String,java.lang.String,java.lang.String,com.google.firebase.Timestamp,com.google.firebase.Timestamp,com.google.firebase.Timestamp,com.google.firebase.Timestamp,com.google.firebase.Timestamp,boolean,boolean,com.google.firebase.Timestamp,com.google.firebase.Timestamp)" class="member-name-link">Event(String, String, String, String, Integer, Integer, String, String, String, String, Timestamp, Timestamp, Timestamp, Timestamp, Timestamp, boolean, boolean, Timestamp, Timestamp)</a> - Constructor for class com.example.lottery.model.<a href="com/example/lottery/model/Event.html" title="class in com.example.lottery.model">Event</a></dt>
 <dd>
 <div class="block">Full constructor for target Firestore event document.</div>
 </dd>
@@ -415,6 +415,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Returns the email address of the user.</div>
 </dd>
+<dt><a href="com/example/lottery/model/Event.html#getEventEndDateTime()" class="member-name-link">getEventEndDateTime()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Event.html" title="class in com.example.lottery.model">Event</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/Comment.html#getEventId()" class="member-name-link">getEventId()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Comment.html" title="class in com.example.lottery.model">Comment</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/Event.html#getEventId()" class="member-name-link">getEventId()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Event.html" title="class in com.example.lottery.model">Event</a></dt>
@@ -482,6 +484,8 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/example/lottery/model/EntrantEvent.html#getRegisteredAt()" class="member-name-link">getRegisteredAt()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/EntrantEvent.html" title="class in com.example.lottery.model">EntrantEvent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/Event.html#getRegistrationDeadline()" class="member-name-link">getRegistrationDeadline()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Event.html" title="class in com.example.lottery.model">Event</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/model/Event.html#getRegistrationStart()" class="member-name-link">getRegistrationStart()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Event.html" title="class in com.example.lottery.model">Event</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/User.html#getRole()" class="member-name-link">getRole()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/User.html" title="class in com.example.lottery.model">User</a></dt>
 <dd>&nbsp;</dd>
@@ -557,6 +561,10 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/User.html#isEntrant()" class="member-name-link">isEntrant()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/User.html" title="class in com.example.lottery.model">User</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/util/EventValidationUtils.html#isEventEndDateValid(java.util.Date,java.util.Date)" class="member-name-link">isEventEndDateValid(Date, Date)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/EventValidationUtils.html" title="class in com.example.lottery.util">EventValidationUtils</a></dt>
+<dd>
+<div class="block">Validates that the event end date is after the event start date.</div>
+</dd>
 <dt><a href="com/example/lottery/model/EntrantEvent.html#isInvited()" class="member-name-link">isInvited()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/EntrantEvent.html" title="class in com.example.lottery.model">EntrantEvent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/User.html#isNotificationsEnabled()" class="member-name-link">isNotificationsEnabled()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/User.html" title="class in com.example.lottery.model">User</a></dt>
@@ -570,6 +578,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/example/lottery/util/EventValidationUtils.html#isRegistrationDeadlineValid(java.util.Date,java.util.Date)" class="member-name-link">isRegistrationDeadlineValid(Date, Date)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/EventValidationUtils.html" title="class in com.example.lottery.util">EventValidationUtils</a></dt>
 <dd>
 <div class="block">Validates if the registration deadline occurs before the event start time.</div>
+</dd>
+<dt><a href="com/example/lottery/util/EventValidationUtils.html#isRegistrationStartValid(java.util.Date,java.util.Date)" class="member-name-link">isRegistrationStartValid(Date, Date)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/EventValidationUtils.html" title="class in com.example.lottery.util">EventValidationUtils</a></dt>
+<dd>
+<div class="block">Validates that registration start is before registration end.</div>
 </dd>
 <dt><a href="com/example/lottery/EntrantsListActivity.html#isRequireLocation()" class="member-name-link">isRequireLocation()</a> - Method in class com.example.lottery.<a href="com/example/lottery/EntrantsListActivity.html" title="class in com.example.lottery">EntrantsListActivity</a></dt>
 <dd>&nbsp;</dd>
@@ -1204,6 +1216,8 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/User.html#setEmail(java.lang.String)" class="member-name-link">setEmail(String)</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/User.html" title="class in com.example.lottery.model">User</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/model/Event.html#setEventEndDateTime(com.google.firebase.Timestamp)" class="member-name-link">setEventEndDateTime(Timestamp)</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Event.html" title="class in com.example.lottery.model">Event</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/Comment.html#setEventId(java.lang.String)" class="member-name-link">setEventId(String)</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Comment.html" title="class in com.example.lottery.model">Comment</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/Event.html#setEventId(java.lang.String)" class="member-name-link">setEventId(String)</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Event.html" title="class in com.example.lottery.model">Event</a></dt>
@@ -1241,6 +1255,8 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/example/lottery/model/EntrantEvent.html#setRegisteredAt(com.google.firebase.Timestamp)" class="member-name-link">setRegisteredAt(Timestamp)</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/EntrantEvent.html" title="class in com.example.lottery.model">EntrantEvent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/Event.html#setRegistrationDeadline(com.google.firebase.Timestamp)" class="member-name-link">setRegistrationDeadline(Timestamp)</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Event.html" title="class in com.example.lottery.model">Event</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/model/Event.html#setRegistrationStart(com.google.firebase.Timestamp)" class="member-name-link">setRegistrationStart(Timestamp)</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Event.html" title="class in com.example.lottery.model">Event</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/Event.html#setRequireLocation(boolean)" class="member-name-link">setRequireLocation(boolean)</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Event.html" title="class in com.example.lottery.model">Event</a></dt>
 <dd>&nbsp;</dd>
