@@ -164,7 +164,8 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">promoteOneFromWaitlistIfNeeded</span><wbr><span class="parameters">(com.google.firebase.firestore.FirebaseFirestore&nbsp;db,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId)</span></div>
 <div class="block">Checks for available capacity and promotes one waitlisted entrant if possible.
- Triggered automatically when an invited entrant declines.</div>
+ Uses a Firestore transaction to prevent race conditions when multiple declines
+ happen concurrently.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>db</code> - The Firestore instance.</dd>
