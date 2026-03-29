@@ -112,8 +112,9 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">MainActivity</span>
 <span class="extends-implements">extends androidx.appcompat.app.AppCompatActivity</span></div>
 <div class="block">MainActivity serves as the entry point where users choose their role.
- Identification is based on the device's unique ID (FID) combined with the chosen role (role_FID).
- This ensures that a single device can maintain separate profiles for different roles.</div>
+ Identification is based on the device's ANDROID_ID combined with the chosen role.
+ This ensures that a single device can maintain separate profiles
+ for different roles, and the identity persists across app reinstalls.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
