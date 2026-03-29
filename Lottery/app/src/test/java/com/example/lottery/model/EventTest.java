@@ -30,7 +30,8 @@ public class EventTest {
 
         // Testing the full constructor with compliant fields
         Event event = new Event(eventId, title, details, organizerId, capacity,
-                waitingListLimit, qrCodeContent, status, posterUri, category, now, now, now, true, false, now, now);
+                waitingListLimit, qrCodeContent, status, posterUri, category,
+                now, now, now, now, now, true, false, now, now);
 
         assertEquals(eventId, event.getEventId());
         assertEquals(title, event.getTitle());
