@@ -34,6 +34,8 @@ public class Event {
     private String posterUri;
     private String category; // academic, social, sports, music, other
     private Timestamp scheduledDateTime;
+    private Timestamp eventEndDateTime;
+    private Timestamp registrationStart;
     private Timestamp registrationDeadline;
     private Timestamp drawDate;
     private boolean requireLocation;
@@ -64,6 +66,8 @@ public class Event {
                  String posterUri,
                  String category,
                  Timestamp scheduledDateTime,
+                 Timestamp eventEndDateTime,
+                 Timestamp registrationStart,
                  Timestamp registrationDeadline,
                  Timestamp drawDate,
                  boolean requireLocation,
@@ -81,6 +85,8 @@ public class Event {
         this.posterUri = posterUri;
         this.category = category == null ? "Other" : category;
         this.scheduledDateTime = scheduledDateTime;
+        this.eventEndDateTime = eventEndDateTime;
+        this.registrationStart = registrationStart;
         this.registrationDeadline = registrationDeadline;
         this.drawDate = drawDate;
         this.requireLocation = requireLocation;
@@ -198,6 +204,22 @@ public class Event {
 
     public void setScheduledDateTime(Timestamp scheduledDateTime) {
         this.scheduledDateTime = scheduledDateTime;
+    }
+
+    public Timestamp getEventEndDateTime() {
+        return eventEndDateTime;
+    }
+
+    public void setEventEndDateTime(Timestamp eventEndDateTime) {
+        this.eventEndDateTime = eventEndDateTime;
+    }
+
+    public Timestamp getRegistrationStart() {
+        return registrationStart;
+    }
+
+    public void setRegistrationStart(Timestamp registrationStart) {
+        this.registrationStart = registrationStart;
     }
 
     public Timestamp getRegistrationDeadline() {

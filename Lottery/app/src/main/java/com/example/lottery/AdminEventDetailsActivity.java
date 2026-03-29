@@ -66,6 +66,8 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
      */
     private TextView tvEventTitle;
     private TextView tvScheduledDate;
+    private TextView tvEventEndDate;
+    private TextView tvRegistrationStart;
     private TextView tvRegistrationDeadline;
     private TextView tvDrawDate;
     private TextView tvWaitingListCapacity;
@@ -98,6 +100,8 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
         ivEventPoster = findViewById(R.id.ivEventPoster);
         tvEventTitle = findViewById(R.id.tvEventTitle);
         tvScheduledDate = findViewById(R.id.tvScheduledDate);
+        tvEventEndDate = findViewById(R.id.tvEventEndDate);
+        tvRegistrationStart = findViewById(R.id.tvRegistrationStart);
         tvRegistrationDeadline = findViewById(R.id.tvRegistrationDeadline);
         tvDrawDate = findViewById(R.id.tvDrawDate);
         tvWaitingListCapacity = findViewById(R.id.tvWaitingListCapacity);
@@ -481,6 +485,10 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
 
         tvScheduledDate.setText(event.getScheduledDateTime() != null
                 ? dateFormat.format(event.getScheduledDateTime().toDate()) : "");
+        tvEventEndDate.setText(event.getEventEndDateTime() != null
+                ? dateFormat.format(event.getEventEndDateTime().toDate()) : "");
+        tvRegistrationStart.setText(event.getRegistrationStart() != null
+                ? dateFormat.format(event.getRegistrationStart().toDate()) : "");
         tvRegistrationDeadline.setText(event.getRegistrationDeadline() != null
                 ? dateFormat.format(event.getRegistrationDeadline().toDate()) : "");
         tvDrawDate.setText(event.getDrawDate() != null

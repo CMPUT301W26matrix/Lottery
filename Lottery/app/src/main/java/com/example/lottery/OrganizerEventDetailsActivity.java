@@ -46,7 +46,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
             new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
 
     private ImageView ivEventPoster;
-    private TextView tvEventTitle, tvScheduledDate, tvRegistrationDeadline, tvDrawDate, tvEventDetails, tvLocationRequirement;
+    private TextView tvEventTitle, tvScheduledDate, tvEventEndDate, tvRegistrationStart, tvRegistrationDeadline, tvDrawDate, tvEventDetails, tvLocationRequirement;
     private TextView tvWaitingListCapacity, tvEntrantCounts;
     private Chip chipCategory, chipPrivate;
     private Button btnInviteEntrant;
@@ -87,9 +87,8 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         btnCoOrganizers = findViewById(R.id.btnCoOrganizers);
         Button btnViewWaitingList = findViewById(R.id.btnViewWaitingList);
 
-        // Remove references to deleted UI components if they were in the layout but no longer in model
-        // tvEventEndDate = findViewById(R.id.tvEventEndDate);
-        // tvRegistrationStart = findViewById(R.id.tvRegistrationStart);
+        tvEventEndDate = findViewById(R.id.tvEventEndDate);
+        tvRegistrationStart = findViewById(R.id.tvRegistrationStart);
 
         db = FirebaseFirestore.getInstance();
 
@@ -288,9 +287,10 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
 
         if (event.getScheduledDateTime() != null)
             tvScheduledDate.setText(dateFormat.format(event.getScheduledDateTime().toDate()));
-
-        // registrationStartDate and eventEndDate removed from Event model
-
+        if (event.getEventEndDateTime() != null)
+            tvEventEndDate.setText(dateFormat.format(event.getEventEndDateTime().toDate()));
+        if (event.getRegistrationStart() != null)
+            tvRegistrationStart.setText(dateFormat.format(event.getRegistrationStart().toDate()));
         if (event.getRegistrationDeadline() != null)
             tvRegistrationDeadline.setText(dateFormat.format(event.getRegistrationDeadline().toDate()));
         if (event.getDrawDate() != null)

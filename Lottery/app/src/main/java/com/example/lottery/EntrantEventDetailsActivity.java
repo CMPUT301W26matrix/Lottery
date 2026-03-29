@@ -83,6 +83,11 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
 
     private TextView tvEventTitle;
     private TextView tvRegistrationPeriod;
+    private TextView tvScheduledDate;
+    private TextView tvEventEndDate;
+    private TextView tvRegistrationStart;
+    private TextView tvRegistrationDeadline;
+    private TextView tvDrawDate;
     private TextView tvWaitlistCount;
     private TextView tvNotificationBadge;
     private TextView tvEventDescription;
@@ -231,6 +236,11 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         tvWaitlistCount = findViewById(R.id.tvWaitlistCount);
         tvNotificationBadge = findViewById(R.id.tvNotificationBadge);
         tvEventDescription = findViewById(R.id.tvEventDescription);
+        tvScheduledDate = findViewById(R.id.tvScheduledDate);
+        tvEventEndDate = findViewById(R.id.tvEventEndDate);
+        tvRegistrationStart = findViewById(R.id.tvRegistrationStart);
+        tvRegistrationDeadline = findViewById(R.id.tvRegistrationDeadline);
+        tvDrawDate = findViewById(R.id.tvDrawDate);
         tvCoOrganizerStatus = findViewById(R.id.tvCoOrganizerStatus);
 
         btnWaitlistAction = findViewById(R.id.btnWaitlistAction);
@@ -370,12 +380,25 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                     tvEventTitle.setText(title != null ? title : "");
                     tvEventDescription.setText(details != null ? details : "");
 
+                    Timestamp start = documentSnapshot.getTimestamp("scheduledDateTime");
+                    if (start != null)
+                        tvScheduledDate.setText(dateFormat.format(start.toDate()));
+                    Timestamp endDateTime = documentSnapshot.getTimestamp("eventEndDateTime");
+                    if (endDateTime != null)
+                        tvEventEndDate.setText(dateFormat.format(endDateTime.toDate()));
+                    Timestamp regStart = documentSnapshot.getTimestamp("registrationStart");
+                    if (regStart != null)
+                        tvRegistrationStart.setText(dateFormat.format(regStart.toDate()));
                     Timestamp end = documentSnapshot.getTimestamp("registrationDeadline");
                     if (end != null) {
                         tvRegistrationPeriod.setText(
                                 String.format("Deadline: %s", dateFormat.format(end.toDate()))
                         );
+                        tvRegistrationDeadline.setText(dateFormat.format(end.toDate()));
                     }
+                    Timestamp draw = documentSnapshot.getTimestamp("drawDate");
+                    if (draw != null)
+                        tvDrawDate.setText(dateFormat.format(draw.toDate()));
 
                     PosterImageLoader.load(
                             ivEventPoster,

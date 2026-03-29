@@ -24,6 +24,34 @@ public class EventValidationUtils {
     }
 
     /**
+     * Validates that the event end date is after the event start date.
+     *
+     * @param startDate The event start date.
+     * @param endDate   The event end date.
+     * @return true if endDate is strictly after startDate, or if either is null (optional fields).
+     */
+    public static boolean isEventEndDateValid(Date startDate, Date endDate) {
+        if (startDate == null || endDate == null) {
+            return true;
+        }
+        return endDate.after(startDate);
+    }
+
+    /**
+     * Validates that registration start is before registration end.
+     *
+     * @param regStart The registration start date.
+     * @param regEnd   The registration end date.
+     * @return true if regStart is strictly before regEnd, or if either is null (optional fields).
+     */
+    public static boolean isRegistrationStartValid(Date regStart, Date regEnd) {
+        if (regStart == null || regEnd == null) {
+            return true;
+        }
+        return regStart.before(regEnd);
+    }
+
+    /**
      * US 02.03.01 / US 02.02.02: Validates if the waiting list limit is a positive integer.
      * null is considered valid as it represents an "Unlimited" state.
      *
