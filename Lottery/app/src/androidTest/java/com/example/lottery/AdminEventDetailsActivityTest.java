@@ -5,15 +5,23 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
 import android.content.Context;
 import android.content.Intent;
+import android.view.View;
 
+import androidx.core.widget.NestedScrollView;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.espresso.UiController;
+import androidx.test.espresso.ViewAction;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+
+import org.hamcrest.Matcher;
 
 import com.example.lottery.model.Event;
 import com.example.lottery.util.FirestorePaths;
@@ -68,6 +76,36 @@ public class AdminEventDetailsActivityTest {
     }
 
     /**
+     * Scrolls a view into the visible area of a NestedScrollView.
+     * Standard scrollTo() is incompatible with NestedScrollView.
+     */
+    private static ViewAction nestedScrollTo() {
+        return new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE);
+            }
+
+            @Override
+            public String getDescription() {
+                return "scroll NestedScrollView to view";
+            }
+
+            @Override
+            public void perform(UiController uiController, View view) {
+                View parent = (View) view.getParent();
+                while (parent != null && !(parent instanceof NestedScrollView)) {
+                    parent = (View) parent.getParent();
+                }
+                if (parent != null) {
+                    ((NestedScrollView) parent).smoothScrollTo(0, view.getTop());
+                    uiController.loopMainThreadUntilIdle();
+                }
+            }
+        };
+    }
+
+    /**
      * US 03.01.01: Verifies that the admin event details screen displays all essential elements.
      */
     @Test
@@ -77,12 +115,11 @@ public class AdminEventDetailsActivityTest {
         intent.putExtra("eventId", TEST_EVENT_ID);
 
         try (ActivityScenario<AdminEventDetailsActivity> scenario = ActivityScenario.launch(intent)) {
-            // scrollTo() removed because it's incompatible with NestedScrollView and unnecessary for top elements
             onView(withId(R.id.tvPageHeader)).check(matches(isDisplayed()));
-            onView(withId(R.id.tvDetailsHeader)).check(matches(isDisplayed()));
-            onView(withId(R.id.btnDeleteEvent)).check(matches(isDisplayed()));
+            onView(withId(R.id.tvDetailsHeader)).perform(nestedScrollTo()).check(matches(isDisplayed()));
+            onView(withId(R.id.btnDeleteEvent)).perform(nestedScrollTo()).check(matches(isDisplayed()));
             onView(withId(R.id.bottom_nav_container)).check(matches(isDisplayed()));
-            
+
             // Ensure organizer-only controls are not present
             onView(withId(R.id.btnEditEvent)).check(doesNotExist());
         }
@@ -98,8 +135,8 @@ public class AdminEventDetailsActivityTest {
         intent.putExtra("eventId", TEST_EVENT_ID);
 
         try (ActivityScenario<AdminEventDetailsActivity> scenario = ActivityScenario.launch(intent)) {
-            onView(withId(R.id.btnDeleteEvent)).perform(click());
-            
+            onView(withId(R.id.btnDeleteEvent)).perform(nestedScrollTo(), click());
+
             onView(withText(R.string.confirm_deletion)).check(matches(isDisplayed()));
             onView(withText(R.string.confirm_delete_event)).check(matches(isDisplayed()));
         }
@@ -115,7 +152,7 @@ public class AdminEventDetailsActivityTest {
         intent.putExtra("eventId", TEST_EVENT_ID);
 
         try (ActivityScenario<AdminEventDetailsActivity> scenario = ActivityScenario.launch(intent)) {
-            onView(withId(R.id.btnDeleteEvent)).perform(click());
+            onView(withId(R.id.btnDeleteEvent)).perform(nestedScrollTo(), click());
             onView(withText(R.string.cancel)).perform(click());
 
             onView(withText(R.string.confirm_deletion)).check(doesNotExist());

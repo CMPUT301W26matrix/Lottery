@@ -19,11 +19,18 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.example.lottery.model.Event;
+import com.example.lottery.util.FirestorePaths;
+import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * Comprehensive navigation tests for {@link com.example.lottery.util.OrganizerNavigationHelper}.
@@ -35,28 +42,52 @@ import org.junit.runner.RunWith;
 public class OrganizerNavigationHelperTest {
 
     private static final String TEST_USER_ID = "nav_test_organizer";
+    private static final String TEST_EVENT_ID = "nav_test_event";
     private Context context;
+    private FirebaseFirestore db;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         context = ApplicationProvider.getApplicationContext();
+        db = FirebaseFirestore.getInstance();
+
+        // Seed a test event so OrganizerEventDetailsActivity doesn't finish() early
+        Event event = new Event();
+        event.setEventId(TEST_EVENT_ID);
+        event.setTitle("Nav Test Event");
+        event.setDetails("Navigation test event.");
+        event.setOrganizerId(TEST_USER_ID);
+        event.touch();
+        Tasks.await(db.collection(FirestorePaths.EVENTS).document(TEST_EVENT_ID).set(event), 10, TimeUnit.SECONDS);
+
         Intents.init();
-        stubAllOrganizerActivities();
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws Exception {
         Intents.release();
+        Tasks.await(db.collection(FirestorePaths.EVENTS).document(TEST_EVENT_ID).delete(), 10, TimeUnit.SECONDS);
     }
 
-    private void stubAllOrganizerActivities() {
+    /**
+     * Stub every organizer Activity EXCEPT the given source so that the source can
+     * actually launch while navigation targets are intercepted.
+     */
+    private void stubAllOrganizerActivitiesExcept(Class<?> source) {
         Instrumentation.ActivityResult ok =
                 new Instrumentation.ActivityResult(Activity.RESULT_OK, null);
-        intending(hasComponent(OrganizerBrowseEventsActivity.class.getName())).respondWith(ok);
-        intending(hasComponent(OrganizerNotificationsActivity.class.getName())).respondWith(ok);
-        intending(hasComponent(OrganizerQrEventListActivity.class.getName())).respondWith(ok);
-        intending(hasComponent(OrganizerProfileActivity.class.getName())).respondWith(ok);
-        intending(hasComponent(OrganizerCreateEventActivity.class.getName())).respondWith(ok);
+        if (source != OrganizerBrowseEventsActivity.class)
+            intending(hasComponent(OrganizerBrowseEventsActivity.class.getName())).respondWith(ok);
+        if (source != OrganizerNotificationsActivity.class)
+            intending(hasComponent(OrganizerNotificationsActivity.class.getName())).respondWith(ok);
+        if (source != OrganizerQrEventListActivity.class)
+            intending(hasComponent(OrganizerQrEventListActivity.class.getName())).respondWith(ok);
+        if (source != OrganizerProfileActivity.class)
+            intending(hasComponent(OrganizerProfileActivity.class.getName())).respondWith(ok);
+        if (source != OrganizerCreateEventActivity.class)
+            intending(hasComponent(OrganizerCreateEventActivity.class.getName())).respondWith(ok);
+        if (source != OrganizerEventDetailsActivity.class)
+            intending(hasComponent(OrganizerEventDetailsActivity.class.getName())).respondWith(ok);
     }
 
     private Intent organizerIntent(Class<?> cls) {
@@ -72,14 +103,19 @@ public class OrganizerNavigationHelperTest {
         );
     }
 
+    private ActivityScenario<?> launchScreen(Class<?> source, Intent intent) {
+        stubAllOrganizerActivitiesExcept(source);
+        return ActivityScenario.launch(intent);
+    }
+
     // ================================================================
     // From OrganizerBrowseEventsActivity  (currentTab = HOME)
     // ================================================================
 
     @Test
     public void fromHome_toNotifications() {
-        try (ActivityScenario<OrganizerBrowseEventsActivity> ignored =
-                     ActivityScenario.launch(organizerIntent(OrganizerBrowseEventsActivity.class))) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(OrganizerBrowseEventsActivity.class, organizerIntent(OrganizerBrowseEventsActivity.class))) {
             onView(withId(R.id.nav_notifications)).perform(click());
             intended(intentTo(OrganizerNotificationsActivity.class));
         }
@@ -87,8 +123,8 @@ public class OrganizerNavigationHelperTest {
 
     @Test
     public void fromHome_toQrCode() {
-        try (ActivityScenario<OrganizerBrowseEventsActivity> ignored =
-                     ActivityScenario.launch(organizerIntent(OrganizerBrowseEventsActivity.class))) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(OrganizerBrowseEventsActivity.class, organizerIntent(OrganizerBrowseEventsActivity.class))) {
             onView(withId(R.id.nav_qr_code)).perform(click());
             intended(intentTo(OrganizerQrEventListActivity.class));
         }
@@ -96,8 +132,8 @@ public class OrganizerNavigationHelperTest {
 
     @Test
     public void fromHome_toProfile() {
-        try (ActivityScenario<OrganizerBrowseEventsActivity> ignored =
-                     ActivityScenario.launch(organizerIntent(OrganizerBrowseEventsActivity.class))) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(OrganizerBrowseEventsActivity.class, organizerIntent(OrganizerBrowseEventsActivity.class))) {
             onView(withId(R.id.nav_profile)).perform(click());
             intended(intentTo(OrganizerProfileActivity.class));
         }
@@ -105,8 +141,8 @@ public class OrganizerNavigationHelperTest {
 
     @Test
     public void fromHome_toCreate() {
-        try (ActivityScenario<OrganizerBrowseEventsActivity> ignored =
-                     ActivityScenario.launch(organizerIntent(OrganizerBrowseEventsActivity.class))) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(OrganizerBrowseEventsActivity.class, organizerIntent(OrganizerBrowseEventsActivity.class))) {
             onView(withId(R.id.nav_create_container)).perform(click());
             intended(intentTo(OrganizerCreateEventActivity.class));
         }
@@ -118,8 +154,8 @@ public class OrganizerNavigationHelperTest {
 
     @Test
     public void fromNotifications_toHome() {
-        try (ActivityScenario<OrganizerNotificationsActivity> ignored =
-                     ActivityScenario.launch(organizerIntent(OrganizerNotificationsActivity.class))) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(OrganizerNotificationsActivity.class, organizerIntent(OrganizerNotificationsActivity.class))) {
             onView(withId(R.id.nav_home)).perform(click());
             intended(intentTo(OrganizerBrowseEventsActivity.class));
         }
@@ -127,8 +163,8 @@ public class OrganizerNavigationHelperTest {
 
     @Test
     public void fromNotifications_toQrCode() {
-        try (ActivityScenario<OrganizerNotificationsActivity> ignored =
-                     ActivityScenario.launch(organizerIntent(OrganizerNotificationsActivity.class))) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(OrganizerNotificationsActivity.class, organizerIntent(OrganizerNotificationsActivity.class))) {
             onView(withId(R.id.nav_qr_code)).perform(click());
             intended(intentTo(OrganizerQrEventListActivity.class));
         }
@@ -136,8 +172,8 @@ public class OrganizerNavigationHelperTest {
 
     @Test
     public void fromNotifications_toProfile() {
-        try (ActivityScenario<OrganizerNotificationsActivity> ignored =
-                     ActivityScenario.launch(organizerIntent(OrganizerNotificationsActivity.class))) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(OrganizerNotificationsActivity.class, organizerIntent(OrganizerNotificationsActivity.class))) {
             onView(withId(R.id.nav_profile)).perform(click());
             intended(intentTo(OrganizerProfileActivity.class));
         }
@@ -145,8 +181,8 @@ public class OrganizerNavigationHelperTest {
 
     @Test
     public void fromNotifications_toCreate() {
-        try (ActivityScenario<OrganizerNotificationsActivity> ignored =
-                     ActivityScenario.launch(organizerIntent(OrganizerNotificationsActivity.class))) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(OrganizerNotificationsActivity.class, organizerIntent(OrganizerNotificationsActivity.class))) {
             onView(withId(R.id.nav_create_container)).perform(click());
             intended(intentTo(OrganizerCreateEventActivity.class));
         }
@@ -158,8 +194,8 @@ public class OrganizerNavigationHelperTest {
 
     @Test
     public void fromQrCode_toHome() {
-        try (ActivityScenario<OrganizerQrEventListActivity> ignored =
-                     ActivityScenario.launch(organizerIntent(OrganizerQrEventListActivity.class))) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(OrganizerQrEventListActivity.class, organizerIntent(OrganizerQrEventListActivity.class))) {
             onView(withId(R.id.nav_home)).perform(click());
             intended(intentTo(OrganizerBrowseEventsActivity.class));
         }
@@ -167,8 +203,8 @@ public class OrganizerNavigationHelperTest {
 
     @Test
     public void fromQrCode_toNotifications() {
-        try (ActivityScenario<OrganizerQrEventListActivity> ignored =
-                     ActivityScenario.launch(organizerIntent(OrganizerQrEventListActivity.class))) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(OrganizerQrEventListActivity.class, organizerIntent(OrganizerQrEventListActivity.class))) {
             onView(withId(R.id.nav_notifications)).perform(click());
             intended(intentTo(OrganizerNotificationsActivity.class));
         }
@@ -176,8 +212,8 @@ public class OrganizerNavigationHelperTest {
 
     @Test
     public void fromQrCode_toProfile() {
-        try (ActivityScenario<OrganizerQrEventListActivity> ignored =
-                     ActivityScenario.launch(organizerIntent(OrganizerQrEventListActivity.class))) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(OrganizerQrEventListActivity.class, organizerIntent(OrganizerQrEventListActivity.class))) {
             onView(withId(R.id.nav_profile)).perform(click());
             intended(intentTo(OrganizerProfileActivity.class));
         }
@@ -185,8 +221,8 @@ public class OrganizerNavigationHelperTest {
 
     @Test
     public void fromQrCode_toCreate() {
-        try (ActivityScenario<OrganizerQrEventListActivity> ignored =
-                     ActivityScenario.launch(organizerIntent(OrganizerQrEventListActivity.class))) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(OrganizerQrEventListActivity.class, organizerIntent(OrganizerQrEventListActivity.class))) {
             onView(withId(R.id.nav_create_container)).perform(click());
             intended(intentTo(OrganizerCreateEventActivity.class));
         }
@@ -198,8 +234,8 @@ public class OrganizerNavigationHelperTest {
 
     @Test
     public void fromProfile_toHome() {
-        try (ActivityScenario<OrganizerProfileActivity> ignored =
-                     ActivityScenario.launch(organizerIntent(OrganizerProfileActivity.class))) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(OrganizerProfileActivity.class, organizerIntent(OrganizerProfileActivity.class))) {
             onView(withId(R.id.nav_home)).perform(click());
             intended(intentTo(OrganizerBrowseEventsActivity.class));
         }
@@ -207,8 +243,8 @@ public class OrganizerNavigationHelperTest {
 
     @Test
     public void fromProfile_toNotifications() {
-        try (ActivityScenario<OrganizerProfileActivity> ignored =
-                     ActivityScenario.launch(organizerIntent(OrganizerProfileActivity.class))) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(OrganizerProfileActivity.class, organizerIntent(OrganizerProfileActivity.class))) {
             onView(withId(R.id.nav_notifications)).perform(click());
             intended(intentTo(OrganizerNotificationsActivity.class));
         }
@@ -216,8 +252,8 @@ public class OrganizerNavigationHelperTest {
 
     @Test
     public void fromProfile_toQrCode() {
-        try (ActivityScenario<OrganizerProfileActivity> ignored =
-                     ActivityScenario.launch(organizerIntent(OrganizerProfileActivity.class))) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(OrganizerProfileActivity.class, organizerIntent(OrganizerProfileActivity.class))) {
             onView(withId(R.id.nav_qr_code)).perform(click());
             intended(intentTo(OrganizerQrEventListActivity.class));
         }
@@ -225,8 +261,8 @@ public class OrganizerNavigationHelperTest {
 
     @Test
     public void fromProfile_toCreate() {
-        try (ActivityScenario<OrganizerProfileActivity> ignored =
-                     ActivityScenario.launch(organizerIntent(OrganizerProfileActivity.class))) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(OrganizerProfileActivity.class, organizerIntent(OrganizerProfileActivity.class))) {
             onView(withId(R.id.nav_create_container)).perform(click());
             intended(intentTo(OrganizerCreateEventActivity.class));
         }
@@ -238,14 +274,14 @@ public class OrganizerNavigationHelperTest {
 
     private Intent eventDetailIntent() {
         Intent intent = organizerIntent(OrganizerEventDetailsActivity.class);
-        intent.putExtra("eventId", "nav_test_event");
+        intent.putExtra("eventId", TEST_EVENT_ID);
         return intent;
     }
 
     @Test
     public void fromEventDetails_toHome() {
-        try (ActivityScenario<OrganizerEventDetailsActivity> ignored =
-                     ActivityScenario.launch(eventDetailIntent())) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(OrganizerEventDetailsActivity.class, eventDetailIntent())) {
             onView(withId(R.id.nav_home)).perform(click());
             intended(intentTo(OrganizerBrowseEventsActivity.class));
         }
@@ -253,8 +289,8 @@ public class OrganizerNavigationHelperTest {
 
     @Test
     public void fromEventDetails_toNotifications() {
-        try (ActivityScenario<OrganizerEventDetailsActivity> ignored =
-                     ActivityScenario.launch(eventDetailIntent())) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(OrganizerEventDetailsActivity.class, eventDetailIntent())) {
             onView(withId(R.id.nav_notifications)).perform(click());
             intended(intentTo(OrganizerNotificationsActivity.class));
         }
@@ -262,8 +298,8 @@ public class OrganizerNavigationHelperTest {
 
     @Test
     public void fromEventDetails_toQrCode() {
-        try (ActivityScenario<OrganizerEventDetailsActivity> ignored =
-                     ActivityScenario.launch(eventDetailIntent())) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(OrganizerEventDetailsActivity.class, eventDetailIntent())) {
             onView(withId(R.id.nav_qr_code)).perform(click());
             intended(intentTo(OrganizerQrEventListActivity.class));
         }
@@ -271,8 +307,8 @@ public class OrganizerNavigationHelperTest {
 
     @Test
     public void fromEventDetails_toProfile() {
-        try (ActivityScenario<OrganizerEventDetailsActivity> ignored =
-                     ActivityScenario.launch(eventDetailIntent())) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(OrganizerEventDetailsActivity.class, eventDetailIntent())) {
             onView(withId(R.id.nav_profile)).perform(click());
             intended(intentTo(OrganizerProfileActivity.class));
         }
@@ -280,8 +316,8 @@ public class OrganizerNavigationHelperTest {
 
     @Test
     public void fromEventDetails_toCreate() {
-        try (ActivityScenario<OrganizerEventDetailsActivity> ignored =
-                     ActivityScenario.launch(eventDetailIntent())) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(OrganizerEventDetailsActivity.class, eventDetailIntent())) {
             onView(withId(R.id.nav_create_container)).perform(click());
             intended(intentTo(OrganizerCreateEventActivity.class));
         }

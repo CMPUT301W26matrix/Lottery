@@ -40,7 +40,6 @@ public class EntrantNavigationHelperTest {
     public void setUp() {
         context = ApplicationProvider.getApplicationContext();
         Intents.init();
-        stubAllEntrantActivities();
     }
 
     @After
@@ -48,13 +47,23 @@ public class EntrantNavigationHelperTest {
         Intents.release();
     }
 
-    private void stubAllEntrantActivities() {
+    /**
+     * Stub every entrant Activity EXCEPT the given source so that the source can
+     * actually launch while navigation targets are intercepted.
+     */
+    private void stubAllEntrantActivitiesExcept(Class<?> source) {
         Instrumentation.ActivityResult ok =
                 new Instrumentation.ActivityResult(Activity.RESULT_OK, null);
-        intending(hasComponent(EntrantMainActivity.class.getName())).respondWith(ok);
-        intending(hasComponent(EntrantEventHistoryActivity.class.getName())).respondWith(ok);
-        intending(hasComponent(EntrantQrScanActivity.class.getName())).respondWith(ok);
-        intending(hasComponent(EntrantProfileActivity.class.getName())).respondWith(ok);
+        if (source != EntrantMainActivity.class)
+            intending(hasComponent(EntrantMainActivity.class.getName())).respondWith(ok);
+        if (source != EntrantEventHistoryActivity.class)
+            intending(hasComponent(EntrantEventHistoryActivity.class.getName())).respondWith(ok);
+        if (source != EntrantQrScanActivity.class)
+            intending(hasComponent(EntrantQrScanActivity.class.getName())).respondWith(ok);
+        if (source != EntrantProfileActivity.class)
+            intending(hasComponent(EntrantProfileActivity.class.getName())).respondWith(ok);
+        if (source != NotificationsActivity.class)
+            intending(hasComponent(NotificationsActivity.class.getName())).respondWith(ok);
     }
 
     private Intent entrantIntent(Class<?> cls) {
@@ -70,14 +79,19 @@ public class EntrantNavigationHelperTest {
         );
     }
 
+    private ActivityScenario<?> launchScreen(Class<?> source, Intent intent) {
+        stubAllEntrantActivitiesExcept(source);
+        return ActivityScenario.launch(intent);
+    }
+
     // ================================================================
     // From EntrantMainActivity  (currentTab = HOME)
     // ================================================================
 
     @Test
     public void fromHome_toHistory() {
-        try (ActivityScenario<EntrantMainActivity> ignored =
-                     ActivityScenario.launch(entrantIntent(EntrantMainActivity.class))) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(EntrantMainActivity.class, entrantIntent(EntrantMainActivity.class))) {
             onView(withId(R.id.nav_history)).perform(click());
             intended(intentTo(EntrantEventHistoryActivity.class));
         }
@@ -85,8 +99,8 @@ public class EntrantNavigationHelperTest {
 
     @Test
     public void fromHome_toQrScan() {
-        try (ActivityScenario<EntrantMainActivity> ignored =
-                     ActivityScenario.launch(entrantIntent(EntrantMainActivity.class))) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(EntrantMainActivity.class, entrantIntent(EntrantMainActivity.class))) {
             onView(withId(R.id.nav_qr_scan)).perform(click());
             intended(intentTo(EntrantQrScanActivity.class));
         }
@@ -94,8 +108,8 @@ public class EntrantNavigationHelperTest {
 
     @Test
     public void fromHome_toProfile() {
-        try (ActivityScenario<EntrantMainActivity> ignored =
-                     ActivityScenario.launch(entrantIntent(EntrantMainActivity.class))) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(EntrantMainActivity.class, entrantIntent(EntrantMainActivity.class))) {
             onView(withId(R.id.nav_profile)).perform(click());
             intended(intentTo(EntrantProfileActivity.class));
         }
@@ -107,8 +121,8 @@ public class EntrantNavigationHelperTest {
 
     @Test
     public void fromHistory_toHome() {
-        try (ActivityScenario<EntrantEventHistoryActivity> ignored =
-                     ActivityScenario.launch(entrantIntent(EntrantEventHistoryActivity.class))) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(EntrantEventHistoryActivity.class, entrantIntent(EntrantEventHistoryActivity.class))) {
             onView(withId(R.id.nav_home)).perform(click());
             intended(intentTo(EntrantMainActivity.class));
         }
@@ -116,8 +130,8 @@ public class EntrantNavigationHelperTest {
 
     @Test
     public void fromHistory_toQrScan() {
-        try (ActivityScenario<EntrantEventHistoryActivity> ignored =
-                     ActivityScenario.launch(entrantIntent(EntrantEventHistoryActivity.class))) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(EntrantEventHistoryActivity.class, entrantIntent(EntrantEventHistoryActivity.class))) {
             onView(withId(R.id.nav_qr_scan)).perform(click());
             intended(intentTo(EntrantQrScanActivity.class));
         }
@@ -125,8 +139,8 @@ public class EntrantNavigationHelperTest {
 
     @Test
     public void fromHistory_toProfile() {
-        try (ActivityScenario<EntrantEventHistoryActivity> ignored =
-                     ActivityScenario.launch(entrantIntent(EntrantEventHistoryActivity.class))) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(EntrantEventHistoryActivity.class, entrantIntent(EntrantEventHistoryActivity.class))) {
             onView(withId(R.id.nav_profile)).perform(click());
             intended(intentTo(EntrantProfileActivity.class));
         }
@@ -138,8 +152,8 @@ public class EntrantNavigationHelperTest {
 
     @Test
     public void fromQrScan_toHome() {
-        try (ActivityScenario<EntrantQrScanActivity> ignored =
-                     ActivityScenario.launch(entrantIntent(EntrantQrScanActivity.class))) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(EntrantQrScanActivity.class, entrantIntent(EntrantQrScanActivity.class))) {
             onView(withId(R.id.nav_home)).perform(click());
             intended(intentTo(EntrantMainActivity.class));
         }
@@ -147,8 +161,8 @@ public class EntrantNavigationHelperTest {
 
     @Test
     public void fromQrScan_toHistory() {
-        try (ActivityScenario<EntrantQrScanActivity> ignored =
-                     ActivityScenario.launch(entrantIntent(EntrantQrScanActivity.class))) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(EntrantQrScanActivity.class, entrantIntent(EntrantQrScanActivity.class))) {
             onView(withId(R.id.nav_history)).perform(click());
             intended(intentTo(EntrantEventHistoryActivity.class));
         }
@@ -156,8 +170,8 @@ public class EntrantNavigationHelperTest {
 
     @Test
     public void fromQrScan_toProfile() {
-        try (ActivityScenario<EntrantQrScanActivity> ignored =
-                     ActivityScenario.launch(entrantIntent(EntrantQrScanActivity.class))) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(EntrantQrScanActivity.class, entrantIntent(EntrantQrScanActivity.class))) {
             onView(withId(R.id.nav_profile)).perform(click());
             intended(intentTo(EntrantProfileActivity.class));
         }
@@ -169,8 +183,8 @@ public class EntrantNavigationHelperTest {
 
     @Test
     public void fromProfile_toHome() {
-        try (ActivityScenario<EntrantProfileActivity> ignored =
-                     ActivityScenario.launch(entrantIntent(EntrantProfileActivity.class))) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(EntrantProfileActivity.class, entrantIntent(EntrantProfileActivity.class))) {
             onView(withId(R.id.nav_home)).perform(click());
             intended(intentTo(EntrantMainActivity.class));
         }
@@ -178,8 +192,8 @@ public class EntrantNavigationHelperTest {
 
     @Test
     public void fromProfile_toHistory() {
-        try (ActivityScenario<EntrantProfileActivity> ignored =
-                     ActivityScenario.launch(entrantIntent(EntrantProfileActivity.class))) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(EntrantProfileActivity.class, entrantIntent(EntrantProfileActivity.class))) {
             onView(withId(R.id.nav_history)).perform(click());
             intended(intentTo(EntrantEventHistoryActivity.class));
         }
@@ -187,8 +201,8 @@ public class EntrantNavigationHelperTest {
 
     @Test
     public void fromProfile_toQrScan() {
-        try (ActivityScenario<EntrantProfileActivity> ignored =
-                     ActivityScenario.launch(entrantIntent(EntrantProfileActivity.class))) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(EntrantProfileActivity.class, entrantIntent(EntrantProfileActivity.class))) {
             onView(withId(R.id.nav_qr_scan)).perform(click());
             intended(intentTo(EntrantQrScanActivity.class));
         }
@@ -206,8 +220,8 @@ public class EntrantNavigationHelperTest {
 
     @Test
     public void fromNotifications_toHome() {
-        try (ActivityScenario<NotificationsActivity> ignored =
-                     ActivityScenario.launch(notificationsIntent())) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(NotificationsActivity.class, notificationsIntent())) {
             onView(withId(R.id.nav_home)).perform(click());
             intended(intentTo(EntrantMainActivity.class));
         }
@@ -215,8 +229,8 @@ public class EntrantNavigationHelperTest {
 
     @Test
     public void fromNotifications_toHistory() {
-        try (ActivityScenario<NotificationsActivity> ignored =
-                     ActivityScenario.launch(notificationsIntent())) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(NotificationsActivity.class, notificationsIntent())) {
             onView(withId(R.id.nav_history)).perform(click());
             intended(intentTo(EntrantEventHistoryActivity.class));
         }
@@ -224,8 +238,8 @@ public class EntrantNavigationHelperTest {
 
     @Test
     public void fromNotifications_toQrScan() {
-        try (ActivityScenario<NotificationsActivity> ignored =
-                     ActivityScenario.launch(notificationsIntent())) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(NotificationsActivity.class, notificationsIntent())) {
             onView(withId(R.id.nav_qr_scan)).perform(click());
             intended(intentTo(EntrantQrScanActivity.class));
         }
@@ -233,8 +247,8 @@ public class EntrantNavigationHelperTest {
 
     @Test
     public void fromNotifications_toProfile() {
-        try (ActivityScenario<NotificationsActivity> ignored =
-                     ActivityScenario.launch(notificationsIntent())) {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(NotificationsActivity.class, notificationsIntent())) {
             onView(withId(R.id.nav_profile)).perform(click());
             intended(intentTo(EntrantProfileActivity.class));
         }
