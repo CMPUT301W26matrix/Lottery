@@ -19,13 +19,6 @@ import com.google.firebase.Timestamp;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-/**
- * Unit tests for {@link AdminImageAdapter}.
- * Covers US 03.06.01: As an administrator, I want to be able to browse images
- *     that are uploaded so I can remove them if necessary.
- * Covers US 03.03.01: As an administrator, I want to be able to remove images.
- */
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
@@ -179,7 +172,8 @@ public class AdminImageAdapterTest {
         // eventId is null - adapter should still bind without crash
         List<Event> singleList = new ArrayList<>();
         singleList.add(event);
-        AdminImageAdapter singleAdapter = new AdminImageAdapter(singleList, e -> {});
+        AdminImageAdapter singleAdapter = new AdminImageAdapter(singleList, e -> {
+        });
         FrameLayout parent = new FrameLayout(context);
         AdminImageAdapter.ImageViewHolder holder = singleAdapter.onCreateViewHolder(parent, 0);
         singleAdapter.onBindViewHolder(holder, 0);

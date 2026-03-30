@@ -158,7 +158,8 @@ public class EventAdapterTest {
 
         List<Event> eventList = new ArrayList<>();
         eventList.add(event);
-        EventAdapter adapter = new EventAdapter(eventList, e -> {});
+        EventAdapter adapter = new EventAdapter(eventList, e -> {
+        });
 
         FrameLayout parent = new FrameLayout(context);
         EventAdapter.EventViewHolder holder = adapter.onCreateViewHolder(parent, 0);
@@ -179,7 +180,8 @@ public class EventAdapterTest {
 
         List<Event> eventList = new ArrayList<>();
         eventList.add(event);
-        EventAdapter adapter = new EventAdapter(eventList, e -> {});
+        EventAdapter adapter = new EventAdapter(eventList, e -> {
+        });
 
         FrameLayout parent = new FrameLayout(context);
         EventAdapter.EventViewHolder holder = adapter.onCreateViewHolder(parent, 0);
@@ -205,7 +207,8 @@ public class EventAdapterTest {
 
         List<Event> eventList = new ArrayList<>();
         eventList.add(event);
-        EventAdapter adapter = new EventAdapter(eventList, e -> {});
+        EventAdapter adapter = new EventAdapter(eventList, e -> {
+        });
 
         assertEquals(1, adapter.getItemCount());
     }
@@ -213,7 +216,8 @@ public class EventAdapterTest {
     // US 03.04.01: Event list item should contain title, date, status, and capacity views
     @Test
     public void testOnCreateViewHolder() {
-        EventAdapter adapter = new EventAdapter(new ArrayList<>(), e -> {});
+        EventAdapter adapter = new EventAdapter(new ArrayList<>(), e -> {
+        });
 
         FrameLayout parent = new FrameLayout(context);
         EventAdapter.EventViewHolder holder = adapter.onCreateViewHolder(parent, 0);
@@ -233,7 +237,8 @@ public class EventAdapterTest {
 
         List<Event> eventList = new ArrayList<>();
         eventList.add(event);
-        EventAdapter adapter = new EventAdapter(eventList, e -> {});
+        EventAdapter adapter = new EventAdapter(eventList, e -> {
+        });
 
         FrameLayout parent = new FrameLayout(context);
         EventAdapter.EventViewHolder holder = adapter.onCreateViewHolder(parent, 0);

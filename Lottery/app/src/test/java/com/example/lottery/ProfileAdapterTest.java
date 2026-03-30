@@ -19,12 +19,6 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
-/**
- * Unit tests for {@link ProfileAdapter}.
- * Covers US 03.05.01: As an administrator, I want to be able to browse profiles.
- * Covers US 03.02.01: As an administrator, I want to be able to remove profiles.
- */
-
 import java.util.ArrayList;
 
 @RunWith(RobolectricTestRunner.class)

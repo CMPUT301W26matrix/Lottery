@@ -23,12 +23,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-/**
- * Instrumented tests for {@link AdminBrowseLogsActivity}.
- * Covers US 03.08.01: As an administrator, I want to review logs of all
- *     notifications sent to entrants by organizers.
- */
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)

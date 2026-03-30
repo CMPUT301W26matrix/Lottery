@@ -40,7 +40,6 @@
     <string name="limit_waiting_list_size">Limit Waiting List Size</string>
     <string name="waiting_list_limit">Waiting List Limit</string>
     <string name="event_details_title">Event Details</string>
-    <string name="edit_event">Edit Event</string>
     <string name="start_date">Start Date</string>
     <string name="end_date">End Date</string>
     <string name="registration_start">Registration Start</string>
@@ -60,8 +59,6 @@
     <string name="sample_winners_string">Sample Winners</string>
     <string name="sample_fragment_hint">Enter number here</string>
     <string name="sub_header_sample_fragment">How Many Entrants Should Be Sampled?</string>
-    <string name="send_notification_string">Send Notification</string>
-    <string name="notification_input_hint">write notification content here</string>
     <string name="view_location_header_string">Entrants Map</string>
     <string name="organizer_dashboard">Organizer Dashboard</string>
     <string name="organizer_event_browser_title">Lottery Organizer</string>
@@ -85,7 +82,6 @@
     <string name="admin_event_details_title">Event Details</string>
     <string name="admin_all_events_title">All Events</string>
     <string name="admin_no_events">No events available</string>
-    <string name="admin_browse_events_active_tab">Browsing all events</string>
     <string name="failed_to_load_events">Failed to load events</string>
     <string name="failed_to_load_event_details">Failed to load event details</string>
     <string name="event_not_found">Event not found</string>
@@ -102,7 +98,6 @@
     <string name="admin_already_viewing_images">Already viewing images</string>
     <string name="admin_organizer_label">Organizer: %1$s</string>
     <string name="admin_unknown_organizer">Unknown Organizer</string>
-    <string name="admin_logs_coming_soon">Notification logs coming soon</string>
     <string name="admin_logs_title">Notification Logs</string>
     <string name="admin_logs_subtitle">All notifications sent by organizers</string>
     <string name="admin_all_logs_title">All Logs</string>
@@ -139,12 +134,9 @@
 
     <!-- Entrant Main Screen Strings -->
     <string name="browse_events">Browse Events</string>
-    <string name="your_wait_listed_events">Your Wait-Listed Events</string>
     <string name="search_hint">Search events...</string>
 
     <!-- Empty State Messages -->
-    <string name="no_wait_listed_events">You have no events in your wait list</string>
-    <string name="join_events_to_see_them_here">Join events to see them here</string>
     <string name="no_events_found">No events found matching your criteria</string>
 
     <!-- Event Item/Details Strings -->
@@ -152,7 +144,6 @@
     <string name="registration_period_template">Registration Period: %1$s - %2$s</string>
     <string name="people_in_waitlist_template">People in Waitlist: %1$d</string>
     <string name="event_description_placeholder">Event description will appear here...</string>
-    <string name="view_details">View Details</string>
     <string name="event_details">Event Details</string>
     <string name="no_event_description">No event description available.</string>
     <string name="browse_profiles">Browse Profiles</string>
@@ -162,13 +153,7 @@
 
     <!-- Invitation strings -->
     <string name="decline_invite">Decline Invite</string>
-    <string name="invitation_accepted">Invitation accepted! You are now signed up for this event.</string>
-    <string name="invitation_declined">Invitation declined</string>
-    <string name="failed_to_accept_invitation">Failed to accept invitation. Please try again.</string>
-    <string name="failed_to_decline_invitation">Failed to decline invitation. Please try again.</string>
-    <string name="failed_to_cancel_membership">Failed to cancel membership. Please try again.</string>
     <string name="cancel_event_membership">Cancel Event Membership</string>
-    <string name="membership_cancelled">Event membership cancelled.</string>
 
     <!-- Registration period ended strings -->
     <string name="registration_period_ended">Registration Period Over</string>
@@ -210,9 +195,6 @@
     <string name="filter_music">Music</string>
     <string name="filter_other">Other</string>
     <string name="filter_all_dates">All Dates</string>
-    <string name="filter_today">Today</string>
-    <string name="filter_this_week">This Week</string>
-    <string name="filter_upcoming">Upcoming</string>
     <string name="filter_available">Available</string>
     <string name="filter_waitlist_open">Waitlist Open</string>
     <string name="deletion_active">Deletion Active</string>
@@ -223,10 +205,6 @@
 
     <!-- Profile Management -->
     <string name="profile_image">Profile Image</string>
-    <string name="user_name_default">User Name</string>
-    <string name="email_default">user@example.com</string>
-    <string name="no_phone_number">No Phone Number</string>
-    <string name="role_entrant">Entrant</string>
     <string name="name_hint">Name</string>
     <string name="email_hint">Email</string>
     <string name="phone_optional_hint">Phone (Optional)</string>

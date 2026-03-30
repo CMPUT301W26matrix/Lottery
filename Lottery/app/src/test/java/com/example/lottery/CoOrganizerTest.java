@@ -302,7 +302,8 @@ public class CoOrganizerTest {
                 Timestamp.now()
         ));
 
-        NotificationAdapter adapter = new NotificationAdapter(notifications, item -> {});
+        NotificationAdapter adapter = new NotificationAdapter(notifications, item -> {
+        });
 
         FrameLayout parent = new FrameLayout(context);
         NotificationAdapter.NotificationViewHolder holder = adapter.onCreateViewHolder(parent, 0);
@@ -332,7 +333,8 @@ public class CoOrganizerTest {
                 Timestamp.now()
         ));
 
-        NotificationAdapter adapter = new NotificationAdapter(notifications, item -> {});
+        NotificationAdapter adapter = new NotificationAdapter(notifications, item -> {
+        });
 
         FrameLayout parent = new FrameLayout(context);
         NotificationAdapter.NotificationViewHolder holder = adapter.onCreateViewHolder(parent, 0);
@@ -362,7 +364,8 @@ public class CoOrganizerTest {
                 Timestamp.now()
         ));
 
-        NotificationAdapter adapter = new NotificationAdapter(notifications, item -> {});
+        NotificationAdapter adapter = new NotificationAdapter(notifications, item -> {
+        });
 
         FrameLayout parent = new FrameLayout(context);
         NotificationAdapter.NotificationViewHolder holder = adapter.onCreateViewHolder(parent, 0);
@@ -392,7 +395,8 @@ public class CoOrganizerTest {
                 Timestamp.now()
         ));
 
-        NotificationAdapter adapter = new NotificationAdapter(notifications, item -> {});
+        NotificationAdapter adapter = new NotificationAdapter(notifications, item -> {
+        });
 
         FrameLayout parent = new FrameLayout(context);
         NotificationAdapter.NotificationViewHolder holder = adapter.onCreateViewHolder(parent, 0);

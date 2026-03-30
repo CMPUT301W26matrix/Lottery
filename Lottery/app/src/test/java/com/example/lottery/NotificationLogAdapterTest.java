@@ -18,12 +18,6 @@ import androidx.test.core.app.ApplicationProvider;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
-
-/**
- * Unit tests for {@link NotificationLogAdapter}.
- * Covers US 03.08.01: As an administrator, I want to review logs of all
- *     notifications sent to entrants by organizers.
- */
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
