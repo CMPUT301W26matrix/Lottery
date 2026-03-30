@@ -34,7 +34,7 @@ import java.util.Locale;
  * <p>Responsibilities:
  * <ul>
  *   <li>Fetch the event record from Firestore using the supplied event ID.</li>
- *   <li>Render the poster, title, schedule, deadline, and description.</li>
+ *   <li>Render the poster (Base64), title, schedule, deadline, and description.</li>
  *   <li>Surface organizer-configured requirements such as geolocation.</li>
  *   <li>Keep the custom bottom navigation active on the details screen.</li>
  * </ul>
@@ -271,6 +271,6 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
             btnInviteEntrant.setVisibility(event.isPrivate() ? View.VISIBLE : View.GONE);
         }
 
-        PosterImageLoader.load(ivEventPoster, event.getPosterUri(), R.drawable.event_placeholder);
+        PosterImageLoader.load(ivEventPoster, event.getPosterBase64(), R.drawable.event_placeholder);
     }
 }

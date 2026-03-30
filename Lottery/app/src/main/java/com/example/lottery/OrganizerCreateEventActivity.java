@@ -7,6 +7,8 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -34,17 +36,17 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.Timestamp;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageException;
-import com.google.firebase.storage.StorageMetadata;
-import com.google.firebase.storage.StorageReference;
+import com.google.firebase.firestore.SetOptions;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -94,21 +96,14 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
     private boolean isEditMode = false;
 
     /**
-     * URI of the selected poster image.
+     * URI of the selected poster image (can be a local Uri or a Base64 string parsed as Uri).
      */
-    private Uri selectedPosterUri = null;
-    /**
-     * Current poster value loaded from Firestore. This may already be a remote download URL.
-     */
-    private String existingPosterUri = "";
+    private Uri selectedPosterSource = null;
+
     /**
      * Firebase Firestore instance for database operations.
      */
     private FirebaseFirestore db;
-    /**
-     * Firebase Storage instance for poster uploads.
-     */
-    private FirebaseStorage storage;
     private String userId;
 
     @Override
@@ -125,7 +120,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         });
 
         db = FirebaseFirestore.getInstance();
-        storage = FirebaseStorage.getInstance();
 
         SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
         userId = getIntent().getStringExtra("userId");
@@ -165,11 +159,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         btnGenerateQRCode.setOnClickListener(v -> generateAndDisplayQRCode());
         btnCreateEvent.setOnClickListener(v -> validateAndSaveEvent());
 
-        btnCreateEvent.setOnClickListener(v -> {
-            Log.d(TAG, "Save/Launch button clicked");
-            validateAndSaveEvent();
-        });
-
         swLimitWaitingList.setOnCheckedChangeListener((buttonView, isChecked) -> {
             tilWaitingListLimit.setVisibility(isChecked ? View.VISIBLE : View.GONE);
             if (!isChecked) {
@@ -179,7 +168,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
 
         swIsPrivate.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
-                // If private, clear QR code and hide related UI
                 qrCodeContent = "";
                 cardQRCode.setVisibility(View.GONE);
             } else {
@@ -227,13 +215,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                 Intent intent = new Intent(this, OrganizerProfileActivity.class);
                 intent.putExtra("userId", userId);
                 startActivity(intent);
-            });
-        }
-
-        View btnCreate = findViewById(R.id.nav_create_container);
-        if (btnCreate != null) {
-            btnCreate.setOnClickListener(v -> {
-                // Already on Create page
             });
         }
     }
@@ -301,11 +282,10 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                 tilWaitingListLimit.setVisibility(View.VISIBLE);
             }
 
-            String posterUri = event.getPosterUri();
-            if (posterUri != null && !posterUri.isEmpty() && ivPosterPreview != null) {
-                existingPosterUri = posterUri;
-                selectedPosterUri = Uri.parse(posterUri);
-                PosterImageLoader.load(ivPosterPreview, posterUri, R.drawable.event_placeholder);
+            String posterBase64 = event.getPosterBase64();
+            if (posterBase64 != null && !posterBase64.isEmpty() && ivPosterPreview != null) {
+                selectedPosterSource = Uri.parse(posterBase64);
+                PosterImageLoader.load(ivPosterPreview, posterBase64, R.drawable.event_placeholder);
                 ivPosterPreview.setVisibility(View.VISIBLE);
                 tvPosterStatus.setText("Poster selected");
                 tvPosterStatus.setTextColor(ContextCompat.getColor(this, R.color.primary_blue));
@@ -360,16 +340,16 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
      */
     private void setupDialogCallback() {
         getSupportFragmentManager().setFragmentResultListener("posterRequest", this, (requestKey, bundle) -> {
-            String uriString = bundle.getString("posterUri");
-            if (uriString == null) return;
+            String posterSource = bundle.getString("posterBase64");
+            if (posterSource == null) return;
 
-            selectedPosterUri = Uri.parse(uriString);
+            selectedPosterSource = Uri.parse(posterSource);
             tvPosterStatus.setText("Poster selected");
             tvPosterStatus.setTextColor(ContextCompat.getColor(this, R.color.primary_blue));
             btnOpenUploadDialog.setText(R.string.update_poster);
 
             if (ivPosterPreview != null) {
-                PosterImageLoader.load(ivPosterPreview, selectedPosterUri, R.drawable.event_placeholder);
+                PosterImageLoader.load(ivPosterPreview, selectedPosterSource, R.drawable.event_placeholder);
                 ivPosterPreview.setVisibility(View.VISIBLE);
             }
         });
@@ -527,69 +507,65 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Persists the event to Firestore, handling poster conversion to Base64 if needed.
+     */
     private void persistEvent(String title, String capacityStr, String details, Integer waitingListLimit) {
-        Log.d(TAG, "persistEvent started");
+        Log.d(TAG, "persistEvent started: Base64 mode");
         btnCreateEvent.setEnabled(false);
 
-        if (isLocalUri(selectedPosterUri)) {
-            Log.d(TAG, "Local URI detected, uploading poster first");
-            uploadPosterAndSaveEvent(title, capacityStr, details, waitingListLimit, selectedPosterUri);
-            return;
+        String posterData = "";
+        if (selectedPosterSource != null) {
+            String scheme = selectedPosterSource.getScheme();
+            if ("content".equalsIgnoreCase(scheme) || "file".equalsIgnoreCase(scheme)) {
+                // New local image -> convert to compressed Base64
+                posterData = convertUriToBase64(selectedPosterSource);
+            } else {
+                // Existing URL or Base64 -> keep as is
+                posterData = selectedPosterSource.toString();
+            }
         }
-        Log.d(TAG, "No local poster to upload, saving directly to Firestore");
-        String posterUriToSave = selectedPosterUri != null ? selectedPosterUri.toString() : "";
-        saveEventToFirestore(title, capacityStr, details, waitingListLimit, posterUriToSave);
+
+        saveEventToFirestore(title, capacityStr, details, waitingListLimit, posterData);
     }
 
-    private boolean isLocalUri(Uri uri) {
-        if (uri == null) return false;
-        String scheme = uri.getScheme();
-        return "content".equalsIgnoreCase(scheme) || "file".equalsIgnoreCase(scheme);
-    }
-
-    private void uploadPosterAndSaveEvent(String title, String capacityStr, String details, Integer waitingListLimit, Uri posterUri) {
-        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
-            Log.w(TAG, "User not authenticated, attempting anonymous sign-in before upload");
-            FirebaseAuth.getInstance().signInAnonymously().addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    performUpload(title, capacityStr, details, waitingListLimit, posterUri);
+    /**
+     * Converts a image Uri to a compressed Base64 string.
+     *
+     * @param uri The Uri of the image to convert.
+     * @return A Base64 string prefixed with "data:image/jpeg;base64,".
+     */
+    private String convertUriToBase64(Uri uri) {
+        try {
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
+            // US 02.04.01: Reasonable compression for Firestore storage
+            int maxSize = 800;
+            int width = bitmap.getWidth();
+            int height = bitmap.getHeight();
+            if (width > maxSize || height > maxSize) {
+                float ratio = (float) width / (float) height;
+                if (ratio > 1) {
+                    width = maxSize;
+                    height = (int) (maxSize / ratio);
                 } else {
-                    btnCreateEvent.setEnabled(true);
-                    Log.e(TAG, "Anonymous sign-in failed", task.getException());
-                    Toast.makeText(this, "Upload failed: Authentication error", Toast.LENGTH_SHORT).show();
+                    height = maxSize;
+                    width = (int) (maxSize * ratio);
                 }
-            });
-        } else {
-            performUpload(title, capacityStr, details, waitingListLimit, posterUri);
+                bitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
+            }
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 70, baos);
+            return "data:image/jpeg;base64," + Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+        } catch (IOException e) {
+            Log.e(TAG, "Base64 conversion failed", e);
+            return "";
         }
     }
 
-    private void performUpload(String title, String capacityStr, String details, Integer waitingListLimit, Uri posterUri) {
-        StorageReference posterRef = storage.getReference().child("event_posters/" + eventId + "/" + UUID.randomUUID() + ".jpg");
-        StorageMetadata metadata = new StorageMetadata.Builder()
-                .setContentType("image/jpeg")
-                .build();
-
-        posterRef.putFile(posterUri, metadata)
-                .continueWithTask(task -> {
-                    if (!task.isSuccessful()) {
-                        Log.e(TAG, "Upload failed", task.getException());
-                        throw task.getException() != null ? task.getException() : new IllegalStateException("Upload failed");
-                    }
-                    return posterRef.getDownloadUrl();
-                })
-                .addOnSuccessListener(downloadUri -> {
-                    Log.d(TAG, "Poster uploaded successfully, URI: " + downloadUri);
-                    saveEventToFirestore(title, capacityStr, details, waitingListLimit, downloadUri.toString());
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Failed to upload poster: " + e.getMessage());
-                    Toast.makeText(this, "Poster upload unavailable, saving event without poster", Toast.LENGTH_LONG).show();
-                    saveEventToFirestore(title, capacityStr, details, waitingListLimit, "");
-                });
-    }
-
-    private void saveEventToFirestore(String title, String capacityStr, String details, Integer waitingListLimit, String posterUriToSave) {
+    /**
+     * Final step to save the event object to Firestore.
+     */
+    private void saveEventToFirestore(String title, String capacityStr, String details, Integer waitingListLimit, String posterBase64ToSave) {
         Log.d(TAG, "saveEventToFirestore started");
 
         boolean isPrivate = swIsPrivate.isChecked();
@@ -608,7 +584,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             btnCreateEvent.setEnabled(true);
             return;
         }
-        boolean requireLocation = swRequireLocation.isChecked();
 
         String category = "Other";
         int checkedChipId = cgCategories.getCheckedChipId();
@@ -619,30 +594,39 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             }
         }
 
-        Event event = new Event();
-        event.setEventId(eventId);
-        event.setTitle(title);
-        event.setDetails(details);
-        event.setOrganizerId(userId);
-        event.setCapacity(capacity);
-        event.setWaitingListLimit(waitingListLimit);
-        event.setQrCodeContent(qrCodeContent);
-        event.setScheduledDateTime(eventStartDate != null ? new Timestamp(eventStartDate) : null);
-        event.setEventEndDateTime(eventEndDate != null ? new Timestamp(eventEndDate) : null);
-        event.setRegistrationStart(regStartDate != null ? new Timestamp(regStartDate) : null);
-        event.setRegistrationDeadline(regEndDate != null ? new Timestamp(regEndDate) : null);
-        event.setDrawDate(drawDate != null ? new Timestamp(drawDate) : null);
-        event.setRequireLocation(requireLocation);
-        event.setPrivate(isPrivate);
-        event.setPosterUri(posterUriToSave);
-        event.setCategory(category);
-        event.touch();
+        // Use LinkedHashMap to control the order of fields in Firestore console.
+        // posterBase64 is put last to ensure it appears at the bottom.
+        Map<String, Object> eventMap = new LinkedHashMap<>();
+        eventMap.put("eventId", eventId);
+        eventMap.put("title", title);
+        eventMap.put("details", details);
+        eventMap.put("organizerId", userId);
+        eventMap.put("capacity", capacity);
+        eventMap.put("waitingListLimit", waitingListLimit);
+        eventMap.put("qrCodeContent", qrCodeContent);
+        eventMap.put("scheduledDateTime", eventStartDate != null ? new Timestamp(eventStartDate) : null);
+        eventMap.put("eventEndDateTime", eventEndDate != null ? new Timestamp(eventEndDate) : null);
+        eventMap.put("registrationStart", regStartDate != null ? new Timestamp(regStartDate) : null);
+        eventMap.put("registrationDeadline", regEndDate != null ? new Timestamp(regEndDate) : null);
+        eventMap.put("drawDate", drawDate != null ? new Timestamp(drawDate) : null);
+        eventMap.put("requireLocation", swRequireLocation.isChecked());
+        eventMap.put("private", isPrivate);
+        eventMap.put("category", category);
+        
+        Timestamp now = Timestamp.now();
+        eventMap.put("updatedAt", now);
+        if (!isEditMode) {
+            eventMap.put("status", "open");
+            eventMap.put("createdAt", now);
+        }
+
+        // Put the large Base64 field at the very end
+        eventMap.put("posterBase64", posterBase64ToSave);
 
         db.collection(FirestorePaths.EVENTS).document(eventId)
-                .set(event)
+                .set(eventMap, SetOptions.merge())
                 .addOnSuccessListener(aVoid -> {
                     Log.d(TAG, "Event saved to Firestore successfully");
-                    deleteReplacedPosterIfNeeded(posterUriToSave);
                     Toast.makeText(this, isEditMode ? "Event Updated Successfully!" : "Event Launched Successfully!", Toast.LENGTH_SHORT).show();
                     finish();
                 })
@@ -651,24 +635,5 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                     btnCreateEvent.setEnabled(true);
                     Toast.makeText(this, "Failed to save event: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
-    }
-
-    private void deleteReplacedPosterIfNeeded(String newPosterUri) {
-        if (existingPosterUri == null || existingPosterUri.isEmpty() || existingPosterUri.equals(newPosterUri))
-            return;
-        try {
-            if (existingPosterUri.startsWith("gs://") || existingPosterUri.contains("firebasestorage.googleapis.com")) {
-                FirebaseStorage.getInstance().getReferenceFromUrl(existingPosterUri).delete()
-                        .addOnFailureListener(e -> {
-                            if (e instanceof StorageException && ((StorageException) e).getErrorCode() == StorageException.ERROR_OBJECT_NOT_FOUND) {
-                                Log.d(TAG, "Old poster already gone, ignoring 404.");
-                            } else {
-                                Log.w(TAG, "Failed to delete old poster: " + e.getMessage());
-                            }
-                        });
-            }
-        } catch (Exception e) {
-            Log.w(TAG, "Error resolving old poster URL for deletion: " + e.getMessage());
-        }
     }
 }
