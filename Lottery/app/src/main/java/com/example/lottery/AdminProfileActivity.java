@@ -39,6 +39,12 @@ public class AdminProfileActivity extends AppCompatActivity {
     private String adminUserId;
     private String adminDeviceId;
 
+    /**
+     * Initializes the activity, loads admin profile data, and sets up role switching buttons
+     * and bottom navigation.
+     *
+     * @param savedInstanceState previously saved instance state, or null if not exist.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,6 +81,9 @@ public class AdminProfileActivity extends AppCompatActivity {
         setupNavigation();
     }
 
+    /**
+     * Binds UI views and hides the edit layout since admins cannot edit their profile.
+     */
     private void initializeViews() {
         tvAdminName = findViewById(R.id.tv_profile_name);
         tvAdminEmail = findViewById(R.id.tv_profile_email);
@@ -88,6 +97,10 @@ public class AdminProfileActivity extends AppCompatActivity {
         findViewById(R.id.layout_profile_edit).setVisibility(View.GONE);
     }
 
+    /**
+     * Loads the admin's profile data (name and email) from Firestore and updates the UI.
+     * Falls back to default "Admin" values if the document does not exist or the query fails.
+     */
     private void loadAdminProfile() {
         if (adminUserId == null) return;
 
@@ -112,6 +125,11 @@ public class AdminProfileActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Sets up click listeners for the "Switch to Entrant" and "Switch to Organizer" buttons,
+     * as well as the logout button. Admin role profiles use an "admin_" prefix to avoid
+     * collisions with regular device-bound user profiles.
+     */
     private void setupRoleButtons() {
         btnSwitchToEntrant.setOnClickListener(v -> {
             if (adminDeviceId == null) {
@@ -248,6 +266,9 @@ public class AdminProfileActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    /**
+     * Clears session data, signs out from Firebase Auth, and navigates back to MainActivity.
+     */
     private void logout() {
         // Clear shared preferences
         SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
@@ -263,6 +284,9 @@ public class AdminProfileActivity extends AppCompatActivity {
         finish();
     }
 
+    /**
+     * Sets up click listeners for the bottom navigation bar and highlights the settings tab.
+     */
     private void setupNavigation() {
         highlightSettingsTab();
 
@@ -309,6 +333,9 @@ public class AdminProfileActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Highlights the settings tab in the bottom navigation and dims all other tabs.
+     */
     private void highlightSettingsTab() {
         int activeColor = ContextCompat.getColor(this, R.color.primary_blue);
         int inactiveColor = ContextCompat.getColor(this, R.color.text_gray);
