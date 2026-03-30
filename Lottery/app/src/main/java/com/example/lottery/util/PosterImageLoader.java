@@ -59,9 +59,7 @@ public final class PosterImageLoader {
     }
 
     private static boolean isBase64(String str) {
-        // Heuristic: Base64 for images in this app usually starts with data: 
-        // or is a long string without protocol indicators.
-        return str.startsWith("data:image") || (!str.contains("://") && str.length() > 100);
+        return str.startsWith("data:image");
     }
 
     private static byte[] decodeBase64(String base64Str) {

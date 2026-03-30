@@ -68,6 +68,30 @@ public class EventTest {
         assertEquals("Poster Base64 should be stored exactly as provided", testBase64, event.getPosterBase64());
     }
 
+    // US 02.04.01: New event without poster should have null posterBase64
+    @Test
+    public void testPosterBase64DefaultsToNull() {
+        Event event = new Event();
+        assertNull("Poster Base64 should default to null", event.getPosterBase64());
+    }
+
+    // US 03.03.01: Admin clearing a poster should result in null posterBase64
+    @Test
+    public void testPosterBase64CanBeCleared() {
+        Event event = new Event();
+        event.setPosterBase64("data:image/jpeg;base64,sample");
+        event.setPosterBase64(null);
+        assertNull("Poster Base64 should be null after clearing", event.getPosterBase64());
+    }
+
+    // US 02.04.01: Event without uploaded poster should store empty string
+    @Test
+    public void testPosterBase64CanBeSetToEmpty() {
+        Event event = new Event();
+        event.setPosterBase64("");
+        assertEquals("Poster Base64 should accept empty string", "", event.getPosterBase64());
+    }
+
     // US 03.04.01: Event should support nullable waiting list limit for admin browsing
     @Test
     public void testWaitingListLimitSetterGetter() {

@@ -520,6 +520,11 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             if ("content".equalsIgnoreCase(scheme) || "file".equalsIgnoreCase(scheme)) {
                 // New local image -> convert to compressed Base64
                 posterData = convertUriToBase64(selectedPosterSource);
+                if (posterData.isEmpty()) {
+                    // Conversion failed or image too large — abort save
+                    btnCreateEvent.setEnabled(true);
+                    return;
+                }
             } else {
                 // Existing URL or Base64 -> keep as is
                 posterData = selectedPosterSource.toString();
@@ -555,7 +560,14 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             }
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.JPEG, 70, baos);
-            return "data:image/jpeg;base64," + Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+            byte[] bytes = baos.toByteArray();
+            // Firestore document limit is 1 MB; leave room for Base64 expansion and other fields
+            if (bytes.length > 500_000) {
+                Log.w(TAG, "Poster too large after compression (" + bytes.length + " bytes), skipping");
+                Toast.makeText(this, "Image too large. Please choose a smaller image.", Toast.LENGTH_SHORT).show();
+                return "";
+            }
+            return "data:image/jpeg;base64," + Base64.encodeToString(bytes, Base64.DEFAULT);
         } catch (IOException e) {
             Log.e(TAG, "Base64 conversion failed", e);
             return "";
@@ -612,7 +624,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         eventMap.put("requireLocation", swRequireLocation.isChecked());
         eventMap.put("private", isPrivate);
         eventMap.put("category", category);
-        
+
         Timestamp now = Timestamp.now();
         eventMap.put("updatedAt", now);
         if (!isEditMode) {
@@ -622,7 +634,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
 
         // Put the large Base64 field at the very end
         eventMap.put("posterBase64", posterBase64ToSave);
-
         db.collection(FirestorePaths.EVENTS).document(eventId)
                 .set(eventMap, SetOptions.merge())
                 .addOnSuccessListener(aVoid -> {

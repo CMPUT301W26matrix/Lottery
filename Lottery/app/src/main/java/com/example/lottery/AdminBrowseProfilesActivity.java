@@ -305,10 +305,17 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
                 batch.delete(doc.getReference());
             }
             batch.commit().addOnSuccessListener(unused -> {
-                for (String eventId : eventsNeedingPromotion) WaitlistPromotionUtil.promoteOneFromWaitlistIfNeeded(db, eventId);
+                for (String eventId : eventsNeedingPromotion)
+                    WaitlistPromotionUtil.promoteOneFromWaitlistIfNeeded(db, eventId);
                 onComplete.accept(true);
-            }).addOnFailureListener(e -> onComplete.accept(false));
-        }).addOnFailureListener(e -> onComplete.accept(false));
+            }).addOnFailureListener(e -> {
+                Log.e(TAG, "Failed to delete waiting list records for " + userId, e);
+                onComplete.accept(false);
+            });
+        }).addOnFailureListener(e -> {
+            Log.e(TAG, "Failed to query waiting list records for " + userId, e);
+            onComplete.accept(false);
+        });
     }
 
     /**
@@ -337,7 +344,14 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
             deleteUserDocument(organizer);
             return;
         }
-        fullDeleteEvent(eventIds.get(index), success -> deleteEventsSequentially(eventIds, index + 1, organizer));
+        fullDeleteEvent(eventIds.get(index), success -> {
+            if (!success) {
+                Log.e(TAG, "Failed to fully delete event " + eventIds.get(index) + ", aborting organizer deletion");
+                Toast.makeText(this, R.string.failed_to_delete_organizer_events, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            deleteEventsSequentially(eventIds, index + 1, organizer);
+        });
     }
 
     /**
@@ -347,11 +361,30 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
      * @param onComplete Callback invoked with the success status of the operation.
      */
     private void fullDeleteEvent(String eventId, Consumer<Boolean> onComplete) {
-        collectAffectedUserIds(eventId, userIds ->
-                deleteSubCollections(eventId, subOk ->
-                        deleteInboxEntriesForUsers(eventId, userIds, inboxOk ->
-                                deleteEventNotifications(eventId, notifOk ->
-                                        deleteEventDocument(eventId, onComplete)))));
+        collectAffectedUserIds(eventId, userIds -> {
+            deleteSubCollections(eventId, subOk -> {
+                if (!subOk) {
+                    Log.e(TAG, "Failed to clean sub-collections for event " + eventId);
+                    onComplete.accept(false);
+                    return;
+                }
+                deleteInboxEntriesForUsers(eventId, userIds, inboxOk -> {
+                    if (!inboxOk) {
+                        Log.e(TAG, "Failed to clean inbox entries for event " + eventId);
+                        onComplete.accept(false);
+                        return;
+                    }
+                    deleteEventNotifications(eventId, notifOk -> {
+                        if (!notifOk) {
+                            Log.e(TAG, "Failed to clean notifications for event " + eventId);
+                            onComplete.accept(false);
+                            return;
+                        }
+                        deleteEventDocument(eventId, onComplete);
+                    });
+                });
+            });
+        });
     }
 
     /**
@@ -361,43 +394,81 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
         Set<String> userIds = new HashSet<>();
         AtomicInteger done = new AtomicInteger(0);
         AtomicBoolean hasFailure = new AtomicBoolean(false);
-        Runnable checkDone = () -> { if (done.incrementAndGet() == 2) onComplete.accept(userIds); };
-        db.collection(FirestorePaths.EVENTS).document(eventId).get().addOnSuccessListener(documentSnapshot -> {
-            if (documentSnapshot.exists()) {
-                String organizerId = documentSnapshot.getString("organizerId");
-                if (organizerId != null) userIds.add(organizerId);
+        Runnable checkDone = () -> {
+            if (done.incrementAndGet() == 2) {
+                if (hasFailure.get()) {
+                    Log.w(TAG, "User ID collection incomplete; some inbox entries may not be cleaned");
+                }
+                onComplete.accept(userIds);
             }
-            db.collection(FirestorePaths.eventWaitingList(eventId)).get().addOnSuccessListener(snap -> {
-                for (QueryDocumentSnapshot doc : snap) userIds.add(doc.getId());
-                checkDone.run();
-            }).addOnFailureListener(e -> { hasFailure.set(true); checkDone.run(); });
-            db.collection(FirestorePaths.eventCoOrganizers(eventId)).get().addOnSuccessListener(snap -> {
-                for (QueryDocumentSnapshot doc : snap) userIds.add(doc.getId());
-                checkDone.run();
-            }).addOnFailureListener(e -> { hasFailure.set(true); checkDone.run(); });
-        });
+        };
+        Runnable loadParticipantIds = () -> {
+            db.collection(FirestorePaths.eventWaitingList(eventId)).get()
+                    .addOnSuccessListener(snap -> {
+                        for (QueryDocumentSnapshot doc : snap) userIds.add(doc.getId());
+                        checkDone.run();
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.w(TAG, "Failed to read waitingList for inbox cleanup", e);
+                        hasFailure.set(true);
+                        checkDone.run();
+                    });
+            db.collection(FirestorePaths.eventCoOrganizers(eventId)).get()
+                    .addOnSuccessListener(snap -> {
+                        for (QueryDocumentSnapshot doc : snap) userIds.add(doc.getId());
+                        checkDone.run();
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.w(TAG, "Failed to read coOrganizers for inbox cleanup", e);
+                        hasFailure.set(true);
+                        checkDone.run();
+                    });
+        };
+        db.collection(FirestorePaths.EVENTS).document(eventId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String organizerId = documentSnapshot.getString("organizerId");
+                        if (organizerId != null) userIds.add(organizerId);
+                    }
+                    loadParticipantIds.run();
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Failed to read event document for organizer inbox cleanup", e);
+                    hasFailure.set(true);
+                    loadParticipantIds.run();
+                });
     }
 
     /**
      * Deletes inbox entries for a specific event across multiple users.
      */
     private void deleteInboxEntriesForUsers(String eventId, Set<String> userIds, Consumer<Boolean> onComplete) {
-        if (userIds.isEmpty()) { onComplete.accept(true); return; }
+        if (userIds.isEmpty()) {
+            onComplete.accept(true);
+            return;
+        }
         AtomicInteger processed = new AtomicInteger(0);
         AtomicBoolean hasFailure = new AtomicBoolean(false);
         int total = userIds.size();
         for (String userId : userIds) {
             db.collection(FirestorePaths.userInbox(userId)).whereEqualTo("eventId", eventId).get().addOnSuccessListener(snap -> {
-                if (snap.isEmpty()) { if (processed.incrementAndGet() == total) onComplete.accept(!hasFailure.get()); return; }
+                if (snap.isEmpty()) {
+                    if (processed.incrementAndGet() == total) onComplete.accept(!hasFailure.get());
+                    return;
+                }
                 AtomicInteger deleted = new AtomicInteger(0);
                 int docTotal = snap.size();
                 for (QueryDocumentSnapshot doc : snap) {
                     doc.getReference().delete().addOnCompleteListener(task -> {
                         if (!task.isSuccessful()) hasFailure.set(true);
-                        if (deleted.incrementAndGet() == docTotal && processed.incrementAndGet() == total) onComplete.accept(!hasFailure.get());
+                        if (deleted.incrementAndGet() == docTotal && processed.incrementAndGet() == total)
+                            onComplete.accept(!hasFailure.get());
                     });
                 }
-            }).addOnFailureListener(e -> { hasFailure.set(true); if (processed.incrementAndGet() == total) onComplete.accept(false); });
+            }).addOnFailureListener(e -> {
+                hasFailure.set(true);
+                if (processed.incrementAndGet() == total) onComplete.accept(false);
+            });
         }
     }
 
@@ -407,7 +478,10 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
     private void deleteSubCollections(String eventId, Consumer<Boolean> onComplete) {
         AtomicInteger done = new AtomicInteger(0);
         AtomicBoolean allOk = new AtomicBoolean(true);
-        Consumer<Boolean> each = ok -> { if (!ok) allOk.set(false); if (done.incrementAndGet() == 3) onComplete.accept(allOk.get()); };
+        Consumer<Boolean> each = ok -> {
+            if (!ok) allOk.set(false);
+            if (done.incrementAndGet() == 3) onComplete.accept(allOk.get());
+        };
         deleteAllDocuments(db.collection(FirestorePaths.eventWaitingList(eventId)), each);
         deleteAllDocuments(db.collection(FirestorePaths.eventCoOrganizers(eventId)), each);
         deleteAllDocuments(db.collection(FirestorePaths.eventComments(eventId)), each);
@@ -418,7 +492,10 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
      */
     private void deleteAllDocuments(CollectionReference colRef, Consumer<Boolean> onComplete) {
         colRef.get().addOnSuccessListener(snap -> {
-            if (snap.isEmpty()) { onComplete.accept(true); return; }
+            if (snap.isEmpty()) {
+                onComplete.accept(true);
+                return;
+            }
             int total = snap.size();
             AtomicInteger completed = new AtomicInteger(0);
             AtomicBoolean hasFailure = new AtomicBoolean(false);
@@ -436,7 +513,10 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
      */
     private void deleteEventNotifications(String eventId, Consumer<Boolean> onComplete) {
         db.collection(FirestorePaths.NOTIFICATIONS).whereEqualTo("eventId", eventId).get().addOnSuccessListener(snap -> {
-            if (snap.isEmpty()) { onComplete.accept(true); return; }
+            if (snap.isEmpty()) {
+                onComplete.accept(true);
+                return;
+            }
             int total = snap.size();
             AtomicInteger completed = new AtomicInteger(0);
             AtomicBoolean hasFailure = new AtomicBoolean(false);
@@ -446,7 +526,8 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
                     if (!recipientOk) hasFailure.set(true);
                     notifDoc.getReference().delete().addOnCompleteListener(task -> {
                         if (!task.isSuccessful()) hasFailure.set(true);
-                        if (completed.incrementAndGet() == total) onComplete.accept(!hasFailure.get());
+                        if (completed.incrementAndGet() == total)
+                            onComplete.accept(!hasFailure.get());
                     });
                 });
             }
@@ -459,7 +540,10 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
     private void deleteEventDocument(String eventId, Consumer<Boolean> onComplete) {
         db.collection(FirestorePaths.EVENTS).document(eventId).delete()
                 .addOnSuccessListener(unused -> onComplete.accept(true))
-                .addOnFailureListener(e -> onComplete.accept(false));
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to delete event document " + eventId, e);
+                    onComplete.accept(false);
+                });
     }
 
     /**
