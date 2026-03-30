@@ -1,169 +1,169 @@
 package com.example.lottery;
 
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.intent.Intents.intended;
+import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
+
 import android.content.Context;
-import android.content.SharedPreferences;
+import android.content.Intent;
 
+import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.espresso.intent.Intents;
+import androidx.test.espresso.matcher.ViewMatchers.Visibility;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.LargeTest;
-
-import com.example.lottery.util.AdminRoleManager;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.*;
-
 /**
- * Unit tests for the admin role switching feature.
- * Tests the AdminRoleManager utility class and role switching logic.
+ * Instrumented tests for {@link AdminProfileActivity}.
+ * Covers US 03.09.01: As an administrator, I want to be able to switch
+ *     between entrant and organizer roles.
  */
 @RunWith(AndroidJUnit4.class)
-@LargeTest
 public class AdminProfileActivityTest {
 
-    private Context context;
-    private SharedPreferences prefs;
-    private static final String TEST_ADMIN_ID = "admin_test_123";
-    private static final String TEST_ENTRANT_ID = "entrant_test_123";
-    private static final String TEST_ORGANIZER_ID = "organizer_test_123";
+    private static final String TEST_ADMIN_ID = "admin_test_device";
 
     @Before
     public void setUp() {
-        context = ApplicationProvider.getApplicationContext();
-        prefs = context.getSharedPreferences("AdminRolePrefs", Context.MODE_PRIVATE);
-        // Clear any existing preferences before each test
-        prefs.edit().clear().apply();
+        Intents.init();
     }
 
     @After
     public void tearDown() {
-        // Clean up after each test
-        prefs.edit().clear().apply();
+        Intents.release();
     }
 
-    @Test
-    public void testSetAdminRoleSession() {
-        // Test setting an admin role session
-        AdminRoleManager.setAdminRoleSession(context, TEST_ADMIN_ID);
-
-        assertTrue("Admin role session should be active",
-                AdminRoleManager.isAdminRoleSession(context));
-        assertEquals("Admin user ID should match",
-                TEST_ADMIN_ID,
-                AdminRoleManager.getAdminUserId(context));
+    private Intent createAdminProfileIntent() {
+        Context context = ApplicationProvider.getApplicationContext();
+        Intent intent = new Intent(context, AdminProfileActivity.class);
+        intent.putExtra("userId", TEST_ADMIN_ID);
+        return intent;
     }
 
+    // US 03.09.01: Admin profile should display name and email
     @Test
-    public void testIsAdminRoleSession_WhenNoSession() {
-        // Test when no session is set
-        assertFalse("Admin role session should be false when not set",
-                AdminRoleManager.isAdminRoleSession(context));
-        assertNull("Admin user ID should be null when not set",
-                AdminRoleManager.getAdminUserId(context));
+    public void testAdminProfileScreenIsDisplayed() {
+        try (ActivityScenario<AdminProfileActivity> ignored =
+                     ActivityScenario.launch(createAdminProfileIntent())) {
+            onView(withId(R.id.tv_profile_name)).check(matches(isDisplayed()));
+            onView(withId(R.id.tv_profile_email)).check(matches(isDisplayed()));
+        }
     }
 
+    // US 03.09.01: Admin should not be able to edit their profile
     @Test
-    public void testClearAdminRoleSession() {
-        // Set a session first
-        AdminRoleManager.setAdminRoleSession(context, TEST_ADMIN_ID);
-        assertTrue("Session should be active",
-                AdminRoleManager.isAdminRoleSession(context));
-
-        // Clear the session
-        AdminRoleManager.clearAdminRoleSession(context);
-
-        assertFalse("Session should be cleared",
-                AdminRoleManager.isAdminRoleSession(context));
-        assertNull("Admin user ID should be null after clearing",
-                AdminRoleManager.getAdminUserId(context));
+    public void testEditModeIsHidden() {
+        try (ActivityScenario<AdminProfileActivity> ignored =
+                     ActivityScenario.launch(createAdminProfileIntent())) {
+            onView(withId(R.id.layout_profile_edit))
+                    .check(matches(withEffectiveVisibility(Visibility.GONE)));
+        }
     }
 
+    // US 03.09.01: Admin should see "Switch to Entrant" button
     @Test
-    public void testMultipleAdminSessions_LastOneWins() {
-        // Set first admin
-        AdminRoleManager.setAdminRoleSession(context, "admin_first");
-        assertEquals("First admin ID should be stored",
-                "admin_first",
-                AdminRoleManager.getAdminUserId(context));
-
-        // Set second admin (overwrites)
-        AdminRoleManager.setAdminRoleSession(context, "admin_second");
-        assertEquals("Second admin ID should overwrite",
-                "admin_second",
-                AdminRoleManager.getAdminUserId(context));
-
-        assertTrue("Session should remain active",
-                AdminRoleManager.isAdminRoleSession(context));
+    public void testSwitchToEntrantButtonIsDisplayed() {
+        try (ActivityScenario<AdminProfileActivity> ignored =
+                     ActivityScenario.launch(createAdminProfileIntent())) {
+            onView(withId(R.id.btn_switch_to_entrant)).check(matches(isDisplayed()));
+            onView(withId(R.id.btn_switch_to_entrant))
+                    .check(matches(withText("Switch to Entrant")));
+        }
     }
 
+    // US 03.09.01: Admin should see "Switch to Organizer" button
     @Test
-    public void testAdminRoleSession_Persistence() {
-        // Test that session persists across instances (using same preferences)
-        AdminRoleManager.setAdminRoleSession(context, TEST_ADMIN_ID);
-
-        // Create a new instance (simulating app restart)
-        AdminRoleManager.clearAdminRoleSession(context); // Clear to simulate fresh start
-
-        // The session should be cleared
-        assertFalse("Session should not persist after clear",
-                AdminRoleManager.isAdminRoleSession(context));
+    public void testSwitchToOrganizerButtonIsDisplayed() {
+        try (ActivityScenario<AdminProfileActivity> ignored =
+                     ActivityScenario.launch(createAdminProfileIntent())) {
+            onView(withId(R.id.btn_switch_to_organizer)).check(matches(isDisplayed()));
+            onView(withId(R.id.btn_switch_to_organizer))
+                    .check(matches(withText("Switch to Organizer")));
+        }
     }
 
+    // US 03.09.01: Admin should see role switching section header
     @Test
-    public void testGetAdminUserId_ReturnsCorrectId() {
-        AdminRoleManager.setAdminRoleSession(context, TEST_ADMIN_ID);
-        String retrievedId = AdminRoleManager.getAdminUserId(context);
-
-        assertNotNull("Retrieved ID should not be null", retrievedId);
-        assertEquals("Retrieved ID should match the set ID", TEST_ADMIN_ID, retrievedId);
+    public void testRoleSwitchingHeaderIsDisplayed() {
+        try (ActivityScenario<AdminProfileActivity> ignored =
+                     ActivityScenario.launch(createAdminProfileIntent())) {
+            onView(withId(R.id.tv_actions_header)).check(matches(isDisplayed()));
+            onView(withId(R.id.tv_actions_header))
+                    .check(matches(withText("SWITCH ROLES")));
+        }
     }
 
+    // US 03.09.01: Admin profile should show logout button
     @Test
-    public void testGetAdminUserId_WithNoSession_ReturnsNull() {
-        String retrievedId = AdminRoleManager.getAdminUserId(context);
-        assertNull("Retrieved ID should be null when no session exists", retrievedId);
+    public void testLogoutButtonIsDisplayed() {
+        try (ActivityScenario<AdminProfileActivity> ignored =
+                     ActivityScenario.launch(createAdminProfileIntent())) {
+            onView(withId(R.id.btn_log_out)).check(matches(isDisplayed()));
+            onView(withId(R.id.btn_log_out)).check(matches(withText("Log Out")));
+        }
     }
 
+    // US 03.09.01: Admin bottom navigation should include settings tab
     @Test
-    public void testIsAdminRoleSession_WithDifferentAdminIds() {
-        // Test with first admin
-        AdminRoleManager.setAdminRoleSession(context, "admin_alpha");
-        assertTrue("Session should be true for admin_alpha",
-                AdminRoleManager.isAdminRoleSession(context));
-        assertEquals("Admin ID should be admin_alpha",
-                "admin_alpha",
-                AdminRoleManager.getAdminUserId(context));
-
-        // Clear and test with second admin
-        AdminRoleManager.clearAdminRoleSession(context);
-        AdminRoleManager.setAdminRoleSession(context, "admin_beta");
-        assertTrue("Session should be true for admin_beta",
-                AdminRoleManager.isAdminRoleSession(context));
-        assertEquals("Admin ID should be admin_beta",
-                "admin_beta",
-                AdminRoleManager.getAdminUserId(context));
+    public void testBottomNavIsComplete() {
+        try (ActivityScenario<AdminProfileActivity> ignored =
+                     ActivityScenario.launch(createAdminProfileIntent())) {
+            onView(withId(R.id.nav_home)).check(matches(isDisplayed()));
+            onView(withId(R.id.nav_profiles)).check(matches(isDisplayed()));
+            onView(withId(R.id.nav_images)).check(matches(isDisplayed()));
+            onView(withId(R.id.nav_logs)).check(matches(isDisplayed()));
+            onView(withId(R.id.nav_admin_settings)).check(matches(isDisplayed()));
+        }
     }
 
+    // US 03.09.01: Clicking logout should navigate back to MainActivity
     @Test
-    public void testSessionFlags_Independence() {
-        // Set admin role session
-        AdminRoleManager.setAdminRoleSession(context, TEST_ADMIN_ID);
+    public void testLogoutNavigatesToMainActivity() {
+        try (ActivityScenario<AdminProfileActivity> ignored =
+                     ActivityScenario.launch(createAdminProfileIntent())) {
+            onView(withId(R.id.btn_log_out)).perform(click());
+            intended(hasComponent(MainActivity.class.getName()));
+        }
+    }
 
-        // Create a separate shared preference for another feature (should not interfere)
-        SharedPreferences otherPrefs = context.getSharedPreferences("OtherPrefs", Context.MODE_PRIVATE);
-        otherPrefs.edit().putBoolean("other_flag", true).apply();
+    // US 03.09.01: Home nav should navigate to AdminBrowseEventsActivity
+    @Test
+    public void testHomeNavNavigatesToEventBrowser() {
+        try (ActivityScenario<AdminProfileActivity> ignored =
+                     ActivityScenario.launch(createAdminProfileIntent())) {
+            onView(withId(R.id.nav_home)).perform(click());
+            intended(hasComponent(AdminBrowseEventsActivity.class.getName()));
+        }
+    }
 
-        // Admin role session should remain unchanged
-        assertTrue("Admin role session should remain true",
-                AdminRoleManager.isAdminRoleSession(context));
-        assertEquals("Admin ID should remain correct",
-                TEST_ADMIN_ID,
-                AdminRoleManager.getAdminUserId(context));
+    // US 03.09.01: Profiles nav should navigate to AdminBrowseProfilesActivity
+    @Test
+    public void testProfilesNavNavigatesToProfileBrowser() {
+        try (ActivityScenario<AdminProfileActivity> ignored =
+                     ActivityScenario.launch(createAdminProfileIntent())) {
+            onView(withId(R.id.nav_profiles)).perform(click());
+            intended(hasComponent(AdminBrowseProfilesActivity.class.getName()));
+        }
+    }
 
-        // Clean up
-        otherPrefs.edit().clear().apply();
+    // US 03.09.01: Images nav should navigate to AdminBrowseImagesActivity
+    @Test
+    public void testImagesNavNavigatesToImageBrowser() {
+        try (ActivityScenario<AdminProfileActivity> ignored =
+                     ActivityScenario.launch(createAdminProfileIntent())) {
+            onView(withId(R.id.nav_images)).perform(click());
+            intended(hasComponent(AdminBrowseImagesActivity.class.getName()));
+        }
     }
 }
