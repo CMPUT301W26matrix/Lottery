@@ -39,7 +39,7 @@ public class AdminImageDetailsActivityTest {
         Event event = new Event();
         event.setTitle("Test Event Title");
         event.setDetails("Test event description for admin review.");
-        event.setPosterUri("https://example.com/poster.png");
+        event.setPosterBase64("https://example.com/poster.png");
         AdminImageDetailsActivity.testEvent = event;
     }
 
@@ -103,7 +103,7 @@ public class AdminImageDetailsActivityTest {
     // US 03.03.01: Delete button should be disabled when no poster exists
     @Test
     public void testDeleteButtonDisabledWithoutPoster() {
-        AdminImageDetailsActivity.testEvent.setPosterUri(null);
+        AdminImageDetailsActivity.testEvent.setPosterBase64(null);
         try (ActivityScenario<AdminImageDetailsActivity> ignored = launchWithEventId()) {
             onView(withId(R.id.btnDeleteImage)).check(matches(not(isEnabled())));
         }

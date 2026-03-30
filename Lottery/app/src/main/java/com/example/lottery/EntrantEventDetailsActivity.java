@@ -330,7 +330,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
 
                     PosterImageLoader.load(
                             ivEventPoster,
-                            documentSnapshot.getString("posterUri"),
+                            documentSnapshot.getString("posterBase64"),
                             R.drawable.event_placeholder
                     );
 

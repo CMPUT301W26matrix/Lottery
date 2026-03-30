@@ -8,7 +8,7 @@ import com.google.firebase.Timestamp;
  * <p>Key Responsibilities:
  * <ul>
  *   <li>Encapsulates all metadata for an event, including titles, dates, and descriptions.</li>
- *   <li>Stores references to promotional assets like poster URIs and QR code content.</li>
+ *   <li>Stores promotional poster image as a Base64 string and QR code content.</li>
  *   <li>Acts as a Data Transfer Object (DTO) for Firebase Firestore serialization.</li>
  * </ul>
  * </p>
@@ -31,7 +31,7 @@ public class Event {
     private Integer waitingListLimit;
     private String qrCodeContent;
     private String status; // open, closed
-    private String posterUri;
+    private String posterBase64;
     private String category; // academic, social, sports, music, other
     private Timestamp scheduledDateTime;
     private Timestamp eventEndDateTime;
@@ -63,7 +63,7 @@ public class Event {
                  Integer waitingListLimit,
                  String qrCodeContent,
                  String status,
-                 String posterUri,
+                 String posterBase64,
                  String category,
                  Timestamp scheduledDateTime,
                  Timestamp eventEndDateTime,
@@ -82,7 +82,7 @@ public class Event {
         this.waitingListLimit = waitingListLimit;
         this.qrCodeContent = qrCodeContent;
         this.status = status;
-        this.posterUri = posterUri;
+        this.posterBase64 = posterBase64;
         this.category = category == null ? "Other" : category;
         this.scheduledDateTime = scheduledDateTime;
         this.eventEndDateTime = eventEndDateTime;
@@ -182,12 +182,12 @@ public class Event {
         this.status = status;
     }
 
-    public String getPosterUri() {
-        return posterUri;
+    public String getPosterBase64() {
+        return posterBase64;
     }
 
-    public void setPosterUri(String posterUri) {
-        this.posterUri = posterUri;
+    public void setPosterBase64(String posterBase64) {
+        this.posterBase64 = posterBase64;
     }
 
     public String getCategory() {

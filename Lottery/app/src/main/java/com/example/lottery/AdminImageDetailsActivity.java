@@ -20,9 +20,6 @@ import com.example.lottery.util.AdminNavigationHelper;
 import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.PosterImageLoader;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageException;
-import com.google.firebase.storage.StorageReference;
 
 /**
  * AdminImageDetailsActivity displays a full-size poster preview for administrators.
@@ -30,10 +27,8 @@ import com.google.firebase.storage.StorageReference;
  * <p>Key Responsibilities:
  * <ul>
  *   <li>Fetches the event record from Firestore using the supplied event ID.</li>
- *   <li>Renders the poster at full width, event title, organizer name, and description.</li>
- *   <li>Looks up the organizer name from the users collection via organizerId.</li>
- *   <li>Provides a delete button for administrators to remove poster images.</li>
- *   <li>Keeps the custom admin bottom navigation active on the details screen.</li>
+ *   <li>Renders the poster (Base64) at full width, event title, organizer name, and description.</li>
+ *   <li>Provides a delete button for administrators to clear poster data from Firestore.</li>
  * </ul>
  * </p>
  */
@@ -77,9 +72,9 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
      */
     private String eventId;
     /**
-     * The current poster URI, saved for deletion from Firebase Storage.
+     * The current poster Base64, saved for deletion from Firestore.
      */
-    private String currentPosterUri;
+    private String currentPosterBase64;
     /**
      * The userId of admin for jump to other pages.
      */
@@ -146,8 +141,7 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * Deletes the poster image from Firebase Storage and clears the posterUri in Firestore.
-     * Storage deletion completes before the Firestore field is cleared.
+     * Clears the poster data directly from the Firestore event document.
      */
     private void deleteImage() {
         if (eventId == null || eventId.isEmpty()) {
@@ -155,48 +149,22 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
             return;
         }
 
-        if (currentPosterUri == null || currentPosterUri.isEmpty()) {
-            Toast.makeText(this, R.string.no_image_to_delete, Toast.LENGTH_SHORT).show();
-            return;
-        }
-
         btnDeleteImage.setEnabled(false);
-
-        // Delete file from Firebase Storage first, then clear Firestore
-        try {
-            StorageReference storageReference = FirebaseStorage.getInstance()
-                    .getReferenceFromUrl(currentPosterUri);
-            storageReference.delete()
-                    .addOnSuccessListener(unused -> clearPosterUriInFirestore())
-                    .addOnFailureListener(e -> {
-                        if (e instanceof StorageException
-                                && ((StorageException) e).getErrorCode() == StorageException.ERROR_OBJECT_NOT_FOUND) {
-                            Log.w(TAG, "Storage file already deleted, clearing Firestore reference");
-                            clearPosterUriInFirestore();
-                        } else {
-                            Log.e(TAG, "Failed to delete storage file", e);
-                            btnDeleteImage.setEnabled(true);
-                            Toast.makeText(this, R.string.failed_to_delete_image_storage, Toast.LENGTH_SHORT).show();
-                        }
-                    });
-        } catch (IllegalArgumentException e) {
-            // Clear the Firestore field for non-Firebase Storage URIs.
-            clearPosterUriInFirestore();
-        }
+        clearPosterBase64InFirestore();
     }
 
     /**
-     * Clears the posterUri field in Firestore after the storage file has been removed.
+     * Clears the posterBase64 field in Firestore.
      */
-    private void clearPosterUriInFirestore() {
+    private void clearPosterBase64InFirestore() {
         db.collection(FirestorePaths.EVENTS).document(eventId)
-                .update("posterUri", null)
+                .update("posterBase64", null)
                 .addOnSuccessListener(unused -> {
                     Toast.makeText(this, R.string.image_deleted, Toast.LENGTH_SHORT).show();
                     finish();
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Failed to clear posterUri", e);
+                    Log.e(TAG, "Failed to clear posterBase64", e);
                     btnDeleteImage.setEnabled(true);
                     Toast.makeText(this, R.string.failed_to_delete_image, Toast.LENGTH_SHORT).show();
                 });
@@ -243,9 +211,9 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
     private void updateUi(Event event) {
         tvEventTitle.setText(event.getTitle());
         tvEventDetails.setText(event.getDetails());
-        currentPosterUri = event.getPosterUri();
-        PosterImageLoader.load(ivEventPoster, currentPosterUri, R.drawable.event_placeholder);
-        btnDeleteImage.setEnabled(currentPosterUri != null && !currentPosterUri.isEmpty());
+        currentPosterBase64 = event.getPosterBase64();
+        PosterImageLoader.load(ivEventPoster, currentPosterBase64, R.drawable.event_placeholder);
+        btnDeleteImage.setEnabled(currentPosterBase64 != null && !currentPosterBase64.isEmpty());
 
         if (event.getOrganizerId() != null) {
             fetchOrganizerName(event.getOrganizerId());

@@ -34,7 +34,7 @@ import com.example.lottery.util.PosterImageLoader;
  *
  * <p>Communication:
  * This dialog sends results back via getParentFragmentManager().setFragmentResult("posterRequest", bundle)
- * where the bundle contains the key "posterUri".
+ * where the bundle contains the key "posterBase64" (as a string URI or Base64).
  * </p>
  */
 public class OrganizerUploadPosterDialogFragment extends DialogFragment {
@@ -115,7 +115,7 @@ public class OrganizerUploadPosterDialogFragment extends DialogFragment {
         btnSelect.setOnClickListener(v -> {
             if (tempUri != null) {
                 Bundle result = new Bundle();
-                result.putString("posterUri", tempUri.toString());
+                result.putString("posterBase64", tempUri.toString());
                 getParentFragmentManager().setFragmentResult("posterRequest", result);
                 dismiss();
             }

@@ -32,7 +32,7 @@ import java.util.List;
  *   <li>Displays a list of all events that have a poster image uploaded.</li>
  *   <li>Each item shows a poster thumbnail, event title, and scheduled date.</li>
  *   <li>Handles navigation to the image detail/preview screen on item click.</li>
- *   <li>Fetches event data from Firestore and filters for non-empty posterUri on the client side.</li>
+ *   <li>Fetches event data from Firestore and filters for non-empty posterBase64 on the client side.</li>
  * </ul>
  * </p>
  */
@@ -99,9 +99,8 @@ public class AdminBrowseImagesActivity extends AppCompatActivity implements Admi
         loadImages();
     }
 
-
     /**
-     * Loads events from Firestore and filters for those with a non-empty posterUri.
+     * Loads events from Firestore and filters for those with a non-empty posterBase64.
      *
      * <p>Uses client-side filtering because Firestore cannot reliably query for
      * non-null and non-empty string fields in a single query.</p>
@@ -115,8 +114,8 @@ public class AdminBrowseImagesActivity extends AppCompatActivity implements Admi
                         try {
                             Event event = document.toObject(Event.class);
                             event.setEventId(document.getId());
-                            String uri = event.getPosterUri();
-                            if (uri != null && !uri.trim().isEmpty()) {
+                            String base64 = event.getPosterBase64();
+                            if (base64 != null && !base64.trim().isEmpty()) {
                                 imageList.add(event);
                             }
                         } catch (Exception e) {
