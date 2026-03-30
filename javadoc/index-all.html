@@ -100,6 +100,19 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/example/lottery/AdminImageDetailsActivity.html#%3Cinit%3E()" class="member-name-link">AdminImageDetailsActivity()</a> - Constructor for class com.example.lottery.<a href="com/example/lottery/AdminImageDetailsActivity.html" title="class in com.example.lottery">AdminImageDetailsActivity</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/AdminProfileActivity.html" class="type-name-link" title="class in com.example.lottery">AdminProfileActivity</a> - Class in <a href="com/example/lottery/package-summary.html">com.example.lottery</a></dt>
+<dd>
+<div class="block">AdminProfileActivity displays the admin's profile and allows switching between
+ entrant and organizer roles.</div>
+</dd>
+<dt><a href="com/example/lottery/AdminProfileActivity.html#%3Cinit%3E()" class="member-name-link">AdminProfileActivity()</a> - Constructor for class com.example.lottery.<a href="com/example/lottery/AdminProfileActivity.html" title="class in com.example.lottery">AdminProfileActivity</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/util/AdminRoleManager.html" class="type-name-link" title="class in com.example.lottery.util">AdminRoleManager</a> - Class in <a href="com/example/lottery/util/package-summary.html">com.example.lottery.util</a></dt>
+<dd>
+<div class="block">Utility class to manage admin role switching state.</div>
+</dd>
+<dt><a href="com/example/lottery/util/AdminRoleManager.html#%3Cinit%3E()" class="member-name-link">AdminRoleManager()</a> - Constructor for class com.example.lottery.util.<a href="com/example/lottery/util/AdminRoleManager.html" title="class in com.example.lottery.util">AdminRoleManager</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/AdminSignInActivity.html" class="type-name-link" title="class in com.example.lottery">AdminSignInActivity</a> - Class in <a href="com/example/lottery/package-summary.html">com.example.lottery</a></dt>
 <dd>
 <div class="block">Admin authentication screen.</div>
@@ -148,6 +161,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Batch-deletes all co-organizer records for the given user across every event,
  then invokes onDone.</div>
+</dd>
+<dt><a href="com/example/lottery/util/AdminRoleManager.html#clearAdminRoleSession(android.content.Context)" class="member-name-link">clearAdminRoleSession(Context)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/AdminRoleManager.html" title="class in com.example.lottery.util">AdminRoleManager</a></dt>
+<dd>
+<div class="block">Clears the admin role session (call when logging out or returning to main admin).</div>
 </dd>
 <dt><a href="com/example/lottery/EventAdapter.html#clearCountsCache()" class="member-name-link">clearCountsCache()</a> - Method in class com.example.lottery.<a href="com/example/lottery/EventAdapter.html" title="class in com.example.lottery">EventAdapter</a></dt>
 <dd>
@@ -388,6 +405,10 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/example/lottery/model/EntrantEvent.html#getAcceptedAt()" class="member-name-link">getAcceptedAt()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/EntrantEvent.html" title="class in com.example.lottery.model">EntrantEvent</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/util/AdminRoleManager.html#getAdminUserId(android.content.Context)" class="member-name-link">getAdminUserId(Context)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/AdminRoleManager.html" title="class in com.example.lottery.util">AdminRoleManager</a></dt>
+<dd>
+<div class="block">Gets the admin user ID if this is an admin role session.</div>
+</dd>
 <dt><a href="com/example/lottery/model/Comment.html#getAuthorId()" class="member-name-link">getAuthorId()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Comment.html" title="class in com.example.lottery.model">Comment</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/Comment.html#getAuthorName()" class="member-name-link">getAuthorName()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Comment.html" title="class in com.example.lottery.model">Comment</a></dt>
@@ -564,6 +585,10 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/User.html#isAdmin()" class="member-name-link">isAdmin()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/User.html" title="class in com.example.lottery.model">User</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/util/AdminRoleManager.html#isAdminRoleSession(android.content.Context)" class="member-name-link">isAdminRoleSession(Context)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/AdminRoleManager.html" title="class in com.example.lottery.util">AdminRoleManager</a></dt>
+<dd>
+<div class="block">Checks if the current session is an admin using a role profile.</div>
+</dd>
 <dt><a href="com/example/lottery/model/EntrantEvent.html#isCancelled()" class="member-name-link">isCancelled()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/EntrantEvent.html" title="class in com.example.lottery.model">EntrantEvent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/Comment.html#isDeleted()" class="member-name-link">isDeleted()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Comment.html" title="class in com.example.lottery.model">Comment</a></dt>
@@ -793,6 +818,11 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/AdminImageDetailsActivity.html#onCreate(android.os.Bundle)" class="member-name-link">onCreate(Bundle)</a> - Method in class com.example.lottery.<a href="com/example/lottery/AdminImageDetailsActivity.html" title="class in com.example.lottery">AdminImageDetailsActivity</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/AdminProfileActivity.html#onCreate(android.os.Bundle)" class="member-name-link">onCreate(Bundle)</a> - Method in class com.example.lottery.<a href="com/example/lottery/AdminProfileActivity.html" title="class in com.example.lottery">AdminProfileActivity</a></dt>
+<dd>
+<div class="block">Initializes the activity, loads admin profile data, and sets up role switching buttons
+ and bottom navigation.</div>
+</dd>
 <dt><a href="com/example/lottery/AdminSignInActivity.html#onCreate(android.os.Bundle)" class="member-name-link">onCreate(Bundle)</a> - Method in class com.example.lottery.<a href="com/example/lottery/AdminSignInActivity.html" title="class in com.example.lottery">AdminSignInActivity</a></dt>
 <dd>
 <div class="block">Initialize the activity and binds UI views.</div>
@@ -1199,6 +1229,10 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/example/lottery/model/EntrantEvent.html#setAcceptedAt(com.google.firebase.Timestamp)" class="member-name-link">setAcceptedAt(Timestamp)</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/EntrantEvent.html" title="class in com.example.lottery.model">EntrantEvent</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/util/AdminRoleManager.html#setAdminRoleSession(android.content.Context,java.lang.String)" class="member-name-link">setAdminRoleSession(Context, String)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/AdminRoleManager.html" title="class in com.example.lottery.util">AdminRoleManager</a></dt>
+<dd>
+<div class="block">Marks the current session as an admin using a role profile.</div>
+</dd>
 <dt><a href="com/example/lottery/model/Comment.html#setAuthorId(java.lang.String)" class="member-name-link">setAuthorId(String)</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Comment.html" title="class in com.example.lottery.model">Comment</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/Comment.html#setAuthorName(java.lang.String)" class="member-name-link">setAuthorName(String)</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Comment.html" title="class in com.example.lottery.model">Comment</a></dt>
