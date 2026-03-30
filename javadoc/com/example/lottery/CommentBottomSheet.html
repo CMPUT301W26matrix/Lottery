@@ -103,6 +103,8 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">CommentBottomSheet</span>
 <span class="extends-implements">extends com.google.android.material.bottomsheet.BottomSheetDialogFragment</span></div>
+<div class="block">Bottom sheet dialog that displays a real-time comment thread for an event and allows
+ entrants and organizers to post new comments.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -155,16 +157,22 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#newInstance(java.lang.String,java.lang.String,java.lang.String)" class="member-name-link">newInstance</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userName)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Creates a new instance for an entrant viewer.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="CommentBottomSheet.html" title="class in com.example.lottery">CommentBottomSheet</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#newInstance(java.lang.String,java.lang.String,java.lang.String,boolean)" class="member-name-link">newInstance</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userName,
  boolean&nbsp;isOrganizer)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Creates a new instance with an optional organizer flag.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="CommentBottomSheet.html" title="class in com.example.lottery">CommentBottomSheet</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#newInstanceForAdmin(java.lang.String)" class="member-name-link">newInstanceForAdmin</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Creates a read-only instance for an admin (comment input is hidden).</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onCreate(android.os.Bundle)" class="member-name-link">onCreate</a><wbr>(android.os.Bundle&nbsp;savedInstanceState)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
@@ -225,6 +233,15 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="CommentBottomSheet.html" title="class in com.example.lottery">CommentBottomSheet</a></span>&nbsp;<span class="element-name">newInstance</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userName)</span></div>
+<div class="block">Creates a new instance for an entrant viewer.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>eventId</code> - the event to show comments for</dd>
+<dd><code>userId</code> - the current user's ID</dd>
+<dd><code>userName</code> - the current user's display name</dd>
+<dt>Returns:</dt>
+<dd>a configured CommentBottomSheet fragment</dd>
+</dl>
 </section>
 </li>
 <li>
@@ -234,12 +251,29 @@ loadScripts(document, 'script');</script>
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userName,
  boolean&nbsp;isOrganizer)</span></div>
+<div class="block">Creates a new instance with an optional organizer flag.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>eventId</code> - the event to show comments for</dd>
+<dd><code>userId</code> - the current user's ID</dd>
+<dd><code>userName</code> - the current user's display name</dd>
+<dd><code>isOrganizer</code> - whether the user is an organizer (enables comment deletion)</dd>
+<dt>Returns:</dt>
+<dd>a configured CommentBottomSheet fragment</dd>
+</dl>
 </section>
 </li>
 <li>
 <section class="detail" id="newInstanceForAdmin(java.lang.String)">
 <h3>newInstanceForAdmin</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="CommentBottomSheet.html" title="class in com.example.lottery">CommentBottomSheet</a></span>&nbsp;<span class="element-name">newInstanceForAdmin</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId)</span></div>
+<div class="block">Creates a read-only instance for an admin (comment input is hidden).</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>eventId</code> - the event to show comments for</dd>
+<dt>Returns:</dt>
+<dd>a configured CommentBottomSheet fragment</dd>
+</dl>
 </section>
 </li>
 <li>

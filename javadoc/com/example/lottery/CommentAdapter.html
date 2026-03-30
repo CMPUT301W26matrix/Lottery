@@ -93,6 +93,8 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">CommentAdapter</span>
 <span class="extends-implements">extends androidx.recyclerview.widget.RecyclerView.Adapter&lt;com.example.lottery.CommentAdapter.CommentViewHolder&gt;</span></div>
+<div class="block">RecyclerView adapter for displaying comments on an event, with optional delete support
+ for organizers and admins.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -116,7 +118,9 @@ loadScripts(document, 'script');</script>
 <div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(java.util.List,boolean,java.lang.String)" class="member-name-link">CommentAdapter</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="model/Comment.html" title="class in com.example.lottery.model">Comment</a>&gt;&nbsp;comments,
  boolean&nbsp;canDelete,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-last even-row-color">
+<div class="block">Creates a new CommentAdapter.</div>
+</div>
 </div>
 </section>
 </li>
@@ -168,6 +172,13 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">CommentAdapter</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="model/Comment.html" title="class in com.example.lottery.model">Comment</a>&gt;&nbsp;comments,
  boolean&nbsp;canDelete,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId)</span></div>
+<div class="block">Creates a new CommentAdapter.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>comments</code> - list of comments to display</dd>
+<dd><code>canDelete</code> - whether the current user can delete comments</dd>
+<dd><code>eventId</code> - the event whose comments are shown</dd>
+</dl>
 </section>
 </li>
 </ul>

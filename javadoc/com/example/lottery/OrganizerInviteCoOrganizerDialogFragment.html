@@ -99,6 +99,8 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">OrganizerInviteCoOrganizerDialogFragment</span>
 <span class="extends-implements">extends androidx.fragment.app.DialogFragment</span></div>
+<div class="block">DialogFragment that lets an organizer search for users and assign them as co-organizers
+ for a specific event. A notification is sent to the assigned user upon success.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -151,7 +153,9 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#newInstance(java.lang.String,java.lang.String,java.lang.String)" class="member-name-link">newInstance</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventTitle,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;senderId)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Creates a new instance of this dialog.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onCreate(android.os.Bundle)" class="member-name-link">onCreate</a><wbr>(android.os.Bundle&nbsp;savedInstanceState)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
@@ -209,6 +213,15 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="OrganizerInviteCoOrganizerDialogFragment.html" title="class in com.example.lottery">OrganizerInviteCoOrganizerDialogFragment</a></span>&nbsp;<span class="element-name">newInstance</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventTitle,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;senderId)</span></div>
+<div class="block">Creates a new instance of this dialog.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>eventId</code> - the event to assign a co-organizer to</dd>
+<dd><code>eventTitle</code> - the event title (used in the notification message)</dd>
+<dd><code>senderId</code> - the current organizer's user ID</dd>
+<dt>Returns:</dt>
+<dd>a configured dialog fragment</dd>
+</dl>
 </section>
 </li>
 <li>
