@@ -117,6 +117,15 @@ public class AdminBrowseLogsActivity extends AppCompatActivity {
             btnLogs.setOnClickListener(v ->
                     Toast.makeText(this, R.string.admin_already_viewing_logs, Toast.LENGTH_SHORT).show());
         }
+
+        View btnSettings = findViewById(R.id.nav_admin_settings);
+        if (btnSettings != null) {
+            btnSettings.setOnClickListener(v -> {
+                Intent intent = new Intent(this, AdminProfileActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
+            });
+        }
     }
 
     /**

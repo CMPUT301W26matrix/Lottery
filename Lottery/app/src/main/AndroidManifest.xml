@@ -136,6 +136,9 @@
             android:name=".OrganizerLotteryGuidelinesActivity"
             android:exported="false" />
         <activity
+            android:name=".AdminProfileActivity"
+            android:exported="false" />
+        <activity
             android:name=".EntrantMapActivity"
             android:exported="false" />
 

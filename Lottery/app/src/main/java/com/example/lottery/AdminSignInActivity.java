@@ -1,7 +1,9 @@
 package com.example.lottery;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -112,7 +114,23 @@ public class AdminSignInActivity extends AppCompatActivity {
                         return;
                     }
 
-                    startActivity(new Intent(this, AdminBrowseEventsActivity.class));
+                    // Store admin session using ANDROID_ID (consistent with MainActivity)
+                    String androidId = Settings.Secure.getString(
+                            getContentResolver(), Settings.Secure.ANDROID_ID);
+                    if (androidId == null || androidId.isEmpty()) {
+                        Toast.makeText(this, "Failed to get device ID", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
+                    prefs.edit()
+                            .putString("userId", "admin_main")
+                            .putString("deviceId", androidId)
+                            .apply();
+
+                    Intent intent = new Intent(this, AdminBrowseEventsActivity.class);
+                    intent.putExtra("userId", "admin_main");
+                    startActivity(intent);
                     finish();
                 });
     }

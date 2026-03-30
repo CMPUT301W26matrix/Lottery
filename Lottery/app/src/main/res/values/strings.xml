@@ -94,6 +94,7 @@
     <string name="admin_nav_profiles">Profiles</string>
     <string name="admin_nav_images">Images</string>
     <string name="admin_nav_logs">Logs</string>
+    <string name="admin_nav_settings">Settings</string>
     <string name="admin_image_browser_title">Browse Images</string>
     <string name="admin_image_browser_subtitle">All event poster images</string>
     <string name="admin_no_images">No images found</string>
