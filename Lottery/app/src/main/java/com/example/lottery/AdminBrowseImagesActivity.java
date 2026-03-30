@@ -86,7 +86,6 @@ public class AdminBrowseImagesActivity extends AppCompatActivity implements Admi
         rvImages.setAdapter(adapter);
 
         setupNavigation();
-        loadImages();
     }
 
     @Override
@@ -106,6 +105,8 @@ public class AdminBrowseImagesActivity extends AppCompatActivity implements Admi
         if (btnHome != null) {
             btnHome.setOnClickListener(v -> {
                 Intent intent = new Intent(this, AdminBrowseEventsActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                intent.putExtra("role", "admin");
                 startActivity(intent);
                 finish();
             });
@@ -115,6 +116,7 @@ public class AdminBrowseImagesActivity extends AppCompatActivity implements Admi
         if (btnProfiles != null) {
             btnProfiles.setOnClickListener(v -> {
                 Intent intent = new Intent(this, AdminBrowseProfilesActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 intent.putExtra("role", "admin");
                 startActivity(intent);
                 finish();
@@ -131,6 +133,7 @@ public class AdminBrowseImagesActivity extends AppCompatActivity implements Admi
         if (btnLogs != null) {
             btnLogs.setOnClickListener(v -> {
                 Intent intent = new Intent(this, AdminBrowseLogsActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
             });
         }
@@ -176,6 +179,7 @@ public class AdminBrowseImagesActivity extends AppCompatActivity implements Admi
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         try {
                             Event event = document.toObject(Event.class);
+                            event.setEventId(document.getId());
                             String uri = event.getPosterUri();
                             if (uri != null && !uri.trim().isEmpty()) {
                                 imageList.add(event);

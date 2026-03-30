@@ -21,6 +21,7 @@ import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.PosterImageLoader;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.StorageException;
 
 /**
@@ -186,11 +187,10 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
         btnDeleteImage.setEnabled(false);
 
         // Delete file from Firebase Storage first, then clear Firestore
-        if (currentPosterUri.contains("firebasestorage.googleapis.com")
-                || currentPosterUri.startsWith("gs://")) {
-            FirebaseStorage.getInstance()
-                    .getReferenceFromUrl(currentPosterUri)
-                    .delete()
+        try {
+            StorageReference storageReference = FirebaseStorage.getInstance()
+                    .getReferenceFromUrl(currentPosterUri);
+            storageReference.delete()
                     .addOnSuccessListener(unused -> clearPosterUriInFirestore())
                     .addOnFailureListener(e -> {
                         if (e instanceof StorageException
@@ -203,8 +203,8 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
                             Toast.makeText(this, R.string.failed_to_delete_image_storage, Toast.LENGTH_SHORT).show();
                         }
                     });
-        } else {
-            // Clear the Firestore field for non-firestore uri
+        } catch (IllegalArgumentException e) {
+            // Clear the Firestore field for non-Firebase Storage URIs.
             clearPosterUriInFirestore();
         }
     }
@@ -236,12 +236,14 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
                 .addOnSuccessListener(documentSnapshot -> {
                     if (!documentSnapshot.exists()) {
                         Toast.makeText(this, R.string.event_not_found, Toast.LENGTH_SHORT).show();
+                        finish();
                         return;
                     }
 
                     Event event = documentSnapshot.toObject(Event.class);
                     if (event == null) {
                         Toast.makeText(this, R.string.failed_to_load_event_details, Toast.LENGTH_SHORT).show();
+                        finish();
                         return;
                     }
 

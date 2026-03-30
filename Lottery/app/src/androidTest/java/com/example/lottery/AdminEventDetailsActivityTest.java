@@ -19,9 +19,16 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+/**
+ * Instrumented tests for {@link AdminEventDetailsActivity}.
+ * Covers US 03.01.01: As an administrator, I want to be able to remove events.
+ * Covers US 03.10.01: As an administrator, I want to remove event comments
+ *     that violate app policy.
+ */
 @RunWith(AndroidJUnit4.class)
 public class AdminEventDetailsActivityTest {
 
+    // US 03.01.01: Admin should see event details with poster, details header, and delete button
     @Test
     public void testAdminEventDetailsScreenIsDisplayed() {
         Context context = ApplicationProvider.getApplicationContext();
@@ -38,6 +45,7 @@ public class AdminEventDetailsActivityTest {
         }
     }
 
+    // US 03.01.01: Deleting an event should show confirmation dialog
     @Test
     public void testDeleteButtonShowsConfirmationDialog() {
         Context context = ApplicationProvider.getApplicationContext();
@@ -53,6 +61,7 @@ public class AdminEventDetailsActivityTest {
         }
     }
 
+    // US 03.01.01: Cancelling event deletion should dismiss dialog
     @Test
     public void testDeleteConfirmationCancelDismissesDialog() {
         Context context = ApplicationProvider.getApplicationContext();
@@ -81,6 +90,7 @@ public class AdminEventDetailsActivityTest {
         }
     }
 
+    // US 03.01.01: Admin view should not expose organizer edit controls
     @Test
     public void testAdminScreenDoesNotExposeOrganizerEditButton() {
         Context context = ApplicationProvider.getApplicationContext();

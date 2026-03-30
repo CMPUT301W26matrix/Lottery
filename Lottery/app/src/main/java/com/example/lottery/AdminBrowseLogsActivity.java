@@ -87,6 +87,7 @@ public class AdminBrowseLogsActivity extends AppCompatActivity {
         if (btnHome != null) {
             btnHome.setOnClickListener(v -> {
                 Intent intent = new Intent(this, AdminBrowseEventsActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
             });
         }
@@ -95,6 +96,7 @@ public class AdminBrowseLogsActivity extends AppCompatActivity {
         if (btnProfiles != null) {
             btnProfiles.setOnClickListener(v -> {
                 Intent intent = new Intent(this, AdminBrowseProfilesActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 intent.putExtra("role", "admin"); // needed to show admin specific UI
                 startActivity(intent);
             });
@@ -104,6 +106,7 @@ public class AdminBrowseLogsActivity extends AppCompatActivity {
         if (btnImages != null) {
             btnImages.setOnClickListener(v -> {
                 Intent intent = new Intent(this, AdminBrowseImagesActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
             });
         }
@@ -125,6 +128,10 @@ public class AdminBrowseLogsActivity extends AppCompatActivity {
 
         ImageView homeIcon = findViewById(R.id.nav_home_icon);
         TextView homeText = findViewById(R.id.nav_home_text);
+        ImageView profilesIcon = findViewById(R.id.nav_profiles_icon);
+        TextView profilesText = findViewById(R.id.nav_profiles_text);
+        ImageView imagesIcon = findViewById(R.id.nav_images_icon);
+        TextView imagesText = findViewById(R.id.nav_images_text);
         ImageView logsIcon = findViewById(R.id.nav_logs_icon);
         TextView logsText = findViewById(R.id.nav_logs_text);
 
@@ -133,6 +140,18 @@ public class AdminBrowseLogsActivity extends AppCompatActivity {
         }
         if (homeText != null) {
             homeText.setTextColor(inactiveColor);
+        }
+        if (profilesIcon != null) {
+            profilesIcon.setImageTintList(ColorStateList.valueOf(inactiveColor));
+        }
+        if (profilesText != null) {
+            profilesText.setTextColor(inactiveColor);
+        }
+        if (imagesIcon != null) {
+            imagesIcon.setImageTintList(ColorStateList.valueOf(inactiveColor));
+        }
+        if (imagesText != null) {
+            imagesText.setTextColor(inactiveColor);
         }
         if (logsIcon != null) {
             logsIcon.setImageTintList(ColorStateList.valueOf(activeColor));

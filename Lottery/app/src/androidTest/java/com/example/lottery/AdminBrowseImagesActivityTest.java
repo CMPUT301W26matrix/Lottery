@@ -23,6 +23,13 @@ import com.example.lottery.model.Event;
 
 import org.junit.After;
 import org.junit.Before;
+
+/**
+ * Instrumented tests for {@link AdminBrowseImagesActivity}.
+ * Covers US 03.06.01: As an administrator, I want to be able to browse images
+ *     that are uploaded so I can remove them if necessary.
+ * Covers US 03.03.01: As an administrator, I want to be able to remove images.
+ */
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,23 +51,27 @@ public class AdminBrowseImagesActivityTest {
         Intents.release();
     }
 
+    // US 03.06.01: Admin should see image browser title
     @Test
     public void testBrowseImagesScreenIsDisplayed() {
         onView(withId(R.id.tvAppTitle)).perform(scrollTo()).check(matches(isDisplayed()));
         onView(withId(R.id.tvAppTitle)).check(matches(withText(R.string.admin_image_browser_title)));
     }
 
+    // US 03.06.01: Admin should see image browser subtitle
     @Test
     public void testSubtitleIsDisplayed() {
         onView(withId(R.id.tvSubtitle)).perform(scrollTo()).check(matches(isDisplayed()));
         onView(withId(R.id.tvSubtitle)).check(matches(withText(R.string.admin_image_browser_subtitle)));
     }
 
+    // US 03.06.01: Image list view should be visible
     @Test
     public void testRecyclerViewExists() {
         onView(withId(R.id.rvImages)).check(matches(withEffectiveVisibility(Visibility.VISIBLE)));
     }
 
+    // US 03.06.01: Admin bottom navigation should be visible
     @Test
     public void testBottomNavIsDisplayed() {
         onView(withId(R.id.nav_home)).check(matches(isDisplayed()));
@@ -69,6 +80,7 @@ public class AdminBrowseImagesActivityTest {
         onView(withId(R.id.nav_logs)).check(matches(isDisplayed()));
     }
 
+    // US 03.06.01: Navigation icons and labels should exist
     @Test
     public void testNavHighlightElementsExist() {
         onView(withId(R.id.nav_home_icon)).check(matches(isDisplayed()));
@@ -77,17 +89,20 @@ public class AdminBrowseImagesActivityTest {
         onView(withId(R.id.nav_images_text)).check(matches(isDisplayed()));
     }
 
+    // US 03.06.01: Image browser should be scrollable
     @Test
     public void testScrollViewIsScrollable() {
         onView(withId(R.id.main_scroll_view)).check(matches(isDisplayed()));
     }
 
+    // US 03.04.01: Admin should navigate to event browser from images tab
     @Test
     public void testNavigateToHome() {
         onView(withId(R.id.nav_home)).perform(click());
         intended(hasComponent(AdminBrowseEventsActivity.class.getName()));
     }
 
+    // US 03.05.01: Admin should navigate to profile browser from images tab
     @Test
     public void testNavigateToProfiles() {
         onView(withId(R.id.nav_profiles)).perform(click());
@@ -95,6 +110,7 @@ public class AdminBrowseImagesActivityTest {
         intended(hasExtra("role", "admin"));
     }
 
+    // US 03.06.01: Empty state should show when no images are uploaded
     @Test
     public void testNoImagesMessageVisibility() {
         activityRule.getScenario().onActivity(activity -> {
@@ -103,6 +119,7 @@ public class AdminBrowseImagesActivityTest {
         onView(withId(R.id.tvNoImages)).check(matches(isDisplayed()));
     }
 
+    // US 03.03.01: Clicking an image should navigate to image details for removal
     @Test
     public void testOnImageClickLaunchesAdminImageDetailsActivity() {
         activityRule.getScenario().onActivity(activity -> {

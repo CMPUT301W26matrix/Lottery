@@ -3,6 +3,7 @@ package com.example.lottery;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.view.View;
@@ -232,5 +233,28 @@ public class CommentAdapterTest {
 
         TextView tvTime = holder.itemView.findViewById(R.id.tvCommentTime);
         assertEquals("", tvTime.getText().toString());
+    }
+
+    // US 03.10.01: Deleted comment should have isDeleted() return true
+    @Test
+    public void testDeletedCommentFlagIsTrue() {
+        Comment comment = new Comment();
+        comment.setDeleted(true);
+        assertTrue("Deleted comment should return true for isDeleted()", comment.isDeleted());
+    }
+
+    // US 03.10.01: Non-deleted comment should have isDeleted() return false
+    @Test
+    public void testNonDeletedCommentFlagIsFalse() {
+        Comment comment = new Comment();
+        comment.setDeleted(false);
+        assertFalse("Non-deleted comment should return false for isDeleted()", comment.isDeleted());
+    }
+
+    // US 03.10.01: Comment default deleted state should be false
+    @Test
+    public void testCommentDefaultDeletedIsFalse() {
+        Comment comment = new Comment();
+        assertFalse("New comment should default to not deleted", comment.isDeleted());
     }
 }

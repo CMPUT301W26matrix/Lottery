@@ -114,7 +114,7 @@ public class CommentBottomSheet extends BottomSheetDialogFragment {
         commentsListener = db.collection(FirestorePaths.eventComments(eventId))
                 .orderBy("createdAt", Query.Direction.ASCENDING)
                 .addSnapshotListener((value, error) -> {
-                    if (error != null || value == null) return;
+                    if (error != null || value == null || !isAdded()) return;
 
                     for (DocumentChange dc : value.getDocumentChanges()) {
                         Comment comment = dc.getDocument().toObject(Comment.class);
@@ -122,6 +122,9 @@ public class CommentBottomSheet extends BottomSheetDialogFragment {
 
                         switch (dc.getType()) {
                             case ADDED:
+                                if (comment.isDeleted()) {
+                                    break;
+                                }
                                 if (!containsComment(comment.getCommentId())) {
                                     commentList.add(comment);
                                 }
@@ -147,6 +150,10 @@ public class CommentBottomSheet extends BottomSheetDialogFragment {
     }
 
     private void updateCommentInList(Comment updatedComment) {
+        if (updatedComment.isDeleted()) {
+            removeCommentFromList(updatedComment);
+            return;
+        }
         for (int i = 0; i < commentList.size(); i++) {
             if (commentList.get(i).getCommentId().equals(updatedComment.getCommentId())) {
                 commentList.set(i, updatedComment);

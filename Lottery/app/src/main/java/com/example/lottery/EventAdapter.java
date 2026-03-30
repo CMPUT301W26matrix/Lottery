@@ -52,6 +52,11 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
     static String resolveDisplayStatus(Event event) {
         if (event == null) return "closed";
 
+        // Honour the explicit status stored in Firestore when it is "closed"
+        if ("closed".equalsIgnoreCase(event.getStatus())) {
+            return "closed";
+        }
+
         Date now = new Date();
 
         if (event.getRegistrationDeadline() != null
@@ -118,7 +123,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
 
             tvTitle.setText(event.getTitle());
             tvDate.setText(event.getScheduledDateTime() != null ? dateFormat.format(event.getScheduledDateTime().toDate()) : "Date TBD");
-            tvCapacity.setText(String.valueOf(event.getCapacity()));
+            tvCapacity.setText(event.getCapacity() != null ? String.valueOf(event.getCapacity()) : "-");
 
             // Bind counts from cache or fetch once
             if (countsCache.containsKey(eventId)) {

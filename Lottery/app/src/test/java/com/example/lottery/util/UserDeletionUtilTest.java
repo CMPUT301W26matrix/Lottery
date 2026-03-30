@@ -50,11 +50,7 @@ public class UserDeletionUtilTest {
         when(mockDb.batch()).thenReturn(mockBatch);
     }
 
-    /**
-     * When the collection group query succeeds and returns documents,
-     * each document should be added to the batch for deletion,
-     * and the callback should be invoked after commit succeeds.
-     */
+    // US 03.07.01: Removing an organizer should clean up all co-organizer records via batch delete
     @SuppressWarnings("unchecked")
     @Test
     public void cleanUp_withDocuments_batchDeletesAndCallsOnDone() {
@@ -116,10 +112,7 @@ public class UserDeletionUtilTest {
         assertTrue("Callback should be invoked after successful commit", callbackInvoked.get());
     }
 
-    /**
-     * When the collection group query succeeds but returns no documents,
-     * an empty batch should be committed and the callback invoked.
-     */
+    // US 03.07.01: Cleanup should complete even when user has no co-organizer records
     @SuppressWarnings("unchecked")
     @Test
     public void cleanUp_withNoDocuments_commitsEmptyBatchAndCallsOnDone() {
@@ -159,10 +152,7 @@ public class UserDeletionUtilTest {
         assertTrue("Callback should be invoked even with no documents", callbackInvoked.get());
     }
 
-    /**
-     * When the collection group query fails (e.g., missing index),
-     * the callback should still be invoked so user deletion can proceed.
-     */
+    // US 03.02.01: Profile deletion should proceed even if co-organizer query fails
     @SuppressWarnings("unchecked")
     @Test
     public void cleanUp_queryFails_callsOnDoneAnyway() {
@@ -184,10 +174,7 @@ public class UserDeletionUtilTest {
         assertTrue("Callback should be invoked even when query fails", callbackInvoked.get());
     }
 
-    /**
-     * When the batch commit fails, the callback should still be invoked
-     * so user deletion is not blocked.
-     */
+    // US 03.02.01: Profile deletion should proceed even if batch commit fails
     @SuppressWarnings("unchecked")
     @Test
     public void cleanUp_commitFails_callsOnDoneAnyway() {

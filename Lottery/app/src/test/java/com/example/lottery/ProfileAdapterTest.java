@@ -19,6 +19,12 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+/**
+ * Unit tests for {@link ProfileAdapter}.
+ * Covers US 03.05.01: As an administrator, I want to be able to browse profiles.
+ * Covers US 03.02.01: As an administrator, I want to be able to remove profiles.
+ */
+
 import java.util.ArrayList;
 
 @RunWith(RobolectricTestRunner.class)
@@ -40,22 +46,26 @@ public class ProfileAdapterTest {
         adapter = new ProfileAdapter(context, users);
     }
 
+    // US 03.05.01: Profile list should report the correct number of user profiles
     @Test
     public void testGetCount() {
         assertEquals("Adapter should have 3 items", 3, adapter.getCount());
     }
 
+    // US 03.05.01: Profile list should return the correct user at each position
     @Test
     public void testGetItem() {
         assertEquals("First item name should match", "John Doe", adapter.getItem(0).getUsername());
         assertEquals("Second item email should match", "jane@example.com", adapter.getItem(1).getEmail());
     }
 
+    // US 03.05.01: Profile adapter should map item IDs to positions
     @Test
     public void testGetItemId() {
         assertEquals("Item ID should match position", 0, adapter.getItemId(0));
     }
 
+    // US 03.05.01: Profile list item should display name, email, and phone
     @Test
     public void testGetViewPopulatesData() {
         ViewGroup parent = new FrameLayout(context);
@@ -72,6 +82,7 @@ public class ProfileAdapterTest {
         assertEquals("Phone should be 1234567890", "1234567890", tvPhone.getText().toString());
     }
 
+    // US 03.05.01: Profile list item should show placeholder for empty phone
     @Test
     public void testGetViewWithEmptyPhone() {
         ViewGroup parent = new FrameLayout(context);
@@ -81,6 +92,7 @@ public class ProfileAdapterTest {
         assertEquals("Should display placeholder for empty phone", "No phone number", tvPhone.getText().toString());
     }
 
+    // US 03.05.01: Profile list item should show placeholder for null phone
     @Test
     public void testGetViewWithNullPhone() {
         ViewGroup parent = new FrameLayout(context);

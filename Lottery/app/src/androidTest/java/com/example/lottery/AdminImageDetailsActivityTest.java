@@ -19,6 +19,12 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+/**
+ * Instrumented tests for {@link AdminImageDetailsActivity}.
+ * Covers US 03.03.01: As an administrator, I want to be able to remove images.
+ * Covers US 03.06.01: As an administrator, I want to be able to browse images
+ *     that are uploaded so I can remove them if necessary.
+ */
 @RunWith(AndroidJUnit4.class)
 public class AdminImageDetailsActivityTest {
 
@@ -31,6 +37,7 @@ public class AdminImageDetailsActivityTest {
         return ActivityScenario.launch(intent);
     }
 
+    // US 03.06.01: Image details screen should launch successfully with event ID
     @Test
     public void testActivityLaunchesSuccessfully() {
         try (ActivityScenario<AdminImageDetailsActivity> scenario = launchWithEventId()) {
@@ -38,6 +45,7 @@ public class AdminImageDetailsActivityTest {
         }
     }
 
+    // US 03.06.01: Admin should see the poster image
     @Test
     public void testPosterImageViewExists() {
         try (ActivityScenario<AdminImageDetailsActivity> ignored = launchWithEventId()) {
@@ -45,6 +53,7 @@ public class AdminImageDetailsActivityTest {
         }
     }
 
+    // US 03.03.01: Delete button should be visible for image removal
     @Test
     public void testDeleteButtonIsDisplayed() {
         try (ActivityScenario<AdminImageDetailsActivity> ignored = launchWithEventId()) {
@@ -53,6 +62,7 @@ public class AdminImageDetailsActivityTest {
         }
     }
 
+    // US 03.06.01: Image preview page header should be displayed
     @Test
     public void testPageHeaderIsDisplayed() {
         try (ActivityScenario<AdminImageDetailsActivity> ignored = launchWithEventId()) {
@@ -61,6 +71,7 @@ public class AdminImageDetailsActivityTest {
         }
     }
 
+    // US 03.06.01: Admin bottom navigation should be visible on image details
     @Test
     public void testBottomNavIsDisplayed() {
         try (ActivityScenario<AdminImageDetailsActivity> ignored = launchWithEventId()) {
@@ -71,6 +82,7 @@ public class AdminImageDetailsActivityTest {
         }
     }
 
+    // US 03.03.01: Deleting an image should show confirmation dialog
     @Test
     public void testDeleteButtonShowsConfirmationDialog() {
         try (ActivityScenario<AdminImageDetailsActivity> ignored = launchWithEventId()) {
@@ -82,6 +94,7 @@ public class AdminImageDetailsActivityTest {
         }
     }
 
+    // US 03.03.01: Cancelling image deletion should dismiss dialog
     @Test
     public void testDeleteConfirmationCancelDismissesDialog() {
         try (ActivityScenario<AdminImageDetailsActivity> ignored = launchWithEventId()) {
@@ -94,6 +107,7 @@ public class AdminImageDetailsActivityTest {
         }
     }
 
+    // US 03.03.01: Missing event ID should finish the activity gracefully
     @Test
     public void testMissingEventIdFinishesActivity() {
         Intent intent = new Intent(

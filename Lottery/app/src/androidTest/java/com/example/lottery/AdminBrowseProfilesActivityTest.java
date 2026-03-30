@@ -29,6 +29,13 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+/**
+ * Instrumented tests for {@link AdminBrowseProfilesActivity}.
+ * Covers US 03.05.01: As an administrator, I want to be able to browse profiles.
+ * Covers US 03.02.01: As an administrator, I want to be able to remove profiles.
+ * Covers US 03.07.01: As an administrator I want to remove organizers that violate app policy.
+ */
+
 @RunWith(AndroidJUnit4.class)
 public class AdminBrowseProfilesActivityTest {
 
@@ -60,6 +67,7 @@ public class AdminBrowseProfilesActivityTest {
         return ActivityScenario.launch(intent);
     }
 
+    // US 03.05.01: Admin profile browser should launch and display title
     @Test
     public void adminBrowseProfilesActivity_launchesSuccessfully() {
         try (ActivityScenario<AdminBrowseProfilesActivity> scenario = launchAdminActivity()) {
@@ -72,6 +80,7 @@ public class AdminBrowseProfilesActivityTest {
         }
     }
 
+    // US 03.05.01: Admin should see a list view of user profiles
     @Test
     public void adminBrowseProfilesActivity_displaysProfilesList() {
         try (ActivityScenario<AdminBrowseProfilesActivity> scenario = launchAdminActivity()) {
@@ -82,6 +91,7 @@ public class AdminBrowseProfilesActivityTest {
         }
     }
 
+    // US 03.05.01: Empty state should inform admin there are no profiles
     @Test
     public void adminBrowseProfilesActivity_hasCorrectEmptyMessageText() {
         try (ActivityScenario<AdminBrowseProfilesActivity> ignored = launchAdminActivity()) {
@@ -90,6 +100,7 @@ public class AdminBrowseProfilesActivityTest {
         }
     }
 
+    // US 03.05.01: Empty state message view should exist in layout
     @Test
     public void adminBrowseProfilesActivity_emptyMessageViewExists() {
         try (ActivityScenario<AdminBrowseProfilesActivity> ignored = launchAdminActivity()) {
@@ -98,6 +109,7 @@ public class AdminBrowseProfilesActivityTest {
         }
     }
 
+    // US 03.05.01: Page title should display "Browse Profiles"
     @Test
     public void adminBrowseProfilesActivity_titleIsCorrect() {
         try (ActivityScenario<AdminBrowseProfilesActivity> ignored = launchAdminActivity()) {
@@ -106,6 +118,7 @@ public class AdminBrowseProfilesActivityTest {
         }
     }
 
+    // US 03.02.01: Delete button should be visible for profile removal
     @Test
     public void adminBrowseProfilesActivity_deleteButtonExists() {
         try (ActivityScenario<AdminBrowseProfilesActivity> ignored = launchAdminActivity()) {
@@ -114,6 +127,7 @@ public class AdminBrowseProfilesActivityTest {
         }
     }
 
+    // US 03.05.01: Non-admin access should be denied and activity finished
     @Test
     public void adminBrowseProfilesActivity_nonAdminAccessFinishesActivity() {
         Intent intent = new Intent(
@@ -158,6 +172,7 @@ public class AdminBrowseProfilesActivityTest {
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
     }
 
+    // US 03.05.01: Filter buttons (All, Entrant, Organizer) should be visible
     @Test
     public void filterButtons_allThreeDisplayed() {
         try (ActivityScenario<AdminBrowseProfilesActivity> ignored = launchAdminActivity()) {
@@ -167,6 +182,7 @@ public class AdminBrowseProfilesActivityTest {
         }
     }
 
+    // US 03.05.01: Filter buttons should display correct role labels
     @Test
     public void filterButtons_showCorrectLabels() {
         try (ActivityScenario<AdminBrowseProfilesActivity> ignored = launchAdminActivity()) {
@@ -176,6 +192,7 @@ public class AdminBrowseProfilesActivityTest {
         }
     }
 
+    // US 03.05.01: Entrant filter should show only entrant profiles
     @Test
     public void filterEntrant_showsOnlyEntrants() {
         try (ActivityScenario<AdminBrowseProfilesActivity> scenario = launchAdminActivity()) {
@@ -191,6 +208,7 @@ public class AdminBrowseProfilesActivityTest {
         }
     }
 
+    // US 03.05.01: Organizer filter should show only organizer profiles
     @Test
     public void filterOrganizer_showsOnlyOrganizers() {
         try (ActivityScenario<AdminBrowseProfilesActivity> scenario = launchAdminActivity()) {
@@ -206,6 +224,7 @@ public class AdminBrowseProfilesActivityTest {
         }
     }
 
+    // US 03.05.01: All filter should show every user profile
     @Test
     public void filterAll_showsAllUsers() {
         try (ActivityScenario<AdminBrowseProfilesActivity> scenario = launchAdminActivity()) {
@@ -224,6 +243,7 @@ public class AdminBrowseProfilesActivityTest {
         }
     }
 
+    // US 03.05.01: Empty state should show when no users match the filter
     @Test
     public void filterOrganizer_emptyState_showsMessage() {
         try (ActivityScenario<AdminBrowseProfilesActivity> scenario = launchAdminActivity()) {
@@ -250,6 +270,7 @@ public class AdminBrowseProfilesActivityTest {
         }
     }
 
+    // US 03.07.01: Deleting an organizer should warn about cascading event deletion
     @Test
     public void deleteOrganizer_dialogShowsCascadeWarning() {
         try (ActivityScenario<AdminBrowseProfilesActivity> scenario = launchAdminActivity()) {
@@ -308,6 +329,7 @@ public class AdminBrowseProfilesActivityTest {
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
     }
 
+    // US 03.02.01: Delete action should show confirmation dialog with user name
     @Test
     public void adminBrowseProfilesActivity_deleteConfirmationDialogShows() {
         try (ActivityScenario<AdminBrowseProfilesActivity> scenario = launchAdminActivity()) {
@@ -332,6 +354,7 @@ public class AdminBrowseProfilesActivityTest {
         }
     }
 
+    // US 03.02.01: Cancelling deletion should dismiss dialog and re-enable button
     @Test
     public void adminBrowseProfilesActivity_deleteConfirmationCancelDismissesDialog() {
         try (ActivityScenario<AdminBrowseProfilesActivity> scenario = launchAdminActivity()) {

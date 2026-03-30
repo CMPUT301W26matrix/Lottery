@@ -146,7 +146,7 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
         if (btnEvents != null) {
             btnEvents.setOnClickListener(v -> {
                 Intent intent = new Intent(this, AdminBrowseEventsActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
                 finish();
             });
@@ -156,7 +156,7 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
         if (btnProfiles != null) {
             btnProfiles.setOnClickListener(v -> {
                 Intent intent = new Intent(this, AdminBrowseProfilesActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 intent.putExtra("role", "admin");
                 startActivity(intent);
                 finish();
@@ -167,7 +167,7 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
         if (btnImages != null) {
             btnImages.setOnClickListener(v -> {
                 Intent intent = new Intent(this, AdminBrowseImagesActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
                 finish();
             });
@@ -177,7 +177,7 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
         if (btnLogs != null) {
             btnLogs.setOnClickListener(v -> {
                 Intent intent = new Intent(this, AdminBrowseLogsActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
                 finish();
             });
@@ -203,16 +203,16 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
 
         // Step 1: Collect all affected user IDs before deleting sub-collections
         collectAffectedUserIds(userIds -> {
-            // Step 2: Clean inbox entries for all affected users
-            deleteInboxEntriesForUsers(userIds, inboxSuccess -> {
-                if (!inboxSuccess) {
-                    abortDelete(getString(R.string.failed_to_clean_inbox));
+            // Step 2: Delete sub-collections in parallel
+            deleteSubCollections(subCollSuccess -> {
+                if (!subCollSuccess) {
+                    abortDelete(getString(R.string.failed_to_clean_event_data));
                     return;
                 }
-                // Step 3: Delete sub-collections in parallel
-                deleteSubCollections(subCollSuccess -> {
-                    if (!subCollSuccess) {
-                        abortDelete(getString(R.string.failed_to_clean_event_data));
+                // Step 3: Clean inbox entries for all affected users
+                deleteInboxEntriesForUsers(userIds, inboxSuccess -> {
+                    if (!inboxSuccess) {
+                        abortDelete(getString(R.string.failed_to_clean_inbox));
                         return;
                     }
                     // Step 4: Delete notifications (recipients → parent)
@@ -240,32 +240,58 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
     private void collectAffectedUserIds(Consumer<Set<String>> onComplete) {
         Set<String> userIds = new HashSet<>();
         AtomicInteger done = new AtomicInteger(0);
+        AtomicBoolean hasFailure = new AtomicBoolean(false);
         Runnable checkDone = () -> {
             if (done.incrementAndGet() == 2) {
+                if (hasFailure.get()) {
+                    Log.w(TAG, "User ID collection incomplete; some inbox entries may not be cleaned");
+                }
                 onComplete.accept(userIds);
             }
         };
-        db.collection(FirestorePaths.eventWaitingList(eventId)).get()
-                .addOnSuccessListener(snap -> {
-                    for (QueryDocumentSnapshot doc : snap) {
-                        userIds.add(doc.getId());
+        Runnable loadParticipantIds = () -> {
+            db.collection(FirestorePaths.eventWaitingList(eventId)).get()
+                    .addOnSuccessListener(snap -> {
+                        for (QueryDocumentSnapshot doc : snap) {
+                            userIds.add(doc.getId());
+                        }
+                        checkDone.run();
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.w(TAG, "Failed to read waitingList for inbox cleanup", e);
+                        hasFailure.set(true);
+                        checkDone.run();
+                    });
+            db.collection(FirestorePaths.eventCoOrganizers(eventId)).get()
+                    .addOnSuccessListener(snap -> {
+                        for (QueryDocumentSnapshot doc : snap) {
+                            userIds.add(doc.getId());
+                        }
+                        checkDone.run();
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.w(TAG, "Failed to read coOrganizers for inbox cleanup", e);
+                        hasFailure.set(true);
+                        checkDone.run();
+                    });
+        };
+        db.collection(FirestorePaths.EVENTS).document(eventId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (!documentSnapshot.exists()) {
+                        Log.w(TAG, "Event document missing while collecting organizer ID for inbox cleanup");
+                        hasFailure.set(true);
+                    } else {
+                        String organizerId = documentSnapshot.getString("organizerId");
+                        if (organizerId != null) {
+                            userIds.add(organizerId);
+                        }
                     }
-                    checkDone.run();
+                    loadParticipantIds.run();
                 })
                 .addOnFailureListener(e -> {
-                    Log.w(TAG, "Failed to read waitingList for inbox cleanup", e);
-                    checkDone.run();
-                });
-        db.collection(FirestorePaths.eventCoOrganizers(eventId)).get()
-                .addOnSuccessListener(snap -> {
-                    for (QueryDocumentSnapshot doc : snap) {
-                        userIds.add(doc.getId());
-                    }
-                    checkDone.run();
-                })
-                .addOnFailureListener(e -> {
-                    Log.w(TAG, "Failed to read coOrganizers for inbox cleanup", e);
-                    checkDone.run();
+                    Log.w(TAG, "Failed to read event document for organizer inbox cleanup", e);
+                    hasFailure.set(true);
+                    loadParticipantIds.run();
                 });
     }
 

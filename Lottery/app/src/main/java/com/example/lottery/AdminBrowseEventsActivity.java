@@ -96,7 +96,6 @@ public class AdminBrowseEventsActivity extends AppCompatActivity implements Even
         rvEvents.setAdapter(adapter);
 
         setupNavigation();
-        loadEvents();
     }
 
     @Override
@@ -121,6 +120,7 @@ public class AdminBrowseEventsActivity extends AppCompatActivity implements Even
         if (btnProfiles != null) {
             btnProfiles.setOnClickListener(v -> {
                 Intent intent = new Intent(AdminBrowseEventsActivity.this, AdminBrowseProfilesActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 intent.putExtra("role", "admin");
                 startActivity(intent);
             });
@@ -130,6 +130,7 @@ public class AdminBrowseEventsActivity extends AppCompatActivity implements Even
         if (btnImages != null) {
             btnImages.setOnClickListener(v -> {
                 Intent intent = new Intent(this, AdminBrowseImagesActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
             });
         }
@@ -138,6 +139,7 @@ public class AdminBrowseEventsActivity extends AppCompatActivity implements Even
         if (btnLogs != null) {
             btnLogs.setOnClickListener(v -> {
                 Intent intent = new Intent(this, AdminBrowseLogsActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
             });
         }
