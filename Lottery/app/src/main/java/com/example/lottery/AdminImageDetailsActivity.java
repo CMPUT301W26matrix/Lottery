@@ -24,6 +24,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.StorageException;
 
+import androidx.annotation.VisibleForTesting;
+
 /**
  * AdminImageDetailsActivity displays a full-size poster preview for administrators.
  *
@@ -41,6 +43,10 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
 
     private static final String TAG = "AdminImageDetails";
     private static final String EXTRA_EVENT_ID = "eventId";
+
+    /** Inject a test Event to bypass Firestore while still exercising updateUi(). */
+    @VisibleForTesting
+    static Event testEvent;
 
     /**
      * ImageView used for displaying the full-size event poster.
@@ -230,6 +236,10 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
      * Fetches the event details from Firestore.
      */
     private void fetchEventDetails() {
+        if (testEvent != null) {
+            updateUi(testEvent);
+            return;
+        }
         db.collection(FirestorePaths.EVENTS)
                 .document(eventId)
                 .get()

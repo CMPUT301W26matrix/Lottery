@@ -5,6 +5,7 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.intent.Intents.intended;
+import static androidx.test.espresso.intent.Intents.intending;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -12,6 +13,8 @@ import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibilit
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
+import android.app.Activity;
+import android.app.Instrumentation;
 import android.view.View;
 
 import androidx.test.espresso.intent.Intents;
@@ -23,13 +26,6 @@ import com.example.lottery.model.Event;
 
 import org.junit.After;
 import org.junit.Before;
-
-/**
- * Instrumented tests for {@link AdminBrowseImagesActivity}.
- * Covers US 03.06.01: As an administrator, I want to be able to browse images
- *     that are uploaded so I can remove them if necessary.
- * Covers US 03.03.01: As an administrator, I want to be able to remove images.
- */
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -122,6 +118,9 @@ public class AdminBrowseImagesActivityTest {
     // US 03.03.01: Clicking an image should navigate to image details for removal
     @Test
     public void testOnImageClickLaunchesAdminImageDetailsActivity() {
+        intending(hasComponent(AdminImageDetailsActivity.class.getName()))
+                .respondWith(new Instrumentation.ActivityResult(Activity.RESULT_OK, null));
+
         activityRule.getScenario().onActivity(activity -> {
             Event event = new Event();
             event.setEventId("test_image_event_id");

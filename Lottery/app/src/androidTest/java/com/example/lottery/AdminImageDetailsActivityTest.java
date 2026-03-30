@@ -5,8 +5,10 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.Matchers.not;
 
 import android.content.Intent;
 
@@ -15,7 +17,11 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import com.example.lottery.model.Event;
+
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -27,6 +33,20 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public class AdminImageDetailsActivityTest {
+
+    @Before
+    public void setUp() {
+        Event event = new Event();
+        event.setTitle("Test Event Title");
+        event.setDetails("Test event description for admin review.");
+        event.setPosterUri("https://example.com/poster.png");
+        AdminImageDetailsActivity.testEvent = event;
+    }
+
+    @After
+    public void tearDown() {
+        AdminImageDetailsActivity.testEvent = null;
+    }
 
     private ActivityScenario<AdminImageDetailsActivity> launchWithEventId() {
         Intent intent = new Intent(
@@ -53,12 +73,39 @@ public class AdminImageDetailsActivityTest {
         }
     }
 
-    // US 03.03.01: Delete button should be visible for image removal
+    // US 03.06.01: Event title should be rendered from event data
+    @Test
+    public void testEventTitleIsDisplayed() {
+        try (ActivityScenario<AdminImageDetailsActivity> ignored = launchWithEventId()) {
+            onView(withId(R.id.tvEventTitle)).check(matches(withText("Test Event Title")));
+        }
+    }
+
+    // US 03.06.01: Event details should be rendered from event data
+    @Test
+    public void testEventDetailsAreDisplayed() {
+        try (ActivityScenario<AdminImageDetailsActivity> ignored = launchWithEventId()) {
+            onView(withId(R.id.tvEventDetails))
+                    .check(matches(withText("Test event description for admin review.")));
+        }
+    }
+
+    // US 03.03.01: Delete button should be enabled when a poster exists
     @Test
     public void testDeleteButtonIsDisplayed() {
         try (ActivityScenario<AdminImageDetailsActivity> ignored = launchWithEventId()) {
             onView(withId(R.id.btnDeleteImage)).check(matches(isDisplayed()));
             onView(withId(R.id.btnDeleteImage)).check(matches(withText("Delete Image")));
+            onView(withId(R.id.btnDeleteImage)).check(matches(isEnabled()));
+        }
+    }
+
+    // US 03.03.01: Delete button should be disabled when no poster exists
+    @Test
+    public void testDeleteButtonDisabledWithoutPoster() {
+        AdminImageDetailsActivity.testEvent.setPosterUri(null);
+        try (ActivityScenario<AdminImageDetailsActivity> ignored = launchWithEventId()) {
+            onView(withId(R.id.btnDeleteImage)).check(matches(not(isEnabled())));
         }
     }
 
