@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lottery.model.NotificationItem;
+import com.example.lottery.util.EntrantNavigationHelper;
 import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.InvitationFlowUtil;
 import com.example.lottery.util.SessionUtil;
@@ -110,49 +111,8 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
         }
 
         btnBack.setOnClickListener(v -> finish());
-        setupNavigation();
+        EntrantNavigationHelper.setup(this, EntrantNavigationHelper.EntrantTab.HISTORY, userId, true);
         loadNotifications();
-    }
-
-    /**
-     * Configures the click listeners for the custom bottom navigation bar.
-     */
-    private void setupNavigation() {
-        View navHome = findViewById(R.id.nav_home);
-        if (navHome != null) {
-            navHome.setOnClickListener(v -> {
-                Intent intent = new Intent(this, EntrantMainActivity.class);
-                intent.putExtra("userId", userId);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(intent);
-                finish();
-            });
-        }
-
-        View navHistory = findViewById(R.id.nav_history);
-        if (navHistory != null) {
-            navHistory.setOnClickListener(v -> {
-                // Already here
-            });
-        }
-
-        View navQrScan = findViewById(R.id.nav_qr_scan);
-        if (navQrScan != null) {
-            navQrScan.setOnClickListener(v -> {
-                Intent intent = new Intent(this, EntrantQrScanActivity.class);
-                intent.putExtra("userId", userId);
-                startActivity(intent);
-            });
-        }
-
-        View navProfile = findViewById(R.id.nav_profile);
-        if (navProfile != null) {
-            navProfile.setOnClickListener(v -> {
-                Intent intent = new Intent(this, EntrantProfileActivity.class);
-                intent.putExtra("userId", userId);
-                startActivity(intent);
-            });
-        }
     }
 
     /**

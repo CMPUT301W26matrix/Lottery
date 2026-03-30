@@ -1,32 +1,25 @@
 package com.example.lottery;
 
-import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.lottery.model.Event;
+import com.example.lottery.util.AdminNavigationHelper;
 import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.PosterImageLoader;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.StorageException;
-
-import androidx.annotation.VisibleForTesting;
 
 /**
  * AdminImageDetailsActivity displays a full-size poster preview for administrators.
@@ -34,10 +27,8 @@ import androidx.annotation.VisibleForTesting;
  * <p>Key Responsibilities:
  * <ul>
  *   <li>Fetches the event record from Firestore using the supplied event ID.</li>
- *   <li>Renders the poster at full width, event title, organizer name, and description.</li>
- *   <li>Looks up the organizer name from the users collection via organizerId.</li>
- *   <li>Provides a delete button for administrators to remove poster images.</li>
- *   <li>Keeps the custom admin bottom navigation active on the details screen.</li>
+ *   <li>Renders the poster (Base64) at full width, event title, organizer name, and description.</li>
+ *   <li>Provides a delete button for administrators to clear poster data from Firestore.</li>
  * </ul>
  * </p>
  */
@@ -46,7 +37,9 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
     private static final String TAG = "AdminImageDetails";
     private static final String EXTRA_EVENT_ID = "eventId";
 
-    /** Inject a test Event to bypass Firestore while still exercising updateUi(). */
+    /**
+     * Inject a test Event to bypass Firestore while still exercising updateUi().
+     */
     @VisibleForTesting
     static Event testEvent;
 
@@ -79,9 +72,9 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
      */
     private String eventId;
     /**
-     * The current poster URI, saved for deletion from Firebase Storage.
+     * The current poster Base64, saved for deletion from Firestore.
      */
-    private String currentPosterUri;
+    private String currentPosterBase64;
     /**
      * The userId of admin for jump to other pages.
      */
@@ -115,7 +108,10 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
 
         btnDeleteImage.setOnClickListener(v -> showDeleteConfirmationDialog());
 
-        setupNavigation();
+        AdminNavigationHelper.setup(this, AdminNavigationHelper.AdminTab.IMAGES, userId, true);
+        // Logs and Settings should keep image detail alive for Back navigation
+        AdminNavigationHelper.overrideTabWithoutFinish(this, AdminNavigationHelper.AdminTab.LOGS, userId);
+        AdminNavigationHelper.overrideTabWithoutFinish(this, AdminNavigationHelper.AdminTab.SETTINGS, userId);
 
         eventId = getIntent().getStringExtra(EXTRA_EVENT_ID);
         if (eventId == null || eventId.isEmpty()) {
@@ -136,95 +132,6 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * Sets up click listeners for the admin bottom navigation bar.
-     */
-    private void setupNavigation() {
-        highlightImagesTab();
-
-        View btnEvents = findViewById(R.id.nav_home);
-        if (btnEvents != null) {
-            btnEvents.setOnClickListener(v -> {
-                Intent intent = new Intent(this, AdminBrowseEventsActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(intent);
-                finish();
-            });
-        }
-
-        View btnProfiles = findViewById(R.id.nav_profiles);
-        if (btnProfiles != null) {
-            btnProfiles.setOnClickListener(v -> {
-                Intent intent = new Intent(this, AdminBrowseProfilesActivity.class);
-                intent.putExtra("role", "admin");
-                startActivity(intent);
-                finish();
-            });
-        }
-
-        View btnImages = findViewById(R.id.nav_images);
-        if (btnImages != null) {
-            btnImages.setOnClickListener(v -> {
-                Intent intent = new Intent(this, AdminBrowseImagesActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(intent);
-                finish();
-            });
-        }
-
-        View btnLogs = findViewById(R.id.nav_logs);
-        if (btnLogs != null) {
-            btnLogs.setOnClickListener(v -> {
-                Intent intent = new Intent(this, AdminBrowseLogsActivity.class);
-                startActivity(intent);
-            });
-        }
-
-        View btnSettings = findViewById(R.id.nav_admin_settings);
-        if (btnSettings != null) {
-            btnSettings.setOnClickListener(v -> {
-                Intent intent = new Intent(this, AdminProfileActivity.class);
-                intent.putExtra("userId", userId);
-                intent.putExtra("role", "admin");
-                startActivity(intent);
-            });
-        }
-    }
-
-    /**
-     * Highlights the Images tab in the bottom navigation without changing the shared layout defaults.
-     */
-    private void highlightImagesTab() {
-        int activeColor = ContextCompat.getColor(this, R.color.primary_blue);
-        int inactiveColor = ContextCompat.getColor(this, R.color.text_gray);
-
-        ImageView homeIcon = findViewById(R.id.nav_home_icon);
-        TextView homeText = findViewById(R.id.nav_home_text);
-        ImageView imagesIcon = findViewById(R.id.nav_images_icon);
-        TextView imagesText = findViewById(R.id.nav_images_text);
-        ImageView settingsIcon = findViewById(R.id.nav_settings_icon);
-        TextView settingsText = findViewById(R.id.nav_settings_text);
-
-        if (homeIcon != null) {
-            homeIcon.setImageTintList(ColorStateList.valueOf(inactiveColor));
-        }
-        if (homeText != null) {
-            homeText.setTextColor(inactiveColor);
-        }
-        if (imagesIcon != null) {
-            imagesIcon.setImageTintList(ColorStateList.valueOf(activeColor));
-        }
-        if (imagesText != null) {
-            imagesText.setTextColor(activeColor);
-        }
-        if (settingsIcon != null) {
-            settingsIcon.setImageTintList(ColorStateList.valueOf(inactiveColor));
-        }
-        if (settingsText != null) {
-            settingsText.setTextColor(inactiveColor);
-        }
-    }
-
-    /**
      * Launches a confirmation dialog before deleting the poster image.
      */
     private void showDeleteConfirmationDialog() {
@@ -234,8 +141,7 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * Deletes the poster image from Firebase Storage and clears the posterUri in Firestore.
-     * Storage deletion completes before the Firestore field is cleared.
+     * Clears the poster data directly from the Firestore event document.
      */
     private void deleteImage() {
         if (eventId == null || eventId.isEmpty()) {
@@ -243,48 +149,22 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
             return;
         }
 
-        if (currentPosterUri == null || currentPosterUri.isEmpty()) {
-            Toast.makeText(this, R.string.no_image_to_delete, Toast.LENGTH_SHORT).show();
-            return;
-        }
-
         btnDeleteImage.setEnabled(false);
-
-        // Delete file from Firebase Storage first, then clear Firestore
-        try {
-            StorageReference storageReference = FirebaseStorage.getInstance()
-                    .getReferenceFromUrl(currentPosterUri);
-            storageReference.delete()
-                    .addOnSuccessListener(unused -> clearPosterUriInFirestore())
-                    .addOnFailureListener(e -> {
-                        if (e instanceof StorageException
-                                && ((StorageException) e).getErrorCode() == StorageException.ERROR_OBJECT_NOT_FOUND) {
-                            Log.w(TAG, "Storage file already deleted, clearing Firestore reference");
-                            clearPosterUriInFirestore();
-                        } else {
-                            Log.e(TAG, "Failed to delete storage file", e);
-                            btnDeleteImage.setEnabled(true);
-                            Toast.makeText(this, R.string.failed_to_delete_image_storage, Toast.LENGTH_SHORT).show();
-                        }
-                    });
-        } catch (IllegalArgumentException e) {
-            // Clear the Firestore field for non-Firebase Storage URIs.
-            clearPosterUriInFirestore();
-        }
+        clearPosterBase64InFirestore();
     }
 
     /**
-     * Clears the posterUri field in Firestore after the storage file has been removed.
+     * Clears the posterBase64 field in Firestore.
      */
-    private void clearPosterUriInFirestore() {
+    private void clearPosterBase64InFirestore() {
         db.collection(FirestorePaths.EVENTS).document(eventId)
-                .update("posterUri", null)
+                .update("posterBase64", null)
                 .addOnSuccessListener(unused -> {
                     Toast.makeText(this, R.string.image_deleted, Toast.LENGTH_SHORT).show();
                     finish();
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Failed to clear posterUri", e);
+                    Log.e(TAG, "Failed to clear posterBase64", e);
                     btnDeleteImage.setEnabled(true);
                     Toast.makeText(this, R.string.failed_to_delete_image, Toast.LENGTH_SHORT).show();
                 });
@@ -331,9 +211,9 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
     private void updateUi(Event event) {
         tvEventTitle.setText(event.getTitle());
         tvEventDetails.setText(event.getDetails());
-        currentPosterUri = event.getPosterUri();
-        PosterImageLoader.load(ivEventPoster, currentPosterUri, R.drawable.event_placeholder);
-        btnDeleteImage.setEnabled(currentPosterUri != null && !currentPosterUri.isEmpty());
+        currentPosterBase64 = event.getPosterBase64();
+        PosterImageLoader.load(ivEventPoster, currentPosterBase64, R.drawable.event_placeholder);
+        btnDeleteImage.setEnabled(currentPosterBase64 != null && !currentPosterBase64.isEmpty());
 
         if (event.getOrganizerId() != null) {
             fetchOrganizerName(event.getOrganizerId());

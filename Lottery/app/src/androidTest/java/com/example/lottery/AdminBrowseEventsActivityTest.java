@@ -4,12 +4,16 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.intent.Intents.intended;
+import static androidx.test.espresso.intent.Intents.intending;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+
+import android.app.Activity;
+import android.app.Instrumentation;
 
 import androidx.test.espresso.intent.Intents;
 import androidx.test.espresso.matcher.ViewMatchers.Visibility;
@@ -38,6 +42,9 @@ public class AdminBrowseEventsActivityTest {
     @Before
     public void setUp() {
         Intents.init();
+        // Stub AdminEventDetailsActivity so clicking an event doesn't actually launch it
+        intending(hasComponent(AdminEventDetailsActivity.class.getName()))
+                .respondWith(new Instrumentation.ActivityResult(Activity.RESULT_OK, null));
     }
 
     @After

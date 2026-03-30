@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.lottery.model.Event;
 import com.example.lottery.util.AdminRoleManager;
 import com.example.lottery.util.FirestorePaths;
+import com.example.lottery.util.OrganizerNavigationHelper;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -116,73 +117,10 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
         rvEvents.setLayoutManager(new LinearLayoutManager(this));
         rvEvents.setAdapter(adapter);
 
-        setupNavigation();
+        OrganizerNavigationHelper.setup(this, OrganizerNavigationHelper.OrganizerTab.HOME, userId);
+        // Override Home tab to scroll to top instead of no-op
+        findViewById(R.id.nav_home).setOnClickListener(v -> rvEvents.smoothScrollToPosition(0));
         loadOrganizerEvents();
-    }
-
-    /**
-     * Sets up click listeners for the organizer navigation elements.
-     */
-    private void setupNavigation() {
-        View btnCreate = findViewById(R.id.nav_create_container);
-        if (btnCreate != null) {
-            btnCreate.setOnClickListener(v -> {
-                Intent intent = new Intent(this, OrganizerCreateEventActivity.class);
-                intent.putExtra("userId", userId);
-                intent.putExtra("isAdminRole", isAdminRole);
-                if (isAdminRole) {
-                    intent.putExtra("adminUserId", adminUserId);
-                }
-                startActivity(intent);
-            });
-        }
-
-        View btnHome = findViewById(R.id.nav_home);
-        if (btnHome != null) {
-            btnHome.setOnClickListener(v -> {
-                // Already home, just scroll to top
-                rvEvents.smoothScrollToPosition(0);
-            });
-        }
-
-        View btnNotifications = findViewById(R.id.nav_notifications);
-        if (btnNotifications != null) {
-            btnNotifications.setOnClickListener(v -> {
-                Intent intent = new Intent(this, OrganizerNotificationsActivity.class);
-                intent.putExtra("userId", userId);
-                intent.putExtra("isAdminRole", isAdminRole);
-                if (isAdminRole) {
-                    intent.putExtra("adminUserId", adminUserId);
-                }
-                startActivity(intent);
-            });
-        }
-
-        View btnQr = findViewById(R.id.nav_qr_code);
-        if (btnQr != null) {
-            btnQr.setOnClickListener(v -> {
-                Intent intent = new Intent(this, OrganizerQrEventListActivity.class);
-                intent.putExtra("userId", userId);
-                intent.putExtra("isAdminRole", isAdminRole);
-                if (isAdminRole) {
-                    intent.putExtra("adminUserId", adminUserId);
-                }
-                startActivity(intent);
-            });
-        }
-
-        View btnProfile = findViewById(R.id.nav_profile);
-        if (btnProfile != null) {
-            btnProfile.setOnClickListener(v -> {
-                Intent intent = new Intent(this, OrganizerProfileActivity.class);
-                intent.putExtra("userId", userId);
-                intent.putExtra("isAdminRole", isAdminRole);
-                if (isAdminRole) {
-                    intent.putExtra("adminUserId", adminUserId);
-                }
-                startActivity(intent);
-            });
-        }
     }
 
     @Override

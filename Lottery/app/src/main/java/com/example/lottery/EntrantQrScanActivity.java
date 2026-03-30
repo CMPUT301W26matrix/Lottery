@@ -18,6 +18,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.lottery.util.EntrantNavigationHelper;
 import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.QRCodeUtils;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -90,7 +91,7 @@ public class EntrantQrScanActivity extends AppCompatActivity {
         findViewById(R.id.btnOpenScanner).setOnClickListener(v -> openScanner());
         findViewById(R.id.btnPickQrFromGallery).setOnClickListener(v -> pickImageLauncher.launch("image/*"));
 
-        setupNavigation();
+        EntrantNavigationHelper.setup(this, EntrantNavigationHelper.EntrantTab.QR_SCAN, userId);
         checkUnreadNotifications();
     }
 
@@ -166,32 +167,6 @@ public class EntrantQrScanActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, "Invalid QR Code content", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    private void setupNavigation() {
-        findViewById(R.id.nav_home).setOnClickListener(v -> {
-            Intent intent = new Intent(this, EntrantMainActivity.class);
-            intent.putExtra("userId", userId);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(intent);
-            finish();
-        });
-
-        findViewById(R.id.nav_history).setOnClickListener(v -> {
-            Intent intent = new Intent(this, EntrantEventHistoryActivity.class);
-            intent.putExtra("userId", userId);
-            startActivity(intent);
-        });
-
-        findViewById(R.id.nav_qr_scan).setOnClickListener(v -> {
-            // Already here
-        });
-
-        findViewById(R.id.nav_profile).setOnClickListener(v -> {
-            Intent intent = new Intent(this, EntrantProfileActivity.class);
-            intent.putExtra("userId", userId);
-            startActivity(intent);
-        });
     }
 
     private void checkUnreadNotifications() {

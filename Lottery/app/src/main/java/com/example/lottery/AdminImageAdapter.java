@@ -19,13 +19,12 @@ import java.util.Locale;
 /**
  * Adapter for displaying event poster images in the admin image browser.
  *
- * <p>Key Responsibilities:
+ * <p>Key Responsibilities:</p>
  * <ul>
  *   <li>Binds event poster thumbnails, titles, and dates to RecyclerView items.</li>
  *   <li>Uses {@link PosterImageLoader} to load poster images via Glide.</li>
  *   <li>Handles clicks on image items to navigate to the detail/preview screen.</li>
  * </ul>
- * </p>
  */
 public class AdminImageAdapter extends RecyclerView.Adapter<AdminImageAdapter.ImageViewHolder> {
 
@@ -40,7 +39,19 @@ public class AdminImageAdapter extends RecyclerView.Adapter<AdminImageAdapter.Im
     /**
      * Date formatter for displaying event scheduled times.
      */
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm", Locale.getDefault());
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault());
+
+    /**
+     * Interface definition for a callback to be invoked when an image item is clicked.
+     */
+    public interface OnImageClickListener {
+        /**
+         * Called when an image item has been clicked.
+         *
+         * @param event The Event object associated with the clicked poster.
+         */
+        void onImageClick(Event event);
+    }
 
     /**
      * Constructs a new AdminImageAdapter.
@@ -62,8 +73,7 @@ public class AdminImageAdapter extends RecyclerView.Adapter<AdminImageAdapter.Im
 
     @Override
     public void onBindViewHolder(@NonNull ImageViewHolder holder, int position) {
-        Event event = imageList.get(position);
-        holder.bind(event, listener);
+        holder.bind(imageList.get(position), listener);
     }
 
     @Override
@@ -72,25 +82,12 @@ public class AdminImageAdapter extends RecyclerView.Adapter<AdminImageAdapter.Im
     }
 
     /**
-     * Interface definition for a callback to be invoked when an image item is clicked.
-     */
-    public interface OnImageClickListener {
-        /**
-         * Called when an image item has been clicked.
-         *
-         * @param event The Event object associated with the clicked poster.
-         */
-        void onImageClick(Event event);
-    }
-
-    /**
      * ViewHolder class for holding and binding image item views.
      */
     class ImageViewHolder extends RecyclerView.ViewHolder {
-
         private final ImageView ivThumbnail;
         private final TextView tvEventTitle;
-        private final TextView tvEventDateTime;
+        private final TextView tvEventDate;
 
         /**
          * Constructs an ImageViewHolder.
@@ -101,7 +98,7 @@ public class AdminImageAdapter extends RecyclerView.Adapter<AdminImageAdapter.Im
             super(itemView);
             ivThumbnail = itemView.findViewById(R.id.ivThumbnail);
             tvEventTitle = itemView.findViewById(R.id.tvEventTitle);
-            tvEventDateTime = itemView.findViewById(R.id.tvEventDateTime);
+            tvEventDate = itemView.findViewById(R.id.tvEventDateTime);
         }
 
         /**
@@ -112,11 +109,13 @@ public class AdminImageAdapter extends RecyclerView.Adapter<AdminImageAdapter.Im
          */
         public void bind(final Event event, final OnImageClickListener listener) {
             tvEventTitle.setText(event.getTitle());
-            tvEventDateTime.setText(event.getScheduledDateTime() != null
-                    ? dateFormat.format(event.getScheduledDateTime().toDate())
-                    : "Date TBD");
+            if (event.getScheduledDateTime() != null) {
+                tvEventDate.setText(dateFormat.format(event.getScheduledDateTime().toDate()));
+            } else {
+                tvEventDate.setText("");
+            }
 
-            PosterImageLoader.load(ivThumbnail, event.getPosterUri(), R.drawable.event_placeholder);
+            PosterImageLoader.load(ivThumbnail, event.getPosterBase64(), R.drawable.event_placeholder);
 
             itemView.setOnClickListener(v -> {
                 if (listener != null) {

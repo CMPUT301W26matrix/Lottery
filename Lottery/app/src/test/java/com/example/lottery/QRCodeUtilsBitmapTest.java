@@ -5,21 +5,22 @@ import static org.junit.Assert.assertNotNull;
 
 import android.graphics.Bitmap;
 
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-
 import com.example.lottery.util.QRCodeUtils;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 /**
- * Instrumented tests for the {@link QRCodeUtils} class.
+ * Unit tests for the {@link QRCodeUtils} class.
  *
- * <p>These tests run on an Android device or emulator to verify QR code
- * bitmap generation, which requires Android graphics APIs.</p>
+ * <p>These tests use Robolectric to verify QR code bitmap generation,
+ * which requires Android graphics APIs.</p>
  */
-@RunWith(AndroidJUnit4.class)
-public class QRCodeUtilsAndroidTest {
+@RunWith(RobolectricTestRunner.class)
+@Config(sdk = 34)
+public class QRCodeUtilsBitmapTest {
 
     /**
      * Verifies that the {@link QRCodeUtils#generateQRCodeBitmap(String)} method

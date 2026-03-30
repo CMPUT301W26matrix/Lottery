@@ -19,6 +19,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.lottery.util.AdminRoleManager;
+import com.example.lottery.util.EntrantNavigationHelper;
 import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.UserDeletionUtil;
 import com.google.android.material.chip.Chip;
@@ -80,7 +81,10 @@ public class EntrantProfileActivity extends AppCompatActivity {
 
         initializeViews();
         loadUserProfile();
-        setupNavigation();
+        EntrantNavigationHelper.setup(this, EntrantNavigationHelper.EntrantTab.PROFILE, userId);
+        if (forceEdit) {
+            EntrantNavigationHelper.disableNavigation(this);
+        }
         checkUnreadNotifications();
 
         // Handle back button
@@ -205,6 +209,7 @@ public class EntrantProfileActivity extends AppCompatActivity {
                 if (forceEdit && username != null && !username.isEmpty() && email != null && !email.isEmpty()) {
                     forceEdit = false;
                     exitEditMode();
+                    EntrantNavigationHelper.setup(this, EntrantNavigationHelper.EntrantTab.PROFILE, userId);
                 }
 
                 List<String> interests = (List<String>) documentSnapshot.get("interests");
@@ -382,39 +387,6 @@ public class EntrantProfileActivity extends AppCompatActivity {
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
         finish();
-    }
-
-    private void setupNavigation() {
-        View navHome = findViewById(R.id.nav_home);
-        if (navHome != null) {
-            navHome.setOnClickListener(v -> {
-                if (!forceEdit) navigateToMain();
-            });
-        }
-
-        View navHistory = findViewById(R.id.nav_history);
-        if (navHistory != null) {
-            navHistory.setOnClickListener(v -> {
-                if (!forceEdit) {
-                    Intent intent = new Intent(this, EntrantEventHistoryActivity.class);
-                    intent.putExtra("userId", userId);
-                    startActivity(intent);
-                    finish();
-                }
-            });
-        }
-
-        View navQrScan = findViewById(R.id.nav_qr_scan);
-        if (navQrScan != null) {
-            navQrScan.setOnClickListener(v -> {
-                if (!forceEdit) {
-                    Intent intent = new Intent(this, EntrantQrScanActivity.class);
-                    intent.putExtra("userId", userId);
-                    startActivity(intent);
-                    finish();
-                }
-            });
-        }
     }
 
     private void checkUnreadNotifications() {

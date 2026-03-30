@@ -19,6 +19,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.lottery.model.Event;
 import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.InvitationFlowUtil;
+import com.example.lottery.util.OrganizerNavigationHelper;
 import com.example.lottery.util.PosterImageLoader;
 import com.example.lottery.util.SessionUtil;
 import com.google.android.material.chip.Chip;
@@ -33,7 +34,7 @@ import java.util.Locale;
  * <p>Responsibilities:
  * <ul>
  *   <li>Fetch the event record from Firestore using the supplied event ID.</li>
- *   <li>Render the poster, title, schedule, deadline, and description.</li>
+ *   <li>Render the poster (Base64), title, schedule, deadline, and description.</li>
  *   <li>Surface organizer-configured requirements such as geolocation.</li>
  *   <li>Keep the custom bottom navigation active on the details screen.</li>
  * </ul>
@@ -107,7 +108,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
             return;
         }
 
-        setupNavigation();
+        OrganizerNavigationHelper.setup(this, OrganizerNavigationHelper.OrganizerTab.HOME, userId, true);
         fetchEventDetails(eventId);
         fetchEntrantCounts(eventId);
 
@@ -157,58 +158,6 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         if (eventId != null) {
             fetchEventDetails(eventId);
             fetchEntrantCounts(eventId);
-        }
-    }
-
-    /**
-     * Sets up click listeners for the bottom navigation bar and other navigation elements.
-     */
-    private void setupNavigation() {
-        View btnHome = findViewById(R.id.nav_home);
-        if (btnHome != null) {
-            btnHome.setOnClickListener(v -> {
-                Intent intent = new Intent(this, OrganizerBrowseEventsActivity.class);
-                intent.putExtra("userId", userId);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(intent);
-                finish();
-            });
-        }
-
-        View btnCreate = findViewById(R.id.nav_create_container);
-        if (btnCreate != null) {
-            btnCreate.setOnClickListener(v -> {
-                Intent intent = new Intent(this, OrganizerCreateEventActivity.class);
-                intent.putExtra("userId", userId);
-                startActivity(intent);
-            });
-        }
-
-        View btnNotifications = findViewById(R.id.nav_notifications);
-        if (btnNotifications != null) {
-            btnNotifications.setOnClickListener(v -> {
-                Intent intent = new Intent(this, OrganizerNotificationsActivity.class);
-                intent.putExtra("userId", userId);
-                startActivity(intent);
-            });
-        }
-
-        View btnQr = findViewById(R.id.nav_qr_code);
-        if (btnQr != null) {
-            btnQr.setOnClickListener(v -> {
-                Intent intent = new Intent(this, OrganizerQrEventListActivity.class);
-                intent.putExtra("userId", userId);
-                startActivity(intent);
-            });
-        }
-
-        View btnProfile = findViewById(R.id.nav_profile);
-        if (btnProfile != null) {
-            btnProfile.setOnClickListener(v -> {
-                Intent intent = new Intent(this, OrganizerProfileActivity.class);
-                intent.putExtra("userId", userId);
-                startActivity(intent);
-            });
         }
     }
 
@@ -322,6 +271,6 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
             btnInviteEntrant.setVisibility(event.isPrivate() ? View.VISIBLE : View.GONE);
         }
 
-        PosterImageLoader.load(ivEventPoster, event.getPosterUri(), R.drawable.event_placeholder);
+        PosterImageLoader.load(ivEventPoster, event.getPosterBase64(), R.drawable.event_placeholder);
     }
 }

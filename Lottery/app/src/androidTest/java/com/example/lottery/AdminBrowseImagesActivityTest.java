@@ -106,6 +106,13 @@ public class AdminBrowseImagesActivityTest {
         intended(hasExtra("role", "admin"));
     }
 
+    // US 03.09.01: Admin should navigate to settings page from images tab
+    @Test
+    public void testNavigateToSettings() {
+        onView(withId(R.id.nav_admin_settings)).perform(click());
+        intended(hasComponent(AdminProfileActivity.class.getName()));
+        intended(hasExtra("role", "admin"));
+    }
     // US 03.06.01: Empty state should show when no images are uploaded
     @Test
     public void testNoImagesMessageVisibility() {

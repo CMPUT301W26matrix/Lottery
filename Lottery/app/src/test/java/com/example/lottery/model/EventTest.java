@@ -25,13 +25,13 @@ public class EventTest {
         Integer waitingListLimit = 100;
         String qrCodeContent = "qr_content";
         String status = "open";
-        String posterUri = "uri_test";
+        String posterBase64 = "base64_test";
         String category = "Music";
         Timestamp now = Timestamp.now();
 
         // Testing the full constructor with compliant fields
         Event event = new Event(eventId, title, details, organizerId, capacity,
-                waitingListLimit, qrCodeContent, status, posterUri, category,
+                waitingListLimit, qrCodeContent, status, posterBase64, category,
                 now, now, now, now, now, true, false, now, now);
 
         assertEquals(eventId, event.getEventId());
@@ -42,7 +42,7 @@ public class EventTest {
         assertEquals(waitingListLimit, event.getWaitingListLimit());
         assertEquals(qrCodeContent, event.getQrCodeContent());
         assertEquals(status, event.getStatus());
-        assertEquals(posterUri, event.getPosterUri());
+        assertEquals(posterBase64, event.getPosterBase64());
         assertEquals(category, event.getCategory());
         assertEquals(now, event.getScheduledDateTime());
         assertTrue(event.isRequireLocation());
@@ -59,13 +59,37 @@ public class EventTest {
         assertFalse("Geolocation requirement should be false", event.isRequireLocation());
     }
 
-    // US 03.03.01: Event should store poster URI for admin image management
+    // US 03.03.01: Event should store poster Base64 for admin image management
     @Test
-    public void testPosterUriStorage() {
+    public void testPosterBase64Storage() {
         Event event = new Event();
-        String testUri = "content://com.android.providers.media.documents/document/image%3A123";
-        event.setPosterUri(testUri);
-        assertEquals("Poster URI should be stored exactly as provided", testUri, event.getPosterUri());
+        String testBase64 = "data:image/jpeg;base64,sample";
+        event.setPosterBase64(testBase64);
+        assertEquals("Poster Base64 should be stored exactly as provided", testBase64, event.getPosterBase64());
+    }
+
+    // US 02.04.01: New event without poster should have null posterBase64
+    @Test
+    public void testPosterBase64DefaultsToNull() {
+        Event event = new Event();
+        assertNull("Poster Base64 should default to null", event.getPosterBase64());
+    }
+
+    // US 03.03.01: Admin clearing a poster should result in null posterBase64
+    @Test
+    public void testPosterBase64CanBeCleared() {
+        Event event = new Event();
+        event.setPosterBase64("data:image/jpeg;base64,sample");
+        event.setPosterBase64(null);
+        assertNull("Poster Base64 should be null after clearing", event.getPosterBase64());
+    }
+
+    // US 02.04.01: Event without uploaded poster should store empty string
+    @Test
+    public void testPosterBase64CanBeSetToEmpty() {
+        Event event = new Event();
+        event.setPosterBase64("");
+        assertEquals("Poster Base64 should accept empty string", "", event.getPosterBase64());
     }
 
     // US 03.04.01: Event should support nullable waiting list limit for admin browsing
