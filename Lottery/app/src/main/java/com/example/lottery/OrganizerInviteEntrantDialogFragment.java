@@ -33,6 +33,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * DialogFragment that lets an organizer search for entrants by name, email, or phone
+ * and directly invite them to an event's waiting list.
+ */
 public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
 
     private static final String ARG_EVENT_ID = "eventId";
@@ -51,6 +55,14 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
     private TextView tvNoResults;
     private Runnable pendingSearch;
 
+    /**
+     * Creates a new instance of this dialog.
+     *
+     * @param eventId    the event to invite entrants to
+     * @param eventTitle the event title (used in the notification message)
+     * @param senderId   the current organizer's user ID
+     * @return a configured dialog fragment
+     */
     public static OrganizerInviteEntrantDialogFragment newInstance(String eventId, String eventTitle, String senderId) {
         OrganizerInviteEntrantDialogFragment fragment = new OrganizerInviteEntrantDialogFragment();
         Bundle args = new Bundle();

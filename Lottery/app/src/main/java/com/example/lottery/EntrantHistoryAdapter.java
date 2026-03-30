@@ -24,6 +24,12 @@ public class EntrantHistoryAdapter extends RecyclerView.Adapter<EntrantHistoryAd
     private final OnItemClickListener listener;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault());
 
+    /**
+     * Creates a new EntrantHistoryAdapter.
+     *
+     * @param historyItems list of history items to display
+     * @param listener     click listener for item interactions
+     */
     public EntrantHistoryAdapter(List<HistoryItem> historyItems, OnItemClickListener listener) {
         this.historyItems = historyItems;
         this.listener = listener;
@@ -84,15 +90,33 @@ public class EntrantHistoryAdapter extends RecyclerView.Adapter<EntrantHistoryAd
         return historyItems.size();
     }
 
+    /**
+     * Listener interface for handling clicks on history items.
+     */
     public interface OnItemClickListener {
+        /**
+         * Called when an entrant taps a history item.
+         *
+         * @param event the event associated with the clicked item
+         */
         void onItemClick(Event event);
     }
 
+    /**
+     * Data class that pairs an {@link Event} with the entrant's registration status and
+     * the organizer's display name.
+     */
     public static class HistoryItem {
         public Event event;
         public String status;
         public String organizerName;
 
+        /**
+         * Creates a new HistoryItem.
+         *
+         * @param event  the event
+         * @param status the entrant's status for this event
+         */
         public HistoryItem(Event event, String status) {
             this.event = event;
             this.status = status;

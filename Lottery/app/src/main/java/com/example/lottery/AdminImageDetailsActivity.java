@@ -1,6 +1,7 @@
 package com.example.lottery;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -12,6 +13,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -80,6 +82,10 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
      * The current poster URI, saved for deletion from Firebase Storage.
      */
     private String currentPosterUri;
+    /**
+     * The userId of admin for jump to other pages.
+     */
+    private String userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,6 +100,12 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
         });
 
         db = FirebaseFirestore.getInstance();
+
+        // Get userId from intent or shared preferences
+        userId = getIntent().getStringExtra("userId");
+        if (userId == null) {
+            userId = getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("userId", null);
+        }
 
         ivEventPoster = findViewById(R.id.ivEventPoster);
         tvEventTitle = findViewById(R.id.tvEventTitle);
@@ -127,6 +139,8 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
      * Sets up click listeners for the admin bottom navigation bar.
      */
     private void setupNavigation() {
+        highlightImagesTab();
+
         View btnEvents = findViewById(R.id.nav_home);
         if (btnEvents != null) {
             btnEvents.setOnClickListener(v -> {
@@ -163,6 +177,50 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
                 Intent intent = new Intent(this, AdminBrowseLogsActivity.class);
                 startActivity(intent);
             });
+        }
+
+        View btnSettings = findViewById(R.id.nav_admin_settings);
+        if (btnSettings != null) {
+            btnSettings.setOnClickListener(v -> {
+                Intent intent = new Intent(this, AdminProfileActivity.class);
+                intent.putExtra("userId", userId);
+                intent.putExtra("role", "admin");
+                startActivity(intent);
+            });
+        }
+    }
+
+    /**
+     * Highlights the Images tab in the bottom navigation without changing the shared layout defaults.
+     */
+    private void highlightImagesTab() {
+        int activeColor = ContextCompat.getColor(this, R.color.primary_blue);
+        int inactiveColor = ContextCompat.getColor(this, R.color.text_gray);
+
+        ImageView homeIcon = findViewById(R.id.nav_home_icon);
+        TextView homeText = findViewById(R.id.nav_home_text);
+        ImageView imagesIcon = findViewById(R.id.nav_images_icon);
+        TextView imagesText = findViewById(R.id.nav_images_text);
+        ImageView settingsIcon = findViewById(R.id.nav_settings_icon);
+        TextView settingsText = findViewById(R.id.nav_settings_text);
+
+        if (homeIcon != null) {
+            homeIcon.setImageTintList(ColorStateList.valueOf(inactiveColor));
+        }
+        if (homeText != null) {
+            homeText.setTextColor(inactiveColor);
+        }
+        if (imagesIcon != null) {
+            imagesIcon.setImageTintList(ColorStateList.valueOf(activeColor));
+        }
+        if (imagesText != null) {
+            imagesText.setTextColor(activeColor);
+        }
+        if (settingsIcon != null) {
+            settingsIcon.setImageTintList(ColorStateList.valueOf(inactiveColor));
+        }
+        if (settingsText != null) {
+            settingsText.setTextColor(inactiveColor);
         }
     }
 

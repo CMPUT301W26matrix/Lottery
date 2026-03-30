@@ -100,13 +100,29 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         }
     }
 
+    /**
+     * Callback interface invoked when a notification item is clicked.
+     */
     public interface OnNotificationClickListener {
+        /**
+         * Called when a notification item is clicked.
+         *
+         * @param item the clicked notification
+         */
         void onNotificationClick(NotificationItem item);
     }
 
+    /**
+     * ViewHolder that caches references to the notification item's UI components.
+     */
     public static class NotificationViewHolder extends RecyclerView.ViewHolder {
         TextView tvTitle, tvType, tvMessage, tvNew, tvResponse;
 
+        /**
+         * Creates a new NotificationViewHolder.
+         *
+         * @param itemView the inflated item layout
+         */
         public NotificationViewHolder(@NonNull View itemView) {
             super(itemView);
             tvTitle = itemView.findViewById(R.id.tvNotificationTitle);

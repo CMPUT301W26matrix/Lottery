@@ -26,6 +26,10 @@ import com.google.firebase.firestore.Query;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Bottom sheet dialog that displays a real-time comment thread for an event and allows
+ * entrants and organizers to post new comments.
+ */
 public class CommentBottomSheet extends BottomSheetDialogFragment {
 
     private static final String ARG_EVENT_ID = "eventId";
@@ -47,10 +51,27 @@ public class CommentBottomSheet extends BottomSheetDialogFragment {
     private TextView tvEmptyComments;
     private ListenerRegistration commentsListener;
 
+    /**
+     * Creates a new instance for an entrant viewer.
+     *
+     * @param eventId  the event to show comments for
+     * @param userId   the current user's ID
+     * @param userName the current user's display name
+     * @return a configured CommentBottomSheet fragment
+     */
     public static CommentBottomSheet newInstance(String eventId, String userId, String userName) {
         return newInstance(eventId, userId, userName, false);
     }
 
+    /**
+     * Creates a new instance with an optional organizer flag.
+     *
+     * @param eventId     the event to show comments for
+     * @param userId      the current user's ID
+     * @param userName    the current user's display name
+     * @param isOrganizer whether the user is an organizer (enables comment deletion)
+     * @return a configured CommentBottomSheet fragment
+     */
     public static CommentBottomSheet newInstance(String eventId, String userId, String userName, boolean isOrganizer) {
         CommentBottomSheet fragment = new CommentBottomSheet();
         Bundle args = new Bundle();
@@ -62,6 +83,12 @@ public class CommentBottomSheet extends BottomSheetDialogFragment {
         return fragment;
     }
 
+    /**
+     * Creates a read-only instance for an admin (comment input is hidden).
+     *
+     * @param eventId the event to show comments for
+     * @return a configured CommentBottomSheet fragment
+     */
     public static CommentBottomSheet newInstanceForAdmin(String eventId) {
         CommentBottomSheet fragment = new CommentBottomSheet();
         Bundle args = new Bundle();
