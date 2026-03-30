@@ -30,6 +30,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.lottery.model.EntrantEvent;
 import com.example.lottery.util.ConfirmationTicketGenerator;
+import com.example.lottery.util.EntrantNavigationHelper;
 import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.InvitationFlowUtil;
 import com.example.lottery.util.PosterImageLoader;
@@ -99,11 +100,6 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
 
     private LinearLayout invitationButtonsContainer;
     private LinearLayout registrationEndedContainer;
-
-    private View navHome;
-    private View navNotifications;
-    private View navQrScan;
-    private View navProfile;
 
     private ImageButton btnClose;
     private ImageButton btnComments;
@@ -211,7 +207,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
             bottomSheet.show(getSupportFragmentManager(), "comment_bottom_sheet");
         });
 
-        setupNavigation();
+        EntrantNavigationHelper.setup(this, EntrantNavigationHelper.EntrantTab.HOME, userId, true);
         btnClose.setOnClickListener(v -> finish());
     }
 
@@ -238,11 +234,6 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
 
         invitationButtonsContainer = findViewById(R.id.invitationButtonsContainer);
         registrationEndedContainer = findViewById(R.id.registrationEndedContainer);
-
-        navHome = findViewById(R.id.nav_home);
-        navNotifications = findViewById(R.id.nav_history);
-        navQrScan = findViewById(R.id.nav_qr_scan);
-        navProfile = findViewById(R.id.nav_profile);
 
         btnClose = findViewById(R.id.btnBack);
         btnComments = findViewById(R.id.btnComments);
@@ -274,70 +265,6 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                     Toast.makeText(this, "Location is required to proceed", Toast.LENGTH_LONG).show();
                 }
             });
-
-    /**
-     * Sets up click listeners for the custom bottom navigation bar items.
-     */
-    private void setupNavigation() {
-        if (navHome != null) {
-            navHome.setOnClickListener(v -> {
-                Intent intent = new Intent(this, EntrantMainActivity.class);
-                intent.putExtra("userId", userId);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(intent);
-                finish();
-            });
-        }
-
-        if (navNotifications != null) {
-            navNotifications.setOnClickListener(v -> {
-                Intent intent = new Intent(this, EntrantEventHistoryActivity.class);
-                intent.putExtra("userId", userId);
-                startActivity(intent);
-            });
-        }
-
-        if (navQrScan != null) {
-            navQrScan.setOnClickListener(v -> {
-                Intent intent = new Intent(this, EntrantQrScanActivity.class);
-                intent.putExtra("userId", userId);
-                startActivity(intent);
-            });
-        }
-
-        if (navProfile != null) {
-            navProfile.setOnClickListener(v -> {
-                Intent intent = new Intent(this, EntrantProfileActivity.class);
-                intent.putExtra("userId", userId);
-                startActivity(intent);
-            });
-        }
-
-        updateNavigationSelection();
-    }
-
-    /**
-     * Resets the visual state of navigation items to ensure consistency.
-     */
-    private void updateNavigationSelection() {
-        resetNavItem(findViewById(R.id.iv_nav_home), findViewById(R.id.tv_nav_home));
-        resetNavItem(findViewById(R.id.iv_nav_history), findViewById(R.id.tv_nav_history));
-    }
-
-    /**
-     * Helper to reset the tint and color of a navigation item.
-     *
-     * @param iv The icon ImageView.
-     * @param tv The text label TextView.
-     */
-    private void resetNavItem(ImageView iv, TextView tv) {
-        if (iv != null) {
-            iv.setColorFilter(getResources().getColor(R.color.text_gray));
-        }
-        if (tv != null) {
-            tv.setTextColor(getResources().getColor(R.color.text_gray));
-        }
-    }
 
     /**
      * Refreshes data when the activity returns to the foreground.

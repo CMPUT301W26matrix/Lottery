@@ -5,9 +5,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -20,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lottery.model.Event;
 import com.example.lottery.util.FirestorePaths;
+import com.example.lottery.util.OrganizerNavigationHelper;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -110,73 +108,8 @@ public class OrganizerQrEventListActivity extends AppCompatActivity {
         rvEvents.setLayoutManager(new LinearLayoutManager(this));
         rvEvents.setAdapter(adapter);
 
-        setupNavigation();
+        OrganizerNavigationHelper.setup(this, OrganizerNavigationHelper.OrganizerTab.QR_CODE, userId);
         loadEvents();
-    }
-
-    private void setupNavigation() {
-        View btnCreate = findViewById(R.id.nav_create_container);
-        if (btnCreate != null) {
-            btnCreate.setOnClickListener(v -> {
-                Intent intent = new Intent(this, OrganizerCreateEventActivity.class);
-                intent.putExtra("userId", userId);
-                startActivity(intent);
-            });
-        }
-
-        View btnHome = findViewById(R.id.nav_home);
-        if (btnHome != null) {
-            btnHome.setOnClickListener(v -> {
-                Intent intent = new Intent(this, OrganizerBrowseEventsActivity.class);
-                intent.putExtra("userId", userId);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(intent);
-                finish();
-            });
-        }
-
-        View btnNotifications = findViewById(R.id.nav_notifications);
-        if (btnNotifications != null) {
-            btnNotifications.setOnClickListener(v -> {
-                Intent intent = new Intent(this, OrganizerNotificationsActivity.class);
-                intent.putExtra("userId", userId);
-                startActivity(intent);
-            });
-        }
-
-        View btnQr = findViewById(R.id.nav_qr_code);
-        if (btnQr != null) {
-            btnQr.setOnClickListener(v -> {
-                // Already here
-            });
-        }
-
-        View btnProfile = findViewById(R.id.nav_profile);
-        if (btnProfile != null) {
-            btnProfile.setOnClickListener(v -> {
-                Intent intent = new Intent(this, OrganizerProfileActivity.class);
-                intent.putExtra("userId", userId);
-                startActivity(intent);
-            });
-        }
-
-        updateNavigationSelection();
-    }
-
-    private void updateNavigationSelection() {
-        // Highlight current selection
-        View navQr = findViewById(R.id.nav_qr_code);
-        if (navQr instanceof LinearLayout) {
-            LinearLayout ll = (LinearLayout) navQr;
-            if (ll.getChildCount() >= 2) {
-                View iv = ll.getChildAt(0);
-                View tv = ll.getChildAt(1);
-                if (iv instanceof ImageView)
-                    ((ImageView) iv).setColorFilter(getResources().getColor(R.color.primary_blue));
-                if (tv instanceof TextView)
-                    ((TextView) tv).setTextColor(getResources().getColor(R.color.primary_blue));
-            }
-        }
     }
 
     private void loadEvents() {

@@ -1,6 +1,5 @@
 package com.example.lottery;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -18,6 +17,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.lottery.model.Event;
+import com.example.lottery.util.AdminNavigationHelper;
 import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.PosterImageLoader;
 import com.google.firebase.firestore.CollectionReference;
@@ -83,6 +83,7 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
      * Identifier of the event currently being displayed.
      */
     private String eventId;
+    private String userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +98,11 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
         });
 
         db = FirebaseFirestore.getInstance();
+
+        userId = getIntent().getStringExtra("userId");
+        if (userId == null) {
+            userId = getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("userId", null);
+        }
 
         ivEventPoster = findViewById(R.id.ivEventPoster);
         tvEventTitle = findViewById(R.id.tvEventTitle);
@@ -119,7 +125,7 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
             bottomSheet.show(getSupportFragmentManager(), "comment_bottom_sheet");
         });
 
-        setupNavigation();
+        AdminNavigationHelper.setup(this, AdminNavigationHelper.AdminTab.EVENTS, userId, true);
 
         eventId = getIntent().getStringExtra(EXTRA_EVENT_ID);
         if (eventId == null || eventId.isEmpty()) {
@@ -135,52 +141,6 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
         super.onResume();
         if (eventId != null && !eventId.isEmpty()) {
             fetchEventDetails();
-        }
-    }
-
-    /**
-     * Sets up click listeners for the admin bottom navigation bar.
-     */
-    private void setupNavigation() {
-        View btnEvents = findViewById(R.id.nav_home);
-        if (btnEvents != null) {
-            btnEvents.setOnClickListener(v -> {
-                Intent intent = new Intent(this, AdminBrowseEventsActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                startActivity(intent);
-                finish();
-            });
-        }
-
-        View btnProfiles = findViewById(R.id.nav_profiles);
-        if (btnProfiles != null) {
-            btnProfiles.setOnClickListener(v -> {
-                Intent intent = new Intent(this, AdminBrowseProfilesActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                intent.putExtra("role", "admin");
-                startActivity(intent);
-                finish();
-            });
-        }
-
-        View btnImages = findViewById(R.id.nav_images);
-        if (btnImages != null) {
-            btnImages.setOnClickListener(v -> {
-                Intent intent = new Intent(this, AdminBrowseImagesActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                startActivity(intent);
-                finish();
-            });
-        }
-
-        View btnLogs = findViewById(R.id.nav_logs);
-        if (btnLogs != null) {
-            btnLogs.setOnClickListener(v -> {
-                Intent intent = new Intent(this, AdminBrowseLogsActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                startActivity(intent);
-                finish();
-            });
         }
     }
 

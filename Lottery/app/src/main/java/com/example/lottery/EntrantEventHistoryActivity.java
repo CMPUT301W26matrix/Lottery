@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lottery.model.Event;
+import com.example.lottery.util.EntrantNavigationHelper;
 import com.example.lottery.util.FirestorePaths;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -53,7 +54,7 @@ public class EntrantEventHistoryActivity extends AppCompatActivity {
         }
 
         initViews();
-        setupNavigation();
+        EntrantNavigationHelper.setup(this, EntrantNavigationHelper.EntrantTab.HISTORY, userId);
         loadEventHistory();
     }
 
@@ -70,32 +71,6 @@ public class EntrantEventHistoryActivity extends AppCompatActivity {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
-        });
-    }
-
-    private void setupNavigation() {
-        findViewById(R.id.nav_home).setOnClickListener(v -> {
-            Intent intent = new Intent(this, EntrantMainActivity.class);
-            intent.putExtra("userId", userId);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(intent);
-            finish();
-        });
-
-        findViewById(R.id.nav_history).setOnClickListener(v -> {
-            // Already here
-        });
-
-        findViewById(R.id.nav_qr_scan).setOnClickListener(v -> {
-            Intent intent = new Intent(this, EntrantQrScanActivity.class);
-            intent.putExtra("userId", userId);
-            startActivity(intent);
-        });
-
-        findViewById(R.id.nav_profile).setOnClickListener(v -> {
-            Intent intent = new Intent(this, EntrantProfileActivity.class);
-            intent.putExtra("userId", userId);
-            startActivity(intent);
         });
     }
 

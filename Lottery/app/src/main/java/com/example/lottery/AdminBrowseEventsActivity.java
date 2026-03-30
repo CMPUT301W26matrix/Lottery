@@ -1,17 +1,14 @@
 package com.example.lottery;
 
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -19,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lottery.model.Event;
+import com.example.lottery.util.AdminNavigationHelper;
 import com.example.lottery.util.FirestorePaths;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -102,113 +100,15 @@ public class AdminBrowseEventsActivity extends AppCompatActivity implements Even
         rvEvents.setLayoutManager(new LinearLayoutManager(this));
         rvEvents.setAdapter(adapter);
 
-        setupNavigation();
+        AdminNavigationHelper.setup(this, AdminNavigationHelper.AdminTab.EVENTS, userId);
+        // Override Events tab to scroll to top instead of no-op
+        findViewById(R.id.nav_home).setOnClickListener(v -> rvEvents.smoothScrollToPosition(0));
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         loadEvents();
-    }
-
-    /**
-     * Sets up click listeners for the admin navigation elements.
-     */
-    private void setupNavigation() {
-        highlightEventsTab();
-
-        View btnHome = findViewById(R.id.nav_home);
-        if (btnHome != null) {
-            btnHome.setOnClickListener(v -> {
-                // Already on home, scroll to top or do nothing
-                rvEvents.smoothScrollToPosition(0);
-            });
-        }
-
-        View btnProfiles = findViewById(R.id.nav_profiles);
-        if (btnProfiles != null) {
-            btnProfiles.setOnClickListener(v -> {
-                Intent intent = new Intent(AdminBrowseEventsActivity.this, AdminBrowseProfilesActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                intent.putExtra("role", "admin");
-                intent.putExtra("userId", userId);
-                startActivity(intent);
-            });
-        }
-
-        View btnImages = findViewById(R.id.nav_images);
-        if (btnImages != null) {
-            btnImages.setOnClickListener(v -> {
-                Intent intent = new Intent(this, AdminBrowseImagesActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                intent.putExtra("role", "admin");
-                intent.putExtra("userId", userId);
-                startActivity(intent);
-            });
-        }
-
-        View btnLogs = findViewById(R.id.nav_logs);
-        if (btnLogs != null) {
-            btnLogs.setOnClickListener(v -> {
-                Intent intent = new Intent(this, AdminBrowseLogsActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                startActivity(intent);
-            });
-        }
-    }
-
-    /**
-     * Highlights the Events tab in the bottom navigation to match the pattern of other admin screens.
-     */
-    private void highlightEventsTab() {
-        int activeColor = ContextCompat.getColor(this, R.color.primary_blue);
-        int inactiveColor = ContextCompat.getColor(this, R.color.text_gray);
-
-        ImageView homeIcon = findViewById(R.id.nav_home_icon);
-        TextView homeText = findViewById(R.id.nav_home_text);
-
-        if (homeIcon != null) {
-            homeIcon.setImageTintList(ColorStateList.valueOf(activeColor));
-        }
-        if (homeText != null) {
-            homeText.setTextColor(activeColor);
-        }
-
-        ImageView profilesIcon = findViewById(R.id.nav_profiles_icon);
-        TextView profilesText = findViewById(R.id.nav_profiles_text);
-        ImageView imagesIcon = findViewById(R.id.nav_images_icon);
-        TextView imagesText = findViewById(R.id.nav_images_text);
-        ImageView logsIcon = findViewById(R.id.nav_logs_icon);
-        TextView logsText = findViewById(R.id.nav_logs_text);
-
-        if (profilesIcon != null) {
-            profilesIcon.setImageTintList(ColorStateList.valueOf(inactiveColor));
-        }
-        if (profilesText != null) {
-            profilesText.setTextColor(inactiveColor);
-        }
-        if (imagesIcon != null) {
-            imagesIcon.setImageTintList(ColorStateList.valueOf(inactiveColor));
-        }
-        if (imagesText != null) {
-            imagesText.setTextColor(inactiveColor);
-        }
-        if (logsIcon != null) {
-            logsIcon.setImageTintList(ColorStateList.valueOf(inactiveColor));
-        }
-        if (logsText != null) {
-            logsText.setTextColor(inactiveColor);
-        }
-
-        View btnSettings = findViewById(R.id.nav_admin_settings);
-        if (btnSettings != null) {
-            btnSettings.setOnClickListener(v -> {
-                Intent intent = new Intent(this, AdminProfileActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                intent.putExtra("userId", userId);
-                startActivity(intent);
-            });
-        }
     }
 
     /**

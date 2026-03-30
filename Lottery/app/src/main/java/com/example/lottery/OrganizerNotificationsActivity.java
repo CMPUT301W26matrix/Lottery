@@ -1,6 +1,5 @@
 package com.example.lottery;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,6 +19,7 @@ import com.example.lottery.model.Event;
 import com.example.lottery.model.NotificationItem;
 import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.InvitationFlowUtil;
+import com.example.lottery.util.OrganizerNavigationHelper;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -104,39 +104,8 @@ public class OrganizerNotificationsActivity extends AppCompatActivity
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
 
-        setupNavigation();
+        OrganizerNavigationHelper.setup(this, OrganizerNavigationHelper.OrganizerTab.NOTIFICATIONS, userId);
         loadOrganizerEvents();
-    }
-
-    /**
-     * Configures the click listeners for the included bottom navigation layout.
-     */
-    private void setupNavigation() {
-        findViewById(R.id.nav_home).setOnClickListener(v -> {
-            Intent intent = new Intent(this, OrganizerBrowseEventsActivity.class);
-            intent.putExtra("userId", userId);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(intent);
-            finish();
-        });
-
-        findViewById(R.id.nav_create_container).setOnClickListener(v -> {
-            Intent intent = new Intent(this, OrganizerCreateEventActivity.class);
-            intent.putExtra("userId", userId);
-            startActivity(intent);
-        });
-
-        findViewById(R.id.nav_qr_code).setOnClickListener(v -> {
-            Intent intent = new Intent(this, OrganizerQrEventListActivity.class);
-            intent.putExtra("userId", userId);
-            startActivity(intent);
-        });
-
-        findViewById(R.id.nav_profile).setOnClickListener(v -> {
-            Intent intent = new Intent(this, OrganizerProfileActivity.class);
-            intent.putExtra("userId", userId);
-            startActivity(intent);
-        });
     }
 
     /**

@@ -2,21 +2,19 @@ package com.example.lottery;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.lottery.util.AdminNavigationHelper;
 import com.example.lottery.util.AdminRoleManager;
 import com.example.lottery.util.FirestorePaths;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -78,7 +76,7 @@ public class AdminProfileActivity extends AppCompatActivity {
         initializeViews();
         loadAdminProfile();
         setupRoleButtons();
-        setupNavigation();
+        AdminNavigationHelper.setup(this, AdminNavigationHelper.AdminTab.SETTINGS, adminUserId);
     }
 
     /**
@@ -157,7 +155,7 @@ public class AdminProfileActivity extends AppCompatActivity {
      * If no, creates a new profile for that role and then navigates to profile completion.
      *
      * @param roleUserId The user ID for the role (e.g., "entrant_" + ANDROID_ID)
-     * @param role The role name ("ENTRANT" or "ORGANIZER")
+     * @param role       The role name ("ENTRANT" or "ORGANIZER")
      */
     private void checkAndSwitchToRole(String roleUserId, String role) {
         db.collection(FirestorePaths.USERS).document(roleUserId).get()
@@ -190,7 +188,7 @@ public class AdminProfileActivity extends AppCompatActivity {
      * Creates a new profile for the specified role using the same device ID as the admin.
      *
      * @param roleUserId The user ID for the role
-     * @param role The role name ("ENTRANT" or "ORGANIZER")
+     * @param role       The role name ("ENTRANT" or "ORGANIZER")
      */
     private void createRoleProfile(String roleUserId, String role) {
         Map<String, Object> userData = new HashMap<>();
@@ -226,7 +224,7 @@ public class AdminProfileActivity extends AppCompatActivity {
     /**
      * Navigates to the profile completion activity for the specified role.
      *
-     * @param role The role name ("ENTRANT" or "ORGANIZER")
+     * @param role       The role name ("ENTRANT" or "ORGANIZER")
      * @param roleUserId The user ID for the role
      */
     private void navigateToProfileCompletion(String role, String roleUserId) {
@@ -248,7 +246,7 @@ public class AdminProfileActivity extends AppCompatActivity {
     /**
      * Navigates directly to the main activity for the specified role.
      *
-     * @param role The role name ("ENTRANT" or "ORGANIZER")
+     * @param role       The role name ("ENTRANT" or "ORGANIZER")
      * @param roleUserId The user ID for the role
      */
     private void navigateToRoleMain(String role, String roleUserId) {
@@ -284,82 +282,4 @@ public class AdminProfileActivity extends AppCompatActivity {
         finish();
     }
 
-    /**
-     * Sets up click listeners for the bottom navigation bar and highlights the settings tab.
-     */
-    private void setupNavigation() {
-        highlightSettingsTab();
-
-        // View Events (HOME)
-        findViewById(R.id.nav_home).setOnClickListener(v -> {
-            Intent intent = new Intent(this, AdminBrowseEventsActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-            intent.putExtra("role", "admin");
-            intent.putExtra("userId", adminUserId);
-            startActivity(intent);
-        });
-
-        // View Profiles
-        findViewById(R.id.nav_profiles).setOnClickListener(v -> {
-            Intent intent = new Intent(this, AdminBrowseProfilesActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-            intent.putExtra("role", "admin");
-            intent.putExtra("userId", adminUserId);
-            startActivity(intent);
-        });
-
-        // View Images
-        findViewById(R.id.nav_images).setOnClickListener(v -> {
-            Intent intent = new Intent(this, AdminBrowseImagesActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-            intent.putExtra("role", "admin");
-            intent.putExtra("userId", adminUserId);
-            startActivity(intent);
-        });
-
-        // View Logs
-        View btnLogs = findViewById(R.id.nav_logs);
-        if (btnLogs != null) {
-            btnLogs.setOnClickListener(v -> {
-                Intent intent = new Intent(this, AdminBrowseLogsActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                startActivity(intent);
-            });
-        }
-
-        // Settings (CURRENT SCREEN)
-        findViewById(R.id.nav_admin_settings).setOnClickListener(v -> {
-            // Already here — do nothing
-        });
-    }
-
-    /**
-     * Highlights the settings tab in the bottom navigation and dims all other tabs.
-     */
-    private void highlightSettingsTab() {
-        int activeColor = ContextCompat.getColor(this, R.color.primary_blue);
-        int inactiveColor = ContextCompat.getColor(this, R.color.text_gray);
-
-        ImageView homeIcon = findViewById(R.id.nav_home_icon);
-        TextView homeText = findViewById(R.id.nav_home_text);
-        ImageView profilesIcon = findViewById(R.id.nav_profiles_icon);
-        TextView profilesText = findViewById(R.id.nav_profiles_text);
-        ImageView imagesIcon = findViewById(R.id.nav_images_icon);
-        TextView imagesText = findViewById(R.id.nav_images_text);
-        ImageView logsIcon = findViewById(R.id.nav_logs_icon);
-        TextView logsText = findViewById(R.id.nav_logs_text);
-        ImageView settingsIcon = findViewById(R.id.nav_settings_icon);
-        TextView settingsText = findViewById(R.id.nav_settings_text);
-
-        if (homeIcon != null) homeIcon.setImageTintList(ColorStateList.valueOf(inactiveColor));
-        if (homeText != null) homeText.setTextColor(inactiveColor);
-        if (profilesIcon != null) profilesIcon.setImageTintList(ColorStateList.valueOf(inactiveColor));
-        if (profilesText != null) profilesText.setTextColor(inactiveColor);
-        if (imagesIcon != null) imagesIcon.setImageTintList(ColorStateList.valueOf(inactiveColor));
-        if (imagesText != null) imagesText.setTextColor(inactiveColor);
-        if (logsIcon != null) logsIcon.setImageTintList(ColorStateList.valueOf(inactiveColor));
-        if (logsText != null) logsText.setTextColor(inactiveColor);
-        if (settingsIcon != null) settingsIcon.setImageTintList(ColorStateList.valueOf(activeColor));
-        if (settingsText != null) settingsText.setTextColor(activeColor);
-    }
 }

@@ -1,32 +1,28 @@
 package com.example.lottery;
 
-import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.lottery.model.Event;
+import com.example.lottery.util.AdminNavigationHelper;
 import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.PosterImageLoader;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.StorageException;
-
-import androidx.annotation.VisibleForTesting;
+import com.google.firebase.storage.StorageReference;
 
 /**
  * AdminImageDetailsActivity displays a full-size poster preview for administrators.
@@ -46,7 +42,9 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
     private static final String TAG = "AdminImageDetails";
     private static final String EXTRA_EVENT_ID = "eventId";
 
-    /** Inject a test Event to bypass Firestore while still exercising updateUi(). */
+    /**
+     * Inject a test Event to bypass Firestore while still exercising updateUi().
+     */
     @VisibleForTesting
     static Event testEvent;
 
@@ -115,7 +113,10 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
 
         btnDeleteImage.setOnClickListener(v -> showDeleteConfirmationDialog());
 
-        setupNavigation();
+        AdminNavigationHelper.setup(this, AdminNavigationHelper.AdminTab.IMAGES, userId, true);
+        // Logs and Settings should keep image detail alive for Back navigation
+        AdminNavigationHelper.overrideTabWithoutFinish(this, AdminNavigationHelper.AdminTab.LOGS, userId);
+        AdminNavigationHelper.overrideTabWithoutFinish(this, AdminNavigationHelper.AdminTab.SETTINGS, userId);
 
         eventId = getIntent().getStringExtra(EXTRA_EVENT_ID);
         if (eventId == null || eventId.isEmpty()) {
@@ -132,95 +133,6 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
         super.onResume();
         if (eventId != null && !eventId.isEmpty()) {
             fetchEventDetails();
-        }
-    }
-
-    /**
-     * Sets up click listeners for the admin bottom navigation bar.
-     */
-    private void setupNavigation() {
-        highlightImagesTab();
-
-        View btnEvents = findViewById(R.id.nav_home);
-        if (btnEvents != null) {
-            btnEvents.setOnClickListener(v -> {
-                Intent intent = new Intent(this, AdminBrowseEventsActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(intent);
-                finish();
-            });
-        }
-
-        View btnProfiles = findViewById(R.id.nav_profiles);
-        if (btnProfiles != null) {
-            btnProfiles.setOnClickListener(v -> {
-                Intent intent = new Intent(this, AdminBrowseProfilesActivity.class);
-                intent.putExtra("role", "admin");
-                startActivity(intent);
-                finish();
-            });
-        }
-
-        View btnImages = findViewById(R.id.nav_images);
-        if (btnImages != null) {
-            btnImages.setOnClickListener(v -> {
-                Intent intent = new Intent(this, AdminBrowseImagesActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(intent);
-                finish();
-            });
-        }
-
-        View btnLogs = findViewById(R.id.nav_logs);
-        if (btnLogs != null) {
-            btnLogs.setOnClickListener(v -> {
-                Intent intent = new Intent(this, AdminBrowseLogsActivity.class);
-                startActivity(intent);
-            });
-        }
-
-        View btnSettings = findViewById(R.id.nav_admin_settings);
-        if (btnSettings != null) {
-            btnSettings.setOnClickListener(v -> {
-                Intent intent = new Intent(this, AdminProfileActivity.class);
-                intent.putExtra("userId", userId);
-                intent.putExtra("role", "admin");
-                startActivity(intent);
-            });
-        }
-    }
-
-    /**
-     * Highlights the Images tab in the bottom navigation without changing the shared layout defaults.
-     */
-    private void highlightImagesTab() {
-        int activeColor = ContextCompat.getColor(this, R.color.primary_blue);
-        int inactiveColor = ContextCompat.getColor(this, R.color.text_gray);
-
-        ImageView homeIcon = findViewById(R.id.nav_home_icon);
-        TextView homeText = findViewById(R.id.nav_home_text);
-        ImageView imagesIcon = findViewById(R.id.nav_images_icon);
-        TextView imagesText = findViewById(R.id.nav_images_text);
-        ImageView settingsIcon = findViewById(R.id.nav_settings_icon);
-        TextView settingsText = findViewById(R.id.nav_settings_text);
-
-        if (homeIcon != null) {
-            homeIcon.setImageTintList(ColorStateList.valueOf(inactiveColor));
-        }
-        if (homeText != null) {
-            homeText.setTextColor(inactiveColor);
-        }
-        if (imagesIcon != null) {
-            imagesIcon.setImageTintList(ColorStateList.valueOf(activeColor));
-        }
-        if (imagesText != null) {
-            imagesText.setTextColor(activeColor);
-        }
-        if (settingsIcon != null) {
-            settingsIcon.setImageTintList(ColorStateList.valueOf(inactiveColor));
-        }
-        if (settingsText != null) {
-            settingsText.setTextColor(inactiveColor);
         }
     }
 

@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,6 +19,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.lottery.util.AdminRoleManager;
+import com.example.lottery.util.OrganizerNavigationHelper;
 import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.UserDeletionUtil;
 import com.google.firebase.auth.FirebaseAuth;
@@ -77,7 +77,10 @@ public class OrganizerProfileActivity extends AppCompatActivity {
 
         initializeViews();
         loadUserProfile();
-        setupNavigation();
+        OrganizerNavigationHelper.setup(this, OrganizerNavigationHelper.OrganizerTab.PROFILE, userId);
+        if (forceEdit) {
+            OrganizerNavigationHelper.disableNavigation(this);
+        }
         setupBackPressed();
 
         if (forceEdit) {
@@ -180,6 +183,7 @@ public class OrganizerProfileActivity extends AppCompatActivity {
                 if (forceEdit && username != null && !username.isEmpty() && email != null && !email.isEmpty()) {
                     forceEdit = false;
                     exitEditMode();
+                    OrganizerNavigationHelper.setup(this, OrganizerNavigationHelper.OrganizerTab.PROFILE, userId);
                 }
             }
         });
@@ -324,96 +328,4 @@ public class OrganizerProfileActivity extends AppCompatActivity {
         finish();
     }
 
-    private void setupNavigation() {
-        View navHome = findViewById(R.id.nav_home);
-        if (navHome != null) {
-            navHome.setOnClickListener(v -> {
-                if (forceEdit) {
-                    Toast.makeText(this, "Please complete your profile first", Toast.LENGTH_SHORT).show();
-                } else {
-                    navigateToMain();
-                }
-            });
-        }
-
-        View btnNotifications = findViewById(R.id.nav_notifications);
-        if (btnNotifications != null) {
-            btnNotifications.setOnClickListener(v -> {
-                if (!forceEdit) {
-                    Intent intent = new Intent(this, OrganizerNotificationsActivity.class);
-                    intent.putExtra("userId", userId);
-                    startActivity(intent);
-                }
-            });
-        }
-
-        View btnQr = findViewById(R.id.nav_qr_code);
-        if (btnQr != null) {
-            btnQr.setOnClickListener(v -> {
-                if (forceEdit) {
-                    Toast.makeText(this, "Please complete your profile first", Toast.LENGTH_SHORT).show();
-                } else {
-                    Intent intent = new Intent(this, OrganizerQrEventListActivity.class);
-                    intent.putExtra("userId", userId);
-                    startActivity(intent);
-                }
-            });
-        }
-
-        View btnProfile = findViewById(R.id.nav_profile);
-        if (btnProfile != null) {
-            btnProfile.setOnClickListener(v -> {
-                // Already here
-            });
-        }
-
-        View navCreate = findViewById(R.id.nav_create_container);
-        if (navCreate != null) {
-            navCreate.setOnClickListener(v -> {
-                if (forceEdit) {
-                    Toast.makeText(this, "Please complete your profile first", Toast.LENGTH_SHORT).show();
-                } else {
-                    Intent intent = new Intent(this, OrganizerCreateEventActivity.class);
-                    intent.putExtra("userId", userId);
-                    startActivity(intent);
-                }
-            });
-        }
-
-        updateNavigationSelection();
-    }
-
-    private void updateNavigationSelection() {
-        // Reset home selection
-        View navHome = findViewById(R.id.nav_home);
-        if (navHome != null) {
-            if (navHome instanceof LinearLayout) {
-                LinearLayout ll = (LinearLayout) navHome;
-                if (ll.getChildCount() >= 2) {
-                    View iv = ll.getChildAt(0);
-                    View tv = ll.getChildAt(1);
-                    if (iv instanceof ImageView)
-                        ((ImageView) iv).setColorFilter(getResources().getColor(R.color.text_gray));
-                    if (tv instanceof TextView)
-                        ((TextView) tv).setTextColor(getResources().getColor(R.color.text_gray));
-                }
-            }
-        }
-
-        // Highlight profile selection
-        View navProfile = findViewById(R.id.nav_profile);
-        if (navProfile != null) {
-            if (navProfile instanceof LinearLayout) {
-                LinearLayout ll = (LinearLayout) navProfile;
-                if (ll.getChildCount() >= 2) {
-                    View iv = ll.getChildAt(0);
-                    View tv = ll.getChildAt(1);
-                    if (iv instanceof ImageView)
-                        ((ImageView) iv).setColorFilter(getResources().getColor(R.color.primary_blue));
-                    if (tv instanceof TextView)
-                        ((TextView) tv).setTextColor(getResources().getColor(R.color.primary_blue));
-                }
-            }
-        }
-    }
 }

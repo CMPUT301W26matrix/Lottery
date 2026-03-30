@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.lottery.model.Event;
 import com.example.lottery.model.User;
 import com.example.lottery.util.AdminRoleManager;
+import com.example.lottery.util.EntrantNavigationHelper;
 import com.example.lottery.util.FirestorePaths;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
@@ -99,7 +100,16 @@ public class EntrantMainActivity extends AppCompatActivity {
 
         initViews();
         setupFilters();
-        setupNavigation();
+        EntrantNavigationHelper.setup(this, EntrantNavigationHelper.EntrantTab.HOME, userId);
+        findViewById(R.id.ivNotificationIcon).setOnClickListener(v -> {
+            Intent intent = new Intent(this, NotificationsActivity.class);
+            intent.putExtra(NotificationsActivity.EXTRA_USER_ID, userId);
+            intent.putExtra("isAdminRole", isAdminRole);
+            if (isAdminRole) {
+                intent.putExtra("adminUserId", adminUserId);
+            }
+            startActivity(intent);
+        });
         loadEvents();
         fetchUserInterests();
         checkUnreadNotifications();
@@ -214,59 +224,6 @@ public class EntrantMainActivity extends AppCompatActivity {
         super.onResume();
         checkUnreadNotifications();
         fetchUserInterests();
-    }
-
-    private void setupNavigation() {
-        findViewById(R.id.nav_home).setOnClickListener(v -> {
-            Intent intent = new Intent(this, EntrantMainActivity.class);
-            intent.putExtra("userId", userId);
-            intent.putExtra("isAdminRole", isAdminRole);
-            if (isAdminRole) {
-                intent.putExtra("adminUserId", adminUserId);
-            }
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(intent);
-        });
-
-        findViewById(R.id.nav_history).setOnClickListener(v -> {
-            Intent intent = new Intent(this, EntrantEventHistoryActivity.class);
-            intent.putExtra("userId", userId);
-            intent.putExtra("isAdminRole", isAdminRole);
-            if (isAdminRole) {
-                intent.putExtra("adminUserId", adminUserId);
-            }
-            startActivity(intent);
-        });
-
-        findViewById(R.id.nav_qr_scan).setOnClickListener(v -> {
-            Intent intent = new Intent(this, EntrantQrScanActivity.class);
-            intent.putExtra("userId", userId);
-            intent.putExtra("isAdminRole", isAdminRole);
-            if (isAdminRole) {
-                intent.putExtra("adminUserId", adminUserId);
-            }
-            startActivity(intent);
-        });
-
-        findViewById(R.id.nav_profile).setOnClickListener(v -> {
-            Intent intent = new Intent(this, EntrantProfileActivity.class);
-            intent.putExtra("userId", userId);
-            intent.putExtra("isAdminRole", isAdminRole);
-            if (isAdminRole) {
-                intent.putExtra("adminUserId", adminUserId);
-            }
-            startActivity(intent);
-        });
-
-        findViewById(R.id.ivNotificationIcon).setOnClickListener(v -> {
-            Intent intent = new Intent(this, NotificationsActivity.class);
-            intent.putExtra(NotificationsActivity.EXTRA_USER_ID, userId);
-            intent.putExtra("isAdminRole", isAdminRole);
-            if (isAdminRole) {
-                intent.putExtra("adminUserId", adminUserId);
-            }
-            startActivity(intent);
-        });
     }
 
     private void loadEvents() {
