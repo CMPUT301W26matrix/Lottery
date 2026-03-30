@@ -2,14 +2,17 @@ package com.example.lottery;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -222,7 +225,6 @@ public class AdminProfileActivity extends AppCompatActivity {
         intent.putExtra("forceEdit", true);
         intent.putExtra("isAdminRole", true);
         startActivity(intent);
-        finish();
     }
 
     /**
@@ -242,10 +244,8 @@ public class AdminProfileActivity extends AppCompatActivity {
             intent = new Intent(this, OrganizerBrowseEventsActivity.class);
         }
         intent.putExtra("userId", roleUserId);
-        intent.putExtra("isAdminRole", true); // Add flag for role detection
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intent.putExtra("isAdminRole", true);
         startActivity(intent);
-        finish();
     }
 
     private void logout() {
@@ -264,6 +264,7 @@ public class AdminProfileActivity extends AppCompatActivity {
     }
 
     private void setupNavigation() {
+        highlightSettingsTab();
 
         // View Events (HOME)
         findViewById(R.id.nav_home).setOnClickListener(v -> {
@@ -304,8 +305,34 @@ public class AdminProfileActivity extends AppCompatActivity {
 
         // Settings (CURRENT SCREEN)
         findViewById(R.id.nav_admin_settings).setOnClickListener(v -> {
-            // Already here — do nothing OR refresh
+            // Already here — do nothing
         });
     }
 
+    private void highlightSettingsTab() {
+        int activeColor = ContextCompat.getColor(this, R.color.primary_blue);
+        int inactiveColor = ContextCompat.getColor(this, R.color.text_gray);
+
+        ImageView homeIcon = findViewById(R.id.nav_home_icon);
+        TextView homeText = findViewById(R.id.nav_home_text);
+        ImageView profilesIcon = findViewById(R.id.nav_profiles_icon);
+        TextView profilesText = findViewById(R.id.nav_profiles_text);
+        ImageView imagesIcon = findViewById(R.id.nav_images_icon);
+        TextView imagesText = findViewById(R.id.nav_images_text);
+        ImageView logsIcon = findViewById(R.id.nav_logs_icon);
+        TextView logsText = findViewById(R.id.nav_logs_text);
+        ImageView settingsIcon = findViewById(R.id.nav_settings_icon);
+        TextView settingsText = findViewById(R.id.nav_settings_text);
+
+        if (homeIcon != null) homeIcon.setImageTintList(ColorStateList.valueOf(inactiveColor));
+        if (homeText != null) homeText.setTextColor(inactiveColor);
+        if (profilesIcon != null) profilesIcon.setImageTintList(ColorStateList.valueOf(inactiveColor));
+        if (profilesText != null) profilesText.setTextColor(inactiveColor);
+        if (imagesIcon != null) imagesIcon.setImageTintList(ColorStateList.valueOf(inactiveColor));
+        if (imagesText != null) imagesText.setTextColor(inactiveColor);
+        if (logsIcon != null) logsIcon.setImageTintList(ColorStateList.valueOf(inactiveColor));
+        if (logsText != null) logsText.setTextColor(inactiveColor);
+        if (settingsIcon != null) settingsIcon.setImageTintList(ColorStateList.valueOf(activeColor));
+        if (settingsText != null) settingsText.setTextColor(activeColor);
+    }
 }
