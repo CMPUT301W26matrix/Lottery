@@ -24,6 +24,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+/**
+ * Instrumented tests for {@link AdminBrowseEventsActivity}.
+ * Covers US 03.04.01: As an administrator, I want to be able to browse events.
+ * Covers US 03.01.01: As an administrator, I want to be able to remove events.
+ */
 @RunWith(AndroidJUnit4.class)
 public class AdminBrowseEventsActivityTest {
     @Rule
@@ -40,23 +45,25 @@ public class AdminBrowseEventsActivityTest {
         Intents.release();
     }
 
+    // US 03.04.01: Admin should see event browser with title, subtitle, and event list
     @Test
     public void testAdminBrowseEventsScreenIsDisplayed() {
         onView(withId(R.id.tvAppTitle)).perform(scrollTo()).check(matches(isDisplayed()));
         onView(withId(R.id.tvAppTitle)).check(matches(withText(R.string.admin_event_browser_title)));
 
-        onView(withId(R.id.tvOrganizerLabel)).perform(scrollTo()).check(matches(isDisplayed()));
-        onView(withId(R.id.tvOrganizerLabel))
+        onView(withId(R.id.tvSubtitle)).perform(scrollTo()).check(matches(isDisplayed()));
+        onView(withId(R.id.tvSubtitle))
                 .check(matches(withText(R.string.admin_event_browser_subtitle)));
 
-        onView(withId(R.id.tvYourEventsTitle)).perform(scrollTo()).check(matches(isDisplayed()));
-        onView(withId(R.id.tvYourEventsTitle))
+        onView(withId(R.id.tvAllEventsTitle)).perform(scrollTo()).check(matches(isDisplayed()));
+        onView(withId(R.id.tvAllEventsTitle))
                 .check(matches(withText(R.string.admin_all_events_title)));
 
         // RecyclerView starts empty, only check it's VISIBLE or not
         onView(withId(R.id.rvEvents)).check(matches(withEffectiveVisibility(Visibility.VISIBLE)));
     }
 
+    // US 03.01.01: Clicking an event should navigate to event details for removal
     @Test
     public void testOnEventClickLaunchesAdminEventDetailsActivity() {
         activityRule.getScenario().onActivity(activity -> {

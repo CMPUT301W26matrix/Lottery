@@ -21,13 +21,13 @@ import java.util.Locale;
 public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentViewHolder> {
 
     private final List<Comment> comments;
-    private final boolean isOrganizer;
+    private final boolean canDelete;
     private final String eventId;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, HH:mm", Locale.getDefault());
 
-    public CommentAdapter(List<Comment> comments, boolean isOrganizer, String eventId) {
+    public CommentAdapter(List<Comment> comments, boolean canDelete, String eventId) {
         this.comments = comments;
-        this.isOrganizer = isOrganizer;
+        this.canDelete = canDelete;
         this.eventId = eventId;
     }
 
@@ -41,25 +41,31 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
     @Override
     public void onBindViewHolder(@NonNull CommentViewHolder holder, int position) {
         Comment comment = comments.get(position);
-        
+
         // Display author name with "(Organizer)" marker if role is organizer
         String authorDisplayName = comment.getAuthorName() != null ? comment.getAuthorName() : "Anonymous";
         if ("organizer".equalsIgnoreCase(comment.getAuthorRole())) {
             authorDisplayName += " (Organizer)";
+        } else if ("admin".equalsIgnoreCase(comment.getAuthorRole())) {
+            authorDisplayName += " (Admin)";
         }
         holder.tvAuthorName.setText(authorDisplayName);
-        
+
         holder.tvCommentContent.setText(comment.getContent());
-        
+
         if (comment.getCreatedAt() != null) {
             holder.tvCommentTime.setText(dateFormat.format(comment.getCreatedAt().toDate()));
         } else {
             holder.tvCommentTime.setText("");
         }
 
-        if (isOrganizer) {
+        if (canDelete) {
             holder.btnDeleteComment.setVisibility(View.VISIBLE);
-            holder.btnDeleteComment.setOnClickListener(v -> deleteComment(comment, holder.getAdapterPosition(), v));
+            holder.btnDeleteComment.setOnClickListener(v -> {
+                int pos = holder.getAdapterPosition();
+                if (pos == RecyclerView.NO_POSITION) return;
+                deleteComment(comment, pos, v);
+            });
         } else {
             holder.btnDeleteComment.setVisibility(View.GONE);
         }

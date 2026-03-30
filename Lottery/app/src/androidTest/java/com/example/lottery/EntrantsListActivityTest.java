@@ -3,7 +3,6 @@ package com.example.lottery;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
-import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
@@ -28,7 +27,7 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class EntrantsListActivityTest {
-    
+
     @Rule
     public ActivityScenarioRule<EntrantsListActivity> activityRule =
             new ActivityScenarioRule<>(new Intent(ApplicationProvider.getApplicationContext(), EntrantsListActivity.class)
@@ -45,7 +44,7 @@ public class EntrantsListActivityTest {
         onView(withId(R.id.entrants_list_invited_btn)).perform(scrollTo()).check(matches(isDisplayed()));
         onView(withId(R.id.entrants_list_signed_up_btn)).perform(scrollTo()).check(matches(isDisplayed()));
         onView(withId(R.id.entrants_list_cancelled_btn)).perform(scrollTo()).check(matches(isDisplayed()));
-        
+
         onView(withId(R.id.entrants_list_send_notification_btn)).check(matches(isDisplayed()));
         onView(withId(R.id.entrants_list_view_location_btn)).check(matches(isDisplayed()));
     }
@@ -71,7 +70,7 @@ public class EntrantsListActivityTest {
     public void testSwitchToWaitedListedList() {
         // First switch to another tab to ensure we are testing a real transition
         onView(withId(R.id.entrants_list_signed_up_btn)).perform(scrollTo(), click());
-        
+
         onView(withId(R.id.entrants_list_waited_list_btn)).perform(scrollTo(), click());
         onView(withId(R.id.waited_list_entrants_list_layout)).check(matches(isDisplayed()));
 
@@ -86,8 +85,6 @@ public class EntrantsListActivityTest {
         onView(withId(R.id.entrants_list_view_location_btn)).perform(click());
         onView(withId(R.id.view_location_layout)).check(matches(isDisplayed()));
         onView(withId(R.id.mapView)).check(matches(isDisplayed()));
-
-        onView(withId(R.id.waited_list_entrants_list_layout)).check(matches(not(isDisplayed())));
     }
 
     /**

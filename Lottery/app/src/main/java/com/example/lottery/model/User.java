@@ -2,11 +2,12 @@ package com.example.lottery.model;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.GeoPoint;
+
 import java.util.List;
 
 /**
  * Model class representing a user in the system.
- *
+ * <p>
  * Target Firestore path:
  * users/{userId}
  */
@@ -69,16 +70,6 @@ public class User {
     public User() {
         this.role = "ENTRANT";
         this.notificationsEnabled = true;
-    }
-
-    /**
-     * Convenience constructor for basic profile information.
-     */
-    public User(String username, String email, String phone) {
-        this();
-        this.username = username;
-        this.email = email;
-        this.phone = phone;
     }
 
     /**
@@ -164,22 +155,6 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    /**
-     * Alias for getUsername() to maintain compatibility with older code.
-     * @return the username
-     */
-    public String getName() {
-        return username;
-    }
-
-    /**
-     * Alias for getPhone() to maintain compatibility with older code.
-     * @return the phone number
-     */
-    public String getPhoneNumber() {
-        return phone;
     }
 
     public String getRole() {

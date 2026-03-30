@@ -22,10 +22,10 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        app:singleSelection="true"
-        app:selectionRequired="true"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/top_nav_entrant">
+        app:layout_constraintTop_toBottomOf="@id/top_nav_entrant"
+        app:selectionRequired="true"
+        app:singleSelection="true">
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipBrowseAll"

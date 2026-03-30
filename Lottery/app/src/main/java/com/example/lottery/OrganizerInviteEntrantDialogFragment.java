@@ -2,6 +2,8 @@ package com.example.lottery;
 
 import android.app.Dialog;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -23,7 +25,6 @@ import com.example.lottery.util.FirestorePaths;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
@@ -37,19 +38,18 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
     private static final String ARG_EVENT_ID = "eventId";
     private static final String ARG_EVENT_TITLE = "eventTitle";
     private static final String ARG_SENDER_ID = "senderId";
-
+    private final List<User> userList = new ArrayList<>();
+    private final Handler searchHandler = new Handler(Looper.getMainLooper());
     private String eventId;
     private String eventTitle;
     private String senderId;
-
     private FirebaseFirestore db;
-    private List<User> userList = new ArrayList<>();
     private UserSearchAdapter adapter;
-
     private TextInputEditText etSearch;
     private RecyclerView rvResults;
     private ProgressBar progressBar;
     private TextView tvNoResults;
+    private Runnable pendingSearch;
 
     public static OrganizerInviteEntrantDialogFragment newInstance(String eventId, String eventTitle, String senderId) {
         OrganizerInviteEntrantDialogFragment fragment = new OrganizerInviteEntrantDialogFragment();
@@ -88,15 +88,20 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
 
         etSearch.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                searchUsers(s.toString().trim());
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
 
             @Override
-            public void afterTextChanged(Editable s) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (pendingSearch != null) searchHandler.removeCallbacks(pendingSearch);
+                String query = s.toString().trim();
+                pendingSearch = () -> searchUsers(query);
+                searchHandler.postDelayed(pendingSearch, 300);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
         });
 
         return view;
@@ -112,6 +117,7 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
     }
 
     private void searchUsers(String query) {
+        if (!isAdded()) return;
         if (query.length() < 2) {
             userList.clear();
             adapter.notifyDataSetChanged();
@@ -123,20 +129,22 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
         tvNoResults.setVisibility(View.GONE);
 
         // Search by username, email, or phone (simplified: searching by username start)
-        db.collection("users")
+        db.collection(FirestorePaths.USERS)
                 .whereEqualTo("role", "ENTRANT")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!isAdded()) return;
                     userList.clear();
                     String lowerQuery = query.toLowerCase();
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                         User user = doc.toObject(User.class);
                         user.setUserId(doc.getId());
 
-                        boolean match = false;
-                        if (user.getUsername() != null && user.getUsername().toLowerCase().contains(lowerQuery)) match = true;
-                        if (user.getEmail() != null && user.getEmail().toLowerCase().contains(lowerQuery)) match = true;
-                        if (user.getPhone() != null && user.getPhone().contains(query)) match = true;
+                        boolean match = user.getUsername() != null && user.getUsername().toLowerCase().contains(lowerQuery);
+                        if (user.getEmail() != null && user.getEmail().toLowerCase().contains(lowerQuery))
+                            match = true;
+                        if (user.getPhone() != null && user.getPhone().contains(query))
+                            match = true;
 
                         if (match) {
                             userList.add(user);
@@ -148,9 +156,19 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
                     tvNoResults.setVisibility(userList.isEmpty() ? View.VISIBLE : View.GONE);
                 })
                 .addOnFailureListener(e -> {
+                    if (!isAdded()) return;
                     progressBar.setVisibility(View.GONE);
-                    Toast.makeText(getContext(), "Search failed", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), "Search failed", Toast.LENGTH_SHORT).show();
                 });
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (pendingSearch != null) {
+            searchHandler.removeCallbacks(pendingSearch);
+            pendingSearch = null;
+        }
     }
 
     private void inviteUser(User user) {
@@ -161,7 +179,7 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
         waitlistData.put("status", "invited");
         waitlistData.put("invitedAt", Timestamp.now());
 
-        db.collection("events").document(eventId)
+        db.collection(FirestorePaths.EVENTS).document(eventId)
                 .collection(FirestorePaths.WAITING_LIST).document(user.getUserId())
                 .set(waitlistData)
                 .addOnSuccessListener(aVoid -> {
@@ -169,14 +187,16 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
                     sendNotification(user);
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Failed to invite user", Toast.LENGTH_SHORT).show();
+                    if (!isAdded()) return;
+                    Toast.makeText(requireContext(), "Failed to invite user", Toast.LENGTH_SHORT).show();
                 });
     }
 
     private void sendNotification(User targetUser) {
         // US 01.04.03: Respect notification preference
         if (!targetUser.isNotificationsEnabled()) {
-            Toast.makeText(getContext(), "Invitation successful (notifications opted out)", Toast.LENGTH_SHORT).show();
+            if (isAdded())
+                Toast.makeText(requireContext(), "Invitation successful (notifications opted out)", Toast.LENGTH_SHORT).show();
             dismiss();
             return;
         }
@@ -195,15 +215,17 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
                 Timestamp.now()
         );
 
-        db.collection("users").document(targetUser.getUserId())
-                .collection("inbox").document(notificationId)
+        db.collection(FirestorePaths.USERS).document(targetUser.getUserId())
+                .collection(FirestorePaths.INBOX).document(notificationId)
                 .set(notification)
                 .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(getContext(), "Invitation sent!", Toast.LENGTH_SHORT).show();
+                    if (isAdded())
+                        Toast.makeText(requireContext(), "Invitation sent!", Toast.LENGTH_SHORT).show();
                     dismiss();
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Failed to send notification", Toast.LENGTH_SHORT).show();
+                    if (isAdded())
+                        Toast.makeText(requireContext(), "Failed to send notification", Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -211,10 +233,6 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
     private static class UserSearchAdapter extends RecyclerView.Adapter<UserSearchAdapter.ViewHolder> {
         private final List<User> users;
         private final OnUserClickListener listener;
-
-        interface OnUserClickListener {
-            void onUserClick(User user);
-        }
 
         UserSearchAdapter(List<User> users, OnUserClickListener listener) {
             this.users = users;
@@ -241,8 +259,13 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
             return users.size();
         }
 
+        interface OnUserClickListener {
+            void onUserClick(User user);
+        }
+
         static class ViewHolder extends RecyclerView.ViewHolder {
             TextView text1, text2;
+
             ViewHolder(View v) {
                 super(v);
                 text1 = v.findViewById(android.R.id.text1);

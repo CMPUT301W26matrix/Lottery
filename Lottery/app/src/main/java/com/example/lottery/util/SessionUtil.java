@@ -16,7 +16,8 @@ public final class SessionUtil {
 
     private static final String KEY_USER_ID = "userId";
 
-    private SessionUtil() { }
+    private SessionUtil() {
+    }
 
     /**
      * Resolves the user ID by checking the Intent extra first,

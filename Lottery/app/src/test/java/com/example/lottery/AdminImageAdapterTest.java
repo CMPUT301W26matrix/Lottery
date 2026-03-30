@@ -3,6 +3,7 @@ package com.example.lottery;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
@@ -18,6 +19,13 @@ import com.google.firebase.Timestamp;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+/**
+ * Unit tests for {@link AdminImageAdapter}.
+ * Covers US 03.06.01: As an administrator, I want to be able to browse images
+ *     that are uploaded so I can remove them if necessary.
+ * Covers US 03.03.01: As an administrator, I want to be able to remove images.
+ */
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
@@ -54,20 +62,25 @@ public class AdminImageAdapterTest {
         event2.setScheduledDateTime(null);
         imageList.add(event2);
 
-        adapter = new AdminImageAdapter(imageList, event -> {});
+        adapter = new AdminImageAdapter(imageList, event -> {
+        });
     }
 
+    // US 03.06.01: Admin image browser should display the correct number of uploaded images
     @Test
     public void testItemCount() {
         assertEquals(2, adapter.getItemCount());
     }
 
+    // US 03.06.01: Admin image browser should handle empty image list gracefully
     @Test
     public void testItemCountEmpty() {
-        AdminImageAdapter emptyAdapter = new AdminImageAdapter(new ArrayList<>(), event -> {});
+        AdminImageAdapter emptyAdapter = new AdminImageAdapter(new ArrayList<>(), event -> {
+        });
         assertEquals(0, emptyAdapter.getItemCount());
     }
 
+    // US 03.06.01: Image list item should contain thumbnail, title, and date views
     @Test
     public void testOnCreateViewHolder() {
         FrameLayout parent = new FrameLayout(context);
@@ -78,6 +91,7 @@ public class AdminImageAdapterTest {
         assertNotNull(holder.itemView.findViewById(R.id.tvEventDateTime));
     }
 
+    // US 03.06.01: Image list should display the event title for each uploaded poster
     @Test
     public void testOnBindViewHolderSetsTitle() {
         FrameLayout parent = new FrameLayout(context);
@@ -89,6 +103,7 @@ public class AdminImageAdapterTest {
         assertEquals("Concert Poster", tvTitle.getText().toString());
     }
 
+    // US 03.06.01: Image list should show "Date TBD" when event has no scheduled date
     @Test
     public void testOnBindViewHolderSetsDateTBDWhenNull() {
         FrameLayout parent = new FrameLayout(context);
@@ -100,6 +115,7 @@ public class AdminImageAdapterTest {
         assertEquals("Date TBD", tvDateTime.getText().toString());
     }
 
+    // US 03.06.01: Image list should display formatted date for scheduled events
     @Test
     public void testOnBindViewHolderSetsFormattedDate() {
         FrameLayout parent = new FrameLayout(context);
@@ -114,6 +130,7 @@ public class AdminImageAdapterTest {
         assertNotEquals("Date TBD", tvDateTime.getText().toString());
     }
 
+    // US 03.06.01: Image list should display poster thumbnail for browsing
     @Test
     public void testOnBindViewHolderSetsThumbnail() {
         FrameLayout parent = new FrameLayout(context);
@@ -125,6 +142,7 @@ public class AdminImageAdapterTest {
         assertNotNull(ivThumbnail);
     }
 
+    // US 03.03.01: Clicking an image should navigate to details for removal
     @Test
     public void testClickListenerTriggered() {
         final boolean[] clicked = {false};
@@ -142,5 +160,49 @@ public class AdminImageAdapterTest {
 
         assertTrue(clicked[0]);
         assertEquals("event1", clickedEventId[0]);
+    }
+
+    // US 03.06.01: Event should retain eventId after being set (simulates setEventId after toObject)
+    @Test
+    public void testEventRetainsEventIdAfterSet() {
+        Event event = new Event();
+        event.setEventId("firestore_doc_id");
+        assertEquals("firestore_doc_id", event.getEventId());
+    }
+
+    // US 03.06.01: Event with null eventId should not crash adapter
+    @Test
+    public void testAdapterHandlesNullEventId() {
+        Event event = new Event();
+        event.setTitle("No ID Event");
+        event.setPosterUri("https://example.com/poster.jpg");
+        // eventId is null - adapter should still bind without crash
+        List<Event> singleList = new ArrayList<>();
+        singleList.add(event);
+        AdminImageAdapter singleAdapter = new AdminImageAdapter(singleList, e -> {});
+        FrameLayout parent = new FrameLayout(context);
+        AdminImageAdapter.ImageViewHolder holder = singleAdapter.onCreateViewHolder(parent, 0);
+        singleAdapter.onBindViewHolder(holder, 0);
+        // Should not throw
+        TextView tvTitle = holder.itemView.findViewById(R.id.tvEventTitle);
+        assertEquals("No ID Event", tvTitle.getText().toString());
+    }
+
+    // US 03.03.01: Event posterUri should be accessible for deletion
+    @Test
+    public void testEventPosterUriAccessible() {
+        Event event = imageList.get(0);
+        assertNotNull("Poster URI should be set for image deletion", event.getPosterUri());
+        assertEquals("https://example.com/poster1.jpg", event.getPosterUri());
+    }
+
+    // US 03.03.01: Setting posterUri to null simulates clearing after deletion
+    @Test
+    public void testClearPosterUriAfterDeletion() {
+        Event event = new Event();
+        event.setPosterUri("https://example.com/poster.jpg");
+        assertNotNull(event.getPosterUri());
+        event.setPosterUri(null);
+        assertNull("Poster URI should be null after clearing", event.getPosterUri());
     }
 }

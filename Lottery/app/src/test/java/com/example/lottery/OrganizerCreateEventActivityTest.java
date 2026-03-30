@@ -1,14 +1,5 @@
 package com.example.lottery;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import com.google.firebase.auth.FirebaseUser;
-
-import org.junit.Test;
-
 /**
  * Unit tests for organizer ownership behavior in {@link OrganizerCreateEventActivity}.
  * Note: Method organizerIdForUser was removed from OrganizerCreateEventActivity as per recent refactoring.
@@ -19,7 +10,7 @@ public class OrganizerCreateEventActivityTest {
 
     // These tests were failing because the static method organizerIdForUser was removed 
     // from OrganizerCreateEventActivity during the refactor to use SharedPreferences/Intents for userId.
-    
+
     // I will comment them out for now to allow the build to pass, as the functionality 
     // is now handled differently in the Activity.
 

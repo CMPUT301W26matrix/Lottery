@@ -47,6 +47,7 @@ public class EntrantMainActivity extends AppCompatActivity {
 
     private final List<Event> masterEventList = new ArrayList<>();
     private final List<Event> filteredEventList = new ArrayList<>();
+    private final List<String> userInterests = new ArrayList<>();
     private RecyclerView rvEvents;
     private EntrantEventAdapter adapter;
     private View emptyStateContainer;
@@ -68,7 +69,6 @@ public class EntrantMainActivity extends AppCompatActivity {
     private String currentTimeFilter = "All Dates";
     private boolean filterAvailable = false;
     private boolean filterWaitlistOpen = false;
-    private List<String> userInterests = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -148,14 +148,18 @@ public class EntrantMainActivity extends AppCompatActivity {
         // Wire search input changes to filtering
         etSearch.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 currentSearchQuery = s.toString().toLowerCase().trim();
                 applyFilters();
             }
+
             @Override
-            public void afterTextChanged(Editable s) {}
+            public void afterTextChanged(Editable s) {
+            }
         });
 
         cgBrowseTabs.setOnCheckedStateChangeListener((group, checkedIds) -> {
@@ -179,7 +183,7 @@ public class EntrantMainActivity extends AppCompatActivity {
                 currentCategory = TAB_ALL;
             } else {
                 Chip chip = findViewById(checkedIds.get(0));
-                currentCategory = chip.getText().toString();
+                currentCategory = chip != null ? chip.getText().toString() : TAB_ALL;
             }
             applyFilters();
         });
@@ -278,6 +282,7 @@ public class EntrantMainActivity extends AppCompatActivity {
                     masterEventList.clear();
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         Event event = document.toObject(Event.class);
+                        if (event == null) continue;
                         event.setEventId(document.getId());
                         masterEventList.add(event);
                     }
@@ -291,7 +296,7 @@ public class EntrantMainActivity extends AppCompatActivity {
      */
     private void fetchUserInterests() {
         if (userId == null) return;
-        db.collection("users").document(userId).get()
+        db.collection(FirestorePaths.USERS).document(userId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     userInterests.clear();
                     if (documentSnapshot.exists()) {
@@ -334,7 +339,8 @@ public class EntrantMainActivity extends AppCompatActivity {
 
             // 3. Category filter
             if (!TAB_ALL.equalsIgnoreCase(currentCategory)) {
-                if (event.getCategory() == null || !event.getCategory().equalsIgnoreCase(currentCategory)) continue;
+                if (event.getCategory() == null || !event.getCategory().equalsIgnoreCase(currentCategory))
+                    continue;
             }
 
             // 4. Time filter
@@ -352,15 +358,20 @@ public class EntrantMainActivity extends AppCompatActivity {
 
             // 5. Quick filter: Available (Registration still open and draw hasn't occurred)
             if (filterAvailable) {
-                if (event.getRegistrationDeadline() != null && event.getRegistrationDeadline().toDate().before(now)) continue;
-                if (event.getDrawDate() != null && event.getDrawDate().toDate().before(now)) continue;
-                if (event.getScheduledDateTime() != null && event.getScheduledDateTime().toDate().before(now)) continue;
+                if (event.getRegistrationDeadline() != null && event.getRegistrationDeadline().toDate().before(now))
+                    continue;
+                if (event.getDrawDate() != null && event.getDrawDate().toDate().before(now))
+                    continue;
+                if (event.getScheduledDateTime() != null && event.getScheduledDateTime().toDate().before(now))
+                    continue;
             }
 
             // 6. Quick filter: Waitlist Open (Waitlist capacity remains)
             if (filterWaitlistOpen) {
-                if (event.getWaitingListLimit() != null && event.getWaitingListLimit() <= 0) continue;
-                if (event.getRegistrationDeadline() != null && event.getRegistrationDeadline().toDate().before(now)) continue;
+                if (event.getWaitingListLimit() != null && event.getWaitingListLimit() <= 0)
+                    continue;
+                if (event.getRegistrationDeadline() != null && event.getRegistrationDeadline().toDate().before(now))
+                    continue;
             }
 
             filteredEventList.add(event);

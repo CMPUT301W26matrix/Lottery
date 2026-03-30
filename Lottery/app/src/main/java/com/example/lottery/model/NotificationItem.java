@@ -1,10 +1,11 @@
 package com.example.lottery.model;
 
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.PropertyName;
 
 /**
  * Model class representing a notification in a user's inbox.
- *
+ * <p>
  * Target Firestore path:
  * users/{userId}/inbox/{notificationId}
  */
@@ -18,6 +19,7 @@ public class NotificationItem {
     private String eventTitle;
     private String senderId;
     private String senderRole;
+    @PropertyName("isRead")
     private boolean isRead;
     private Timestamp createdAt;
 
@@ -118,10 +120,12 @@ public class NotificationItem {
         this.senderRole = senderRole;
     }
 
+    @PropertyName("isRead")
     public boolean isRead() {
         return isRead;
     }
 
+    @PropertyName("isRead")
     public void setRead(boolean read) {
         isRead = read;
     }

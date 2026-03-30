@@ -1,17 +1,17 @@
 package com.example.lottery.model;
 
+import android.os.Bundle;
+
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.GeoPoint;
 
-import java.io.Serializable;
-
 /**
  * Model class representing an entrant's participation record in an event's waiting list.
- *
+ * <p>
  * Target Firestore path:
  * events/{eventId}/waitingList/{userId}
  */
-public class EntrantEvent implements Serializable {
+public class EntrantEvent {
 
     private String userId;
     private String userName;
@@ -56,6 +56,32 @@ public class EntrantEvent implements Serializable {
     }
 
     // Getters and Setters
+
+    /**
+     * Reconstructs an EntrantEvent from a Bundle created by {@link #toBundle()}.
+     */
+    public static EntrantEvent fromBundle(Bundle b) {
+        if (b == null) return new EntrantEvent();
+        EntrantEvent e = new EntrantEvent();
+        e.setUserId(b.getString("userId"));
+        e.setUserName(b.getString("userName"));
+        e.setEmail(b.getString("email"));
+        e.setStatus(b.getString("status"));
+        if (b.containsKey("registeredAt"))
+            e.setRegisteredAt(new Timestamp(new java.util.Date(b.getLong("registeredAt"))));
+        if (b.containsKey("waitlistedAt"))
+            e.setWaitlistedAt(new Timestamp(new java.util.Date(b.getLong("waitlistedAt"))));
+        if (b.containsKey("invitedAt"))
+            e.setInvitedAt(new Timestamp(new java.util.Date(b.getLong("invitedAt"))));
+        if (b.containsKey("acceptedAt"))
+            e.setAcceptedAt(new Timestamp(new java.util.Date(b.getLong("acceptedAt"))));
+        if (b.containsKey("cancelledAt"))
+            e.setCancelledAt(new Timestamp(new java.util.Date(b.getLong("cancelledAt"))));
+        if (b.getBoolean("hasLocation", false)) {
+            e.setLocation(new GeoPoint(b.getDouble("lat"), b.getDouble("lng")));
+        }
+        return e;
+    }
 
     public String getUserId() {
         return userId;
@@ -133,11 +159,11 @@ public class EntrantEvent implements Serializable {
         return location;
     }
 
+    // Helpful status checks
+
     public void setLocation(GeoPoint location) {
         this.location = location;
     }
-
-    // Helpful status checks
 
     public boolean isWaitlisted() {
         return "waitlisted".equalsIgnoreCase(status);
@@ -153,5 +179,27 @@ public class EntrantEvent implements Serializable {
 
     public boolean isCancelled() {
         return "cancelled".equalsIgnoreCase(status);
+    }
+
+    /**
+     * Packs this object into a Bundle for safe Fragment argument passing.
+     */
+    public Bundle toBundle() {
+        Bundle b = new Bundle();
+        b.putString("userId", userId);
+        b.putString("userName", userName);
+        b.putString("email", email);
+        b.putString("status", status);
+        if (registeredAt != null) b.putLong("registeredAt", registeredAt.toDate().getTime());
+        if (waitlistedAt != null) b.putLong("waitlistedAt", waitlistedAt.toDate().getTime());
+        if (invitedAt != null) b.putLong("invitedAt", invitedAt.toDate().getTime());
+        if (acceptedAt != null) b.putLong("acceptedAt", acceptedAt.toDate().getTime());
+        if (cancelledAt != null) b.putLong("cancelledAt", cancelledAt.toDate().getTime());
+        if (location != null) {
+            b.putDouble("lat", location.getLatitude());
+            b.putDouble("lng", location.getLongitude());
+            b.putBoolean("hasLocation", true);
+        }
+        return b;
     }
 }

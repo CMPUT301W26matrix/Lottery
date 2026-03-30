@@ -16,44 +16,38 @@ import org.junit.Test;
  */
 public class UserTest {
 
-    /**
-     * Test that the constructor correctly stores
-     * name, email, and phone number values.
-     */
+    // US 03.05.01: User profile should store name, email, and phone correctly
     @Test
     public void constructor_storesNameEmailAndPhoneCorrectly() {
-        User user = new User("Alice", "alice@email.com", "7801234567");
+        User user = new User("user-1", "Alice", "alice@email.com", "7801234567");
 
-        assertEquals("Alice", user.getName());
+        assertEquals("Alice", user.getUsername());
         assertEquals("alice@email.com", user.getEmail());
-        assertEquals("7801234567", user.getPhoneNumber());
+        assertEquals("7801234567", user.getPhone());
     }
 
-    /**
-     * Test that a user can be created with an empty phone number.
-     */
+    // US 03.05.01: User profile should allow empty phone number
     @Test
     public void constructor_allowsEmptyPhoneNumber() {
-        User user = new User("Bob", "bob@email.com", "");
+        User user = new User("user-2", "Bob", "bob@email.com", "");
 
-        assertEquals("Bob", user.getName());
+        assertEquals("Bob", user.getUsername());
         assertEquals("bob@email.com", user.getEmail());
-        assertEquals("", user.getPhoneNumber());
+        assertEquals("", user.getPhone());
     }
 
-    /**
-     * Test that the constructor overload correctly stores the firestore userId as well.
-     */
+    // US 03.05.01: User profile should store userId along with other fields
     @Test
     public void constructor_storesUserIdNameEmailAndPhoneCorrectly() {
         User user = new User("user-123", "Alice", "alice@email.com", "7801234567");
 
         assertEquals("user-123", user.getUserId());
-        assertEquals("Alice", user.getName());
+        assertEquals("Alice", user.getUsername());
         assertEquals("alice@email.com", user.getEmail());
-        assertEquals("7801234567", user.getPhoneNumber());
+        assertEquals("7801234567", user.getPhone());
     }
 
+    // US 03.05.01: Default user role should be ENTRANT for profile browsing
     @Test
     public void defaultConstructor_setsRoleToEntrant() {
         User user = new User();
@@ -61,6 +55,7 @@ public class UserTest {
         assertTrue(user.isEntrant());
     }
 
+    // US 03.07.01: Organizer role should be correctly identified for policy enforcement
     @Test
     public void setRole_organizerIsOrganizer() {
         User user = new User();
@@ -70,6 +65,7 @@ public class UserTest {
         assertFalse(user.isAdmin());
     }
 
+    // US 03.02.01: Admin role should be correctly identified for deletion guard
     @Test
     public void setRole_adminIsAdmin() {
         User user = new User();
@@ -79,6 +75,7 @@ public class UserTest {
         assertFalse(user.isOrganizer());
     }
 
+    // US 03.07.01: Organizer role check should be case-insensitive
     @Test
     public void isOrganizer_caseInsensitive() {
         User user = new User();
@@ -86,6 +83,7 @@ public class UserTest {
         assertTrue(user.isOrganizer());
     }
 
+    // US 03.05.01: Entrant role check should be case-insensitive for profile filtering
     @Test
     public void isEntrant_caseInsensitive() {
         User user = new User();
@@ -93,6 +91,7 @@ public class UserTest {
         assertTrue(user.isEntrant());
     }
 
+    // US 03.05.01: Null role should default to ENTRANT for safe profile browsing
     @Test
     public void setRole_nullFallsBackToEntrant() {
         User user = new User();
@@ -101,10 +100,37 @@ public class UserTest {
         assertTrue(user.isEntrant());
     }
 
+    // US 03.05.01: Role getter should return the value that was set
     @Test
     public void getRole_returnsSetValue() {
         User user = new User("u-1", "Test", "t@test.com", "");
         user.setRole("ORGANIZER");
         assertEquals("ORGANIZER", user.getRole());
+    }
+
+    // US 03.02.01: Admin role should prevent profile deletion
+    @Test
+    public void isAdmin_withAdminRole_shouldBlockDeletion() {
+        User admin = new User("a-1", "Admin", "admin@test.com", "");
+        admin.setRole("ADMIN");
+        assertTrue("Admin user should be identified for deletion guard", admin.isAdmin());
+        assertFalse("Admin should not be identified as organizer", admin.isOrganizer());
+        assertFalse("Admin should not be identified as entrant", admin.isEntrant());
+    }
+
+    // US 03.02.01: Entrant role should allow profile deletion
+    @Test
+    public void isAdmin_withEntrantRole_shouldAllowDeletion() {
+        User entrant = new User("e-1", "Entrant", "entrant@test.com", "");
+        entrant.setRole("ENTRANT");
+        assertFalse("Entrant should not trigger admin deletion guard", entrant.isAdmin());
+    }
+
+    // US 03.07.01: Organizer role should allow profile deletion (for policy violations)
+    @Test
+    public void isAdmin_withOrganizerRole_shouldAllowDeletion() {
+        User organizer = new User("o-1", "Organizer", "org@test.com", "");
+        organizer.setRole("ORGANIZER");
+        assertFalse("Organizer should not trigger admin deletion guard", organizer.isAdmin());
     }
 }

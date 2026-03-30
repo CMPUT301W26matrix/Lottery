@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,9 +47,6 @@ public class EntrantQrScanActivity extends AppCompatActivity {
 
     private static final String TAG = "EntrantQrScanActivity";
     private String userId;
-    private TextView tvNotificationBadge;
-    private FirebaseFirestore db;
-
     /**
      * Launcher for the camera-based QR code scanner.
      */
@@ -62,7 +58,6 @@ public class EntrantQrScanActivity extends AppCompatActivity {
                     handleScanResult(result.getContents());
                 }
             });
-
     /**
      * Launcher for picking an image from the gallery.
      */
@@ -72,6 +67,8 @@ public class EntrantQrScanActivity extends AppCompatActivity {
                     decodeQrFromImage(uri);
                 }
             });
+    private TextView tvNotificationBadge;
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,8 +120,12 @@ public class EntrantQrScanActivity extends AppCompatActivity {
      * @param imageUri The Uri of the image to decode.
      */
     private void decodeQrFromImage(Uri imageUri) {
-        try {
-            InputStream inputStream = getContentResolver().openInputStream(imageUri);
+        try (InputStream inputStream = getContentResolver().openInputStream(imageUri)) {
+            if (inputStream == null) {
+                Toast.makeText(this, "Failed to read image", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
             if (bitmap == null) {
                 Toast.makeText(this, "Failed to read image", Toast.LENGTH_SHORT).show();
@@ -135,6 +136,7 @@ public class EntrantQrScanActivity extends AppCompatActivity {
             int height = bitmap.getHeight();
             int[] pixels = new int[width * height];
             bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+            bitmap.recycle();
 
             LuminanceSource source = new RGBLuminanceSource(width, height, pixels);
             BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(source));

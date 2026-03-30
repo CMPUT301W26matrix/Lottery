@@ -14,6 +14,7 @@ import org.junit.Test;
  */
 public class EventTest {
 
+    // US 03.04.01: Event model should store all fields needed for admin event browsing
     @Test
     public void testEventConstructorAndGetters() {
         String eventId = "ev123";
@@ -30,7 +31,8 @@ public class EventTest {
 
         // Testing the full constructor with compliant fields
         Event event = new Event(eventId, title, details, organizerId, capacity,
-                waitingListLimit, qrCodeContent, status, posterUri, category, now, now, now, true, false, now, now);
+                waitingListLimit, qrCodeContent, status, posterUri, category,
+                now, now, now, now, now, true, false, now, now);
 
         assertEquals(eventId, event.getEventId());
         assertEquals(title, event.getTitle());
@@ -47,6 +49,7 @@ public class EventTest {
         assertFalse(event.isPrivate());
     }
 
+    // US 03.04.01: Event should store geolocation requirement for admin review
     @Test
     public void testRequireLocationStorage() {
         Event event = new Event();
@@ -56,6 +59,7 @@ public class EventTest {
         assertFalse("Geolocation requirement should be false", event.isRequireLocation());
     }
 
+    // US 03.03.01: Event should store poster URI for admin image management
     @Test
     public void testPosterUriStorage() {
         Event event = new Event();
@@ -64,6 +68,7 @@ public class EventTest {
         assertEquals("Poster URI should be stored exactly as provided", testUri, event.getPosterUri());
     }
 
+    // US 03.04.01: Event should support nullable waiting list limit for admin browsing
     @Test
     public void testWaitingListLimitSetterGetter() {
         Event event = new Event();

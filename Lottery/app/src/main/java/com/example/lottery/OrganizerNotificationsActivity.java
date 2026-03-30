@@ -45,9 +45,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * </ul>
  * </p>
  */
-public class OrganizerNotificationsActivity extends AppCompatActivity 
-        implements NotificationFragment.NotificationListener, 
-                   OrganizerNotificationEventAdapter.OnNotificationGroupClickListener {
+public class OrganizerNotificationsActivity extends AppCompatActivity
+        implements NotificationFragment.NotificationListener,
+        OrganizerNotificationEventAdapter.OnNotificationGroupClickListener {
 
     private static final String TAG = "OrganizerNotifications";
     private RecyclerView rvEvents;
@@ -56,7 +56,7 @@ public class OrganizerNotificationsActivity extends AppCompatActivity
     private TextView tvNoEvents;
     private FirebaseFirestore db;
     private String userId;
-    
+
     private Event selectedEventForNotification;
     private String selectedGroup;
 
@@ -64,8 +64,8 @@ public class OrganizerNotificationsActivity extends AppCompatActivity
      * Initializes the activity, sets up the RecyclerView, and loads the organizer's events.
      *
      * @param savedInstanceState If the activity is being re-initialized after
-     *     previously being shut down then this Bundle contains the data it most
-     *     recently supplied in {@link #onSaveInstanceState}. <b>Note: Otherwise it is null.</b>
+     *                           previously being shut down then this Bundle contains the data it most
+     *                           recently supplied in {@link #onSaveInstanceState}. <b>Note: Otherwise it is null.</b>
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +80,7 @@ public class OrganizerNotificationsActivity extends AppCompatActivity
         });
 
         db = FirebaseFirestore.getInstance();
-        
+
         // Unified userId retrieval
         userId = getIntent().getStringExtra("userId");
         if (userId == null) {
@@ -232,7 +232,7 @@ public class OrganizerNotificationsActivity extends AppCompatActivity
         }
 
         db.collection(FirestorePaths.eventWaitingList(selectedEventForNotification.getEventId()))
-                .whereEqualTo("status", targetStatus) 
+                .whereEqualTo("status", targetStatus)
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
                     WriteBatch batch = db.batch();
@@ -252,8 +252,8 @@ public class OrganizerNotificationsActivity extends AppCompatActivity
                         db.collection(FirestorePaths.USERS).document(recipientUid).get().addOnCompleteListener(task -> {
                             if (task.isSuccessful() && task.getResult() != null) {
                                 DocumentSnapshot userDoc = task.getResult();
-                                boolean enabled = userDoc.contains("notificationsEnabled") 
-                                        ? userDoc.getBoolean("notificationsEnabled") : true;
+                                Boolean notifPref = userDoc.getBoolean("notificationsEnabled");
+                                boolean enabled = notifPref == null || notifPref;
 
                                 if (enabled) {
                                     DocumentReference recipientRef = db.collection(FirestorePaths.notificationRecipients(notificationId))
@@ -268,7 +268,7 @@ public class OrganizerNotificationsActivity extends AppCompatActivity
 
                                     DocumentReference inboxRef = db.collection(FirestorePaths.userInbox(recipientUid))
                                             .document(notificationId);
-                                    
+
                                     NotificationItem inboxItem = new NotificationItem(
                                             notificationId,
                                             (String) globalNotif.get("title"),
@@ -289,8 +289,8 @@ public class OrganizerNotificationsActivity extends AppCompatActivity
                             if (processedCount.incrementAndGet() == totalPotentialRecipients) {
                                 if (actualSentCount.get() > 0) {
                                     batch.update(db.collection(FirestorePaths.NOTIFICATIONS).document(notificationId), "recipientCount", actualSentCount.get());
-                                    batch.commit().addOnSuccessListener(unused -> 
-                                        Toast.makeText(this, "Notification sent to " + actualSentCount.get() + " recipients", Toast.LENGTH_SHORT).show());
+                                    batch.commit().addOnSuccessListener(unused ->
+                                            Toast.makeText(this, "Notification sent to " + actualSentCount.get() + " recipients", Toast.LENGTH_SHORT).show());
                                 } else {
                                     Toast.makeText(this, "All entrants in this group have notifications disabled", Toast.LENGTH_SHORT).show();
                                 }

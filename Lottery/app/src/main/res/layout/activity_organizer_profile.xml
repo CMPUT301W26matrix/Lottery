@@ -111,6 +111,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Name">
+
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_edit_name"
                         android:layout_width="match_parent"
@@ -122,6 +123,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:hint="Email">
+
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_edit_email"
                         android:layout_width="match_parent"
@@ -134,6 +136,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:hint="Phone (Optional)">
+
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_edit_phone"
                         android:layout_width="match_parent"

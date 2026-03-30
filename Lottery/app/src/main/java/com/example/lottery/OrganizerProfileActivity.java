@@ -21,6 +21,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.lottery.util.AdminRoleManager;
 import com.example.lottery.util.FirestorePaths;
+import com.example.lottery.util.UserDeletionUtil;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -82,7 +83,7 @@ public class OrganizerProfileActivity extends AppCompatActivity {
         if (forceEdit) {
             enterEditMode();
             Toast.makeText(this, "Please complete your profile to continue", Toast.LENGTH_LONG).show();
-        }else {
+        } else {
             exitEditMode();
         }
 
@@ -280,12 +281,14 @@ public class OrganizerProfileActivity extends AppCompatActivity {
     private void deleteUserProfile() {
         if (userId == null) return;
 
-        db.collection(FirestorePaths.USERS).document(userId).delete()
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(this, "Profile deleted successfully", Toast.LENGTH_SHORT).show();
-                    logout();
-                })
-                .addOnFailureListener(e -> Toast.makeText(this, "Failed to delete profile: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+        UserDeletionUtil.cleanUpCoOrganizerRecords(db, userId, () ->
+                db.collection(FirestorePaths.USERS).document(userId).delete()
+                        .addOnSuccessListener(aVoid -> {
+                            Toast.makeText(this, "Profile deleted successfully", Toast.LENGTH_SHORT).show();
+                            logout();
+                        })
+                        .addOnFailureListener(e ->
+                                Toast.makeText(this, "Failed to delete profile: " + e.getMessage(), Toast.LENGTH_SHORT).show()));
     }
 
     private void logout() {
@@ -389,8 +392,10 @@ public class OrganizerProfileActivity extends AppCompatActivity {
                 if (ll.getChildCount() >= 2) {
                     View iv = ll.getChildAt(0);
                     View tv = ll.getChildAt(1);
-                    if (iv instanceof ImageView) ((ImageView) iv).setColorFilter(getResources().getColor(R.color.text_gray));
-                    if (tv instanceof TextView) ((TextView) tv).setTextColor(getResources().getColor(R.color.text_gray));
+                    if (iv instanceof ImageView)
+                        ((ImageView) iv).setColorFilter(getResources().getColor(R.color.text_gray));
+                    if (tv instanceof TextView)
+                        ((TextView) tv).setTextColor(getResources().getColor(R.color.text_gray));
                 }
             }
         }
@@ -403,8 +408,10 @@ public class OrganizerProfileActivity extends AppCompatActivity {
                 if (ll.getChildCount() >= 2) {
                     View iv = ll.getChildAt(0);
                     View tv = ll.getChildAt(1);
-                    if (iv instanceof ImageView) ((ImageView) iv).setColorFilter(getResources().getColor(R.color.primary_blue));
-                    if (tv instanceof TextView) ((TextView) tv).setTextColor(getResources().getColor(R.color.primary_blue));
+                    if (iv instanceof ImageView)
+                        ((ImageView) iv).setColorFilter(getResources().getColor(R.color.primary_blue));
+                    if (tv instanceof TextView)
+                        ((TextView) tv).setTextColor(getResources().getColor(R.color.primary_blue));
                 }
             }
         }

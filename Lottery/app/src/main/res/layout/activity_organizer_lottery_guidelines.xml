@@ -4,8 +4,8 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/page_background">
+    android:background="@color/page_background"
+    android:orientation="vertical">
 
     <!-- Header / Top Bar -->
     <LinearLayout
@@ -63,9 +63,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:lineSpacingExtra="6dp"
+                android:text="1. Event Creation\nAs an organizer, you can create events by specifying capacity, registration deadlines, and event details. Once an event is created, a unique QR code is generated for entrant registration.\n\n2. Running the Lottery\nAfter the registration deadline, you can initiate the lottery selection process. The system will automatically select entrants up to your specified capacity. You can choose to run the selection multiple times if initial spots are not filled.\n\n3. Waitlist Management\nEntrants who are not initially selected remain on the waiting list. If a selected participant declines or fails to confirm, you can draw additional names from the waitlist to fill the vacancies.\n\n4. Notifications\nThe system automatically notifies entrants of their selection status. You can also send custom notifications to participants regarding event updates or instructions.\n\n5. Fair Play\nTo ensure fairness, the selection process is automated. Please ensure all event details and rules are clearly communicated to entrants before registration begins."
                 android:textColor="@color/text_secondary"
-                android:textSize="16sp"
-                android:text="1. Event Creation\nAs an organizer, you can create events by specifying capacity, registration deadlines, and event details. Once an event is created, a unique QR code is generated for entrant registration.\n\n2. Running the Lottery\nAfter the registration deadline, you can initiate the lottery selection process. The system will automatically select entrants up to your specified capacity. You can choose to run the selection multiple times if initial spots are not filled.\n\n3. Waitlist Management\nEntrants who are not initially selected remain on the waiting list. If a selected participant declines or fails to confirm, you can draw additional names from the waitlist to fill the vacancies.\n\n4. Notifications\nThe system automatically notifies entrants of their selection status. You can also send custom notifications to participants regarding event updates or instructions.\n\n5. Fair Play\nTo ensure fairness, the selection process is automated. Please ensure all event details and rules are clearly communicated to entrants before registration begins." />
+                android:textSize="16sp" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </LinearLayout>
