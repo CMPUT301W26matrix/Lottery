@@ -67,7 +67,9 @@ public class OrganizerProfileActivity extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
         userId = getIntent().getStringExtra("userId");
         if (userId == null) {
-            userId = prefs.getString("userId", null);
+            Toast.makeText(this, "Session error: missing userId", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
         }
 
         forceEdit = getIntent().getBooleanExtra("forceEdit", false);
@@ -100,13 +102,7 @@ public class OrganizerProfileActivity extends AppCompatActivity {
             }
         });
 
-        btnLogout.setOnClickListener(v -> {
-            prefs.edit().clear().apply();
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
-        });
+        btnLogout.setOnClickListener(v -> logout());
 
         btnDeleteProfile.setOnClickListener(v -> showDeleteConfirmationDialog());
 

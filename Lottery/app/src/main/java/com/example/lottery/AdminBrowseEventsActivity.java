@@ -127,6 +127,8 @@ public class AdminBrowseEventsActivity extends AppCompatActivity implements Even
             btnProfiles.setOnClickListener(v -> {
                 Intent intent = new Intent(AdminBrowseEventsActivity.this, AdminBrowseProfilesActivity.class);
                 intent.putExtra("role", "admin");
+                intent.putExtra("userId", userId);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
             });
         }
@@ -135,6 +137,9 @@ public class AdminBrowseEventsActivity extends AppCompatActivity implements Even
         if (btnImages != null) {
             btnImages.setOnClickListener(v -> {
                 Intent intent = new Intent(this, AdminBrowseImagesActivity.class);
+                intent.putExtra("role", "admin");
+                intent.putExtra("userId", userId);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
             });
         }
@@ -150,6 +155,7 @@ public class AdminBrowseEventsActivity extends AppCompatActivity implements Even
             btnSettings.setOnClickListener(v -> {
                 Intent intent = new Intent(this, AdminProfileActivity.class);
                 intent.putExtra("userId", userId);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
             });
         }

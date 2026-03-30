@@ -1,6 +1,7 @@
 package com.example.lottery;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,6 +15,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.installations.FirebaseInstallations;
 
 /**
  * Admin authentication screen.
@@ -112,8 +114,26 @@ public class AdminSignInActivity extends AppCompatActivity {
                         return;
                     }
 
-                    startActivity(new Intent(this, AdminBrowseEventsActivity.class));
-                    finish();
+                    // Store admin session
+                    SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
+
+                    // Get FID and store everything together
+                    FirebaseInstallations.getInstance().getId()
+                            .addOnSuccessListener(fid -> {
+
+                                prefs.edit()
+                                        .putString("userId", "admin_main")
+                                        .putString("fid", fid)
+                                        .apply();
+
+                                Intent intent = new Intent(this, AdminBrowseEventsActivity.class);
+                                intent.putExtra("userId", "admin_main");
+                                startActivity(intent);
+                                finish();
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(this, "Failed to get device ID", Toast.LENGTH_SHORT).show();
+                            });
                 });
     }
 }

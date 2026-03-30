@@ -175,17 +175,16 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
         if (btnProfile != null) {
             btnProfile.setOnClickListener(v -> {
                 // If this is an admin role session, go to AdminProfileActivity
-                if (isAdminRole && adminUserId != null) {
-                    Intent intent = new Intent(this, AdminProfileActivity.class);
-                    intent.putExtra("userId", adminUserId);
-                    startActivity(intent);
-                    finish();
-                } else {
+                Intent intent = new Intent(this, OrganizerProfileActivity.class);
+                intent.putExtra("userId", userId);
+                intent.putExtra("isAdminRole", isAdminRole);
+                if (isAdminRole) {
+                    intent.putExtra("adminUserId", adminUserId);
+                }else {
                     // Regular organizer goes to their profile
-                    Intent intent = new Intent(this, OrganizerProfileActivity.class);
                     intent.putExtra("userId", userId);
-                    startActivity(intent);
                 }
+                startActivity(intent);
             });
         }
     }

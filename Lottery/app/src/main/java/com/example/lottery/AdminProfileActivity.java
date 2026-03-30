@@ -71,6 +71,7 @@ public class AdminProfileActivity extends AppCompatActivity {
         initializeViews();
         loadAdminProfile();
         setupRoleButtons();
+        setupNavigation();
     }
 
     private void initializeViews() {
@@ -258,6 +259,45 @@ public class AdminProfileActivity extends AppCompatActivity {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
+    }
+
+    private void setupNavigation() {
+
+        // View Events (HOME)
+        findViewById(R.id.nav_home).setOnClickListener(v -> {
+            Intent intent = new Intent(this, AdminBrowseEventsActivity.class);
+            intent.putExtra("role", "admin");
+            intent.putExtra("userId", adminUserId);
+            startActivity(intent);
+        });
+
+        // View Profiles
+        findViewById(R.id.nav_profiles).setOnClickListener(v -> {
+            Intent intent = new Intent(this, AdminBrowseProfilesActivity.class);
+            intent.putExtra("role", "admin");
+            intent.putExtra("userId", adminUserId);
+            startActivity(intent);
+        });
+
+        // View Images
+        findViewById(R.id.nav_images).setOnClickListener(v -> {
+            Intent intent = new Intent(this, AdminBrowseImagesActivity.class);
+            intent.putExtra("role", "admin");
+            intent.putExtra("userId", adminUserId);
+            startActivity(intent);
+        });
+
+        // View Logs (not yet implemented)
+        View btnLogs = findViewById(R.id.nav_logs);
+        if (btnLogs != null) {
+            btnLogs.setOnClickListener(v ->
+                    Toast.makeText(this, R.string.admin_logs_coming_soon, Toast.LENGTH_SHORT).show());
+        }
+
+        // Settings (CURRENT SCREEN)
+        findViewById(R.id.nav_admin_settings).setOnClickListener(v -> {
+            // Already here — do nothing OR refresh
+        });
     }
 
 }

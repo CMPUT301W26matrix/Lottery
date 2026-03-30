@@ -122,6 +122,7 @@ public class AdminBrowseImagesActivity extends AppCompatActivity implements Admi
         if (btnProfiles != null) {
             btnProfiles.setOnClickListener(v -> {
                 Intent intent = new Intent(this, AdminBrowseProfilesActivity.class);
+                intent.putExtra("userId", userId);
                 intent.putExtra("role", "admin");
                 startActivity(intent);
                 finish();
@@ -145,6 +146,7 @@ public class AdminBrowseImagesActivity extends AppCompatActivity implements Admi
             btnSettings.setOnClickListener(v -> {
                 Intent intent = new Intent(this, AdminProfileActivity.class);
                 intent.putExtra("userId", userId);
+                intent.putExtra("role", "admin");
                 startActivity(intent);
             });
         }

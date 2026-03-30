@@ -233,6 +233,7 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
             btnImages.setOnClickListener(v -> {
                 Intent intent = new Intent(this, AdminBrowseImagesActivity.class);
                 intent.putExtra("userId", userId);
+                intent.putExtra("role", "admin");
                 startActivity(intent);
                 finish();
             });
@@ -244,11 +245,12 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
                     Toast.makeText(this, R.string.admin_logs_coming_soon, Toast.LENGTH_SHORT).show());
         }
 
-        View btnProfile = findViewById(R.id.nav_profile);
-        if (btnProfile != null) {
-            btnProfile.setOnClickListener(v -> {
+        View btnSettings = findViewById(R.id.nav_admin_settings);
+        if (btnSettings != null) {
+            btnSettings.setOnClickListener(v -> {
                 Intent intent = new Intent(this, AdminProfileActivity.class);
                 intent.putExtra("userId", userId);
+                intent.putExtra("role", "admin");
                 startActivity(intent);
             });
         }
