@@ -5,29 +5,30 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.Matchers.isA;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.view.View;
+import android.view.ViewParent;
 
 import androidx.core.widget.NestedScrollView;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.espresso.PerformException;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
-import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-
-import org.hamcrest.Matcher;
 
 import com.example.lottery.model.Event;
 import com.example.lottery.util.FirestorePaths;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -83,24 +84,34 @@ public class AdminEventDetailsActivityTest {
         return new ViewAction() {
             @Override
             public Matcher<View> getConstraints() {
-                return withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE);
+                return isA(View.class);
             }
 
             @Override
             public String getDescription() {
-                return "scroll NestedScrollView to view";
+                return "scroll view inside parent NestedScrollView";
             }
 
             @Override
             public void perform(UiController uiController, View view) {
-                View parent = (View) view.getParent();
-                while (parent != null && !(parent instanceof NestedScrollView)) {
-                    parent = (View) parent.getParent();
+                ViewParent parent = view.getParent();
+                while (parent instanceof View) {
+                    if (parent instanceof NestedScrollView) {
+                        NestedScrollView scrollView = (NestedScrollView) parent;
+                        Rect rect = new Rect();
+                        view.getDrawingRect(rect);
+                        scrollView.offsetDescendantRectToMyCoords(view, rect);
+                        scrollView.requestChildRectangleOnScreen(view, rect, true);
+                        uiController.loopMainThreadUntilIdle();
+                        return;
+                    }
+                    parent = parent.getParent();
                 }
-                if (parent != null) {
-                    ((NestedScrollView) parent).smoothScrollTo(0, view.getTop());
-                    uiController.loopMainThreadUntilIdle();
-                }
+
+                throw new PerformException.Builder()
+                        .withActionDescription(getDescription())
+                        .withViewDescription(view.toString())
+                        .build();
             }
         };
     }
