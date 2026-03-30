@@ -46,7 +46,7 @@ public class EntrantDetailsFragment extends DialogFragment {
     public static EntrantDetailsFragment newInstance(EntrantEvent entrant, boolean requireLocation, String eventId) {
         EntrantDetailsFragment fragment = new EntrantDetailsFragment();
         Bundle args = new Bundle();
-        args.putSerializable(ARG_ENTRANT, entrant);
+        args.putBundle(ARG_ENTRANT, entrant.toBundle());
         args.putBoolean(ARG_REQUIRE_LOCATION, requireLocation);
         args.putString(ARG_EVENT_ID, eventId);
         fragment.setArguments(args);
@@ -56,7 +56,7 @@ public class EntrantDetailsFragment extends DialogFragment {
     @SuppressLint("SetTextI18n")
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        EntrantEvent entrant = (EntrantEvent) requireArguments().getSerializable(ARG_ENTRANT);
+        EntrantEvent entrant = EntrantEvent.fromBundle(requireArguments().getBundle(ARG_ENTRANT));
         boolean requireLocation = requireArguments().getBoolean(ARG_REQUIRE_LOCATION, false);
         String eventId = requireArguments().getString(ARG_EVENT_ID);
 
@@ -127,7 +127,8 @@ public class EntrantDetailsFragment extends DialogFragment {
     }
 
     private void showCancelConfirmation(String eventId, EntrantEvent entrant) {
-        new AlertDialog.Builder(getContext())
+        if (!isAdded()) return;
+        new AlertDialog.Builder(requireContext())
                 .setTitle("Cancel Entrant")
                 .setMessage("Are you sure you want to cancel this entrant? This action cannot be undone.")
                 .setPositiveButton("Yes, Cancel", (dialog, which) -> {
@@ -143,11 +144,13 @@ public class EntrantDetailsFragment extends DialogFragment {
                 .document(entrant.getUserId())
                 .update(InvitationFlowUtil.buildCancelledEntrantUpdate())
                 .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(getContext(), "Entrant cancelled successfully", Toast.LENGTH_SHORT).show();
+                    if (!isAdded()) return;
+                    Toast.makeText(requireContext(), "Entrant cancelled successfully", Toast.LENGTH_SHORT).show();
                     dismiss();
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Failed to cancel entrant", Toast.LENGTH_SHORT).show();
+                    if (!isAdded()) return;
+                    Toast.makeText(requireContext(), "Failed to cancel entrant", Toast.LENGTH_SHORT).show();
                 });
     }
 }

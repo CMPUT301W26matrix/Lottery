@@ -18,6 +18,7 @@ import androidx.core.content.ContextCompat;
 
 import com.example.lottery.model.User;
 import com.example.lottery.util.FirestorePaths;
+import com.example.lottery.util.UserDeletionUtil;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -583,15 +584,16 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
      * @param selectedUser the user whose document should be deleted.
      */
     private void deleteUserDocument(User selectedUser) {
-        db.collection(FirestorePaths.USERS)
-                .document(selectedUser.getUserId())
-                .delete()
-                .addOnSuccessListener(unused -> {
-                    Toast.makeText(this, R.string.profile_deleted, Toast.LENGTH_SHORT).show();
-                    allUsers.remove(selectedUser);
-                    applyFilter();
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, R.string.failed_to_delete_profile, Toast.LENGTH_SHORT).show());
+        UserDeletionUtil.cleanUpCoOrganizerRecords(db, selectedUser.getUserId(), () ->
+                db.collection(FirestorePaths.USERS)
+                        .document(selectedUser.getUserId())
+                        .delete()
+                        .addOnSuccessListener(unused -> {
+                            Toast.makeText(this, R.string.profile_deleted, Toast.LENGTH_SHORT).show();
+                            allUsers.remove(selectedUser);
+                            applyFilter();
+                        })
+                        .addOnFailureListener(e ->
+                                Toast.makeText(this, R.string.failed_to_delete_profile, Toast.LENGTH_SHORT).show()));
     }
 }

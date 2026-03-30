@@ -125,7 +125,6 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
         if (eventId == null || eventId.isEmpty()) {
             Toast.makeText(this, R.string.error_event_id_missing, Toast.LENGTH_SHORT).show();
             finish();
-            return;
         }
 
         // onResume handles the initial fetch as well as subsequent refreshes

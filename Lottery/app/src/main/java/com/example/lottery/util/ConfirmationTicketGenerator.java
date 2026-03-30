@@ -61,10 +61,10 @@ public final class ConfirmationTicketGenerator {
     /**
      * Generates a styled confirmation ticket PDF.
      *
-     * @param context application context used for locating the output directory
+     * @param context    application context used for locating the output directory
      * @param eventTitle title of the event
-     * @param userName name of the entrant
-     * @param eventId unique event identifier
+     * @param userName   name of the entrant
+     * @param eventId    unique event identifier
      * @return file pointing to the generated PDF
      * @throws IOException if the PDF cannot be written to storage
      */
@@ -163,10 +163,10 @@ public final class ConfirmationTicketGenerator {
     /**
      * Draws the main ticket body containing all confirmation details.
      *
-     * @param canvas canvas to draw on
+     * @param canvas     canvas to draw on
      * @param eventTitle title of the event
-     * @param userName name of the entrant
-     * @param eventId event identifier
+     * @param userName   name of the entrant
+     * @param eventId    event identifier
      */
     private static void drawTicketBody(Canvas canvas,
                                        String eventTitle,
@@ -330,12 +330,12 @@ public final class ConfirmationTicketGenerator {
     /**
      * Draws or measures wrapped text within a maximum width.
      *
-     * @param canvas canvas to draw on, or null for measurement only
-     * @param text text to render
-     * @param x x-coordinate where text begins
-     * @param y y-coordinate of the first line baseline
-     * @param maxWidth maximum width allowed before wrapping
-     * @param paint paint used for drawing/measuring text
+     * @param canvas      canvas to draw on, or null for measurement only
+     * @param text        text to render
+     * @param x           x-coordinate where text begins
+     * @param y           y-coordinate of the first line baseline
+     * @param maxWidth    maximum width allowed before wrapping
+     * @param paint       paint used for drawing/measuring text
      * @param lineSpacing vertical spacing between wrapped lines
      * @return the y-position after the final line
      */
@@ -408,7 +408,7 @@ public final class ConfirmationTicketGenerator {
     /**
      * Returns a trimmed fallback-safe value.
      *
-     * @param value original value
+     * @param value    original value
      * @param fallback fallback text if original value is null or blank
      * @return sanitized text
      */

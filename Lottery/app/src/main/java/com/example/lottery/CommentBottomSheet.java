@@ -20,6 +20,7 @@ import com.example.lottery.util.FirestorePaths;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
@@ -44,6 +45,7 @@ public class CommentBottomSheet extends BottomSheetDialogFragment {
     private List<Comment> commentList;
     private EditText etComment;
     private TextView tvEmptyComments;
+    private ListenerRegistration commentsListener;
 
     public static CommentBottomSheet newInstance(String eventId, String userId, String userName) {
         return newInstance(eventId, userId, userName, false);
@@ -109,7 +111,7 @@ public class CommentBottomSheet extends BottomSheetDialogFragment {
     }
 
     private void loadComments() {
-        db.collection(FirestorePaths.eventComments(eventId))
+        commentsListener = db.collection(FirestorePaths.eventComments(eventId))
                 .orderBy("createdAt", Query.Direction.ASCENDING)
                 .addSnapshotListener((value, error) -> {
                     if (error != null || value == null) return;
@@ -183,9 +185,19 @@ public class CommentBottomSheet extends BottomSheetDialogFragment {
                     // Success
                 })
                 .addOnFailureListener(e -> {
+                    if (!isAdded()) return;
                     // Restore text if it failed
                     etComment.setText(content);
-                    Toast.makeText(getContext(), "Failed to post comment", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), "Failed to post comment", Toast.LENGTH_SHORT).show();
                 });
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (commentsListener != null) {
+            commentsListener.remove();
+            commentsListener = null;
+        }
     }
 }

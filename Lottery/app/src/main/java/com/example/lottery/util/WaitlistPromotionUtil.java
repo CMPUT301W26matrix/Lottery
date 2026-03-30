@@ -44,8 +44,8 @@ public class WaitlistPromotionUtil {
     }
 
     private static void runPromotionTransaction(FirebaseFirestore db, String eventId,
-                                                 DocumentReference eventRef,
-                                                 QuerySnapshot waitlistSnapshot) {
+                                                DocumentReference eventRef,
+                                                QuerySnapshot waitlistSnapshot) {
         db.runTransaction(transaction -> {
             // Re-read event inside transaction for consistent capacity check
             DocumentSnapshot eventDoc = transaction.get(eventRef);
@@ -126,8 +126,8 @@ public class WaitlistPromotionUtil {
      * or writing notifications. Used when the full transaction fails (e.g., user doc missing).
      */
     private static void runFallbackPromotion(FirebaseFirestore db, String eventId,
-                                              DocumentReference eventRef,
-                                              QuerySnapshot waitlistSnapshot) {
+                                             DocumentReference eventRef,
+                                             QuerySnapshot waitlistSnapshot) {
         db.runTransaction(transaction -> {
             DocumentSnapshot eventDoc = transaction.get(eventRef);
             if (!eventDoc.exists()) return null;
@@ -173,7 +173,7 @@ public class WaitlistPromotionUtil {
      * Failures are logged but do not affect the already-committed promotion.
      */
     private static void deliverNotificationBestEffort(FirebaseFirestore db, String eventId,
-                                                       String targetUserId) {
+                                                      String targetUserId) {
         db.collection(FirestorePaths.EVENTS).document(eventId).get()
                 .addOnSuccessListener(eventDoc -> {
                     String eventTitle = eventDoc.getString("title");

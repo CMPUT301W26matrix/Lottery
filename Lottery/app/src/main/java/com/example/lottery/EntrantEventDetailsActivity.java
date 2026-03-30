@@ -1,6 +1,7 @@
 package com.example.lottery;
 
 import android.Manifest;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -41,8 +42,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.SetOptions;
-
-import android.content.ActivityNotFoundException;
 
 import java.io.File;
 import java.io.IOException;
@@ -127,6 +126,8 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     private boolean isCoOrganizer = false;
     private boolean eventRequiresLocation = false;
     private boolean userGeolocationEnabled = false;
+    private Integer eventWaitingListLimit;
+    private Timestamp eventRegistrationDeadline;
 
     private ListenerRegistration waitlistListener;
     private boolean isAcceptingInviteMode = false;
@@ -215,19 +216,6 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * Requests location permissions and continues the current action if permission is granted.
-     */
-    private final ActivityResultLauncher<String[]> locationPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
-                if (result.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false)
-                        || result.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)) {
-                    startLocationCollection();
-                } else {
-                    Toast.makeText(this, "Location is required to proceed", Toast.LENGTH_LONG).show();
-                }
-            });
-
-    /**
      * Finds and stores references to views in the layout.
      */
     private void initializeViews() {
@@ -273,6 +261,19 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                     }
                 });
     }
+
+    /**
+     * Requests location permissions and continues the current action if permission is granted.
+     */
+    private final ActivityResultLauncher<String[]> locationPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
+                if (result.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false)
+                        || result.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)) {
+                    startLocationCollection();
+                } else {
+                    Toast.makeText(this, "Location is required to proceed", Toast.LENGTH_LONG).show();
+                }
+            });
 
     /**
      * Sets up click listeners for the custom bottom navigation bar items.
@@ -408,6 +409,11 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
 
                     Boolean reqLoc = documentSnapshot.getBoolean("requireLocation");
                     eventRequiresLocation = reqLoc != null && reqLoc;
+
+                    Long wlLimit = documentSnapshot.getLong("waitingListLimit");
+                    eventWaitingListLimit = wlLimit != null ? wlLimit.intValue() : null;
+                    eventRegistrationDeadline = documentSnapshot.getTimestamp("registrationDeadline");
+
                     eventDetailsLoaded = true;
                 })
                 .addOnFailureListener(e -> {
@@ -706,6 +712,21 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     private void joinWaitlist(Location location) {
         if (isCoOrganizer) {
             Toast.makeText(this, "Co-organizers cannot join the waitlist", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!eventDetailsLoaded) {
+            Toast.makeText(this, "Loading event details, please try again", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (eventRegistrationDeadline != null && eventRegistrationDeadline.toDate().before(new java.util.Date())) {
+            Toast.makeText(this, "Registration deadline has passed", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (eventWaitingListLimit != null && waitlistCount >= eventWaitingListLimit) {
+            Toast.makeText(this, "Waiting list is full", Toast.LENGTH_SHORT).show();
             return;
         }
 

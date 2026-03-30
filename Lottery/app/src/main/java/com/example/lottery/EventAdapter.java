@@ -47,6 +47,29 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
     }
 
     /**
+     * Derives display status from event dates per the project spec.
+     */
+    static String resolveDisplayStatus(Event event) {
+        if (event == null) return "closed";
+
+        Date now = new Date();
+
+        if (event.getRegistrationDeadline() != null
+                && event.getDrawDate() != null
+                && event.getRegistrationDeadline().toDate().before(now)
+                && event.getDrawDate().toDate().after(now)) {
+            return "pending";
+        }
+
+        if (event.getScheduledDateTime() != null
+                && event.getScheduledDateTime().toDate().after(now)) {
+            return "open";
+        }
+
+        return "closed";
+    }
+
+    /**
      * Clears the cached waitingList counts so the next bind triggers a fresh fetch.
      */
     public void clearCountsCache() {
@@ -186,28 +209,5 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
                     break;
             }
         }
-    }
-
-    /**
-     * Derives display status from event dates per the project spec.
-     */
-    static String resolveDisplayStatus(Event event) {
-        if (event == null) return "closed";
-
-        Date now = new Date();
-
-        if (event.getRegistrationDeadline() != null
-                && event.getDrawDate() != null
-                && event.getRegistrationDeadline().toDate().before(now)
-                && event.getDrawDate().toDate().after(now)) {
-            return "pending";
-        }
-
-        if (event.getScheduledDateTime() != null
-                && event.getScheduledDateTime().toDate().after(now)) {
-            return "open";
-        }
-
-        return "closed";
     }
 }

@@ -2,6 +2,8 @@ package com.example.lottery;
 
 import android.app.Dialog;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -42,16 +44,17 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
     private static final String ARG_SENDER_ID = "senderId";
     private final List<User> userList = new ArrayList<>();
     private final Set<String> existingCoOrganizerIds = new HashSet<>();
+    private final Handler searchHandler = new Handler(Looper.getMainLooper());
     private String eventId;
     private String eventTitle;
     private String senderId;
     private FirebaseFirestore db;
     private UserSearchAdapter adapter;
-
     private TextInputEditText etSearch;
     private RecyclerView rvResults;
     private ProgressBar progressBar;
     private TextView tvNoResults;
+    private Runnable pendingSearch;
 
     public static OrganizerInviteCoOrganizerDialogFragment newInstance(String eventId, String eventTitle, String senderId) {
         OrganizerInviteCoOrganizerDialogFragment fragment = new OrganizerInviteCoOrganizerDialogFragment();
@@ -114,7 +117,10 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                searchUsers(s.toString().trim());
+                if (pendingSearch != null) searchHandler.removeCallbacks(pendingSearch);
+                String query = s.toString().trim();
+                pendingSearch = () -> searchUsers(query);
+                searchHandler.postDelayed(pendingSearch, 300);
             }
 
             @Override
@@ -135,6 +141,7 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
     }
 
     private void searchUsers(String query) {
+        if (!isAdded()) return;
         if (query.length() < 2) {
             userList.clear();
             adapter.notifyDataSetChanged();
@@ -148,6 +155,7 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
         db.collection(FirestorePaths.USERS)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!isAdded()) return;
                     userList.clear();
                     String lowerQuery = query.toLowerCase();
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
@@ -171,14 +179,16 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
                     tvNoResults.setVisibility(userList.isEmpty() ? View.VISIBLE : View.GONE);
                 })
                 .addOnFailureListener(e -> {
+                    if (!isAdded()) return;
                     progressBar.setVisibility(View.GONE);
-                    Toast.makeText(getContext(), "Search failed", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), "Search failed", Toast.LENGTH_SHORT).show();
                 });
     }
 
     private void assignCoOrganizer(User user) {
         if (existingCoOrganizerIds.contains(user.getUserId())) {
-            Toast.makeText(getContext(), "Already a co-organizer", Toast.LENGTH_SHORT).show();
+            if (isAdded())
+                Toast.makeText(requireContext(), "Already a co-organizer", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -205,7 +215,8 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
                     sendNotification(user);
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Failed to assign co-organizer", Toast.LENGTH_SHORT).show();
+                    if (!isAdded()) return;
+                    Toast.makeText(requireContext(), "Failed to assign co-organizer", Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -228,13 +239,24 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
                 .collection(FirestorePaths.INBOX).document(notificationId)
                 .set(notification)
                 .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(getContext(), targetUser.getUsername() + " is now a co-organizer!", Toast.LENGTH_SHORT).show();
+                    if (isAdded())
+                        Toast.makeText(requireContext(), targetUser.getUsername() + " is now a co-organizer!", Toast.LENGTH_SHORT).show();
                     dismiss();
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Assigned, but notification failed", Toast.LENGTH_SHORT).show();
+                    if (isAdded())
+                        Toast.makeText(requireContext(), "Assigned, but notification failed", Toast.LENGTH_SHORT).show();
                     dismiss();
                 });
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (pendingSearch != null) {
+            searchHandler.removeCallbacks(pendingSearch);
+            pendingSearch = null;
+        }
     }
 
     private static class UserSearchAdapter extends RecyclerView.Adapter<UserSearchAdapter.ViewHolder> {

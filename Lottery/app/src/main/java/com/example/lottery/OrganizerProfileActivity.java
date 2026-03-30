@@ -20,6 +20,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.lottery.util.FirestorePaths;
+import com.example.lottery.util.UserDeletionUtil;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -283,12 +284,14 @@ public class OrganizerProfileActivity extends AppCompatActivity {
     private void deleteUserProfile() {
         if (userId == null) return;
 
-        db.collection(FirestorePaths.USERS).document(userId).delete()
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(this, "Profile deleted successfully", Toast.LENGTH_SHORT).show();
-                    logout();
-                })
-                .addOnFailureListener(e -> Toast.makeText(this, "Failed to delete profile: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+        UserDeletionUtil.cleanUpCoOrganizerRecords(db, userId, () ->
+                db.collection(FirestorePaths.USERS).document(userId).delete()
+                        .addOnSuccessListener(aVoid -> {
+                            Toast.makeText(this, "Profile deleted successfully", Toast.LENGTH_SHORT).show();
+                            logout();
+                        })
+                        .addOnFailureListener(e ->
+                                Toast.makeText(this, "Failed to delete profile: " + e.getMessage(), Toast.LENGTH_SHORT).show()));
     }
 
     private void logout() {

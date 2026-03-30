@@ -94,6 +94,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
 
         eventId = getIntent().getStringExtra("eventId");
         userId = SessionUtil.resolveUserId(this);
+        userName = getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("userName", "");
 
         if (eventId == null) {
             Toast.makeText(this, "Error: Event ID missing", Toast.LENGTH_SHORT).show();

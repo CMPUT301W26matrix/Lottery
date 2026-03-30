@@ -459,8 +459,8 @@ public class EntrantsListActivity extends AppCompatActivity implements
             db.collection(FirestorePaths.USERS).document(recipientUid).get().addOnCompleteListener(task -> {
                 if (task.isSuccessful() && task.getResult() != null) {
                     DocumentSnapshot userDoc = task.getResult();
-                    boolean enabled = userDoc.contains("notificationsEnabled") ?
-                            userDoc.getBoolean("notificationsEnabled") : true;
+                    Boolean notifPref = userDoc.getBoolean("notificationsEnabled");
+                    boolean enabled = notifPref == null || notifPref;
 
                     if (enabled) {
                         Map<String, Object> recData = new HashMap<>();
@@ -576,8 +576,8 @@ public class EntrantsListActivity extends AppCompatActivity implements
             db.collection(FirestorePaths.USERS).document(recipientUid).get().addOnCompleteListener(task -> {
                 if (task.isSuccessful() && task.getResult() != null) {
                     DocumentSnapshot userDoc = task.getResult();
-                    boolean enabled = userDoc.contains("notificationsEnabled")
-                            ? userDoc.getBoolean("notificationsEnabled") : true;
+                    Boolean notifPref = userDoc.getBoolean("notificationsEnabled");
+                    boolean enabled = notifPref == null || notifPref;
 
                     if (enabled) {
                         DocumentReference recipientRef = db.collection(FirestorePaths.notificationRecipients(notificationId))

@@ -2,6 +2,8 @@ package com.example.lottery;
 
 import android.app.Dialog;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -37,16 +39,17 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
     private static final String ARG_EVENT_TITLE = "eventTitle";
     private static final String ARG_SENDER_ID = "senderId";
     private final List<User> userList = new ArrayList<>();
+    private final Handler searchHandler = new Handler(Looper.getMainLooper());
     private String eventId;
     private String eventTitle;
     private String senderId;
     private FirebaseFirestore db;
     private UserSearchAdapter adapter;
-
     private TextInputEditText etSearch;
     private RecyclerView rvResults;
     private ProgressBar progressBar;
     private TextView tvNoResults;
+    private Runnable pendingSearch;
 
     public static OrganizerInviteEntrantDialogFragment newInstance(String eventId, String eventTitle, String senderId) {
         OrganizerInviteEntrantDialogFragment fragment = new OrganizerInviteEntrantDialogFragment();
@@ -90,7 +93,10 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                searchUsers(s.toString().trim());
+                if (pendingSearch != null) searchHandler.removeCallbacks(pendingSearch);
+                String query = s.toString().trim();
+                pendingSearch = () -> searchUsers(query);
+                searchHandler.postDelayed(pendingSearch, 300);
             }
 
             @Override
@@ -111,6 +117,7 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
     }
 
     private void searchUsers(String query) {
+        if (!isAdded()) return;
         if (query.length() < 2) {
             userList.clear();
             adapter.notifyDataSetChanged();
@@ -126,6 +133,7 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
                 .whereEqualTo("role", "ENTRANT")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!isAdded()) return;
                     userList.clear();
                     String lowerQuery = query.toLowerCase();
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
@@ -148,9 +156,19 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
                     tvNoResults.setVisibility(userList.isEmpty() ? View.VISIBLE : View.GONE);
                 })
                 .addOnFailureListener(e -> {
+                    if (!isAdded()) return;
                     progressBar.setVisibility(View.GONE);
-                    Toast.makeText(getContext(), "Search failed", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), "Search failed", Toast.LENGTH_SHORT).show();
                 });
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (pendingSearch != null) {
+            searchHandler.removeCallbacks(pendingSearch);
+            pendingSearch = null;
+        }
     }
 
     private void inviteUser(User user) {
@@ -169,14 +187,16 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
                     sendNotification(user);
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Failed to invite user", Toast.LENGTH_SHORT).show();
+                    if (!isAdded()) return;
+                    Toast.makeText(requireContext(), "Failed to invite user", Toast.LENGTH_SHORT).show();
                 });
     }
 
     private void sendNotification(User targetUser) {
         // US 01.04.03: Respect notification preference
         if (!targetUser.isNotificationsEnabled()) {
-            Toast.makeText(getContext(), "Invitation successful (notifications opted out)", Toast.LENGTH_SHORT).show();
+            if (isAdded())
+                Toast.makeText(requireContext(), "Invitation successful (notifications opted out)", Toast.LENGTH_SHORT).show();
             dismiss();
             return;
         }
@@ -199,11 +219,13 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
                 .collection(FirestorePaths.INBOX).document(notificationId)
                 .set(notification)
                 .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(getContext(), "Invitation sent!", Toast.LENGTH_SHORT).show();
+                    if (isAdded())
+                        Toast.makeText(requireContext(), "Invitation sent!", Toast.LENGTH_SHORT).show();
                     dismiss();
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Failed to send notification", Toast.LENGTH_SHORT).show();
+                    if (isAdded())
+                        Toast.makeText(requireContext(), "Failed to send notification", Toast.LENGTH_SHORT).show();
                 });
     }
 
