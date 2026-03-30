@@ -23,6 +23,7 @@ public class EntrantHistoryAdapter extends RecyclerView.Adapter<EntrantHistoryAd
     private final List<HistoryItem> historyItems;
     private final OnItemClickListener listener;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault());
+
     public EntrantHistoryAdapter(List<HistoryItem> historyItems, OnItemClickListener listener) {
         this.historyItems = historyItems;
         this.listener = listener;

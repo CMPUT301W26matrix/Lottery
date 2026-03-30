@@ -33,8 +33,8 @@ public class EntrantAdapterTest {
     public void setUp() {
         context = ApplicationProvider.getApplicationContext();
         entrants = new ArrayList<>();
-        entrants.add(new User("Alice", "alice@example.com", "1112223333"));
-        entrants.add(new User("Bob", "bob@example.com", "4445556666"));
+        entrants.add(new User("e-1", "Alice", "alice@example.com", "1112223333"));
+        entrants.add(new User("e-2", "Bob", "bob@example.com", "4445556666"));
 
         adapter = new EntrantAdapter(context, entrants);
     }

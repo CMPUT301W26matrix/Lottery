@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lottery.model.Event;
+import com.example.lottery.util.AdminRoleManager;
 import com.example.lottery.util.FirestorePaths;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -65,6 +66,8 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
      */
     private FirebaseFirestore db;
     private String userId;
+    private boolean isAdminRole = false;
+    private String adminUserId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +88,12 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
         if (userId == null) {
             SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
             userId = prefs.getString("userId", null);
+        }
+
+        // Check if this is an admin role session
+        isAdminRole = getIntent().getBooleanExtra("isAdminRole", false);
+        if (isAdminRole) {
+            adminUserId = AdminRoleManager.getAdminUserId(this);
         }
 
         if (userId == null) {
@@ -120,6 +129,10 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
             btnCreate.setOnClickListener(v -> {
                 Intent intent = new Intent(this, OrganizerCreateEventActivity.class);
                 intent.putExtra("userId", userId);
+                intent.putExtra("isAdminRole", isAdminRole);
+                if (isAdminRole) {
+                    intent.putExtra("adminUserId", adminUserId);
+                }
                 startActivity(intent);
             });
         }
@@ -137,6 +150,10 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
             btnNotifications.setOnClickListener(v -> {
                 Intent intent = new Intent(this, OrganizerNotificationsActivity.class);
                 intent.putExtra("userId", userId);
+                intent.putExtra("isAdminRole", isAdminRole);
+                if (isAdminRole) {
+                    intent.putExtra("adminUserId", adminUserId);
+                }
                 startActivity(intent);
             });
         }
@@ -146,6 +163,10 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
             btnQr.setOnClickListener(v -> {
                 Intent intent = new Intent(this, OrganizerQrEventListActivity.class);
                 intent.putExtra("userId", userId);
+                intent.putExtra("isAdminRole", isAdminRole);
+                if (isAdminRole) {
+                    intent.putExtra("adminUserId", adminUserId);
+                }
                 startActivity(intent);
             });
         }
@@ -155,6 +176,10 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
             btnProfile.setOnClickListener(v -> {
                 Intent intent = new Intent(this, OrganizerProfileActivity.class);
                 intent.putExtra("userId", userId);
+                intent.putExtra("isAdminRole", isAdminRole);
+                if (isAdminRole) {
+                    intent.putExtra("adminUserId", adminUserId);
+                }
                 startActivity(intent);
             });
         }
@@ -176,14 +201,15 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
     private void loadOrganizerEvents() {
         if (userId == null) return;
 
+        adapter.clearCountsCache();
         db.collection(FirestorePaths.EVENTS)
                 .whereEqualTo("organizerId", userId)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     eventList.clear();
-                    int openCount = 0;
-                    int closedCount = 0;
-                    int cancelledCount = 0;
+                    int active = 0;
+                    int closed = 0;
+                    int pending = 0;
 
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         try {
@@ -191,13 +217,17 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
                             event.setEventId(document.getId());
                             eventList.add(event);
 
-                            String status = event.getStatus();
-                            if ("open".equalsIgnoreCase(status)) {
-                                openCount++;
-                            } else if ("closed".equalsIgnoreCase(status)) {
-                                closedCount++;
-                            } else if ("cancelled".equalsIgnoreCase(status)) {
-                                cancelledCount++;
+                            String displayStatus = EventAdapter.resolveDisplayStatus(event);
+                            switch (displayStatus) {
+                                case "open":
+                                    active++;
+                                    break;
+                                case "pending":
+                                    pending++;
+                                    break;
+                                default:
+                                    closed++;
+                                    break;
                             }
                         } catch (Exception e) {
                             Log.e(TAG, "Error mapping document " + document.getId(), e);
@@ -205,7 +235,7 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
                     }
 
                     adapter.notifyDataSetChanged();
-                    updateSummaryStats(openCount, closedCount, cancelledCount, eventList.size());
+                    updateSummaryStats(active, closed, pending, eventList.size());
                     tvNoEvents.setVisibility(eventList.isEmpty() ? View.VISIBLE : View.GONE);
                 })
                 .addOnFailureListener(e -> {
@@ -239,6 +269,10 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
         Intent intent = new Intent(this, OrganizerEventDetailsActivity.class);
         intent.putExtra("eventId", event.getEventId());
         intent.putExtra("userId", userId);
+        intent.putExtra("isAdminRole", isAdminRole);
+        if (isAdminRole) {
+            intent.putExtra("adminUserId", adminUserId);
+        }
         startActivity(intent);
     }
 }

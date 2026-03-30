@@ -71,7 +71,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
     private ImageButton btnBack;
     private ImageView ivQRCodePreview, ivPosterPreview;
     private TextView tvQRCodeLabel, tvPosterStatus, tvHeader;
-    private MaterialCardView cvQRCode;
+    private MaterialCardView cvQRCode, cardQRCode;
     private SwitchMaterial swRequireLocation, swLimitWaitingList, swIsPrivate;
     private ChipGroup cgCategories;
 
@@ -181,10 +181,9 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             if (isChecked) {
                 // If private, clear QR code and hide related UI
                 qrCodeContent = "";
-                cvQRCode.setVisibility(View.GONE);
-                tvQRCodeLabel.setVisibility(View.GONE);
-                btnGenerateQRCode.setVisibility(View.GONE);
+                cardQRCode.setVisibility(View.GONE);
             } else {
+                cardQRCode.setVisibility(View.VISIBLE);
                 btnGenerateQRCode.setVisibility(View.VISIBLE);
             }
         });
@@ -267,6 +266,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         tvQRCodeLabel = findViewById(R.id.tvQRCodeLabel);
         tvPosterStatus = findViewById(R.id.tvPosterStatus);
         cvQRCode = findViewById(R.id.cvQRCode);
+        cardQRCode = findViewById(R.id.cardQRCode);
 
         swRequireLocation = findViewById(R.id.swRequireLocation);
         swLimitWaitingList = findViewById(R.id.swLimitWaitingList);
@@ -314,11 +314,15 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
 
             this.qrCodeContent = event.getQrCodeContent();
             this.eventStartDate = event.getScheduledDateTime() != null ? event.getScheduledDateTime().toDate() : null;
+            this.eventEndDate = event.getEventEndDateTime() != null ? event.getEventEndDateTime().toDate() : null;
+            this.regStartDate = event.getRegistrationStart() != null ? event.getRegistrationStart().toDate() : null;
             this.regEndDate = event.getRegistrationDeadline() != null ? event.getRegistrationDeadline().toDate() : null;
             this.drawDate = event.getDrawDate() != null ? event.getDrawDate().toDate() : null;
 
             SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm", Locale.getDefault());
             if (eventStartDate != null) etEventStart.setText(sdf.format(eventStartDate));
+            if (eventEndDate != null) etEventEnd.setText(sdf.format(eventEndDate));
+            if (regStartDate != null) etRegStart.setText(sdf.format(regStartDate));
             if (regEndDate != null) etRegEnd.setText(sdf.format(regEndDate));
             if (drawDate != null) etDrawDate.setText(sdf.format(drawDate));
 
@@ -332,7 +336,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                     btnGenerateQRCode.setVisibility(View.GONE);
                 }
             } else if (event.isPrivate()) {
-                btnGenerateQRCode.setVisibility(View.GONE);
+                cardQRCode.setVisibility(View.GONE);
             }
 
             // Set category
@@ -472,6 +476,18 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             return;
         }
 
+        if (!EventValidationUtils.isEventEndDateValid(eventStartDate, eventEndDate)) {
+            Toast.makeText(this, "Event end date must be after the start date", Toast.LENGTH_LONG).show();
+            Log.w(TAG, "Validation failed: Event end date before start date");
+            return;
+        }
+
+        if (!EventValidationUtils.isRegistrationStartValid(regStartDate, regEndDate)) {
+            Toast.makeText(this, "Registration start must be before registration end", Toast.LENGTH_LONG).show();
+            Log.w(TAG, "Validation failed: Registration start after registration end");
+            return;
+        }
+
         // US 02.02.02: Validate waiting list limit
         Integer waitingListLimit = null;
         if (swLimitWaitingList.isChecked()) {
@@ -584,7 +600,14 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             qrCodeContent = QRCodeUtils.generateUniqueQrContent(eventId);
         }
 
-        int capacity = capacityStr.isEmpty() ? 0 : Integer.parseInt(capacityStr);
+        int capacity;
+        try {
+            capacity = capacityStr.isEmpty() ? 0 : Integer.parseInt(capacityStr);
+        } catch (NumberFormatException e) {
+            Toast.makeText(this, "Invalid number for capacity", Toast.LENGTH_SHORT).show();
+            btnCreateEvent.setEnabled(true);
+            return;
+        }
         boolean requireLocation = swRequireLocation.isChecked();
 
         String category = "Other";
@@ -605,6 +628,8 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         event.setWaitingListLimit(waitingListLimit);
         event.setQrCodeContent(qrCodeContent);
         event.setScheduledDateTime(eventStartDate != null ? new Timestamp(eventStartDate) : null);
+        event.setEventEndDateTime(eventEndDate != null ? new Timestamp(eventEndDate) : null);
+        event.setRegistrationStart(regStartDate != null ? new Timestamp(regStartDate) : null);
         event.setRegistrationDeadline(regEndDate != null ? new Timestamp(regEndDate) : null);
         event.setDrawDate(drawDate != null ? new Timestamp(drawDate) : null);
         event.setRequireLocation(requireLocation);

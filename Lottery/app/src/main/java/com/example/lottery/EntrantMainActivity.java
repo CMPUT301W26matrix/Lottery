@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lottery.model.Event;
 import com.example.lottery.model.User;
+import com.example.lottery.util.AdminRoleManager;
 import com.example.lottery.util.FirestorePaths;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
@@ -46,12 +47,15 @@ public class EntrantMainActivity extends AppCompatActivity {
 
     private final List<Event> masterEventList = new ArrayList<>();
     private final List<Event> filteredEventList = new ArrayList<>();
+    private final List<String> userInterests = new ArrayList<>();
     private RecyclerView rvEvents;
     private EntrantEventAdapter adapter;
     private View emptyStateContainer;
     private View tvNotificationBadge;
     private FirebaseFirestore db;
     private String userId;
+    private boolean isAdminRole = false;
+    private String adminUserId;
 
     private View llSearchToggle;
     private TextInputLayout tilSearch;
@@ -65,7 +69,6 @@ public class EntrantMainActivity extends AppCompatActivity {
     private String currentTimeFilter = "All Dates";
     private boolean filterAvailable = false;
     private boolean filterWaitlistOpen = false;
-    private final List<String> userInterests = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +87,12 @@ public class EntrantMainActivity extends AppCompatActivity {
             Toast.makeText(this, "User ID missing", Toast.LENGTH_SHORT).show();
             finish();
             return;
+        }
+
+        // Check if this is an admin role session
+        isAdminRole = getIntent().getBooleanExtra("isAdminRole", false);
+        if (isAdminRole) {
+            adminUserId = AdminRoleManager.getAdminUserId(this);
         }
 
         db = FirebaseFirestore.getInstance();
@@ -174,7 +183,7 @@ public class EntrantMainActivity extends AppCompatActivity {
                 currentCategory = TAB_ALL;
             } else {
                 Chip chip = findViewById(checkedIds.get(0));
-                currentCategory = chip.getText().toString();
+                currentCategory = chip != null ? chip.getText().toString() : TAB_ALL;
             }
             applyFilters();
         });
@@ -211,6 +220,10 @@ public class EntrantMainActivity extends AppCompatActivity {
         findViewById(R.id.nav_home).setOnClickListener(v -> {
             Intent intent = new Intent(this, EntrantMainActivity.class);
             intent.putExtra("userId", userId);
+            intent.putExtra("isAdminRole", isAdminRole);
+            if (isAdminRole) {
+                intent.putExtra("adminUserId", adminUserId);
+            }
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
         });
@@ -218,24 +231,40 @@ public class EntrantMainActivity extends AppCompatActivity {
         findViewById(R.id.nav_history).setOnClickListener(v -> {
             Intent intent = new Intent(this, EntrantEventHistoryActivity.class);
             intent.putExtra("userId", userId);
+            intent.putExtra("isAdminRole", isAdminRole);
+            if (isAdminRole) {
+                intent.putExtra("adminUserId", adminUserId);
+            }
             startActivity(intent);
         });
 
         findViewById(R.id.nav_qr_scan).setOnClickListener(v -> {
             Intent intent = new Intent(this, EntrantQrScanActivity.class);
             intent.putExtra("userId", userId);
+            intent.putExtra("isAdminRole", isAdminRole);
+            if (isAdminRole) {
+                intent.putExtra("adminUserId", adminUserId);
+            }
             startActivity(intent);
         });
 
         findViewById(R.id.nav_profile).setOnClickListener(v -> {
             Intent intent = new Intent(this, EntrantProfileActivity.class);
             intent.putExtra("userId", userId);
+            intent.putExtra("isAdminRole", isAdminRole);
+            if (isAdminRole) {
+                intent.putExtra("adminUserId", adminUserId);
+            }
             startActivity(intent);
         });
 
         findViewById(R.id.ivNotificationIcon).setOnClickListener(v -> {
             Intent intent = new Intent(this, NotificationsActivity.class);
             intent.putExtra(NotificationsActivity.EXTRA_USER_ID, userId);
+            intent.putExtra("isAdminRole", isAdminRole);
+            if (isAdminRole) {
+                intent.putExtra("adminUserId", adminUserId);
+            }
             startActivity(intent);
         });
     }
@@ -248,6 +277,7 @@ public class EntrantMainActivity extends AppCompatActivity {
                     masterEventList.clear();
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         Event event = document.toObject(Event.class);
+                        if (event == null) continue;
                         event.setEventId(document.getId());
                         masterEventList.add(event);
                     }
@@ -261,7 +291,7 @@ public class EntrantMainActivity extends AppCompatActivity {
      */
     private void fetchUserInterests() {
         if (userId == null) return;
-        db.collection("users").document(userId).get()
+        db.collection(FirestorePaths.USERS).document(userId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     userInterests.clear();
                     if (documentSnapshot.exists()) {
@@ -397,6 +427,10 @@ public class EntrantMainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, EntrantEventDetailsActivity.class);
         intent.putExtra(EntrantEventDetailsActivity.EXTRA_EVENT_ID, event.getEventId());
         intent.putExtra(EntrantEventDetailsActivity.EXTRA_USER_ID, userId);
+        intent.putExtra("isAdminRole", isAdminRole);
+        if (isAdminRole) {
+            intent.putExtra("adminUserId", adminUserId);
+        }
         startActivity(intent);
     }
 }

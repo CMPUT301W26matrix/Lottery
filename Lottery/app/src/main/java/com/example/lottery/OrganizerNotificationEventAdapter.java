@@ -31,6 +31,7 @@ public class OrganizerNotificationEventAdapter extends RecyclerView.Adapter<Orga
     private final List<Event> eventList;
     private final OnNotificationGroupClickListener listener;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+
     /**
      * Constructs a new OrganizerNotificationEventAdapter.
      *

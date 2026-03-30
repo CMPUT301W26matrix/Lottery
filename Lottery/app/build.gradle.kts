@@ -51,7 +51,6 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(libs.play.services.maps)
-    implementation(libs.firebase.installations)
     implementation("com.google.android.gms:play-services-location:21.0.1")
 
     testImplementation(libs.junit)
@@ -81,10 +80,13 @@ dependencies {
     // ZXing for QR Code generation
     implementation("com.google.zxing:core:3.5.3")
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
-    
+
     // Glide for image loading
     implementation("com.github.bumptech.glide:glide:4.16.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
+
+    // For UI Testing
+    androidTestImplementation("androidx.test.uiautomator:uiautomator:2.3.0")
 }
 
 tasks.register<Javadoc>("generateJavadoc") {

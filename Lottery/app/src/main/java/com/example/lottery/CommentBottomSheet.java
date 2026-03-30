@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -19,39 +20,53 @@ import com.example.lottery.util.FirestorePaths;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class EntrantCommentBottomSheet extends BottomSheetDialogFragment {
+public class CommentBottomSheet extends BottomSheetDialogFragment {
 
     private static final String ARG_EVENT_ID = "eventId";
     private static final String ARG_USER_ID = "userId";
     private static final String ARG_USER_NAME = "userName";
     private static final String ARG_IS_ORGANIZER = "isOrganizer";
+    private static final String ARG_IS_ADMIN = "isAdmin";
 
     private String eventId;
     private String userId;
     private String userName;
     private boolean isOrganizer;
+    private boolean isAdmin;
 
     private FirebaseFirestore db;
     private CommentAdapter adapter;
     private List<Comment> commentList;
     private EditText etComment;
+    private TextView tvEmptyComments;
+    private ListenerRegistration commentsListener;
 
-    public static EntrantCommentBottomSheet newInstance(String eventId, String userId, String userName) {
+    public static CommentBottomSheet newInstance(String eventId, String userId, String userName) {
         return newInstance(eventId, userId, userName, false);
     }
 
-    public static EntrantCommentBottomSheet newInstance(String eventId, String userId, String userName, boolean isOrganizer) {
-        EntrantCommentBottomSheet fragment = new EntrantCommentBottomSheet();
+    public static CommentBottomSheet newInstance(String eventId, String userId, String userName, boolean isOrganizer) {
+        CommentBottomSheet fragment = new CommentBottomSheet();
         Bundle args = new Bundle();
         args.putString(ARG_EVENT_ID, eventId);
         args.putString(ARG_USER_ID, userId);
         args.putString(ARG_USER_NAME, userName);
         args.putBoolean(ARG_IS_ORGANIZER, isOrganizer);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public static CommentBottomSheet newInstanceForAdmin(String eventId) {
+        CommentBottomSheet fragment = new CommentBottomSheet();
+        Bundle args = new Bundle();
+        args.putString(ARG_EVENT_ID, eventId);
+        args.putBoolean(ARG_IS_ADMIN, true);
         fragment.setArguments(args);
         return fragment;
     }
@@ -64,6 +79,7 @@ public class EntrantCommentBottomSheet extends BottomSheetDialogFragment {
             userId = getArguments().getString(ARG_USER_ID);
             userName = getArguments().getString(ARG_USER_NAME);
             isOrganizer = getArguments().getBoolean(ARG_IS_ORGANIZER);
+            isAdmin = getArguments().getBoolean(ARG_IS_ADMIN);
         }
         db = FirebaseFirestore.getInstance();
     }
@@ -75,14 +91,19 @@ public class EntrantCommentBottomSheet extends BottomSheetDialogFragment {
 
         RecyclerView rvComments = view.findViewById(R.id.rvComments);
         etComment = view.findViewById(R.id.etComment);
+        tvEmptyComments = view.findViewById(R.id.tvEmptyComments);
         ImageButton btnPostComment = view.findViewById(R.id.btnPostComment);
 
         commentList = new ArrayList<>();
-        adapter = new CommentAdapter(commentList, isOrganizer, eventId);
+        adapter = new CommentAdapter(commentList, isOrganizer || isAdmin, eventId);
         rvComments.setLayoutManager(new LinearLayoutManager(getContext()));
         rvComments.setAdapter(adapter);
 
-        btnPostComment.setOnClickListener(v -> postComment());
+        if (isAdmin) {
+            view.findViewById(R.id.commentInputCard).setVisibility(View.GONE);
+        } else {
+            btnPostComment.setOnClickListener(v -> postComment());
+        }
 
         loadComments();
 
@@ -90,10 +111,10 @@ public class EntrantCommentBottomSheet extends BottomSheetDialogFragment {
     }
 
     private void loadComments() {
-        db.collection(FirestorePaths.eventComments(eventId))
+        commentsListener = db.collection(FirestorePaths.eventComments(eventId))
                 .orderBy("createdAt", Query.Direction.ASCENDING)
                 .addSnapshotListener((value, error) -> {
-                    if (error != null || value == null) return;
+                    if (error != null || value == null || !isAdded()) return;
 
                     for (DocumentChange dc : value.getDocumentChanges()) {
                         Comment comment = dc.getDocument().toObject(Comment.class);
@@ -101,6 +122,9 @@ public class EntrantCommentBottomSheet extends BottomSheetDialogFragment {
 
                         switch (dc.getType()) {
                             case ADDED:
+                                if (comment.isDeleted()) {
+                                    break;
+                                }
                                 if (!containsComment(comment.getCommentId())) {
                                     commentList.add(comment);
                                 }
@@ -114,6 +138,7 @@ public class EntrantCommentBottomSheet extends BottomSheetDialogFragment {
                         }
                     }
                     adapter.notifyDataSetChanged();
+                    tvEmptyComments.setVisibility(commentList.isEmpty() ? View.VISIBLE : View.GONE);
                 });
     }
 
@@ -125,6 +150,10 @@ public class EntrantCommentBottomSheet extends BottomSheetDialogFragment {
     }
 
     private void updateCommentInList(Comment updatedComment) {
+        if (updatedComment.isDeleted()) {
+            removeCommentFromList(updatedComment);
+            return;
+        }
         for (int i = 0; i < commentList.size(); i++) {
             if (commentList.get(i).getCommentId().equals(updatedComment.getCommentId())) {
                 commentList.set(i, updatedComment);
@@ -153,7 +182,7 @@ public class EntrantCommentBottomSheet extends BottomSheetDialogFragment {
         comment.setEventId(eventId);
         comment.setAuthorId(userId);
         comment.setAuthorName(userName);
-        comment.setAuthorRole(isOrganizer ? "organizer" : "entrant");
+        comment.setAuthorRole(isAdmin ? "admin" : (isOrganizer ? "organizer" : "entrant"));
         comment.setContent(content);
         comment.setCreatedAt(com.google.firebase.Timestamp.now()); // Set local timestamp for faster UI sync
 
@@ -163,9 +192,19 @@ public class EntrantCommentBottomSheet extends BottomSheetDialogFragment {
                     // Success
                 })
                 .addOnFailureListener(e -> {
+                    if (!isAdded()) return;
                     // Restore text if it failed
                     etComment.setText(content);
-                    Toast.makeText(getContext(), "Failed to post comment", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), "Failed to post comment", Toast.LENGTH_SHORT).show();
                 });
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (commentsListener != null) {
+            commentsListener.remove();
+            commentsListener = null;
+        }
     }
 }

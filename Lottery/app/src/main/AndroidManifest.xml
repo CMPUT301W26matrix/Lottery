@@ -28,6 +28,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Lottery">
+
         <!-- Source - https://stackoverflow.com/a/50794266
         // Posted by jeff, modified by community. See post 'Timeline' for change history
         // Retrieved 2026-03-13, License - CC BY-SA 4.0-->
@@ -135,8 +136,21 @@
             android:name=".OrganizerLotteryGuidelinesActivity"
             android:exported="false" />
         <activity
+            android:name=".AdminProfileActivity"
+            android:exported="false" />
+        <activity
             android:name=".EntrantMapActivity"
             android:exported="false" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
     </application>
 

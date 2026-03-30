@@ -92,17 +92,20 @@ public class NotificationLogAdapterTest {
         }
     }
 
+    // US 03.08.01: Notification log list should display the correct number of log entries
     @Test
     public void testItemCount() {
         assertEquals(2, adapter.getItemCount());
     }
 
+    // US 03.08.01: Notification log list should handle empty state gracefully
     @Test
     public void testItemCountEmpty() {
         NotificationLogAdapter emptyAdapter = new NotificationLogAdapter(new ArrayList<>());
         assertEquals(0, emptyAdapter.getItemCount());
     }
 
+    // US 03.08.01: Log item should contain event title, organizer, message, group, count, and timestamp views
     @Test
     public void testOnCreateViewHolder() {
         FrameLayout parent = new FrameLayout(context);
@@ -116,6 +119,7 @@ public class NotificationLogAdapterTest {
         assertNotNull(holder.itemView.findViewById(R.id.tvLogTimestamp));
     }
 
+    // US 03.08.01: Log entry should display the event title
     @Test
     public void testBindSetsEventTitle() {
         FrameLayout parent = new FrameLayout(context);
@@ -127,6 +131,7 @@ public class NotificationLogAdapterTest {
         assertEquals("Music Festival", tvTitle.getText().toString());
     }
 
+    // US 03.08.01: Log entry should display recipient group in uppercase
     @Test
     public void testBindSetsGroupUpperCase() {
         FrameLayout parent = new FrameLayout(context);
@@ -138,6 +143,7 @@ public class NotificationLogAdapterTest {
         assertEquals("SELECTED", tvGroup.getText().toString());
     }
 
+    // US 03.08.01: Log entry should display the notification message
     @Test
     public void testBindSetsMessage() {
         FrameLayout parent = new FrameLayout(context);
@@ -149,6 +155,7 @@ public class NotificationLogAdapterTest {
         assertEquals("You have been selected", tvMessage.getText().toString());
     }
 
+    // US 03.08.01: Log entry should display the number of recipients
     @Test
     public void testBindSetsRecipientCount() {
         FrameLayout parent = new FrameLayout(context);
@@ -160,6 +167,7 @@ public class NotificationLogAdapterTest {
         assertEquals("10", tvCount.getText().toString());
     }
 
+    // US 03.08.01: Log entry should display formatted timestamp
     @Test
     public void testBindSetsTimestamp() {
         FrameLayout parent = new FrameLayout(context);
@@ -174,6 +182,7 @@ public class NotificationLogAdapterTest {
         assertNotEquals("N/A", tvTimestamp.getText().toString());
     }
 
+    // US 03.08.01: Log entry should display fallback values for missing fields
     @Test
     public void testBindHandlesNullFields() {
         FrameLayout parent = new FrameLayout(context);

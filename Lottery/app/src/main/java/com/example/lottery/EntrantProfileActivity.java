@@ -18,7 +18,9 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.lottery.util.AdminRoleManager;
 import com.example.lottery.util.FirestorePaths;
+import com.example.lottery.util.UserDeletionUtil;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.switchmaterial.SwitchMaterial;
@@ -67,8 +69,11 @@ public class EntrantProfileActivity extends AppCompatActivity {
 
         SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
         userId = getIntent().getStringExtra("userId");
+
         if (userId == null) {
-            userId = prefs.getString("userId", null);
+            Toast.makeText(this, "Session error: missing userId", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
         }
 
         forceEdit = getIntent().getBooleanExtra("forceEdit", false);
@@ -113,13 +118,7 @@ public class EntrantProfileActivity extends AppCompatActivity {
             }
         });
 
-        btnLogout.setOnClickListener(v -> {
-            prefs.edit().clear().apply();
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
-        });
+        btnLogout.setOnClickListener(v -> logout());
 
         btnDeleteProfile.setOnClickListener(v -> showDeleteConfirmationDialog());
 
@@ -342,22 +341,39 @@ public class EntrantProfileActivity extends AppCompatActivity {
     private void deleteUserProfile() {
         if (userId == null) return;
 
-        db.collection(FirestorePaths.USERS).document(userId).delete()
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(this, "Profile deleted successfully", Toast.LENGTH_SHORT).show();
-                    logout();
-                })
-                .addOnFailureListener(e -> Toast.makeText(this, "Failed to delete profile: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+        UserDeletionUtil.cleanUpCoOrganizerRecords(db, userId, () ->
+                db.collection(FirestorePaths.USERS).document(userId).delete()
+                        .addOnSuccessListener(aVoid -> {
+                            Toast.makeText(this, "Profile deleted successfully", Toast.LENGTH_SHORT).show();
+                            logout();
+                        })
+                        .addOnFailureListener(e ->
+                                Toast.makeText(this, "Failed to delete profile: " + e.getMessage(), Toast.LENGTH_SHORT).show()));
     }
 
     private void logout() {
-        FirebaseAuth.getInstance().signOut();
-        SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
-        prefs.edit().clear().apply();
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
+        // Check if this is an admin role session
+        if (AdminRoleManager.isAdminRoleSession(this)) {
+            String adminUserId = AdminRoleManager.getAdminUserId(this);
+            // Clear the admin role session
+            AdminRoleManager.clearAdminRoleSession(this);
+
+            // Navigate back to admin profile
+            Intent intent = new Intent(this, AdminProfileActivity.class);
+            intent.putExtra("userId", adminUserId);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        } else {
+            // Regular logout
+            FirebaseAuth.getInstance().signOut();
+            SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
+            prefs.edit().clear().apply();
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        }
     }
 
     private void navigateToMain() {

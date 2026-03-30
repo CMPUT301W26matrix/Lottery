@@ -1,14 +1,17 @@
 package com.example.lottery;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -64,6 +67,7 @@ public class AdminBrowseLogsActivity extends AppCompatActivity {
         rvLogs.setAdapter(adapter);
 
         setupNavigation();
+        highlightLogsTab();
     }
 
     /**
@@ -83,6 +87,7 @@ public class AdminBrowseLogsActivity extends AppCompatActivity {
         if (btnHome != null) {
             btnHome.setOnClickListener(v -> {
                 Intent intent = new Intent(this, AdminBrowseEventsActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
             });
         }
@@ -91,6 +96,7 @@ public class AdminBrowseLogsActivity extends AppCompatActivity {
         if (btnProfiles != null) {
             btnProfiles.setOnClickListener(v -> {
                 Intent intent = new Intent(this, AdminBrowseProfilesActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 intent.putExtra("role", "admin"); // needed to show admin specific UI
                 startActivity(intent);
             });
@@ -100,6 +106,7 @@ public class AdminBrowseLogsActivity extends AppCompatActivity {
         if (btnImages != null) {
             btnImages.setOnClickListener(v -> {
                 Intent intent = new Intent(this, AdminBrowseImagesActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
             });
         }
@@ -109,6 +116,57 @@ public class AdminBrowseLogsActivity extends AppCompatActivity {
         if (btnLogs != null) {
             btnLogs.setOnClickListener(v ->
                     Toast.makeText(this, R.string.admin_already_viewing_logs, Toast.LENGTH_SHORT).show());
+        }
+
+        View btnSettings = findViewById(R.id.nav_admin_settings);
+        if (btnSettings != null) {
+            btnSettings.setOnClickListener(v -> {
+                Intent intent = new Intent(this, AdminProfileActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
+            });
+        }
+    }
+
+    /**
+     * Highlights the current logs tab without changing the shared layout defaults.
+     */
+    private void highlightLogsTab() {
+        int activeColor = ContextCompat.getColor(this, R.color.primary_blue);
+        int inactiveColor = ContextCompat.getColor(this, R.color.text_gray);
+
+        ImageView homeIcon = findViewById(R.id.nav_home_icon);
+        TextView homeText = findViewById(R.id.nav_home_text);
+        ImageView profilesIcon = findViewById(R.id.nav_profiles_icon);
+        TextView profilesText = findViewById(R.id.nav_profiles_text);
+        ImageView imagesIcon = findViewById(R.id.nav_images_icon);
+        TextView imagesText = findViewById(R.id.nav_images_text);
+        ImageView logsIcon = findViewById(R.id.nav_logs_icon);
+        TextView logsText = findViewById(R.id.nav_logs_text);
+
+        if (homeIcon != null) {
+            homeIcon.setImageTintList(ColorStateList.valueOf(inactiveColor));
+        }
+        if (homeText != null) {
+            homeText.setTextColor(inactiveColor);
+        }
+        if (profilesIcon != null) {
+            profilesIcon.setImageTintList(ColorStateList.valueOf(inactiveColor));
+        }
+        if (profilesText != null) {
+            profilesText.setTextColor(inactiveColor);
+        }
+        if (imagesIcon != null) {
+            imagesIcon.setImageTintList(ColorStateList.valueOf(inactiveColor));
+        }
+        if (imagesText != null) {
+            imagesText.setTextColor(inactiveColor);
+        }
+        if (logsIcon != null) {
+            logsIcon.setImageTintList(ColorStateList.valueOf(activeColor));
+        }
+        if (logsText != null) {
+            logsText.setTextColor(activeColor);
         }
     }
 

@@ -36,13 +36,12 @@ import java.util.ArrayList;
 public class EntrantMapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private static final String TAG = "EntrantMapActivity";
-
+    private final ArrayList<EntrantEvent> entrants = new ArrayList<>();
     private GoogleMap googleMap;
     private MapView mapView;
     private String eventId;
     private String status;
     private FirebaseFirestore db;
-    private final ArrayList<EntrantEvent> entrants = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

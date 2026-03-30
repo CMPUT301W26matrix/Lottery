@@ -73,16 +73,6 @@ public class User {
     }
 
     /**
-     * Convenience constructor for basic profile information.
-     */
-    public User(String username, String email, String phone) {
-        this();
-        this.username = username;
-        this.email = email;
-        this.phone = phone;
-    }
-
-    /**
      * Convenience constructor for basic profile information with userId.
      */
     public User(String userId, String username, String email, String phone) {
@@ -165,24 +155,6 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    /**
-     * Alias for getUsername() to maintain compatibility with older code.
-     *
-     * @return the username
-     */
-    public String getName() {
-        return username;
-    }
-
-    /**
-     * Alias for getPhone() to maintain compatibility with older code.
-     *
-     * @return the phone number
-     */
-    public String getPhoneNumber() {
-        return phone;
     }
 
     public String getRole() {

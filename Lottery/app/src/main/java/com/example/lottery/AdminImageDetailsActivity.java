@@ -17,9 +17,14 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.lottery.model.Event;
+import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.PosterImageLoader;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.StorageException;
+
+import androidx.annotation.VisibleForTesting;
 
 /**
  * AdminImageDetailsActivity displays a full-size poster preview for administrators.
@@ -29,7 +34,7 @@ import com.google.firebase.storage.FirebaseStorage;
  *   <li>Fetches the event record from Firestore using the supplied event ID.</li>
  *   <li>Renders the poster at full width, event title, organizer name, and description.</li>
  *   <li>Looks up the organizer name from the users collection via organizerId.</li>
- *   <li>Provides a delete button (to be repurposed for image-only deletion later).</li>
+ *   <li>Provides a delete button for administrators to remove poster images.</li>
  *   <li>Keeps the custom admin bottom navigation active on the details screen.</li>
  * </ul>
  * </p>
@@ -38,6 +43,10 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
 
     private static final String TAG = "AdminImageDetails";
     private static final String EXTRA_EVENT_ID = "eventId";
+
+    /** Inject a test Event to bypass Firestore while still exercising updateUi(). */
+    @VisibleForTesting
+    static Event testEvent;
 
     /**
      * ImageView used for displaying the full-size event poster.
@@ -56,7 +65,7 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
      */
     private TextView tvEventDetails;
     /**
-     * Button for deleting the event (to be repurposed for image deletion).
+     * Button for deleting the poster image.
      */
     private Button btnDeleteImage;
     /**
@@ -158,46 +167,68 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * Launches a confirmation dialog before deleting the event.
+     * Launches a confirmation dialog before deleting the poster image.
      */
     private void showDeleteConfirmationDialog() {
-        new AlertDialog.Builder(this).setTitle("Confirm Deletion").setMessage("Do you want to delete this poster image?")
-                .setPositiveButton("Delete", (dialog, which) -> DeleteImage())
-                .setNegativeButton("Cancel", null).show();
+        new AlertDialog.Builder(this).setTitle(R.string.confirm_deletion).setMessage(R.string.confirm_delete_image)
+                .setPositiveButton(R.string.delete, (dialog, which) -> deleteImage())
+                .setNegativeButton(R.string.cancel, null).show();
     }
 
     /**
      * Deletes the poster image from Firebase Storage and clears the posterUri in Firestore.
+     * Storage deletion completes before the Firestore field is cleared.
      */
-    private void DeleteImage() {
+    private void deleteImage() {
         if (eventId == null || eventId.isEmpty()) {
-            Toast.makeText(this, "Event ID is empty", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.error_event_id_empty, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (currentPosterUri == null || currentPosterUri.isEmpty()) {
+            Toast.makeText(this, R.string.no_image_to_delete, Toast.LENGTH_SHORT).show();
             return;
         }
 
         btnDeleteImage.setEnabled(false);
 
-        // Delete file from Firebase Storage if it's a Firebase URL
-        if (currentPosterUri != null
-                && (currentPosterUri.contains("firebasestorage.googleapis.com")
-                || currentPosterUri.startsWith("gs://"))) {
-            FirebaseStorage.getInstance()
-                    .getReferenceFromUrl(currentPosterUri)
-                    .delete()
-                    .addOnFailureListener(e -> Log.e(TAG, "Failed to delete storage file", e));
+        // Delete file from Firebase Storage first, then clear Firestore
+        try {
+            StorageReference storageReference = FirebaseStorage.getInstance()
+                    .getReferenceFromUrl(currentPosterUri);
+            storageReference.delete()
+                    .addOnSuccessListener(unused -> clearPosterUriInFirestore())
+                    .addOnFailureListener(e -> {
+                        if (e instanceof StorageException
+                                && ((StorageException) e).getErrorCode() == StorageException.ERROR_OBJECT_NOT_FOUND) {
+                            Log.w(TAG, "Storage file already deleted, clearing Firestore reference");
+                            clearPosterUriInFirestore();
+                        } else {
+                            Log.e(TAG, "Failed to delete storage file", e);
+                            btnDeleteImage.setEnabled(true);
+                            Toast.makeText(this, R.string.failed_to_delete_image_storage, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        } catch (IllegalArgumentException e) {
+            // Clear the Firestore field for non-Firebase Storage URIs.
+            clearPosterUriInFirestore();
         }
+    }
 
-        // Clear posterUri in Firestore
-        db.collection("events").document(eventId)
+    /**
+     * Clears the posterUri field in Firestore after the storage file has been removed.
+     */
+    private void clearPosterUriInFirestore() {
+        db.collection(FirestorePaths.EVENTS).document(eventId)
                 .update("posterUri", null)
                 .addOnSuccessListener(unused -> {
-                    Toast.makeText(this, "Image deleted", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.image_deleted, Toast.LENGTH_SHORT).show();
                     finish();
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Failed to clear posterUri", e);
                     btnDeleteImage.setEnabled(true);
-                    Toast.makeText(this, "Failed to delete image", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.failed_to_delete_image, Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -205,18 +236,24 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
      * Fetches the event details from Firestore.
      */
     private void fetchEventDetails() {
-        db.collection("events")
+        if (testEvent != null) {
+            updateUi(testEvent);
+            return;
+        }
+        db.collection(FirestorePaths.EVENTS)
                 .document(eventId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (!documentSnapshot.exists()) {
                         Toast.makeText(this, R.string.event_not_found, Toast.LENGTH_SHORT).show();
+                        finish();
                         return;
                     }
 
                     Event event = documentSnapshot.toObject(Event.class);
                     if (event == null) {
                         Toast.makeText(this, R.string.failed_to_load_event_details, Toast.LENGTH_SHORT).show();
+                        finish();
                         return;
                     }
 
@@ -238,6 +275,7 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
         tvEventDetails.setText(event.getDetails());
         currentPosterUri = event.getPosterUri();
         PosterImageLoader.load(ivEventPoster, currentPosterUri, R.drawable.event_placeholder);
+        btnDeleteImage.setEnabled(currentPosterUri != null && !currentPosterUri.isEmpty());
 
         if (event.getOrganizerId() != null) {
             fetchOrganizerName(event.getOrganizerId());
@@ -253,7 +291,7 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
      * @param organizerId The ID of the organizer to look up.
      */
     private void fetchOrganizerName(String organizerId) {
-        db.collection("users").document(organizerId).get()
+        db.collection(FirestorePaths.USERS).document(organizerId).get()
                 .addOnSuccessListener(doc -> {
                     String name = doc.getString("username");
                     tvOrganizerName.setText(getString(R.string.admin_organizer_label,

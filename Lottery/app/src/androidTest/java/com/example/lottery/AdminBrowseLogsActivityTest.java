@@ -42,34 +42,40 @@ public class AdminBrowseLogsActivityTest {
         Intents.release();
     }
 
+    // US 03.08.01: Admin should see notification logs page title
     @Test
     public void testPageTitleIsDisplayed() {
         onView(withId(R.id.tvPageTitle)).perform(scrollTo()).check(matches(isDisplayed()));
         onView(withId(R.id.tvPageTitle)).check(matches(withText(R.string.admin_logs_title)));
     }
 
+    // US 03.08.01: Admin should see notification logs subtitle
     @Test
     public void testPageSubtitleIsDisplayed() {
         onView(withId(R.id.tvPageSubtitle)).perform(scrollTo()).check(matches(isDisplayed()));
         onView(withId(R.id.tvPageSubtitle)).check(matches(withText(R.string.admin_logs_subtitle)));
     }
 
+    // US 03.08.01: Admin should see log section title
     @Test
     public void testSectionTitleIsDisplayed() {
         onView(withId(R.id.tvSectionTitle)).perform(scrollTo()).check(matches(isDisplayed()));
         onView(withId(R.id.tvSectionTitle)).check(matches(withText(R.string.admin_all_logs_title)));
     }
 
+    // US 03.08.01: Notification log list should be visible
     @Test
     public void testRecyclerViewExists() {
         onView(withId(R.id.rvLogs)).check(matches(withEffectiveVisibility(Visibility.VISIBLE)));
     }
 
+    // US 03.08.01: Log browser should be scrollable
     @Test
     public void testScrollViewIsScrollable() {
         onView(withId(R.id.main_scroll_view)).check(matches(isDisplayed()));
     }
 
+    // US 03.08.01: Admin bottom navigation should be visible
     @Test
     public void testBottomNavIsDisplayed() {
         onView(withId(R.id.nav_home)).check(matches(isDisplayed()));
@@ -78,12 +84,14 @@ public class AdminBrowseLogsActivityTest {
         onView(withId(R.id.nav_logs)).check(matches(isDisplayed()));
     }
 
+    // US 03.04.01: Admin should navigate to event browser from logs tab
     @Test
     public void testNavigateToHome() {
         onView(withId(R.id.nav_home)).perform(click());
         intended(hasComponent(AdminBrowseEventsActivity.class.getName()));
     }
 
+    // US 03.05.01: Admin should navigate to profile browser from logs tab
     @Test
     public void testNavigateToProfiles() {
         onView(withId(R.id.nav_profiles)).perform(click());
@@ -91,12 +99,14 @@ public class AdminBrowseLogsActivityTest {
         intended(hasExtra("role", "admin"));
     }
 
+    // US 03.06.01: Admin should navigate to image browser from logs tab
     @Test
     public void testNavigateToImages() {
         onView(withId(R.id.nav_images)).perform(click());
         intended(hasComponent(AdminBrowseImagesActivity.class.getName()));
     }
 
+    // US 03.08.01: Empty state should show when no notification logs exist
     @Test
     public void testNoLogsMessageVisibility() {
         activityRule.getScenario().onActivity(activity -> activity.findViewById(R.id.tvNoLogs).setVisibility(View.VISIBLE));

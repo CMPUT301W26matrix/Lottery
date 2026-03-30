@@ -16,8 +16,11 @@ import com.example.lottery.util.InvitationFlowUtil;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Adapter for displaying a list of events in the Organizer Dashboard.
@@ -25,8 +28,8 @@ import java.util.Locale;
  * <p>Key Responsibilities:
  * <ul>
  *   <li>Binds event metadata to RecyclerView items.</li>
- *   <li>Dynamically fetches and displays counts from the 'waitingList' subcollection.</li>
- *   <li>Visualizes event status (OPEN/CLOSED/CANCELLED) using the document 'status' field.</li>
+ *   <li>Fetches and caches waitingList counts per event (one query per eventId).</li>
+ *   <li>Visualizes event status (OPEN/CLOSED/PENDING) derived from event dates.</li>
  * </ul>
  * </p>
  */
@@ -36,10 +39,46 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
     private final OnEventClickListener listener;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm", Locale.getDefault());
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final Map<String, int[]> countsCache = new HashMap<>();
 
     public EventAdapter(List<Event> eventList, OnEventClickListener listener) {
         this.eventList = eventList;
         this.listener = listener;
+    }
+
+    /**
+     * Derives display status from event dates per the project spec.
+     */
+    static String resolveDisplayStatus(Event event) {
+        if (event == null) return "closed";
+
+        // Honour the explicit status stored in Firestore when it is "closed"
+        if ("closed".equalsIgnoreCase(event.getStatus())) {
+            return "closed";
+        }
+
+        Date now = new Date();
+
+        if (event.getRegistrationDeadline() != null
+                && event.getDrawDate() != null
+                && event.getRegistrationDeadline().toDate().before(now)
+                && event.getDrawDate().toDate().after(now)) {
+            return "pending";
+        }
+
+        if (event.getScheduledDateTime() != null
+                && event.getScheduledDateTime().toDate().after(now)) {
+            return "open";
+        }
+
+        return "closed";
+    }
+
+    /**
+     * Clears the cached waitingList counts so the next bind triggers a fresh fetch.
+     */
+    public void clearCountsCache() {
+        countsCache.clear();
     }
 
     @NonNull
@@ -66,6 +105,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
 
     class EventViewHolder extends RecyclerView.ViewHolder {
         private final TextView tvTitle, tvDate, tvStatus, tvCapacity, tvWaiting, tvSelected;
+        private String boundEventId;
 
         public EventViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -78,13 +118,32 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         }
 
         public void bind(final Event event, final OnEventClickListener listener) {
+            String eventId = event.getEventId();
+            boundEventId = eventId;
+
             tvTitle.setText(event.getTitle());
             tvDate.setText(event.getScheduledDateTime() != null ? dateFormat.format(event.getScheduledDateTime().toDate()) : "Date TBD");
+            tvCapacity.setText(event.getCapacity() != null ? String.valueOf(event.getCapacity()) : "-");
 
-            tvCapacity.setText(String.valueOf(event.getCapacity()));
+            // Bind counts from cache or fetch once
+            if (countsCache.containsKey(eventId)) {
+                bindCounts(event, countsCache.get(eventId));
+            } else {
+                tvWaiting.setText("-");
+                tvSelected.setText("-");
+                fetchCounts(event);
+            }
 
-            // Fetch summary counts from the waitingList subcollection
-            db.collection(FirestorePaths.eventWaitingList(event.getEventId()))
+            updateStatusUI(resolveDisplayStatus(event));
+
+            itemView.setOnClickListener(v -> {
+                if (listener != null) listener.onEventClick(event);
+            });
+        }
+
+        private void fetchCounts(Event event) {
+            String eventId = event.getEventId();
+            db.collection(FirestorePaths.eventWaitingList(eventId))
                     .get()
                     .addOnSuccessListener(queryDocumentSnapshots -> {
                         int waitlisted = 0;
@@ -100,50 +159,55 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
                             }
                         }
 
-                        // Display "current / limit" for waiting list
-                        if (event.getWaitingListLimit() != null) {
-                            tvWaiting.setText(String.format(Locale.getDefault(), "%d / %d",
-                                    waitlisted, event.getWaitingListLimit()));
-                        } else {
-                            tvWaiting.setText(String.valueOf(waitlisted));
-                        }
+                        int[] counts = {waitlisted, selected};
+                        countsCache.put(eventId, counts);
 
-                        tvSelected.setText(String.valueOf(selected));
+                        // Only write UI if this holder still shows the same event
+                        if (eventId.equals(boundEventId)) {
+                            bindCounts(event, counts);
+                        }
                     })
                     .addOnFailureListener(e -> {
-                        tvWaiting.setText("0");
-                        tvSelected.setText("0");
+                        if (eventId.equals(boundEventId)) {
+                            tvWaiting.setText("0");
+                            tvSelected.setText("0");
+                        }
                     });
+        }
 
-            // Set visual status based on canonical 'status' field
-            updateStatusUI(event.getStatus());
+        private void bindCounts(Event event, int[] counts) {
+            int waitlisted = counts[0];
+            int selected = counts[1];
 
-            itemView.setOnClickListener(v -> {
-                if (listener != null) listener.onEventClick(event);
-            });
+            if (event.getWaitingListLimit() != null) {
+                tvWaiting.setText(String.format(Locale.getDefault(), "%d / %d",
+                        waitlisted, event.getWaitingListLimit()));
+            } else {
+                tvWaiting.setText(String.valueOf(waitlisted));
+            }
+            tvSelected.setText(String.valueOf(selected));
         }
 
         private void updateStatusUI(String status) {
-            if (status == null) status = "open";
+            if (status == null) status = "closed";
 
-            switch (status.toLowerCase()) {
+            switch (status) {
                 case "open":
                     tvStatus.setText("OPEN");
                     tvStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.primary_blue));
                     tvStatus.setBackgroundTintList(ColorStateList.valueOf(
                             ContextCompat.getColor(itemView.getContext(), R.color.primary_light_blue)));
                     break;
+                case "pending":
+                    tvStatus.setText("PENDING");
+                    tvStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), android.R.color.holo_orange_dark));
+                    tvStatus.setBackgroundTintList(ColorStateList.valueOf(0xFFFFF3E0));
+                    break;
                 case "closed":
                     tvStatus.setText("CLOSED");
                     tvStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.text_secondary));
                     tvStatus.setBackgroundTintList(ColorStateList.valueOf(
                             ContextCompat.getColor(itemView.getContext(), R.color.divider_gray)));
-                    break;
-                case "cancelled":
-                    tvStatus.setText("CANCELLED");
-                    tvStatus.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(itemView.getContext(), android.R.color.white)).getDefaultColor());
-                    tvStatus.setBackgroundTintList(ColorStateList.valueOf(
-                            ContextCompat.getColor(itemView.getContext(), android.R.color.holo_red_dark)));
                     break;
                 default:
                     tvStatus.setText(status.toUpperCase());

@@ -13,6 +13,7 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -25,6 +26,7 @@ public class NotificationLogAdapter extends RecyclerView.Adapter<NotificationLog
     private final List<Map<String, Object>> logList;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm", Locale.getDefault());
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final Map<String, String> organizerNameCache = new HashMap<>();
 
     /**
      * @param logList raw Firestore document data for each notification log
@@ -102,7 +104,12 @@ public class NotificationLogAdapter extends RecyclerView.Adapter<NotificationLog
                     : itemView.getContext().getString(R.string.admin_unknown_event));
 
             String group = (String) log.get("group");
-            tvGroup.setText(group != null ? group.toUpperCase(Locale.getDefault()) : "");
+            if (group != null && !group.isEmpty()) {
+                tvGroup.setText(group.toUpperCase(Locale.getDefault()));
+                tvGroup.setVisibility(View.VISIBLE);
+            } else {
+                tvGroup.setVisibility(View.GONE);
+            }
 
             String message = (String) log.get("message");
             tvMessage.setText(message != null ? message : "");
@@ -122,18 +129,27 @@ public class NotificationLogAdapter extends RecyclerView.Adapter<NotificationLog
             // Show senderId as placeholder, then resolve the display name
             String senderId = (String) log.get("senderId");
             if (senderId != null) {
-                tvOrganizer.setText(itemView.getContext().getString(
-                        R.string.admin_organizer_label, senderId));
-                // Skip update if ViewHolder was recycled before callback
-                int bindPosition = getBindingAdapterPosition();
-                db.collection(FirestorePaths.USERS).document(senderId).get()
-                        .addOnSuccessListener(doc -> {
-                            if (getBindingAdapterPosition() != bindPosition) return;
-                            String name = doc.getString("username");
-                            tvOrganizer.setText(itemView.getContext().getString(
-                                    R.string.admin_organizer_label,
-                                    name != null ? name : senderId));
-                        });
+                // Use cached name if available
+                if (organizerNameCache.containsKey(senderId)) {
+                    tvOrganizer.setText(itemView.getContext().getString(
+                            R.string.admin_organizer_label, organizerNameCache.get(senderId)));
+                } else {
+                    tvOrganizer.setText(itemView.getContext().getString(
+                            R.string.admin_organizer_label, senderId));
+                    int bindPosition = getBindingAdapterPosition();
+                    if (bindPosition == RecyclerView.NO_POSITION) return;
+                    db.collection(FirestorePaths.USERS).document(senderId).get()
+                            .addOnSuccessListener(doc -> {
+                                int currentPos = getBindingAdapterPosition();
+                                if (currentPos == RecyclerView.NO_POSITION
+                                        || currentPos != bindPosition) return;
+                                String name = doc.getString("username");
+                                String displayName = name != null ? name : senderId;
+                                organizerNameCache.put(senderId, displayName);
+                                tvOrganizer.setText(itemView.getContext().getString(
+                                        R.string.admin_organizer_label, displayName));
+                            });
+                }
             } else {
                 tvOrganizer.setText(itemView.getContext().getString(R.string.admin_unknown_organizer));
             }
