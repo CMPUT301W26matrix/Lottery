@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.contrib.RecyclerViewActions;
+import androidx.test.espresso.intent.Intents;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.uiautomator.UiDevice;
@@ -24,6 +25,8 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.intent.Intents.intended;
+import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
@@ -293,4 +296,23 @@ public class AdminRoleSwitchUITest {
             onView(withId(R.id.nav_admin_settings)).check(matches(isDisplayed()));
         }
     }
+
+    @Test
+    public void testNavigation_PassesUserId_ToAdminProfile() {
+        Intent intent = new Intent(ApplicationProvider.getApplicationContext(),
+                AdminBrowseEventsActivity.class);
+        intent.putExtra("userId", TEST_ADMIN_ID);
+
+        try (ActivityScenario<AdminBrowseEventsActivity> scenario =
+                     ActivityScenario.launch(intent)) {
+
+            onView(withId(R.id.nav_admin_settings)).perform(click());
+
+            scenario.onActivity(activity -> {
+                Intent nextIntent = activity.getIntent();
+                assertEquals(TEST_ADMIN_ID, nextIntent.getStringExtra("userId"));
+            });
+        }
+    }
+
 }
