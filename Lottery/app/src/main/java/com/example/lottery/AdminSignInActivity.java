@@ -3,6 +3,7 @@ package com.example.lottery;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -15,7 +16,6 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.installations.FirebaseInstallations;
 
 /**
  * Admin authentication screen.
@@ -114,26 +114,24 @@ public class AdminSignInActivity extends AppCompatActivity {
                         return;
                     }
 
-                    // Store admin session
+                    // Store admin session using ANDROID_ID (consistent with MainActivity)
+                    String androidId = Settings.Secure.getString(
+                            getContentResolver(), Settings.Secure.ANDROID_ID);
+                    if (androidId == null || androidId.isEmpty()) {
+                        Toast.makeText(this, "Failed to get device ID", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
                     SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
+                    prefs.edit()
+                            .putString("userId", "admin_main")
+                            .putString("deviceId", androidId)
+                            .apply();
 
-                    // Get FID and store everything together
-                    FirebaseInstallations.getInstance().getId()
-                            .addOnSuccessListener(fid -> {
-
-                                prefs.edit()
-                                        .putString("userId", "admin_main")
-                                        .putString("fid", fid)
-                                        .apply();
-
-                                Intent intent = new Intent(this, AdminBrowseEventsActivity.class);
-                                intent.putExtra("userId", "admin_main");
-                                startActivity(intent);
-                                finish();
-                            })
-                            .addOnFailureListener(e -> {
-                                Toast.makeText(this, "Failed to get device ID", Toast.LENGTH_SHORT).show();
-                            });
+                    Intent intent = new Intent(this, AdminBrowseEventsActivity.class);
+                    intent.putExtra("userId", "admin_main");
+                    startActivity(intent);
+                    finish();
                 });
     }
 }

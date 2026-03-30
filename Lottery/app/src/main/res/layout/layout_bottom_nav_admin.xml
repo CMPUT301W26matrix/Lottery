@@ -137,7 +137,7 @@
                     android:id="@+id/nav_settings_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Settings"
+                    android:text="@string/admin_nav_settings"
                     android:textColor="@color/text_gray"
                     android:textSize="11sp" />
             </LinearLayout>

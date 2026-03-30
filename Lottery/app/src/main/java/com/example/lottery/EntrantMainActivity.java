@@ -249,16 +249,11 @@ public class EntrantMainActivity extends AppCompatActivity {
         });
 
         findViewById(R.id.nav_profile).setOnClickListener(v -> {
-            // If this is an admin role session, go to AdminProfileActivity
             Intent intent = new Intent(this, EntrantProfileActivity.class);
             intent.putExtra("userId", userId);
             intent.putExtra("isAdminRole", isAdminRole);
             if (isAdminRole) {
                 intent.putExtra("adminUserId", adminUserId);
-            }
-            else {
-                // Regular entrant goes to their profile
-                intent.putExtra("userId", userId);
             }
             startActivity(intent);
         });

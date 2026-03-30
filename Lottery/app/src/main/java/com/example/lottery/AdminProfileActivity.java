@@ -16,9 +16,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.lottery.util.AdminRoleManager;
 import com.example.lottery.util.FirestorePaths;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.installations.FirebaseInstallations;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,7 +34,7 @@ public class AdminProfileActivity extends AppCompatActivity {
     private View bottomNav;
     private FirebaseFirestore db;
     private String adminUserId;
-    private String adminFid;
+    private String adminDeviceId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,8 +57,8 @@ public class AdminProfileActivity extends AppCompatActivity {
             adminUserId = prefs.getString("userId", null);
         }
 
-        // Get FID from shared preferences (stored during login)
-        adminFid = prefs.getString("fid", null);
+        // Get device ID from shared preferences (stored during admin login)
+        adminDeviceId = prefs.getString("deviceId", null);
 
         if (adminUserId == null) {
             Toast.makeText(this, "Session expired", Toast.LENGTH_SHORT).show();
@@ -113,20 +111,20 @@ public class AdminProfileActivity extends AppCompatActivity {
 
     private void setupRoleButtons() {
         btnSwitchToEntrant.setOnClickListener(v -> {
-            if (adminFid == null) {
+            if (adminDeviceId == null) {
                 Toast.makeText(this, "Device ID not found", Toast.LENGTH_SHORT).show();
                 return;
             }
-            String entrantUserId = "entrant_" + adminFid;
+            String entrantUserId = "entrant_" + adminDeviceId;
             checkAndSwitchToRole(entrantUserId, "ENTRANT");
         });
 
         btnSwitchToOrganizer.setOnClickListener(v -> {
-            if (adminFid == null) {
+            if (adminDeviceId == null) {
                 Toast.makeText(this, "Device ID not found", Toast.LENGTH_SHORT).show();
                 return;
             }
-            String organizerUserId = "organizer_" + adminFid;
+            String organizerUserId = "organizer_" + adminDeviceId;
             checkAndSwitchToRole(organizerUserId, "ORGANIZER");
         });
 
@@ -137,7 +135,7 @@ public class AdminProfileActivity extends AppCompatActivity {
      * Checks if the role profile exists. If yes, switches directly to the role's main activity.
      * If no, creates a new profile for that role and then navigates to profile completion.
      *
-     * @param roleUserId The user ID for the role (e.g., "entrant_" + FID)
+     * @param roleUserId The user ID for the role (e.g., "entrant_" + ANDROID_ID)
      * @param role The role name ("ENTRANT" or "ORGANIZER")
      */
     private void checkAndSwitchToRole(String roleUserId, String role) {
@@ -168,7 +166,7 @@ public class AdminProfileActivity extends AppCompatActivity {
     }
 
     /**
-     * Creates a new profile for the specified role using the same FID as the admin.
+     * Creates a new profile for the specified role using the same device ID as the admin.
      *
      * @param roleUserId The user ID for the role
      * @param role The role name ("ENTRANT" or "ORGANIZER")
@@ -179,7 +177,7 @@ public class AdminProfileActivity extends AppCompatActivity {
 
         userData.put("userId", roleUserId);
         userData.put("role", role);
-        userData.put("deviceId", adminFid);
+        userData.put("deviceId", adminDeviceId);
         userData.put("username", "");
         userData.put("email", "");
         userData.put("phone", "");
@@ -211,6 +209,9 @@ public class AdminProfileActivity extends AppCompatActivity {
      * @param roleUserId The user ID for the role
      */
     private void navigateToProfileCompletion(String role, String roleUserId) {
+        // Set admin role session so profile activities can return to admin
+        AdminRoleManager.setAdminRoleSession(this, adminUserId);
+
         Intent intent;
         if ("ENTRANT".equalsIgnoreCase(role)) {
             intent = new Intent(this, EntrantProfileActivity.class);
@@ -219,6 +220,7 @@ public class AdminProfileActivity extends AppCompatActivity {
         }
         intent.putExtra("userId", roleUserId);
         intent.putExtra("forceEdit", true);
+        intent.putExtra("isAdminRole", true);
         startActivity(intent);
         finish();
     }
@@ -266,6 +268,7 @@ public class AdminProfileActivity extends AppCompatActivity {
         // View Events (HOME)
         findViewById(R.id.nav_home).setOnClickListener(v -> {
             Intent intent = new Intent(this, AdminBrowseEventsActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             intent.putExtra("role", "admin");
             intent.putExtra("userId", adminUserId);
             startActivity(intent);
@@ -274,6 +277,7 @@ public class AdminProfileActivity extends AppCompatActivity {
         // View Profiles
         findViewById(R.id.nav_profiles).setOnClickListener(v -> {
             Intent intent = new Intent(this, AdminBrowseProfilesActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             intent.putExtra("role", "admin");
             intent.putExtra("userId", adminUserId);
             startActivity(intent);
@@ -282,16 +286,20 @@ public class AdminProfileActivity extends AppCompatActivity {
         // View Images
         findViewById(R.id.nav_images).setOnClickListener(v -> {
             Intent intent = new Intent(this, AdminBrowseImagesActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             intent.putExtra("role", "admin");
             intent.putExtra("userId", adminUserId);
             startActivity(intent);
         });
 
-        // View Logs (not yet implemented)
+        // View Logs
         View btnLogs = findViewById(R.id.nav_logs);
         if (btnLogs != null) {
-            btnLogs.setOnClickListener(v ->
-                    Toast.makeText(this, R.string.admin_logs_coming_soon, Toast.LENGTH_SHORT).show());
+            btnLogs.setOnClickListener(v -> {
+                Intent intent = new Intent(this, AdminBrowseLogsActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
+            });
         }
 
         // Settings (CURRENT SCREEN)
