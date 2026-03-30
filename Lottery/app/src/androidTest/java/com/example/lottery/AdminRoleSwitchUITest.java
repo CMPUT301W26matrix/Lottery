@@ -4,14 +4,18 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.intent.Intents.intended;
+import static androidx.test.espresso.intent.Intents.intending;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
+import static org.hamcrest.Matchers.allOf;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import android.app.Activity;
+import android.app.Instrumentation;
 import android.content.Context;
 import android.content.Intent;
 
@@ -111,10 +115,14 @@ public class AdminRoleSwitchUITest {
 
         try (ActivityScenario<AdminBrowseEventsActivity> ignored =
                      ActivityScenario.launch(intent)) {
+            intending(hasComponent(AdminProfileActivity.class.getName()))
+                    .respondWith(new Instrumentation.ActivityResult(Activity.RESULT_OK, null));
+
             onView(withId(R.id.nav_admin_settings)).perform(click());
 
-            intended(hasComponent(AdminProfileActivity.class.getName()));
-            intended(hasExtra("userId", TEST_ADMIN_ID));
+            intended(allOf(
+                    hasComponent(AdminProfileActivity.class.getName()),
+                    hasExtra("userId", TEST_ADMIN_ID)));
         }
     }
 
@@ -126,10 +134,14 @@ public class AdminRoleSwitchUITest {
 
         try (ActivityScenario<AdminBrowseImagesActivity> ignored =
                      ActivityScenario.launch(intent)) {
+            intending(hasComponent(AdminProfileActivity.class.getName()))
+                    .respondWith(new Instrumentation.ActivityResult(Activity.RESULT_OK, null));
+
             onView(withId(R.id.nav_admin_settings)).perform(click());
 
-            intended(hasComponent(AdminProfileActivity.class.getName()));
-            intended(hasExtra("userId", TEST_ADMIN_ID));
+            intended(allOf(
+                    hasComponent(AdminProfileActivity.class.getName()),
+                    hasExtra("userId", TEST_ADMIN_ID)));
         }
     }
 
@@ -142,10 +154,14 @@ public class AdminRoleSwitchUITest {
 
         try (ActivityScenario<AdminBrowseProfilesActivity> ignored =
                      ActivityScenario.launch(intent)) {
+            intending(hasComponent(AdminProfileActivity.class.getName()))
+                    .respondWith(new Instrumentation.ActivityResult(Activity.RESULT_OK, null));
+
             onView(withId(R.id.nav_admin_settings)).perform(click());
 
-            intended(hasComponent(AdminProfileActivity.class.getName()));
-            intended(hasExtra("userId", TEST_ADMIN_ID));
+            intended(allOf(
+                    hasComponent(AdminProfileActivity.class.getName()),
+                    hasExtra("userId", TEST_ADMIN_ID)));
         }
     }
 
