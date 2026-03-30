@@ -41,6 +41,12 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final Map<String, int[]> countsCache = new HashMap<>();
 
+    /**
+     * Creates a new EventAdapter.
+     *
+     * @param eventList list of events to display
+     * @param listener  click listener for event interactions
+     */
     public EventAdapter(List<Event> eventList, OnEventClickListener listener) {
         this.eventList = eventList;
         this.listener = listener;
@@ -99,7 +105,15 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         return eventList.size();
     }
 
+    /**
+     * Callback interface invoked when an event item in the list is clicked.
+     */
     public interface OnEventClickListener {
+        /**
+         * Called when an event item is clicked.
+         *
+         * @param event the clicked event
+         */
         void onEventClick(Event event);
     }
 

@@ -57,6 +57,9 @@ public class NotSelectedListAdapter extends RecyclerView.Adapter<NotSelectedList
         return mData.size();
     }
 
+    /**
+     * ViewHolder that caches references to the entrant list item's UI components.
+     */
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvEntrantName;
         TextView tvEntrantStatus;

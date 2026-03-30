@@ -18,6 +18,10 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * RecyclerView adapter for displaying comments on an event, with optional delete support
+ * for organizers and admins.
+ */
 public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentViewHolder> {
 
     private final List<Comment> comments;
@@ -25,6 +29,13 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
     private final String eventId;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, HH:mm", Locale.getDefault());
 
+    /**
+     * Creates a new CommentAdapter.
+     *
+     * @param comments  list of comments to display
+     * @param canDelete whether the current user can delete comments
+     * @param eventId   the event whose comments are shown
+     */
     public CommentAdapter(List<Comment> comments, boolean canDelete, String eventId) {
         this.comments = comments;
         this.canDelete = canDelete;

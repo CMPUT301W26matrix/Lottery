@@ -37,6 +37,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * DialogFragment that lets an organizer search for users and assign them as co-organizers
+ * for a specific event. A notification is sent to the assigned user upon success.
+ */
 public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
 
     private static final String ARG_EVENT_ID = "eventId";
@@ -56,6 +60,14 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
     private TextView tvNoResults;
     private Runnable pendingSearch;
 
+    /**
+     * Creates a new instance of this dialog.
+     *
+     * @param eventId    the event to assign a co-organizer to
+     * @param eventTitle the event title (used in the notification message)
+     * @param senderId   the current organizer's user ID
+     * @return a configured dialog fragment
+     */
     public static OrganizerInviteCoOrganizerDialogFragment newInstance(String eventId, String eventTitle, String senderId) {
         OrganizerInviteCoOrganizerDialogFragment fragment = new OrganizerInviteCoOrganizerDialogFragment();
         Bundle args = new Bundle();

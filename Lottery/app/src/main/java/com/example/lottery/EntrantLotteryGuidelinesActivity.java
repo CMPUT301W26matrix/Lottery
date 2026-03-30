@@ -8,6 +8,9 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+/**
+ * Activity that displays the lottery guidelines and rules for entrants.
+ */
 public class EntrantLotteryGuidelinesActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
