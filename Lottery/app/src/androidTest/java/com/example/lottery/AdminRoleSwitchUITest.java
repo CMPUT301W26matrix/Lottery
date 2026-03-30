@@ -2,6 +2,7 @@ package com.example.lottery;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.intent.Intents.intended;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
@@ -145,6 +146,96 @@ public class AdminRoleSwitchUITest {
 
             intended(hasComponent(AdminProfileActivity.class.getName()));
             intended(hasExtra("userId", TEST_ADMIN_ID));
+        }
+    }
+
+    // ---- Logout return-to-admin tests ----
+
+    // US 03.09.01: Entrant logout during admin role session should return to AdminProfileActivity
+    @Test
+    public void testEntrantLogoutReturnsToAdminProfile() {
+        AdminRoleManager.setAdminRoleSession(context, TEST_ADMIN_ID);
+
+        Intent intent = new Intent(context, EntrantProfileActivity.class);
+        intent.putExtra("userId", "entrant_test_device");
+        intent.putExtra("isAdminRole", true);
+
+        try (ActivityScenario<EntrantProfileActivity> ignored =
+                     ActivityScenario.launch(intent)) {
+            onView(withId(R.id.btn_log_out)).perform(scrollTo(), click());
+
+            intended(hasComponent(AdminProfileActivity.class.getName()));
+            intended(hasExtra("userId", TEST_ADMIN_ID));
+        }
+    }
+
+    // US 03.09.01: Organizer logout during admin role session should return to AdminProfileActivity
+    @Test
+    public void testOrganizerLogoutReturnsToAdminProfile() {
+        AdminRoleManager.setAdminRoleSession(context, TEST_ADMIN_ID);
+
+        Intent intent = new Intent(context, OrganizerProfileActivity.class);
+        intent.putExtra("userId", "organizer_test_device");
+        intent.putExtra("isAdminRole", true);
+
+        try (ActivityScenario<OrganizerProfileActivity> ignored =
+                     ActivityScenario.launch(intent)) {
+            onView(withId(R.id.btn_log_out)).perform(scrollTo(), click());
+
+            intended(hasComponent(AdminProfileActivity.class.getName()));
+            intended(hasExtra("userId", TEST_ADMIN_ID));
+        }
+    }
+
+    // US 03.09.01: Regular entrant logout (no admin session) should return to MainActivity
+    @Test
+    public void testRegularEntrantLogoutGoesToMainActivity() {
+        // Ensure no admin session is active
+        AdminRoleManager.clearAdminRoleSession(context);
+
+        Intent intent = new Intent(context, EntrantProfileActivity.class);
+        intent.putExtra("userId", "entrant_regular_user");
+
+        try (ActivityScenario<EntrantProfileActivity> ignored =
+                     ActivityScenario.launch(intent)) {
+            onView(withId(R.id.btn_log_out)).perform(scrollTo(), click());
+
+            intended(hasComponent(MainActivity.class.getName()));
+        }
+    }
+
+    // US 03.09.01: Regular organizer logout (no admin session) should return to MainActivity
+    @Test
+    public void testRegularOrganizerLogoutGoesToMainActivity() {
+        AdminRoleManager.clearAdminRoleSession(context);
+
+        Intent intent = new Intent(context, OrganizerProfileActivity.class);
+        intent.putExtra("userId", "organizer_regular_user");
+
+        try (ActivityScenario<OrganizerProfileActivity> ignored =
+                     ActivityScenario.launch(intent)) {
+            onView(withId(R.id.btn_log_out)).perform(scrollTo(), click());
+
+            intended(hasComponent(MainActivity.class.getName()));
+        }
+    }
+
+    // US 03.09.01: Admin session should be cleared after returning from role
+    @Test
+    public void testAdminSessionClearedAfterRoleLogout() {
+        AdminRoleManager.setAdminRoleSession(context, TEST_ADMIN_ID);
+
+        Intent intent = new Intent(context, EntrantProfileActivity.class);
+        intent.putExtra("userId", "entrant_test_device");
+        intent.putExtra("isAdminRole", true);
+
+        try (ActivityScenario<EntrantProfileActivity> ignored =
+                     ActivityScenario.launch(intent)) {
+            onView(withId(R.id.btn_log_out)).perform(scrollTo(), click());
+
+            // Session should be cleared after logout
+            assertFalse(AdminRoleManager.isAdminRoleSession(context));
+            assertNull(AdminRoleManager.getAdminUserId(context));
         }
     }
 }

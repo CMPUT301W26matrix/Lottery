@@ -95,7 +95,7 @@ public class AdminProfileActivity extends AppCompatActivity {
                         String email = documentSnapshot.getString("email");
 
                         tvAdminName.setText(username != null && !username.isEmpty() ? username : "Admin");
-                        tvAdminEmail.setText(email != null && !email.isEmpty() ? email : "admin@example.com");
+                        tvAdminEmail.setText(email != null && !email.isEmpty() ? email : "admin@matrix.ca");
                     } else {
                         // Fallback if document doesn't exist
                         tvAdminName.setText("Admin");
@@ -115,7 +115,7 @@ public class AdminProfileActivity extends AppCompatActivity {
                 Toast.makeText(this, "Device ID not found", Toast.LENGTH_SHORT).show();
                 return;
             }
-            String entrantUserId = "entrant_" + adminDeviceId;
+            String entrantUserId = "admin_entrant_" + adminDeviceId;
             checkAndSwitchToRole(entrantUserId, "ENTRANT");
         });
 
@@ -124,7 +124,7 @@ public class AdminProfileActivity extends AppCompatActivity {
                 Toast.makeText(this, "Device ID not found", Toast.LENGTH_SHORT).show();
                 return;
             }
-            String organizerUserId = "organizer_" + adminDeviceId;
+            String organizerUserId = "admin_organizer_" + adminDeviceId;
             checkAndSwitchToRole(organizerUserId, "ORGANIZER");
         });
 
