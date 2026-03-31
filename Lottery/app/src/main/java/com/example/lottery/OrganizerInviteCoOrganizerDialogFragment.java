@@ -223,7 +223,7 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
                         if (!user.isEntrant()) continue;
 
                         boolean match = (user.getUsername() != null && user.getUsername().toLowerCase().contains(lowerQuery))
-                                || (user.getEmail() != null && user.getEmail().toLowerCase().contains(lowerQuery));
+                        || (user.getEmail() != null && user.getEmail().toLowerCase().contains(lowerQuery));
 
                         if (match) searchResults.add(user);
                     }
