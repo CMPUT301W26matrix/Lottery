@@ -213,7 +213,7 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
         tvEventDetails.setText(event.getDetails());
         currentPosterBase64 = event.getPosterBase64();
         PosterImageLoader.load(ivEventPoster, currentPosterBase64, R.drawable.event_placeholder);
-        btnDeleteImage.setEnabled(currentPosterBase64 != null && !currentPosterBase64.isEmpty());
+        btnDeleteImage.setEnabled(currentPosterBase64 != null && currentPosterBase64.trim().startsWith("data:image"));
 
         if (event.getOrganizerId() != null) {
             fetchOrganizerName(event.getOrganizerId());

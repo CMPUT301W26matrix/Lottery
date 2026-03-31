@@ -26,25 +26,18 @@ import com.example.lottery.R;
  */
 public final class OrganizerNavigationHelper {
 
-    /** The four regular tabs in the organizer bottom-navigation bar. */
-    public enum OrganizerTab {
-        HOME, NOTIFICATIONS, QR_CODE, PROFILE
-    }
-
     private static final int[] TAB_VIEW_IDS = {
             R.id.nav_home,
             R.id.nav_notifications,
             R.id.nav_qr_code,
             R.id.nav_profile
     };
-
     private static final int[][] TAB_ICON_TEXT_IDS = {
             {R.id.iv_nav_home, R.id.tv_nav_home},
             {R.id.iv_nav_notifications, R.id.tv_nav_notifications},
             {R.id.iv_nav_qr_code, R.id.tv_nav_qr_code},
             {R.id.iv_nav_profile, R.id.tv_nav_profile}
     };
-
     private static final Class<?>[] TAB_TARGETS = {
             OrganizerBrowseEventsActivity.class,
             OrganizerNotificationsActivity.class,
@@ -52,7 +45,8 @@ public final class OrganizerNavigationHelper {
             OrganizerProfileActivity.class
     };
 
-    private OrganizerNavigationHelper() { }
+    private OrganizerNavigationHelper() {
+    }
 
     /**
      * Highlights the active tab and wires every tab's click listener,
@@ -70,11 +64,11 @@ public final class OrganizerNavigationHelper {
      * Highlights the active tab and wires every tab's click listener,
      * including the centre Create-Event FAB.
      *
-     * @param activity          the hosting Activity
-     * @param currentTab        which tab this screen represents
-     * @param userId            the organizer's userId
-     * @param finishOnNavigate  if {@code true}, calls {@code finish()} after
-     *                          starting the target Activity (use for detail screens)
+     * @param activity         the hosting Activity
+     * @param currentTab       which tab this screen represents
+     * @param userId           the organizer's userId
+     * @param finishOnNavigate if {@code true}, calls {@code finish()} after
+     *                         starting the target Activity (use for detail screens)
      */
     public static void setup(Activity activity, OrganizerTab currentTab,
                              String userId, boolean finishOnNavigate) {
@@ -164,5 +158,12 @@ public final class OrganizerNavigationHelper {
             }
             activity.startActivity(intent);
         });
+    }
+
+    /**
+     * The four regular tabs in the organizer bottom-navigation bar.
+     */
+    public enum OrganizerTab {
+        HOME, NOTIFICATIONS, QR_CODE, PROFILE
     }
 }

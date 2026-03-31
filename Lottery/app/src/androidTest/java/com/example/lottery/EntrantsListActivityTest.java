@@ -107,4 +107,55 @@ public class EntrantsListActivityTest {
         // Check for dialog elements (NotificationFragment uses AlertDialog)
         onView(withText("Compose Notification")).check(matches(isDisplayed()));
     }
+
+    /**
+     * US 02.02.01
+     * Verifies that the empty state text is shown when no entrants exist in the Waited List tab.
+     */
+    @Test
+    public void testEmptyStateWaitedList() {
+        // Default tab is Waited List; with test_event_id there are no entrants
+        onView(withId(R.id.waited_list_empty_text)).check(matches(isDisplayed()));
+        onView(withId(R.id.waited_list_empty_text)).check(matches(withText(R.string.no_entrants_in_list)));
+    }
+
+    /**
+     * US 02.06.01
+     * Verifies that the empty state text is shown when switching to the Invited tab with no entrants.
+     */
+    @Test
+    public void testEmptyStateInvitedList() {
+        onView(withId(R.id.entrants_list_invited_btn)).perform(scrollTo(), click());
+        onView(withId(R.id.invited_empty_text)).check(matches(isDisplayed()));
+    }
+
+    /**
+     * US 02.06.03
+     * Verifies that the empty state text is shown when switching to the Accepted tab with no entrants.
+     */
+    @Test
+    public void testEmptyStateSignedUpList() {
+        onView(withId(R.id.entrants_list_signed_up_btn)).perform(scrollTo(), click());
+        onView(withId(R.id.signed_up_empty_text)).check(matches(isDisplayed()));
+    }
+
+    /**
+     * US 02.06.02
+     * Verifies that the empty state text is shown when switching to the Cancelled tab with no entrants.
+     */
+    @Test
+    public void testEmptyStateCancelledList() {
+        onView(withId(R.id.entrants_list_cancelled_btn)).perform(scrollTo(), click());
+        onView(withId(R.id.cancelled_empty_text)).check(matches(isDisplayed()));
+    }
+
+    /**
+     * US 02.06.04
+     * Verifies that the empty state text is shown when switching to the Not Selected tab with no entrants.
+     */
+    @Test
+    public void testEmptyStateNotSelectedList() {
+        onView(withId(R.id.entrants_list_not_selected_btn)).perform(scrollTo(), click());
+        onView(withId(R.id.not_selected_empty_text)).check(matches(isDisplayed()));
+    }
 }

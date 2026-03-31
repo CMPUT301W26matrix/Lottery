@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -84,6 +85,7 @@ public class EntrantsListActivity extends AppCompatActivity implements
     private LinearLayout invitedEntrantsListLayout, cancelledEntrantsListLayout,
             signedUpEntrantsListLayout, waitedListEntrantsListLayout, notSelectedEntrantsListLayout;
     private RecyclerView invitedEventsView, signedUpEventsView, waitedListEventsView, cancelledEntrantsView, notSelectedEntrantsView;
+    private TextView waitedListEmptyText, invitedEmptyText, signedUpEmptyText, cancelledEmptyText, notSelectedEmptyText;
     private String eventId;
     private String userId;
     private String eventTitle = "Event";
@@ -291,80 +293,35 @@ public class EntrantsListActivity extends AppCompatActivity implements
 
                     if (querySnapshot == null) return;
 
-                    int total = querySnapshot.size();
-                    if (total == 0) {
-                        clearListsAndNotify();
-                        return;
-                    }
-
-                    AtomicInteger processed = new AtomicInteger(0);
-                    ArrayList<EntrantEvent> fullList = new ArrayList<>();
+                    entrantWaitedListArrayList.clear();
+                    entrantInvitedArrayList.clear();
+                    entrantCancelledArrayList.clear();
+                    entrantSignedUpArrayList.clear();
+                    entrantNotSelectedArrayList.clear();
 
                     for (QueryDocumentSnapshot snapshot : querySnapshot) {
                         EntrantEvent entrant = snapshot.toObject(EntrantEvent.class);
-                        String uid = snapshot.getId();
-                        if (entrant.getUserId() == null) entrant.setUserId(uid);
+                        if (entrant.getUserId() == null) {
+                            entrant.setUserId(snapshot.getId());
+                        }
 
-                        // Fetch detailed user info from /users/{uid} to get latest email and name
-                        db.collection(FirestorePaths.USERS).document(uid).get()
-                                .addOnSuccessListener(userDoc -> {
-                                    if (userDoc.exists()) {
-                                        String name = userDoc.getString("name");
-                                        String email = userDoc.getString("email");
-                                        if (name != null) entrant.setUserName(name);
-                                        if (email != null) entrant.setEmail(email);
-                                    }
-                                    synchronized (fullList) {
-                                        fullList.add(entrant);
-                                    }
-                                    if (processed.incrementAndGet() == total) {
-                                        finalizeEntrantLists(fullList);
-                                    }
-                                })
-                                .addOnFailureListener(err -> {
-                                    synchronized (fullList) {
-                                        fullList.add(entrant);
-                                    }
-                                    if (processed.incrementAndGet() == total) {
-                                        finalizeEntrantLists(fullList);
-                                    }
-                                });
+                        String normalizedStatus = InvitationFlowUtil.normalizeEntrantStatus(entrant.getStatus());
+
+                        if (InvitationFlowUtil.STATUS_WAITLISTED.equals(normalizedStatus)) {
+                            entrantWaitedListArrayList.add(entrant);
+                        } else if (InvitationFlowUtil.STATUS_INVITED.equals(normalizedStatus)) {
+                            entrantInvitedArrayList.add(entrant);
+                        } else if (InvitationFlowUtil.STATUS_ACCEPTED.equals(normalizedStatus)) {
+                            entrantSignedUpArrayList.add(entrant);
+                        } else if (InvitationFlowUtil.STATUS_CANCELLED.equals(normalizedStatus)) {
+                            entrantCancelledArrayList.add(entrant);
+                        } else if (InvitationFlowUtil.STATUS_NOT_SELECTED.equals(normalizedStatus)) {
+                            entrantNotSelectedArrayList.add(entrant);
+                        }
                     }
+
+                    notifyAllAdapters();
                 });
-    }
-
-    private void clearListsAndNotify() {
-        entrantWaitedListArrayList.clear();
-        entrantInvitedArrayList.clear();
-        entrantCancelledArrayList.clear();
-        entrantSignedUpArrayList.clear();
-        entrantNotSelectedArrayList.clear();
-        notifyAllAdapters();
-    }
-
-    private void finalizeEntrantLists(List<EntrantEvent> fullList) {
-        entrantWaitedListArrayList.clear();
-        entrantInvitedArrayList.clear();
-        entrantCancelledArrayList.clear();
-        entrantSignedUpArrayList.clear();
-        entrantNotSelectedArrayList.clear();
-
-        for (EntrantEvent entrant : fullList) {
-            String normalizedStatus = InvitationFlowUtil.normalizeEntrantStatus(entrant.getStatus());
-
-            if (InvitationFlowUtil.STATUS_WAITLISTED.equals(normalizedStatus)) {
-                entrantWaitedListArrayList.add(entrant);
-            } else if (InvitationFlowUtil.STATUS_INVITED.equals(normalizedStatus)) {
-                entrantInvitedArrayList.add(entrant);
-            } else if (InvitationFlowUtil.STATUS_ACCEPTED.equals(normalizedStatus)) {
-                entrantSignedUpArrayList.add(entrant);
-            } else if (InvitationFlowUtil.STATUS_CANCELLED.equals(normalizedStatus)) {
-                entrantCancelledArrayList.add(entrant);
-            } else if (InvitationFlowUtil.STATUS_NOT_SELECTED.equals(normalizedStatus)) {
-                entrantNotSelectedArrayList.add(entrant);
-            }
-        }
-        notifyAllAdapters();
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -374,6 +331,22 @@ public class EntrantsListActivity extends AppCompatActivity implements
         signedUpAdapter.notifyDataSetChanged();
         cancelledAdapter.notifyDataSetChanged();
         notSelectedAdapter.notifyDataSetChanged();
+
+        updateEmptyState(entrantWaitedListArrayList, waitedListEventsView, waitedListEmptyText);
+        updateEmptyState(entrantInvitedArrayList, invitedEventsView, invitedEmptyText);
+        updateEmptyState(entrantSignedUpArrayList, signedUpEventsView, signedUpEmptyText);
+        updateEmptyState(entrantCancelledArrayList, cancelledEntrantsView, cancelledEmptyText);
+        updateEmptyState(entrantNotSelectedArrayList, notSelectedEntrantsView, notSelectedEmptyText);
+    }
+
+    private void updateEmptyState(ArrayList<?> list, RecyclerView recyclerView, TextView emptyText) {
+        if (list.isEmpty()) {
+            recyclerView.setVisibility(View.GONE);
+            emptyText.setVisibility(View.VISIBLE);
+        } else {
+            recyclerView.setVisibility(View.VISIBLE);
+            emptyText.setVisibility(View.GONE);
+        }
     }
 
     /**
@@ -716,6 +689,12 @@ public class EntrantsListActivity extends AppCompatActivity implements
         waitedListEntrantsListLayout = findViewById(R.id.waited_list_entrants_list_layout);
         invitedEntrantsListLayout = findViewById(R.id.invited_entrants_list_layout);
         notSelectedEntrantsListLayout = findViewById(R.id.not_selected_entrants_list_layout);
+
+        waitedListEmptyText = findViewById(R.id.waited_list_empty_text);
+        invitedEmptyText = findViewById(R.id.invited_empty_text);
+        signedUpEmptyText = findViewById(R.id.signed_up_empty_text);
+        cancelledEmptyText = findViewById(R.id.cancelled_empty_text);
+        notSelectedEmptyText = findViewById(R.id.not_selected_empty_text);
     }
 
     @SuppressLint("NotifyDataSetChanged")

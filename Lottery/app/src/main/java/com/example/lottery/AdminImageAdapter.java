@@ -42,18 +42,6 @@ public class AdminImageAdapter extends RecyclerView.Adapter<AdminImageAdapter.Im
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault());
 
     /**
-     * Interface definition for a callback to be invoked when an image item is clicked.
-     */
-    public interface OnImageClickListener {
-        /**
-         * Called when an image item has been clicked.
-         *
-         * @param event The Event object associated with the clicked poster.
-         */
-        void onImageClick(Event event);
-    }
-
-    /**
      * Constructs a new AdminImageAdapter.
      *
      * @param imageList The list of events with poster images to display.
@@ -79,6 +67,18 @@ public class AdminImageAdapter extends RecyclerView.Adapter<AdminImageAdapter.Im
     @Override
     public int getItemCount() {
         return imageList.size();
+    }
+
+    /**
+     * Interface definition for a callback to be invoked when an image item is clicked.
+     */
+    public interface OnImageClickListener {
+        /**
+         * Called when an image item has been clicked.
+         *
+         * @param event The Event object associated with the clicked poster.
+         */
+        void onImageClick(Event event);
     }
 
     /**
