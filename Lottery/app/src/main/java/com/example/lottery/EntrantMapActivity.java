@@ -2,6 +2,7 @@ package com.example.lottery;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -23,7 +24,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -31,7 +31,8 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 
 /**
- * Activity to display entrants' locations on a map for a specific event and status.
+ * Activity to display entrants' locations on a map for a specific event.
+ * Shows all entrants regardless of their individual status if requireLocation is true for the event.
  */
 public class EntrantMapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -40,7 +41,6 @@ public class EntrantMapActivity extends AppCompatActivity implements OnMapReadyC
     private GoogleMap googleMap;
     private MapView mapView;
     private String eventId;
-    private String status;
     private FirebaseFirestore db;
 
     @Override
@@ -56,7 +56,6 @@ public class EntrantMapActivity extends AppCompatActivity implements OnMapReadyC
 
         db = FirebaseFirestore.getInstance();
         eventId = getIntent().getStringExtra("eventId");
-        status = getIntent().getStringExtra("status");
 
         if (eventId == null) {
             Toast.makeText(this, "Event ID missing", Toast.LENGTH_SHORT).show();
@@ -73,21 +72,48 @@ public class EntrantMapActivity extends AppCompatActivity implements OnMapReadyC
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
 
-        fetchEntrants();
+        checkRequirementAndFetch();
     }
 
-    private void fetchEntrants() {
+    /**
+     * US 02.02.02 Implementation:
+     * Check if the event requires location. If so, fetch all entrants' locations.
+     */
+    private void checkRequirementAndFetch() {
+        db.collection(FirestorePaths.EVENTS).document(eventId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Boolean requireLocation = documentSnapshot.getBoolean("requireLocation");
+                        if (requireLocation != null && requireLocation) {
+                            fetchAllEntrantsLocations();
+                        } else {
+                            // If location is not required, the map should technically be empty or not shown.
+                            // Here we show a toast as per user request.
+                            Toast.makeText(this, R.string.location_not_required_for_event, Toast.LENGTH_LONG).show();
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> Log.e(TAG, "Error checking event requirement", e));
+    }
+
+    /**
+     * Fetches all entrants from the waitingList subcollection who have location data.
+     */
+    private void fetchAllEntrantsLocations() {
         db.collection(FirestorePaths.eventWaitingList(eventId))
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
                     entrants.clear();
                     for (QueryDocumentSnapshot snapshot : querySnapshot) {
                         EntrantEvent entrant = snapshot.toObject(EntrantEvent.class);
-                        String normalizedStatus = InvitationFlowUtil.normalizeEntrantStatus(entrant.getStatus());
-                        if (status == null || status.equals(normalizedStatus)) {
-                            if (entrant.getLocation() != null) {
-                                entrants.add(entrant);
-                            }
+                        if (entrant.getUserId() == null) {
+                            entrant.setUserId(snapshot.getId());
+                        }
+                        
+                        // We collect all entrants who have a location, regardless of their status
+                        // (waitlisted, invited, accepted, etc.)
+                        if (entrant.getLocation() != null) {
+                            entrants.add(entrant);
                         }
                     }
 
@@ -106,16 +132,20 @@ public class EntrantMapActivity extends AppCompatActivity implements OnMapReadyC
     public void onMapReady(@NonNull GoogleMap g) {
         googleMap = g;
         googleMap.getUiSettings().setZoomControlsEnabled(true);
-        googleMap.getUiSettings().setMyLocationButtonEnabled(true);
 
-        LatLng canadaCenter = new LatLng(56.1304, -106.3468);
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(canadaCenter, 3f));
+        // Default view: Canada/North America if no markers yet
+        LatLng defaultCenter = new LatLng(56.1304, -106.3468);
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultCenter, 3f));
 
         if (!entrants.isEmpty()) {
             insertMarkers(entrants);
         }
     }
 
+    /**
+     * Clears existing markers and adds new ones for the list of entrants.
+     * Adjusts camera to fit all markers.
+     */
     private void insertMarkers(ArrayList<EntrantEvent> list) {
         if (googleMap == null || list.isEmpty()) return;
         googleMap.clear();
@@ -127,7 +157,16 @@ public class EntrantMapActivity extends AppCompatActivity implements OnMapReadyC
             GeoPoint geoLocation = entrant.getLocation();
             if (geoLocation != null) {
                 final LatLng position = new LatLng(geoLocation.getLatitude(), geoLocation.getLongitude());
-                googleMap.addMarker(new MarkerOptions().position(position).title(entrant.getUserName()));
+                
+                String statusLabel = InvitationFlowUtil.normalizeEntrantStatus(entrant.getStatus());
+                String title = (entrant.getUserName() != null ? entrant.getUserName() : "Unknown Entrant");
+                String snippet = "Status: " + statusLabel;
+
+                googleMap.addMarker(new MarkerOptions()
+                        .position(position)
+                        .title(title)
+                        .snippet(snippet));
+                
                 builder.include(position);
                 hasLocations = true;
             }
@@ -136,7 +175,7 @@ public class EntrantMapActivity extends AppCompatActivity implements OnMapReadyC
         if (hasLocations) {
             try {
                 LatLngBounds bounds = builder.build();
-                int padding = 150;
+                int padding = 200; // Offset from edges
                 CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
                 googleMap.animateCamera(cu);
             } catch (IllegalStateException e) {
