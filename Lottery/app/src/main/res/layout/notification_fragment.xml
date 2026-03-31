@@ -4,25 +4,53 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="20dp">
+    android:paddingHorizontal="24dp"
+    android:paddingTop="20dp"
+    android:paddingBottom="12dp">
 
+    <!-- Header Section -->
+    <TextView
+        android:id="@+id/tvDialogMainTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Notify Group"
+        android:textColor="@color/primary_blue"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvDialogSubtitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="Event Title"
+        android:textColor="#111827"
+        android:textSize="14sp" />
+
+    <!-- Compact Message Input -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/textInputLayout"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Message content"
-        app:boxStrokeColor="@color/accent_blue"
-        app:hintTextColor="@color/accent_blue">
+        android:layout_marginTop="16dp"
+        android:hint="Write your message here"
+        app:boxCornerRadiusBottomEnd="12dp"
+        app:boxCornerRadiusBottomStart="12dp"
+        app:boxCornerRadiusTopEnd="12dp"
+        app:boxCornerRadiusTopStart="12dp"
+        app:boxStrokeColor="@color/primary_blue"
+        app:hintTextColor="@color/primary_blue">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etNotificationContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="top"
-            android:inputType="textMultiLine"
-            android:minLines="3"
-            android:textSize="16sp" />
+            android:inputType="textMultiLine|textCapSentences"
+            android:minLines="2"
+            android:paddingVertical="10dp"
+            android:textSize="15sp" />
 
     </com.google.android.material.textfield.TextInputLayout>
 

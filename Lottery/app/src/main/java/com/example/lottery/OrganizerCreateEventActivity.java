@@ -369,7 +369,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             ivQRCodePreview.setImageBitmap(qrBitmap);
             tvQRCodeLabel.setVisibility(View.VISIBLE);
             cvQRCode.setVisibility(View.VISIBLE);
-            Toast.makeText(this, "QR Code Generated!", Toast.LENGTH_SHORT).show();
         }
     }
 

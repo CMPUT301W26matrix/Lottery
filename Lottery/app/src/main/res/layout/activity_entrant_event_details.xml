@@ -25,7 +25,8 @@
             android:padding="8dp"
             android:src="@drawable/ic_back"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/primary_blue" />
 
         <TextView
             android:id="@+id/tvEventDetailsTitle"
@@ -36,7 +37,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:text="@string/event_details"
-            android:textColor="#333333"
+            android:textColor="@color/primary_blue"
             android:textSize="22sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="@id/btnBack"
@@ -237,11 +238,69 @@
 
             </LinearLayout>
 
+            <!-- Event Description Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cvEventDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                app:cardBackgroundColor="@color/card_background"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                app:strokeColor="@color/divider_gray"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Description"
+                        android:textColor="@color/primary_blue"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvEventDescription"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:ellipsize="end"
+                        android:lineSpacingExtra="4dp"
+                        android:maxLines="3"
+                        android:text="@string/no_event_description"
+                        android:textColor="@color/text_primary"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/btnShowMore"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="4dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:padding="4dp"
+                        android:text="Show more"
+                        android:textColor="@color/primary_blue"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
             <!-- Date Info Card -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
+                android:layout_marginBottom="24dp"
                 app:cardBackgroundColor="@color/card_background"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
@@ -357,36 +416,6 @@
                         android:layout_marginTop="4dp"
                         android:textColor="@color/text_primary"
                         android:textSize="16sp" />
-
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Event Details Card -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="24dp"
-                app:cardBackgroundColor="@color/card_background"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                app:strokeColor="@color/divider_gray"
-                app:strokeWidth="1dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:id="@+id/tvEventDescription"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:lineSpacingExtra="4dp"
-                        android:text="@string/no_event_description"
-                        android:textColor="@color/text_gray"
-                        android:textSize="14sp" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>

@@ -22,4 +22,9 @@
     <style name="RoundedImageStyle">
         <item name="cornerSize">12dp</item>
     </style>
+
+    <style name="ToolbarTitleAppearance" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/primary_blue</item>
+    </style>
 </resources>

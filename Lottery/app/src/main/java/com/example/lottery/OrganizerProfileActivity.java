@@ -3,6 +3,7 @@ package com.example.lottery;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,6 +15,7 @@ import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -22,6 +24,7 @@ import com.example.lottery.util.AdminRoleManager;
 import com.example.lottery.util.OrganizerNavigationHelper;
 import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.UserDeletionUtil;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -273,13 +276,26 @@ public class OrganizerProfileActivity extends AppCompatActivity {
     }
 
     private void showDeleteConfirmationDialog() {
-        new AlertDialog.Builder(this)
-                .setTitle("Delete Profile")
-                .setMessage("Warning: This action is permanent. All your profile data will be deleted and you will be logged out.")
-                .setPositiveButton("Delete Forever", (dialog, which) -> deleteUserProfile())
-                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .show();
+        AlertDialog dialog = new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.delete_profile)
+                .setMessage(R.string.delete_profile_message)
+                .setPositiveButton(R.string.delete_profile, (d, which) -> deleteUserProfile())
+                .setNegativeButton(R.string.cancel, (d, which) -> d.dismiss())
+                .create();
+
+        dialog.show();
+
+        // Make the Delete button visually distinct (red)
+        Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        if (positiveButton != null) {
+            positiveButton.setTextColor(ContextCompat.getColor(this, R.color.error_red));
+        }
+
+        // Soften title size slightly (Material default is usually 20sp)
+        TextView titleView = dialog.findViewById(androidx.appcompat.R.id.alertTitle);
+        if (titleView != null) {
+            titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+        }
     }
 
     private void deleteUserProfile() {

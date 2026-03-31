@@ -19,9 +19,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Event Title"
-            android:textColor="@color/text_primary"
+            android:textColor="@color/primary_blue"
             android:textSize="18sp"
             android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvTapToView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Tap to view QR code"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp" />
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

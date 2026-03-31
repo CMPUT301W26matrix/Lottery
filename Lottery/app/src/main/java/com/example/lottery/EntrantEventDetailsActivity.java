@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Layout;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -92,6 +93,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     private TextView tvNotificationBadge;
     private TextView tvEventDescription;
     private TextView tvCoOrganizerStatus;
+    private TextView btnShowMore;
 
     private Button btnWaitlistAction;
     private Button btnAcceptInvite;
@@ -104,6 +106,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     private ImageButton btnClose;
     private ImageButton btnComments;
     private ImageView ivEventPoster;
+    private View cvEventDescription;
 
     private FirebaseFirestore db;
     private FusedLocationProviderClient fusedLocationClient;
@@ -124,6 +127,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     private boolean userGeolocationEnabled = false;
     private Integer eventWaitingListLimit;
     private Timestamp eventRegistrationDeadline;
+    private boolean isDescriptionExpanded = false;
 
     private ListenerRegistration waitlistListener;
     private boolean isAcceptingInviteMode = false;
@@ -209,6 +213,8 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
 
         EntrantNavigationHelper.setup(this, EntrantNavigationHelper.EntrantTab.HOME, userId, true);
         btnClose.setOnClickListener(v -> finish());
+        
+        btnShowMore.setOnClickListener(v -> toggleDescription());
     }
 
     /**
@@ -226,6 +232,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         tvRegistrationDeadline = findViewById(R.id.tvRegistrationDeadline);
         tvDrawDate = findViewById(R.id.tvDrawDate);
         tvCoOrganizerStatus = findViewById(R.id.tvCoOrganizerStatus);
+        btnShowMore = findViewById(R.id.btnShowMore);
 
         btnWaitlistAction = findViewById(R.id.btnWaitlistAction);
         btnAcceptInvite = findViewById(R.id.btnAcceptInvite);
@@ -238,6 +245,22 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         btnClose = findViewById(R.id.btnBack);
         btnComments = findViewById(R.id.btnComments);
         ivEventPoster = findViewById(R.id.ivEventPoster);
+        cvEventDescription = findViewById(R.id.cvEventDescription);
+    }
+
+    /**
+     * Toggles the description text view between collapsed and expanded states.
+     */
+    private void toggleDescription() {
+        if (isDescriptionExpanded) {
+            tvEventDescription.setMaxLines(3);
+            btnShowMore.setText("Show more");
+            isDescriptionExpanded = false;
+        } else {
+            tvEventDescription.setMaxLines(Integer.MAX_VALUE);
+            btnShowMore.setText("Show less");
+            isDescriptionExpanded = true;
+        }
     }
 
     /**
@@ -306,7 +329,32 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                     String title = documentSnapshot.getString("title");
                     String details = documentSnapshot.getString("details");
                     tvEventTitle.setText(title != null ? title : "");
-                    tvEventDescription.setText(details != null ? details : "");
+                    
+                    if (details == null || details.trim().isEmpty()) {
+                        cvEventDescription.setVisibility(View.GONE);
+                    } else {
+                        cvEventDescription.setVisibility(View.VISIBLE);
+                        tvEventDescription.setText(details);
+                        // Determine if "Show more" is needed
+                        tvEventDescription.post(() -> {
+                            Layout layout = tvEventDescription.getLayout();
+                            if (layout != null) {
+                                int lines = layout.getLineCount();
+                                if (lines > 0) {
+                                    if (layout.getEllipsisCount(lines - 1) > 0 || lines > 3) {
+                                        btnShowMore.setVisibility(View.VISIBLE);
+                                    } else {
+                                        btnShowMore.setVisibility(View.GONE);
+                                    }
+                                }
+                            } else {
+                                // Fallback if layout is not yet ready
+                                if (tvEventDescription.getLineCount() > 3) {
+                                    btnShowMore.setVisibility(View.VISIBLE);
+                                }
+                            }
+                        });
+                    }
 
                     Timestamp start = documentSnapshot.getTimestamp("scheduledDateTime");
                     if (start != null)
@@ -579,7 +627,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         } else {
             updates = InvitationFlowUtil.buildEntrantStatusUpdateFromResponse(
                     InvitationFlowUtil.RESPONSE_ACCEPTED
-            );
+                );
         }
 
         if (location != null) {

@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -28,11 +29,9 @@ import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.InvitationFlowUtil;
 import com.example.lottery.util.SessionUtil;
 import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
@@ -42,10 +41,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -63,13 +60,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  * </p>
  */
 public class EntrantsListActivity extends AppCompatActivity implements
-        NotificationFragment.NotificationListener,
         SampleFragment.SamplingListener {
 
     private static final String TAG = "EntrantsListActivity";
-    private final Set<String> selectedEntrantIds = new HashSet<>();
     private Button btnSwitchSignedUp, btnSwitchCancelled, btnSwitchWaitedList,
-            btnSendNotification, btnNotifySelected, btnViewLocation, btnSampleWinners, btnSwitchInvited, btnSwitchNotSelected, btnExportCsv;
+            btnViewLocation, btnSampleWinners, btnSwitchInvited, btnSwitchNotSelected, btnExportCsv;
+    private ImageButton btnBack;
     private FirebaseFirestore db;
     private ArrayList<EntrantEvent> entrantSignedUpArrayList;
     private ArrayList<EntrantEvent> entrantInvitedArrayList;
@@ -87,12 +83,10 @@ public class EntrantsListActivity extends AppCompatActivity implements
     private String eventId;
     private String userId;
     private String eventTitle = "Event";
-    private String organizerId;
     private long capacity, maxSampleSize;
     private boolean requireLocation = false;
     private ListenerRegistration entrantsReg;
     private String activeGroupStatus = InvitationFlowUtil.STATUS_WAITLISTED;
-    private boolean isNotifySelectedMode = false;
 
     private ActivityResultLauncher<String> createCsvLauncher;
 
@@ -174,22 +168,6 @@ public class EntrantsListActivity extends AppCompatActivity implements
             showLayout(notSelectedEntrantsListLayout);
         });
 
-        btnSendNotification.setOnClickListener(view -> {
-            isNotifySelectedMode = false;
-            NotificationFragment notificationFragment = new NotificationFragment();
-            notificationFragment.show(getSupportFragmentManager(), "Send Notification");
-        });
-
-        btnNotifySelected.setOnClickListener(view -> {
-            if (selectedEntrantIds.isEmpty()) {
-                Toast.makeText(this, "No entrants selected", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            isNotifySelectedMode = true;
-            NotificationFragment notificationFragment = new NotificationFragment();
-            notificationFragment.show(getSupportFragmentManager(), "Send Notification to Selected");
-        });
-
         btnSampleWinners.setOnClickListener(view -> {
             SampleFragment sampleFragment = new SampleFragment();
             sampleFragment.show(getSupportFragmentManager(), "Sample Winners");
@@ -213,6 +191,8 @@ public class EntrantsListActivity extends AppCompatActivity implements
             createCsvLauncher.launch("enrolled_entrants_" + eventId + ".csv");
         });
 
+        btnBack.setOnClickListener(v -> finish());
+
         listenToEntrants();
 
         db.collection(FirestorePaths.EVENTS).document(eventId).get().addOnSuccessListener(documentSnapshot -> {
@@ -228,8 +208,6 @@ public class EntrantsListActivity extends AppCompatActivity implements
 
                 Boolean reqLoc = documentSnapshot.getBoolean("requireLocation");
                 requireLocation = reqLoc != null && reqLoc;
-
-                organizerId = documentSnapshot.getString("organizerId");
             }
         });
     }
@@ -266,18 +244,6 @@ public class EntrantsListActivity extends AppCompatActivity implements
 
     public boolean isRequireLocation() {
         return requireLocation;
-    }
-
-    public void toggleSelection(String userId) {
-        if (selectedEntrantIds.contains(userId)) {
-            selectedEntrantIds.remove(userId);
-        } else {
-            selectedEntrantIds.add(userId);
-        }
-    }
-
-    public boolean isSelected(String userId) {
-        return selectedEntrantIds.contains(userId);
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -535,153 +501,6 @@ public class EntrantsListActivity extends AppCompatActivity implements
         }
     }
 
-    /**
-     * Sends a notification specifically to entrants on the waiting list (US 02.07.01)
-     * or to selected entrants (US 02.07.02).
-     *
-     * @param content a sequence of words that will be sent to entrants
-     */
-    @Override
-    public void sendNotification(String content) {
-        // Authorization check: Only the organizer can send notifications
-        if (userId == null || (organizerId != null && !userId.equals(organizerId))) {
-            Toast.makeText(this, "Error: Only the organizer can send notifications", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        String notificationId = UUID.randomUUID().toString();
-        Timestamp now = Timestamp.now();
-
-        // 1. Create global notification log
-        Map<String, Object> globalNotif = new HashMap<>();
-        globalNotif.put("notificationId", notificationId);
-        globalNotif.put("title", "Update for " + eventTitle);
-        globalNotif.put("message", content);
-        globalNotif.put("type", "general");
-        globalNotif.put("eventId", eventId);
-        globalNotif.put("eventTitle", eventTitle);
-        globalNotif.put("senderId", userId);
-        globalNotif.put("senderRole", "organizer");
-        globalNotif.put("createdAt", now);
-        globalNotif.put("group", isNotifySelectedMode ? "selected" : "waitlisted");
-        globalNotif.put("recipientCount", 0);
-
-        db.collection(FirestorePaths.NOTIFICATIONS).document(notificationId)
-                .set(globalNotif)
-                .addOnSuccessListener(aVoid -> fetchRecipientsAndSend(notificationId, content, globalNotif))
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Failed to create notification", e);
-                    Toast.makeText(this, "Failed to send notification", Toast.LENGTH_SHORT).show();
-                });
-    }
-
-    private void fetchRecipientsAndSend(String notificationId, String content, Map<String, Object> globalNotif) {
-        if (isNotifySelectedMode) {
-            sendToSelectedIds(notificationId, content, globalNotif);
-        } else {
-            sendToWholeWaitlist(notificationId, content, globalNotif);
-        }
-    }
-
-    private void sendToWholeWaitlist(String notificationId, String content, Map<String, Object> globalNotif) {
-        // Strict targeting: always send to WAITLISTED entrants only for US 02.07.01
-        Query query = db.collection(FirestorePaths.eventWaitingList(eventId))
-                .whereEqualTo("status", InvitationFlowUtil.STATUS_WAITLISTED);
-
-        query.get().addOnSuccessListener(querySnapshot -> {
-            processRecipients(querySnapshot.getDocuments(), notificationId, content, globalNotif, "waiting list entrants");
-        });
-    }
-
-    private void sendToSelectedIds(String notificationId, String content, Map<String, Object> globalNotif) {
-        // For US 02.07.02, we only process the IDs currently in our selection set
-        List<String> idsToNotify = new ArrayList<>(selectedEntrantIds);
-        if (idsToNotify.isEmpty()) return;
-
-        db.collection(FirestorePaths.eventWaitingList(eventId)).get().addOnSuccessListener(querySnapshot -> {
-            List<DocumentSnapshot> filteredDocs = new ArrayList<>();
-            for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
-                if (idsToNotify.contains(doc.getId())) {
-                    filteredDocs.add(doc);
-                }
-            }
-            processRecipients(filteredDocs, notificationId, content, globalNotif, "selected entrants");
-        });
-    }
-
-    private void processRecipients(List<DocumentSnapshot> recipientDocs, String notificationId, String content, Map<String, Object> globalNotif, String label) {
-        WriteBatch batch = db.batch();
-        int totalRecipients = recipientDocs.size();
-        AtomicInteger processedCount = new AtomicInteger(0);
-        AtomicInteger sentCount = new AtomicInteger(0);
-
-        if (totalRecipients == 0) {
-            Toast.makeText(this, "No entrants found to notify", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        for (DocumentSnapshot doc : recipientDocs) {
-            String recipientUid = doc.getId();
-
-            db.collection(FirestorePaths.USERS).document(recipientUid).get().addOnCompleteListener(task -> {
-                if (task.isSuccessful() && task.getResult() != null) {
-                    DocumentSnapshot userDoc = task.getResult();
-                    Boolean notifPref = userDoc.getBoolean("notificationsEnabled");
-                    boolean enabled = notifPref == null || notifPref;
-
-                    if (enabled) {
-                        DocumentReference recipientRef = db.collection(FirestorePaths.notificationRecipients(notificationId))
-                                .document(recipientUid);
-                        Map<String, Object> recData = new HashMap<>();
-                        recData.put("userId", recipientUid);
-                        recData.put("isRead", false);
-                        recData.put("createdAt", Timestamp.now());
-                        batch.set(recipientRef, recData);
-
-                        DocumentReference inboxRef = db.collection(FirestorePaths.userInbox(recipientUid))
-                                .document(notificationId);
-
-                        NotificationItem inboxItem = new NotificationItem(
-                                notificationId,
-                                (String) globalNotif.get("title"),
-                                content,
-                                (String) globalNotif.get("type"),
-                                eventId,
-                                eventTitle,
-                                (String) globalNotif.get("senderId"),
-                                "organizer",
-                                false,
-                                (Timestamp) globalNotif.get("createdAt")
-                        );
-                        batch.set(inboxRef, inboxItem);
-                        sentCount.incrementAndGet();
-                    }
-                }
-
-                if (processedCount.incrementAndGet() == totalRecipients) {
-                    if (sentCount.get() > 0) {
-                        batch.update(db.collection(FirestorePaths.NOTIFICATIONS).document(notificationId), "recipientCount", sentCount.get());
-                        batch.commit()
-                                .addOnSuccessListener(unused ->
-                                        Toast.makeText(this,
-                                                "Notification sent to " + sentCount.get() + " " + label,
-                                                Toast.LENGTH_SHORT).show())
-                                .addOnFailureListener(e -> {
-                                    Log.e(TAG, "Failed to send notifications", e);
-                                    Toast.makeText(this,
-                                            "Failed to send notifications",
-                                            Toast.LENGTH_SHORT).show();
-                                });
-                    } else {
-                        Toast.makeText(this,
-                                "All target entrants have notifications disabled",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-        }
-    }
-
     private void initializeViews() {
         btnSwitchWaitedList = findViewById(R.id.entrants_list_waited_list_btn);
         btnSwitchCancelled = findViewById(R.id.entrants_list_cancelled_btn);
@@ -690,14 +509,8 @@ public class EntrantsListActivity extends AppCompatActivity implements
         btnSampleWinners = findViewById(R.id.entrants_list_sample_btn);
         btnSwitchInvited = findViewById(R.id.entrants_list_invited_btn);
         btnSwitchNotSelected = findViewById(R.id.entrants_list_not_selected_btn);
-        btnSendNotification = findViewById(R.id.entrants_list_send_notification_btn);
-        btnNotifySelected = findViewById(R.id.entrants_list_notify_selected_btn);
         btnExportCsv = findViewById(R.id.entrants_list_export_csv_btn);
-
-        // Update button text for clarity
-        if (btnSendNotification != null) {
-            btnSendNotification.setText("Notify All");
-        }
+        btnBack = findViewById(R.id.btnBack);
 
         signedUpEventsView = findViewById(R.id.signed_up_events_view);
         invitedEventsView = findViewById(R.id.invited_events_view);
@@ -726,19 +539,9 @@ public class EntrantsListActivity extends AppCompatActivity implements
         invitedEntrantsListLayout.setVisibility(invitedEntrantsListLayout == target ? View.VISIBLE : View.GONE);
         notSelectedEntrantsListLayout.setVisibility(notSelectedEntrantsListLayout == target ? View.VISIBLE : View.GONE);
 
-        // US 02.07.01 & US 02.07.02: Notification buttons are only for the Waiting List
-        boolean isWaitingList = target == waitedListEntrantsListLayout;
-        if (btnSendNotification != null) {
-            btnSendNotification.setVisibility(isWaitingList ? View.VISIBLE : View.GONE);
-        }
-        if (btnNotifySelected != null) {
-            btnNotifySelected.setVisibility(isWaitingList ? View.VISIBLE : View.GONE);
-        }
-
-        // Clear selection when switching tabs
-        selectedEntrantIds.clear();
-        if (isWaitingList && waitedListAdapter != null) {
-            waitedListAdapter.notifyDataSetChanged();
+        // Export CSV only available for Accepted (Signed Up) entrants
+        if (btnExportCsv != null) {
+            btnExportCsv.setVisibility(target == signedUpEntrantsListLayout ? View.VISIBLE : View.GONE);
         }
     }
 
