@@ -25,25 +25,18 @@ import com.example.lottery.R;
  */
 public final class EntrantNavigationHelper {
 
-    /** The four tabs in the entrant bottom-navigation bar. */
-    public enum EntrantTab {
-        HOME, HISTORY, QR_SCAN, PROFILE
-    }
-
     private static final int[] TAB_VIEW_IDS = {
             R.id.nav_home,
             R.id.nav_history,
             R.id.nav_qr_scan,
             R.id.nav_profile
     };
-
     private static final int[][] TAB_ICON_TEXT_IDS = {
             {R.id.iv_nav_home, R.id.tv_nav_home},
             {R.id.iv_nav_history, R.id.tv_nav_history},
             {R.id.iv_nav_qr_scan, R.id.tv_nav_qr_scan},
             {R.id.iv_nav_profile, R.id.tv_nav_profile}
     };
-
     private static final Class<?>[] TAB_TARGETS = {
             EntrantMainActivity.class,
             EntrantEventHistoryActivity.class,
@@ -51,7 +44,8 @@ public final class EntrantNavigationHelper {
             EntrantProfileActivity.class
     };
 
-    private EntrantNavigationHelper() { }
+    private EntrantNavigationHelper() {
+    }
 
     /**
      * Highlights the active tab and wires every tab's click listener.
@@ -67,11 +61,11 @@ public final class EntrantNavigationHelper {
     /**
      * Highlights the active tab and wires every tab's click listener.
      *
-     * @param activity          the hosting Activity
-     * @param currentTab        which tab this screen represents
-     * @param userId            the entrant's userId
-     * @param finishOnNavigate  if {@code true}, calls {@code finish()} after
-     *                          starting the target Activity (use for detail screens)
+     * @param activity         the hosting Activity
+     * @param currentTab       which tab this screen represents
+     * @param userId           the entrant's userId
+     * @param finishOnNavigate if {@code true}, calls {@code finish()} after
+     *                         starting the target Activity (use for detail screens)
      */
     public static void setup(Activity activity, EntrantTab currentTab,
                              String userId, boolean finishOnNavigate) {
@@ -145,5 +139,12 @@ public final class EntrantNavigationHelper {
                 });
             }
         }
+    }
+
+    /**
+     * The four tabs in the entrant bottom-navigation bar.
+     */
+    public enum EntrantTab {
+        HOME, HISTORY, QR_SCAN, PROFILE
     }
 }

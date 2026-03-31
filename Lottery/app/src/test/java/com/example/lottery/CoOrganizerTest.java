@@ -406,6 +406,121 @@ public class CoOrganizerTest {
     }
 
     // ---------------------------------------------------------------
+    // US 02.09.01 – Co-organizer search only considers entrants
+    //               from the event's waiting list, not all users
+    // ---------------------------------------------------------------
+
+    /**
+     * US 02.09.01
+     * Verifies that filterEntrants matches by username (case-insensitive).
+     */
+    @Test
+    public void testFilterEntrantsMatchesByUsername() {
+        List<User> candidates = new ArrayList<>();
+        candidates.add(new User("u1", "Alice", "alice@test.com", null));
+        candidates.add(new User("u2", "Bob", "bob@test.com", null));
+        candidates.add(new User("u3", "Alicia", "alicia@test.com", null));
+
+        List<User> result = OrganizerInviteCoOrganizerDialogFragment.filterEntrants(candidates, "ali");
+        assertEquals(2, result.size());
+        assertEquals("u1", result.get(0).getUserId());
+        assertEquals("u3", result.get(1).getUserId());
+    }
+
+    /**
+     * US 02.09.01
+     * Verifies that filterEntrants matches by email (case-insensitive).
+     */
+    @Test
+    public void testFilterEntrantsMatchesByEmail() {
+        List<User> candidates = new ArrayList<>();
+        candidates.add(new User("u1", "Alice", "alice@test.com", null));
+        candidates.add(new User("u2", "Bob", "bob@other.com", null));
+
+        List<User> result = OrganizerInviteCoOrganizerDialogFragment.filterEntrants(candidates, "test.com");
+        assertEquals(1, result.size());
+        assertEquals("u1", result.get(0).getUserId());
+    }
+
+    /**
+     * US 02.09.01
+     * Verifies that filterEntrants is case-insensitive for both name and email.
+     */
+    @Test
+    public void testFilterEntrantsCaseInsensitive() {
+        List<User> candidates = new ArrayList<>();
+        candidates.add(new User("u1", "Alice", "ALICE@TEST.COM", null));
+
+        List<User> result = OrganizerInviteCoOrganizerDialogFragment.filterEntrants(candidates, "alice");
+        assertEquals(1, result.size());
+    }
+
+    /**
+     * US 02.09.01
+     * Verifies that filterEntrants returns empty when no entrants match.
+     */
+    @Test
+    public void testFilterEntrantsNoMatch() {
+        List<User> candidates = new ArrayList<>();
+        candidates.add(new User("u1", "Alice", "alice@test.com", null));
+
+        List<User> result = OrganizerInviteCoOrganizerDialogFragment.filterEntrants(candidates, "zzz");
+        assertTrue(result.isEmpty());
+    }
+
+    /**
+     * US 02.09.01
+     * Verifies that filterEntrants returns empty for an empty candidate list,
+     * meaning users not in the waitingList cannot appear in search results.
+     */
+    @Test
+    public void testFilterEntrantsEmptyCandidates() {
+        List<User> candidates = new ArrayList<>();
+
+        List<User> result = OrganizerInviteCoOrganizerDialogFragment.filterEntrants(candidates, "alice");
+        assertTrue(result.isEmpty());
+    }
+
+    /**
+     * US 02.09.01
+     * Verifies that filterEntrants only returns users present in the candidate list.
+     * A user not in the candidates will not appear in results.
+     */
+    @Test
+    public void testFilterEntrantsOnlyReturnsCandidates() {
+        List<User> candidates = new ArrayList<>();
+        candidates.add(new User("u2", "Bob", "bob@test.com", null));
+
+        List<User> result = OrganizerInviteCoOrganizerDialogFragment.filterEntrants(candidates, "bob");
+        assertEquals(1, result.size());
+        assertEquals("u2", result.get(0).getUserId());
+
+        // "alice" is not in candidates
+        List<User> result2 = OrganizerInviteCoOrganizerDialogFragment.filterEntrants(candidates, "alice");
+        assertTrue(result2.isEmpty());
+    }
+
+    /**
+     * US 02.09.01
+     * Verifies that only users with ENTRANT role are eligible as co-organizers.
+     * Organizers and admins should be excluded from search results.
+     */
+    @Test
+    public void testOnlyEntrantRoleIsEligible() {
+        User entrant = new User("u1", "Alice", "alice@test.com", null);
+        entrant.setRole("ENTRANT");
+        assertTrue(entrant.isEntrant());
+
+        User organizer = new User("u2", "Bob", "bob@test.com", null);
+        organizer.setRole("ORGANIZER");
+        assertFalse(organizer.isEntrant());
+
+        User admin = new User("u3", "Carol", "carol@test.com", null);
+        admin.setRole("ADMIN");
+        assertFalse(admin.isEntrant());
+    }
+
+    // ---------------------------------------------------------------
     // US 02.09.01 – Co-organizer status prevents entrant from joining
     //               the waiting list for that event
     // ---------------------------------------------------------------

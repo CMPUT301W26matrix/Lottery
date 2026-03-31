@@ -254,19 +254,6 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * Requests location permissions and continues the current action if permission is granted.
-     */
-    private final ActivityResultLauncher<String[]> locationPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
-                if (result.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false)
-                        || result.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)) {
-                    startLocationCollection();
-                } else {
-                    Toast.makeText(this, "Location is required to proceed", Toast.LENGTH_LONG).show();
-                }
-            });
-
-    /**
      * Refreshes data when the activity returns to the foreground.
      */
     @Override
@@ -279,7 +266,18 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
             loadWaitlistCount();
             checkUnreadNotifications();
         }
-    }
+    }    /**
+     * Requests location permissions and continues the current action if permission is granted.
+     */
+    private final ActivityResultLauncher<String[]> locationPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
+                if (result.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false)
+                        || result.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)) {
+                    startLocationCollection();
+                } else {
+                    Toast.makeText(this, "Location is required to proceed", Toast.LENGTH_LONG).show();
+                }
+            });
 
     /**
      * Removes active listeners when the activity stops.
@@ -717,4 +715,6 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                     Toast.makeText(this, R.string.left_waitlist, Toast.LENGTH_SHORT).show();
                 });
     }
+
+
 }

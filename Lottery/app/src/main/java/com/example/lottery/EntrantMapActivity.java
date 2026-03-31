@@ -2,7 +2,6 @@ package com.example.lottery;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -109,7 +108,7 @@ public class EntrantMapActivity extends AppCompatActivity implements OnMapReadyC
                         if (entrant.getUserId() == null) {
                             entrant.setUserId(snapshot.getId());
                         }
-                        
+
                         // We collect all entrants who have a location, regardless of their status
                         // (waitlisted, invited, accepted, etc.)
                         if (entrant.getLocation() != null) {
@@ -157,7 +156,7 @@ public class EntrantMapActivity extends AppCompatActivity implements OnMapReadyC
             GeoPoint geoLocation = entrant.getLocation();
             if (geoLocation != null) {
                 final LatLng position = new LatLng(geoLocation.getLatitude(), geoLocation.getLongitude());
-                
+
                 String statusLabel = InvitationFlowUtil.normalizeEntrantStatus(entrant.getStatus());
                 String title = (entrant.getUserName() != null ? entrant.getUserName() : "Unknown Entrant");
                 String snippet = "Status: " + statusLabel;
@@ -166,7 +165,7 @@ public class EntrantMapActivity extends AppCompatActivity implements OnMapReadyC
                         .position(position)
                         .title(title)
                         .snippet(snippet));
-                
+
                 builder.include(position);
                 hasLocations = true;
             }

@@ -223,7 +223,8 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
                     .get()
                     .addOnSuccessListener(snap -> {
                         if (snap.isEmpty()) {
-                            if (doneCount.incrementAndGet() == userIds.size()) onComplete.accept(!hasFailure.get());
+                            if (doneCount.incrementAndGet() == userIds.size())
+                                onComplete.accept(!hasFailure.get());
                             return;
                         }
                         AtomicInteger docCount = new AtomicInteger(0);
@@ -231,7 +232,8 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
                             doc.getReference().delete().addOnCompleteListener(t -> {
                                 if (!t.isSuccessful()) hasFailure.set(true);
                                 if (docCount.incrementAndGet() == snap.size()) {
-                                    if (doneCount.incrementAndGet() == userIds.size()) onComplete.accept(!hasFailure.get());
+                                    if (doneCount.incrementAndGet() == userIds.size())
+                                        onComplete.accept(!hasFailure.get());
                                 }
                             });
                         }
@@ -261,15 +263,18 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
                                     if (recSnap.isEmpty()) {
                                         doc.getReference().delete().addOnCompleteListener(t -> {
                                             if (!t.isSuccessful()) hasFailure.set(true);
-                                            if (doneCount.incrementAndGet() == snap.size()) onComplete.accept(!hasFailure.get());
+                                            if (doneCount.incrementAndGet() == snap.size())
+                                                onComplete.accept(!hasFailure.get());
                                         });
                                     } else {
                                         for (QueryDocumentSnapshot recDoc : recSnap) {
                                             recDoc.getReference().delete().addOnCompleteListener(t -> {
                                                 if (recDone.incrementAndGet() == recSnap.size()) {
                                                     doc.getReference().delete().addOnCompleteListener(t2 -> {
-                                                        if (!t2.isSuccessful()) hasFailure.set(true);
-                                                        if (doneCount.incrementAndGet() == snap.size()) onComplete.accept(!hasFailure.get());
+                                                        if (!t2.isSuccessful())
+                                                            hasFailure.set(true);
+                                                        if (doneCount.incrementAndGet() == snap.size())
+                                                            onComplete.accept(!hasFailure.get());
                                                     });
                                                 }
                                             });
@@ -292,7 +297,8 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
         for (String path : paths) {
             db.collection(path).get().addOnSuccessListener(queryDocumentSnapshots -> {
                 if (queryDocumentSnapshots.isEmpty()) {
-                    if (completed.incrementAndGet() == paths.length) onComplete.accept(!hasFailure.get());
+                    if (completed.incrementAndGet() == paths.length)
+                        onComplete.accept(!hasFailure.get());
                     return;
                 }
                 AtomicInteger docsDeleted = new AtomicInteger(0);
@@ -300,7 +306,8 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
                     doc.getReference().delete().addOnCompleteListener(task -> {
                         if (!task.isSuccessful()) hasFailure.set(true);
                         if (docsDeleted.incrementAndGet() == queryDocumentSnapshots.size()) {
-                            if (completed.incrementAndGet() == paths.length) onComplete.accept(!hasFailure.get());
+                            if (completed.incrementAndGet() == paths.length)
+                                onComplete.accept(!hasFailure.get());
                         }
                     });
                 }
