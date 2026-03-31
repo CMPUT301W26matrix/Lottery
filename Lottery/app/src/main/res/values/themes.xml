@@ -23,6 +23,12 @@
         <item name="cornerSize">12dp</item>
     </style>
 
+    <style name="App.Chip.Filter" parent="Widget.Material3.Chip.Filter">
+        <item name="chipBackgroundColor">@color/chip_background_color</item>
+        <item name="android:textColor">@color/chip_text_color</item>
+        <item name="checkedIconVisible">false</item>
+    </style>
+
     <style name="ToolbarTitleAppearance" parent="TextAppearance.Material3.TitleLarge">
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/primary_blue</item>

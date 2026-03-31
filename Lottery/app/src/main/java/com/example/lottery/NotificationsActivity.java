@@ -68,7 +68,7 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
         setupHeader();
         
         btnBack.setOnClickListener(v -> finish());
-        EntrantNavigationHelper.setup(this, EntrantNavigationHelper.EntrantTab.HISTORY, userId, true);
+        EntrantNavigationHelper.setup(this, EntrantNavigationHelper.EntrantTab.NONE, userId, true);
         loadNotifications();
     }
 

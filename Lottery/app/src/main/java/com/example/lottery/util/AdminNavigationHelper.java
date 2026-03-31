@@ -25,11 +25,6 @@ import com.example.lottery.R;
  */
 public final class AdminNavigationHelper {
 
-    /** The five tabs in the admin bottom-navigation bar. */
-    public enum AdminTab {
-        EVENTS, PROFILES, IMAGES, LOGS, SETTINGS
-    }
-
     private static final int[] TAB_VIEW_IDS = {
             R.id.nav_home,
             R.id.nav_profiles,
@@ -37,7 +32,6 @@ public final class AdminNavigationHelper {
             R.id.nav_logs,
             R.id.nav_admin_settings
     };
-
     private static final int[][] TAB_ICON_TEXT_IDS = {
             {R.id.nav_home_icon, R.id.nav_home_text},
             {R.id.nav_profiles_icon, R.id.nav_profiles_text},
@@ -45,7 +39,6 @@ public final class AdminNavigationHelper {
             {R.id.nav_logs_icon, R.id.nav_logs_text},
             {R.id.nav_settings_icon, R.id.nav_settings_text}
     };
-
     private static final Class<?>[] TAB_TARGETS = {
             AdminBrowseEventsActivity.class,
             AdminBrowseProfilesActivity.class,
@@ -54,7 +47,8 @@ public final class AdminNavigationHelper {
             AdminProfileActivity.class
     };
 
-    private AdminNavigationHelper() { }
+    private AdminNavigationHelper() {
+    }
 
     /**
      * Re-wires a single tab so it navigates to the target Activity
@@ -80,9 +74,9 @@ public final class AdminNavigationHelper {
     /**
      * Highlights the active tab and wires every tab's click listener.
      *
-     * @param activity       the hosting Activity
-     * @param currentTab     which tab this screen represents
-     * @param userId         the admin's userId (may be {@code null})
+     * @param activity   the hosting Activity
+     * @param currentTab which tab this screen represents
+     * @param userId     the admin's userId (may be {@code null})
      */
     public static void setup(Activity activity, AdminTab currentTab, String userId) {
         setup(activity, currentTab, userId, false);
@@ -91,11 +85,11 @@ public final class AdminNavigationHelper {
     /**
      * Highlights the active tab and wires every tab's click listener.
      *
-     * @param activity          the hosting Activity
-     * @param currentTab        which tab this screen represents
-     * @param userId            the admin's userId (may be {@code null})
-     * @param finishOnNavigate  if {@code true}, calls {@code finish()} after
-     *                          starting the target Activity (use for detail screens)
+     * @param activity         the hosting Activity
+     * @param currentTab       which tab this screen represents
+     * @param userId           the admin's userId (may be {@code null})
+     * @param finishOnNavigate if {@code true}, calls {@code finish()} after
+     *                         starting the target Activity (use for detail screens)
      */
     public static void setup(Activity activity, AdminTab currentTab,
                              String userId, boolean finishOnNavigate) {
@@ -142,5 +136,12 @@ public final class AdminNavigationHelper {
                 });
             }
         }
+    }
+
+    /**
+     * The five tabs in the admin bottom-navigation bar.
+     */
+    public enum AdminTab {
+        EVENTS, PROFILES, IMAGES, LOGS, SETTINGS
     }
 }

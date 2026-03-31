@@ -74,6 +74,14 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
     private TextView tvNoResults;
     private Runnable pendingSearch;
 
+    /**
+     * Creates a new instance of this dialog.
+     *
+     * @param eventId    the event to assign a co-organizer to
+     * @param eventTitle the event title (used in the notification message)
+     * @param senderId   the current organizer's user ID
+     * @return a configured dialog fragment
+     */
     public static OrganizerInviteCoOrganizerDialogFragment newInstance(String eventId, String eventTitle, String senderId) {
         OrganizerInviteCoOrganizerDialogFragment fragment = new OrganizerInviteCoOrganizerDialogFragment();
         Bundle args = new Bundle();
@@ -82,6 +90,24 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
         args.putString(ARG_SENDER_ID, senderId);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    /**
+     * Filters a list of candidates by name or email matching the query (case-insensitive).
+     * Package-private for testing.
+     */
+    static List<User> filterEntrants(List<User> candidates, String query) {
+        List<User> result = new ArrayList<>();
+        String lowerQuery = query.toLowerCase();
+        for (User user : candidates) {
+            boolean match = user.getUsername() != null && user.getUsername().toLowerCase().contains(lowerQuery);
+            if (!match && user.getEmail() != null && user.getEmail().toLowerCase().contains(lowerQuery))
+                match = true;
+            if (match) {
+                result.add(user);
+            }
+        }
+        return result;
     }
 
     @Override
@@ -148,7 +174,7 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
                         ids.add(doc.getId());
                         currentCoOrganizerIds.add(doc.getId());
                     }
-                    
+
                     if (ids.isEmpty()) {
                         currentAdapter.notifyDataSetChanged();
                         return;
@@ -171,6 +197,10 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
                 });
     }
 
+    /**
+     * Searches all users with ENTRANT role by name or email (US 02.09.01).
+     * Only entrant-role users are eligible to be assigned as co-organizers.
+     */
     private void searchUsers(String query) {
         if (!isAdded()) return;
         if (query.length() < 2) {
@@ -193,11 +223,18 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
                         User user = doc.toObject(User.class);
                         user.setUserId(doc.getId());
 
+                        // Don't show the current organizer in search
                         if (user.getUserId().equals(senderId)) continue;
                         if (currentCoOrganizerIds.contains(user.getUserId())) continue;
 
                         boolean match = (user.getUsername() != null && user.getUsername().toLowerCase().contains(lowerQuery))
                                 || (user.getEmail() != null && user.getEmail().toLowerCase().contains(lowerQuery));
+                        // US 02.09.01: only entrant-role users can be co-organizers
+                        if (!user.isEntrant()) continue;
+
+                        boolean match = user.getUsername() != null && user.getUsername().toLowerCase().contains(lowerQuery);
+                        if (user.getEmail() != null && user.getEmail().toLowerCase().contains(lowerQuery))
+                            match = true;
 
                         if (match) searchResults.add(user);
                     }
@@ -209,11 +246,20 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
                 .addOnFailureListener(e -> {
                     if (!isAdded()) return;
                     progressBar.setVisibility(View.GONE);
+                    Toast.makeText(requireContext(), "Search failed", Toast.LENGTH_SHORT).show();
                 });
     }
 
     private void assignCoOrganizer(User user) {
+        if (existingCoOrganizerIds.contains(user.getUserId())) {
+            if (isAdded())
+                Toast.makeText(requireContext(), "Already a co-organizer", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         WriteBatch batch = db.batch();
+
+        // 1. Add to event's coOrganizers collection
         DocumentReference coOrgRef = db.collection(FirestorePaths.EVENTS).document(eventId)
                 .collection(FirestorePaths.CO_ORGANIZERS).document(user.getUserId());
 
@@ -223,7 +269,7 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
         data.put("assignedAt", Timestamp.now());
         batch.set(coOrgRef, data);
 
-        // Remove from waitlist if exists
+        // 2. Remove from waitlist if they are there (US Requirement)
         DocumentReference waitlistRef = db.collection(FirestorePaths.EVENTS).document(eventId)
                 .collection(FirestorePaths.WAITING_LIST).document(user.getUserId());
         batch.delete(waitlistRef);
@@ -265,7 +311,7 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
     private void sendNotification(User targetUser, boolean isAdded) {
         String notificationId = UUID.randomUUID().toString();
         String title = isAdded ? "Co-Organizer Assignment" : "Co-Organizer Removal";
-        String message = isAdded 
+        String message = isAdded
                 ? "You have been assigned as a co-organizer for: " + eventTitle
                 : "You are no longer a co-organizer for: " + eventTitle;
 
@@ -276,7 +322,17 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
 
         db.collection(FirestorePaths.USERS).document(targetUser.getUserId())
                 .collection(FirestorePaths.INBOX).document(notificationId)
-                .set(notification);
+                .set(notification)
+                .addOnSuccessListener(aVoid -> {
+                    if (isAdded())
+                        Toast.makeText(requireContext(), targetUser.getUsername() + " is now a co-organizer!", Toast.LENGTH_SHORT).show();
+                    dismiss();
+                })
+                .addOnFailureListener(e -> {
+                    if (isAdded())
+                        Toast.makeText(requireContext(), "Assigned, but notification failed", Toast.LENGTH_SHORT).show();
+                    dismiss();
+                });
     }
 
     @Override
@@ -357,18 +413,33 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             User user = users.get(position);
-            holder.text1.setText(user.getUsername());
-            holder.text2.setText(user.getEmail());
-            holder.itemView.setOnClickListener(v -> listener.onUserClick(user));
+            boolean isAlreadyCoOrg = existingCoOrganizerIds.contains(user.getUserId());
+
+            holder.text1.setText(user.getUsername() + (isAlreadyCoOrg ? " (Already Co-Organizer)" : ""));
+            holder.text2.setText(user.getEmail() != null ? user.getEmail() : user.getPhone());
+
+            holder.itemView.setEnabled(!isAlreadyCoOrg);
+            holder.itemView.setAlpha(isAlreadyCoOrg ? 0.5f : 1.0f);
+
+            holder.itemView.setOnClickListener(v -> {
+                if (!isAlreadyCoOrg) {
+                    listener.onUserClick(user);
+                }
+            });
         }
 
         @Override
-        public int getItemCount() { return users.size(); }
+        public int getItemCount() {
+            return users.size();
+        }
 
-        interface OnUserClickListener { void onUserClick(User user); }
+        interface OnUserClickListener {
+            void onUserClick(User user);
+        }
 
         static class ViewHolder extends RecyclerView.ViewHolder {
             TextView text1, text2;
+
             ViewHolder(View v) {
                 super(v);
                 text1 = v.findViewById(android.R.id.text1);
