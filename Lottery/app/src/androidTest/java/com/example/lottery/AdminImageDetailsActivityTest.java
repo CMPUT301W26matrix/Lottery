@@ -39,7 +39,7 @@ public class AdminImageDetailsActivityTest {
         Event event = new Event();
         event.setTitle("Test Event Title");
         event.setDetails("Test event description for admin review.");
-        event.setPosterBase64("https://example.com/poster.png");
+        event.setPosterBase64("data:image/jpeg;base64,/9j/4AAQSkZJRg==");
         AdminImageDetailsActivity.testEvent = event;
     }
 

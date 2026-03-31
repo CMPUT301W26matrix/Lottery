@@ -283,7 +283,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             }
 
             String posterBase64 = event.getPosterBase64();
-            if (posterBase64 != null && !posterBase64.isEmpty() && ivPosterPreview != null) {
+            if (posterBase64 != null && posterBase64.trim().startsWith("data:image") && ivPosterPreview != null) {
                 selectedPosterSource = Uri.parse(posterBase64);
                 PosterImageLoader.load(ivPosterPreview, posterBase64, R.drawable.event_placeholder);
                 ivPosterPreview.setVisibility(View.VISIBLE);

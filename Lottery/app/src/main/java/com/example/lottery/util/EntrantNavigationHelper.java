@@ -43,6 +43,9 @@ public final class EntrantNavigationHelper {
             EntrantQrScanActivity.class,
             EntrantProfileActivity.class
     };
+    private static final EntrantTab[] NAV_TABS = {
+            EntrantTab.HOME, EntrantTab.HISTORY, EntrantTab.QR_SCAN, EntrantTab.PROFILE
+    };
 
     private EntrantNavigationHelper() {
     }
@@ -93,9 +96,8 @@ public final class EntrantNavigationHelper {
         int activeColor = ContextCompat.getColor(activity, R.color.primary_blue);
         int inactiveColor = ContextCompat.getColor(activity, R.color.text_gray);
 
-        EntrantTab[] tabs = EntrantTab.values();
-        for (int i = 0; i < tabs.length; i++) {
-            int color = (tabs[i] == activeTab) ? activeColor : inactiveColor;
+        for (int i = 0; i < TAB_ICON_TEXT_IDS.length; i++) {
+            int color = (NAV_TABS[i] == activeTab) ? activeColor : inactiveColor;
             ImageView icon = activity.findViewById(TAB_ICON_TEXT_IDS[i][0]);
             TextView text = activity.findViewById(TAB_ICON_TEXT_IDS[i][1]);
             if (icon != null) icon.setImageTintList(ColorStateList.valueOf(color));
@@ -106,12 +108,11 @@ public final class EntrantNavigationHelper {
     private static void setupClickListeners(Activity activity, EntrantTab currentTab,
                                             String userId, boolean isAdminRole,
                                             String adminUserId, boolean finishOnNavigate) {
-        EntrantTab[] tabs = EntrantTab.values();
-        for (int i = 0; i < tabs.length; i++) {
+        for (int i = 0; i < NAV_TABS.length; i++) {
             View btn = activity.findViewById(TAB_VIEW_IDS[i]);
             if (btn == null) continue;
 
-            if (tabs[i] == currentTab && !finishOnNavigate) {
+            if (NAV_TABS[i] == currentTab && !finishOnNavigate) {
                 btn.setOnClickListener(v -> { /* already on this tab */ });
             } else {
                 Class<?> target = TAB_TARGETS[i];
@@ -145,6 +146,6 @@ public final class EntrantNavigationHelper {
      * The four tabs in the entrant bottom-navigation bar.
      */
     public enum EntrantTab {
-        HOME, HISTORY, QR_SCAN, PROFILE
+        NONE, HOME, HISTORY, QR_SCAN, PROFILE
     }
 }

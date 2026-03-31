@@ -146,35 +146,35 @@
 
                             <com.google.android.material.chip.Chip
                                 android:id="@+id/chipAcademic"
-                                style="@style/Widget.Material3.Chip.Filter"
+                                style="@style/App.Chip.Filter"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/filter_academic" />
 
                             <com.google.android.material.chip.Chip
                                 android:id="@+id/chipSocial"
-                                style="@style/Widget.Material3.Chip.Filter"
+                                style="@style/App.Chip.Filter"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/filter_social" />
 
                             <com.google.android.material.chip.Chip
                                 android:id="@+id/chipSports"
-                                style="@style/Widget.Material3.Chip.Filter"
+                                style="@style/App.Chip.Filter"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/filter_sports" />
 
                             <com.google.android.material.chip.Chip
                                 android:id="@+id/chipMusic"
-                                style="@style/Widget.Material3.Chip.Filter"
+                                style="@style/App.Chip.Filter"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/filter_music" />
 
                             <com.google.android.material.chip.Chip
                                 android:id="@+id/chipOther"
-                                style="@style/Widget.Material3.Chip.Filter"
+                                style="@style/App.Chip.Filter"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:checked="true"
