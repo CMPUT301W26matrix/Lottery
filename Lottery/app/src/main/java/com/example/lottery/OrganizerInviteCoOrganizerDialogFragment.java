@@ -84,6 +84,24 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
         return fragment;
     }
 
+    /**
+     * Filters a list of candidates by name or email matching the query (case-insensitive).
+     * Package-private for testing.
+     */
+    static List<User> filterEntrants(List<User> candidates, String query) {
+        List<User> result = new ArrayList<>();
+        String lowerQuery = query.toLowerCase();
+        for (User user : candidates) {
+            boolean match = user.getUsername() != null && user.getUsername().toLowerCase().contains(lowerQuery);
+            if (!match && user.getEmail() != null && user.getEmail().toLowerCase().contains(lowerQuery))
+                match = true;
+            if (match) {
+                result.add(user);
+            }
+        }
+        return result;
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -171,6 +189,10 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
                 });
     }
 
+    /**
+     * Searches all users with ENTRANT role by name or email (US 02.09.01).
+     * Only entrant-role users are eligible to be assigned as co-organizers.
+     */
     private void searchUsers(String query) {
         if (!isAdded()) return;
         if (query.length() < 2) {
@@ -193,11 +215,15 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
                         User user = doc.toObject(User.class);
                         user.setUserId(doc.getId());
 
+                        // Skip the current organizer
                         if (user.getUserId().equals(senderId)) continue;
                         if (currentCoOrganizerIds.contains(user.getUserId())) continue;
 
+                        // US 02.09.01: only entrant-role users can be co-organizers
+                        if (!user.isEntrant()) continue;
+
                         boolean match = (user.getUsername() != null && user.getUsername().toLowerCase().contains(lowerQuery))
-                                || (user.getEmail() != null && user.getEmail().toLowerCase().contains(lowerQuery));
+                        || (user.getEmail() != null && user.getEmail().toLowerCase().contains(lowerQuery));
 
                         if (match) searchResults.add(user);
                     }

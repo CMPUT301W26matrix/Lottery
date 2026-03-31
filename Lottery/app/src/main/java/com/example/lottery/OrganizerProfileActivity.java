@@ -21,8 +21,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.lottery.util.AdminRoleManager;
-import com.example.lottery.util.OrganizerNavigationHelper;
 import com.example.lottery.util.FirestorePaths;
+import com.example.lottery.util.OrganizerNavigationHelper;
 import com.example.lottery.util.UserDeletionUtil;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;

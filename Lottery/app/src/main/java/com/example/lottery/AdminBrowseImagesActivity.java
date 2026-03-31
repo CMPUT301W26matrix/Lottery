@@ -115,7 +115,7 @@ public class AdminBrowseImagesActivity extends AppCompatActivity implements Admi
                             Event event = document.toObject(Event.class);
                             event.setEventId(document.getId());
                             String base64 = event.getPosterBase64();
-                            if (base64 != null && !base64.trim().isEmpty()) {
+                            if (base64 != null && base64.trim().startsWith("data:image")) {
                                 imageList.add(event);
                             }
                         } catch (Exception e) {
