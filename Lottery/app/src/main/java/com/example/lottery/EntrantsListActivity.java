@@ -289,41 +289,91 @@ public class EntrantsListActivity extends AppCompatActivity implements
                         return;
                     }
 
-                    entrantWaitedListArrayList.clear();
-                    entrantInvitedArrayList.clear();
-                    entrantCancelledArrayList.clear();
-                    entrantSignedUpArrayList.clear();
-                    entrantNotSelectedArrayList.clear();
+                    if (querySnapshot == null) return;
 
-                    if (querySnapshot != null) {
-                        for (QueryDocumentSnapshot snapshot : querySnapshot) {
-                            EntrantEvent entrant = snapshot.toObject(EntrantEvent.class);
-                            if (entrant.getUserId() == null) {
-                                entrant.setUserId(snapshot.getId());
-                            }
-
-                            String normalizedStatus = InvitationFlowUtil.normalizeEntrantStatus(entrant.getStatus());
-
-                            if (InvitationFlowUtil.STATUS_WAITLISTED.equals(normalizedStatus)) {
-                                entrantWaitedListArrayList.add(entrant);
-                            } else if (InvitationFlowUtil.STATUS_INVITED.equals(normalizedStatus)) {
-                                entrantInvitedArrayList.add(entrant);
-                            } else if (InvitationFlowUtil.STATUS_ACCEPTED.equals(normalizedStatus)) {
-                                entrantSignedUpArrayList.add(entrant);
-                            } else if (InvitationFlowUtil.STATUS_CANCELLED.equals(normalizedStatus)) {
-                                entrantCancelledArrayList.add(entrant);
-                            } else if (InvitationFlowUtil.STATUS_NOT_SELECTED.equals(normalizedStatus)) {
-                                entrantNotSelectedArrayList.add(entrant);
-                            }
-                        }
+                    int total = querySnapshot.size();
+                    if (total == 0) {
+                        clearListsAndNotify();
+                        return;
                     }
 
-                    waitedListAdapter.notifyDataSetChanged();
-                    invitedAdapter.notifyDataSetChanged();
-                    signedUpAdapter.notifyDataSetChanged();
-                    cancelledAdapter.notifyDataSetChanged();
-                    notSelectedAdapter.notifyDataSetChanged();
+                    AtomicInteger processed = new AtomicInteger(0);
+                    ArrayList<EntrantEvent> fullList = new ArrayList<>();
+
+                    for (QueryDocumentSnapshot snapshot : querySnapshot) {
+                        EntrantEvent entrant = snapshot.toObject(EntrantEvent.class);
+                        String uid = snapshot.getId();
+                        if (entrant.getUserId() == null) entrant.setUserId(uid);
+
+                        // Fetch detailed user info from /users/{uid} to get latest email and name
+                        db.collection(FirestorePaths.USERS).document(uid).get()
+                                .addOnSuccessListener(userDoc -> {
+                                    if (userDoc.exists()) {
+                                        String name = userDoc.getString("name");
+                                        String email = userDoc.getString("email");
+                                        if (name != null) entrant.setUserName(name);
+                                        if (email != null) entrant.setEmail(email);
+                                    }
+                                    synchronized (fullList) {
+                                        fullList.add(entrant);
+                                    }
+                                    if (processed.incrementAndGet() == total) {
+                                        finalizeEntrantLists(fullList);
+                                    }
+                                })
+                                .addOnFailureListener(err -> {
+                                    synchronized (fullList) {
+                                        fullList.add(entrant);
+                                    }
+                                    if (processed.incrementAndGet() == total) {
+                                        finalizeEntrantLists(fullList);
+                                    }
+                                });
+                    }
                 });
+    }
+
+    private void clearListsAndNotify() {
+        entrantWaitedListArrayList.clear();
+        entrantInvitedArrayList.clear();
+        entrantCancelledArrayList.clear();
+        entrantSignedUpArrayList.clear();
+        entrantNotSelectedArrayList.clear();
+        notifyAllAdapters();
+    }
+
+    private void finalizeEntrantLists(List<EntrantEvent> fullList) {
+        entrantWaitedListArrayList.clear();
+        entrantInvitedArrayList.clear();
+        entrantCancelledArrayList.clear();
+        entrantSignedUpArrayList.clear();
+        entrantNotSelectedArrayList.clear();
+
+        for (EntrantEvent entrant : fullList) {
+            String normalizedStatus = InvitationFlowUtil.normalizeEntrantStatus(entrant.getStatus());
+
+            if (InvitationFlowUtil.STATUS_WAITLISTED.equals(normalizedStatus)) {
+                entrantWaitedListArrayList.add(entrant);
+            } else if (InvitationFlowUtil.STATUS_INVITED.equals(normalizedStatus)) {
+                entrantInvitedArrayList.add(entrant);
+            } else if (InvitationFlowUtil.STATUS_ACCEPTED.equals(normalizedStatus)) {
+                entrantSignedUpArrayList.add(entrant);
+            } else if (InvitationFlowUtil.STATUS_CANCELLED.equals(normalizedStatus)) {
+                entrantCancelledArrayList.add(entrant);
+            } else if (InvitationFlowUtil.STATUS_NOT_SELECTED.equals(normalizedStatus)) {
+                entrantNotSelectedArrayList.add(entrant);
+            }
+        }
+        notifyAllAdapters();
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private void notifyAllAdapters() {
+        waitedListAdapter.notifyDataSetChanged();
+        invitedAdapter.notifyDataSetChanged();
+        signedUpAdapter.notifyDataSetChanged();
+        cancelledAdapter.notifyDataSetChanged();
+        notSelectedAdapter.notifyDataSetChanged();
     }
 
     /**
