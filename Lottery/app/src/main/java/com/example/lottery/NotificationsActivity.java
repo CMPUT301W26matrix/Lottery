@@ -23,6 +23,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -116,11 +117,16 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
     }
 
     private void loadNotifications() {
-        Query query = db.collection(FirestorePaths.userInbox(userId))
-                .orderBy("createdAt", Query.Direction.DESCENDING);
-
+        Query query;
         if (eventId != null) {
-            query = query.whereEqualTo("eventId", eventId);
+            // If filtering by eventId, don't use server-side orderBy to avoid requiring a composite index.
+            // We will sort in-memory instead.
+            query = db.collection(FirestorePaths.userInbox(userId))
+                    .whereEqualTo("eventId", eventId);
+        } else {
+            // Global notifications mode: single field orderBy doesn't require extra index.
+            query = db.collection(FirestorePaths.userInbox(userId))
+                    .orderBy("createdAt", Query.Direction.DESCENDING);
         }
 
         query.get()
@@ -133,6 +139,14 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
                             notificationList.add(item);
                         }
                     });
+
+                    // Sort in-memory if we were in event-specific mode
+                    if (eventId != null) {
+                        Collections.sort(notificationList, (a, b) -> {
+                            if (a.getCreatedAt() == null || b.getCreatedAt() == null) return 0;
+                            return b.getCreatedAt().compareTo(a.getCreatedAt()); // Descending
+                        });
+                    }
 
                     adapter.notifyDataSetChanged();
                     updateEmptyState();

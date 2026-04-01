@@ -13,27 +13,52 @@ public final class UserDeletionUtil {
     }
 
     /**
-     * Batch-deletes all co-organizer records for the given user across every event,
+     * Batch-deletes all records for the given user across every event (co-organizers and waitlists),
      * then invokes onDone. The callback is always invoked regardless of
      * success or failure so that user deletion is never blocked.
      *
      * @param db     Firestore instance
-     * @param userId the user whose co-organizer documents should be removed
+     * @param userId the user whose documents should be removed
      * @param onDone callback invoked after cleanup completes or fails
      */
-    public static void cleanUpCoOrganizerRecords(FirebaseFirestore db, String userId, Runnable onDone) {
+    public static void cleanUpUserRecords(FirebaseFirestore db, String userId, Runnable onDone) {
+        // Clean up Co-Organizers
         db.collectionGroup(FirestorePaths.CO_ORGANIZERS)
                 .whereEqualTo("userId", userId)
                 .get()
-                .addOnSuccessListener(snapshots -> {
-                    WriteBatch batch = db.batch();
-                    for (DocumentSnapshot doc : snapshots) {
-                        batch.delete(doc.getReference());
-                    }
-                    batch.commit()
-                            .addOnSuccessListener(unused -> onDone.run())
+                .addOnSuccessListener(coOrganizerSnapshots -> {
+                    
+                    // Clean up Waitlists / Entrant Lists
+                    db.collectionGroup(FirestorePaths.WAITING_LIST)
+                            .whereEqualTo("userId", userId)
+                            .get()
+                            .addOnSuccessListener(waitlistSnapshots -> {
+                                
+                                WriteBatch batch = db.batch();
+                                
+                                for (DocumentSnapshot doc : coOrganizerSnapshots) {
+                                    batch.delete(doc.getReference());
+                                }
+                                
+                                for (DocumentSnapshot doc : waitlistSnapshots) {
+                                    batch.delete(doc.getReference());
+                                }
+                                
+                                batch.commit()
+                                        .addOnSuccessListener(unused -> onDone.run())
+                                        .addOnFailureListener(e -> onDone.run());
+                                
+                            })
                             .addOnFailureListener(e -> onDone.run());
                 })
                 .addOnFailureListener(e -> onDone.run());
+    }
+
+    /**
+     * @deprecated Use {@link #cleanUpUserRecords(FirebaseFirestore, String, Runnable)} instead.
+     */
+    @Deprecated
+    public static void cleanUpCoOrganizerRecords(FirebaseFirestore db, String userId, Runnable onDone) {
+        cleanUpUserRecords(db, userId, onDone);
     }
 }

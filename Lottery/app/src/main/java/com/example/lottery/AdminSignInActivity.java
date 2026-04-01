@@ -4,8 +4,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -32,6 +34,7 @@ public class AdminSignInActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private EditText adminCodeInput;
     private Button signInButton;
+    private ImageButton backButton;
 
     /**
      * Initialize the activity and binds UI views.
@@ -54,8 +57,14 @@ public class AdminSignInActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         adminCodeInput = findViewById(R.id.etAdminCode);
         signInButton = findViewById(R.id.btnSignIn);
+        backButton = findViewById(R.id.btnBack);
 
         signInButton.setOnClickListener(view -> validateAdminCode());
+        
+        // Handle back button click
+        if (backButton != null) {
+            backButton.setOnClickListener(v -> finish());
+        }
     }
 
     /**
