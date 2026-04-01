@@ -130,10 +130,10 @@ public class EntrantEventDetailsActivityTest {
     }
 
     /**
-     * Verifies that launching without EXTRA_SOURCE_TAB defaults to highlighting the HOME tab.
+     * Verifies that launching without EXTRA_SOURCE_TAB defaults to highlighting the EXPLORE tab.
      */
     @Test
-    public void testDefaultSourceTabHighlightsHome() {
+    public void testDefaultSourceTabHighlightsExplore() {
         Intent intent = new Intent(
                 ApplicationProvider.getApplicationContext(),
                 EntrantEventDetailsActivity.class
@@ -146,45 +146,45 @@ public class EntrantEventDetailsActivityTest {
                 int activeColor = ContextCompat.getColor(activity, R.color.primary_blue);
                 int inactiveColor = ContextCompat.getColor(activity, R.color.text_gray);
 
-                ImageView homeIcon = activity.findViewById(R.id.iv_nav_explore);
+                ImageView exploreIcon = activity.findViewById(R.id.iv_nav_explore);
                 ImageView historyIcon = activity.findViewById(R.id.iv_nav_history);
-                assertEquals(activeColor, homeIcon.getImageTintList().getDefaultColor());
+                assertEquals(activeColor, exploreIcon.getImageTintList().getDefaultColor());
                 assertEquals(inactiveColor, historyIcon.getImageTintList().getDefaultColor());
             });
         }
     }
 
     /**
-     * Verifies that launching with EXTRA_SOURCE_TAB = "HISTORY" highlights the HISTORY tab.
+     * Verifies that launching with EXTRA_SOURCE_TAB = "MY_EVENTS" highlights the My Events tab.
      */
     @Test
-    public void testSourceTabHistoryHighlightsHistory() {
+    public void testSourceTabMyEventsHighlightsMyEvents() {
         Intent intent = new Intent(
                 ApplicationProvider.getApplicationContext(),
                 EntrantEventDetailsActivity.class
         );
         intent.putExtra(EntrantEventDetailsActivity.EXTRA_EVENT_ID, "test_event_" + UUID.randomUUID());
         intent.putExtra(EntrantEventDetailsActivity.EXTRA_USER_ID, "test_user_id");
-        intent.putExtra(EntrantEventDetailsActivity.EXTRA_SOURCE_TAB, "HISTORY");
+        intent.putExtra(EntrantEventDetailsActivity.EXTRA_SOURCE_TAB, "MY_EVENTS");
 
         try (ActivityScenario<EntrantEventDetailsActivity> scenario = ActivityScenario.launch(intent)) {
             scenario.onActivity(activity -> {
                 int activeColor = ContextCompat.getColor(activity, R.color.primary_blue);
                 int inactiveColor = ContextCompat.getColor(activity, R.color.text_gray);
 
-                ImageView homeIcon = activity.findViewById(R.id.iv_nav_explore);
+                ImageView exploreIcon = activity.findViewById(R.id.iv_nav_explore);
                 ImageView historyIcon = activity.findViewById(R.id.iv_nav_history);
-                assertEquals(inactiveColor, homeIcon.getImageTintList().getDefaultColor());
+                assertEquals(inactiveColor, exploreIcon.getImageTintList().getDefaultColor());
                 assertEquals(activeColor, historyIcon.getImageTintList().getDefaultColor());
             });
         }
     }
 
     /**
-     * Verifies that an invalid EXTRA_SOURCE_TAB falls back to HOME.
+     * Verifies that an invalid EXTRA_SOURCE_TAB falls back to EXPLORE.
      */
     @Test
-    public void testInvalidSourceTabFallsBackToHome() {
+    public void testInvalidSourceTabFallsBackToExplore() {
         Intent intent = new Intent(
                 ApplicationProvider.getApplicationContext(),
                 EntrantEventDetailsActivity.class
@@ -196,8 +196,8 @@ public class EntrantEventDetailsActivityTest {
         try (ActivityScenario<EntrantEventDetailsActivity> scenario = ActivityScenario.launch(intent)) {
             scenario.onActivity(activity -> {
                 int activeColor = ContextCompat.getColor(activity, R.color.primary_blue);
-                ImageView homeIcon = activity.findViewById(R.id.iv_nav_explore);
-                assertEquals(activeColor, homeIcon.getImageTintList().getDefaultColor());
+                ImageView exploreIcon = activity.findViewById(R.id.iv_nav_explore);
+                assertEquals(activeColor, exploreIcon.getImageTintList().getDefaultColor());
             });
         }
     }

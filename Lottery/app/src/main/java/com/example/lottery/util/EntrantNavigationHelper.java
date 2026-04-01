@@ -44,7 +44,7 @@ public final class EntrantNavigationHelper {
             EntrantProfileActivity.class
     };
     private static final EntrantTab[] NAV_TABS = {
-            EntrantTab.EXPLORE, EntrantTab.HISTORY, EntrantTab.QR_SCAN, EntrantTab.PROFILE
+            EntrantTab.EXPLORE, EntrantTab.MY_EVENTS, EntrantTab.QR_SCAN, EntrantTab.PROFILE
     };
 
     private EntrantNavigationHelper() {
@@ -143,9 +143,17 @@ public final class EntrantNavigationHelper {
     }
 
     /**
-     * The four tabs in the entrant bottom-navigation bar.
+     * Tabs in the entrant bottom-navigation bar.
+     *
+     * <ul>
+     *   <li>{@code NONE} – no tab highlighted (e.g. entered from Notifications)</li>
+     *   <li>{@code EXPLORE} – browse available events</li>
+     *   <li>{@code MY_EVENTS} – the user's joined / waitlisted events</li>
+     *   <li>{@code QR_SCAN} – scan event QR codes</li>
+     *   <li>{@code PROFILE} – user profile settings</li>
+     * </ul>
      */
     public enum EntrantTab {
-        NONE, EXPLORE, HISTORY, QR_SCAN, PROFILE
+        NONE, EXPLORE, MY_EVENTS, QR_SCAN, PROFILE
     }
 }

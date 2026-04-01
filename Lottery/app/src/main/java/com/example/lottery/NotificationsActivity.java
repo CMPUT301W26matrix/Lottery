@@ -189,6 +189,7 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
             android.content.Intent intent = new android.content.Intent(this, EntrantEventDetailsActivity.class);
             intent.putExtra(EntrantEventDetailsActivity.EXTRA_EVENT_ID, item.getEventId());
             intent.putExtra(EntrantEventDetailsActivity.EXTRA_USER_ID, userId);
+            intent.putExtra(EntrantEventDetailsActivity.EXTRA_SOURCE_TAB, "NONE");
             startActivity(intent);
         } else {
             new AlertDialog.Builder(this)

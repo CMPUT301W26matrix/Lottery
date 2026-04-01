@@ -161,7 +161,14 @@ public final class OrganizerNavigationHelper {
     }
 
     /**
-     * The four regular tabs in the organizer bottom-navigation bar.
+     * Tabs in the organizer bottom-navigation bar.
+     *
+     * <ul>
+     *   <li>{@code HOME} – organizer's event dashboard</li>
+     *   <li>{@code NOTIFICATIONS} – event-related notifications</li>
+     *   <li>{@code QR_CODE} – generate / manage event QR codes</li>
+     *   <li>{@code PROFILE} – organizer profile settings</li>
+     * </ul>
      */
     public enum OrganizerTab {
         HOME, NOTIFICATIONS, QR_CODE, PROFILE

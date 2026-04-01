@@ -139,7 +139,15 @@ public final class AdminNavigationHelper {
     }
 
     /**
-     * The five tabs in the admin bottom-navigation bar.
+     * Tabs in the admin bottom-navigation bar.
+     *
+     * <ul>
+     *   <li>{@code EVENTS} – browse / manage all events</li>
+     *   <li>{@code PROFILES} – browse / manage user profiles</li>
+     *   <li>{@code IMAGES} – browse / manage uploaded images</li>
+     *   <li>{@code LOGS} – view system activity logs</li>
+     *   <li>{@code SETTINGS} – admin settings</li>
+     * </ul>
      */
     public enum AdminTab {
         EVENTS, PROFILES, IMAGES, LOGS, SETTINGS

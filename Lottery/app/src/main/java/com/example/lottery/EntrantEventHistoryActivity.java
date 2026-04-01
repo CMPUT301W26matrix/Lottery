@@ -54,7 +54,7 @@ public class EntrantEventHistoryActivity extends AppCompatActivity {
         }
 
         initViews();
-        EntrantNavigationHelper.setup(this, EntrantNavigationHelper.EntrantTab.HISTORY, userId);
+        EntrantNavigationHelper.setup(this, EntrantNavigationHelper.EntrantTab.MY_EVENTS, userId);
         loadEventHistory();
     }
 
@@ -159,7 +159,7 @@ public class EntrantEventHistoryActivity extends AppCompatActivity {
         Intent intent = new Intent(this, EntrantEventDetailsActivity.class);
         intent.putExtra(EntrantEventDetailsActivity.EXTRA_EVENT_ID, event.getEventId());
         intent.putExtra(EntrantEventDetailsActivity.EXTRA_USER_ID, userId);
-        intent.putExtra(EntrantEventDetailsActivity.EXTRA_SOURCE_TAB, "HISTORY");
+        intent.putExtra(EntrantEventDetailsActivity.EXTRA_SOURCE_TAB, "MY_EVENTS");
         startActivity(intent);
     }
 }
