@@ -38,6 +38,7 @@ public class EntrantEventAdapterTest {
      * Mock list of events to be used in the adapter.
      */
     private List<Event> eventList;
+    private String userId;
 
     /**
      * Sets up the test environment before each test case.
@@ -54,6 +55,8 @@ public class EntrantEventAdapterTest {
 
         eventList.add(event1);
         eventList.add(event2);
+
+        userId = "entrant_c1ijFznXQYSp_Cev3cUuNs";
 
         adapter = new EntrantEventAdapter(eventList, event -> {
             // No-op click listener for tests
