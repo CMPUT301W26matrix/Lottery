@@ -22,7 +22,7 @@
             android:weightSum="4">
 
             <LinearLayout
-                android:id="@+id/nav_home"
+                android:id="@+id/nav_explore"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -33,17 +33,17 @@
                 android:orientation="vertical">
 
                 <ImageView
-                    android:id="@+id/iv_nav_home"
+                    android:id="@+id/iv_nav_explore"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@android:drawable/ic_menu_today"
                     app:tint="@color/text_gray" />
 
                 <TextView
-                    android:id="@+id/tv_nav_home"
+                    android:id="@+id/tv_nav_explore"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/nav_home"
+                    android:text="@string/nav_explore"
                     android:textColor="@color/text_gray"
                     android:textSize="11sp" />
             </LinearLayout>

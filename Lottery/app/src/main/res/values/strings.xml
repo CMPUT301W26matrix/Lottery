@@ -76,6 +76,7 @@
     <string name="your_events">Your Events</string>
     <string name="no_events_created_yet">No events created yet</string>
     <string name="nav_home">Home</string>
+    <string name="nav_explore">Explore</string>
     <string name="nav_history">My Events</string>
     <string name="nav_profile">Profile</string>
     <string name="admin_event_browser_title">Lottery Admin</string>

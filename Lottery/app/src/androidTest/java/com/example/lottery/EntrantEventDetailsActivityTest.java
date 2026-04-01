@@ -77,7 +77,7 @@ public class EntrantEventDetailsActivityTest {
     @Test
     public void testBottomNavigationIsDisplayed() {
         onView(withId(R.id.bottomNav)).check(matches(isDisplayed()));
-        onView(withId(R.id.nav_home)).check(matches(isDisplayed()));
+        onView(withId(R.id.nav_explore)).check(matches(isDisplayed()));
     }
 
     /**
@@ -146,7 +146,7 @@ public class EntrantEventDetailsActivityTest {
                 int activeColor = ContextCompat.getColor(activity, R.color.primary_blue);
                 int inactiveColor = ContextCompat.getColor(activity, R.color.text_gray);
 
-                ImageView homeIcon = activity.findViewById(R.id.iv_nav_home);
+                ImageView homeIcon = activity.findViewById(R.id.iv_nav_explore);
                 ImageView historyIcon = activity.findViewById(R.id.iv_nav_history);
                 assertEquals(activeColor, homeIcon.getImageTintList().getDefaultColor());
                 assertEquals(inactiveColor, historyIcon.getImageTintList().getDefaultColor());
@@ -172,7 +172,7 @@ public class EntrantEventDetailsActivityTest {
                 int activeColor = ContextCompat.getColor(activity, R.color.primary_blue);
                 int inactiveColor = ContextCompat.getColor(activity, R.color.text_gray);
 
-                ImageView homeIcon = activity.findViewById(R.id.iv_nav_home);
+                ImageView homeIcon = activity.findViewById(R.id.iv_nav_explore);
                 ImageView historyIcon = activity.findViewById(R.id.iv_nav_history);
                 assertEquals(inactiveColor, homeIcon.getImageTintList().getDefaultColor());
                 assertEquals(activeColor, historyIcon.getImageTintList().getDefaultColor());
@@ -196,7 +196,7 @@ public class EntrantEventDetailsActivityTest {
         try (ActivityScenario<EntrantEventDetailsActivity> scenario = ActivityScenario.launch(intent)) {
             scenario.onActivity(activity -> {
                 int activeColor = ContextCompat.getColor(activity, R.color.primary_blue);
-                ImageView homeIcon = activity.findViewById(R.id.iv_nav_home);
+                ImageView homeIcon = activity.findViewById(R.id.iv_nav_explore);
                 assertEquals(activeColor, homeIcon.getImageTintList().getDefaultColor());
             });
         }

@@ -105,7 +105,7 @@ public class EntrantMainActivity extends AppCompatActivity {
 
         initViews();
         setupFilters();
-        EntrantNavigationHelper.setup(this, EntrantNavigationHelper.EntrantTab.HOME, userId);
+        EntrantNavigationHelper.setup(this, EntrantNavigationHelper.EntrantTab.EXPLORE, userId);
         findViewById(R.id.ivNotificationIcon).setOnClickListener(v -> {
             Intent intent = new Intent(this, NotificationsActivity.class);
             intent.putExtra(NotificationsActivity.EXTRA_USER_ID, userId);

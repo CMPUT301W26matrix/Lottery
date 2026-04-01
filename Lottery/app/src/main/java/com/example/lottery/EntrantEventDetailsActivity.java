@@ -223,7 +223,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         });
 
         String sourceTabName = getIntent().getStringExtra(EXTRA_SOURCE_TAB);
-        EntrantNavigationHelper.EntrantTab sourceTab = EntrantNavigationHelper.EntrantTab.HOME;
+        EntrantNavigationHelper.EntrantTab sourceTab = EntrantNavigationHelper.EntrantTab.EXPLORE;
         if (sourceTabName != null) {
             try {
                 sourceTab = EntrantNavigationHelper.EntrantTab.valueOf(sourceTabName);
