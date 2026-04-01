@@ -26,13 +26,13 @@ import com.example.lottery.R;
 public final class EntrantNavigationHelper {
 
     private static final int[] TAB_VIEW_IDS = {
-            R.id.nav_home,
+            R.id.nav_explore,
             R.id.nav_history,
             R.id.nav_qr_scan,
             R.id.nav_profile
     };
     private static final int[][] TAB_ICON_TEXT_IDS = {
-            {R.id.iv_nav_home, R.id.tv_nav_home},
+            {R.id.iv_nav_explore, R.id.tv_nav_explore},
             {R.id.iv_nav_history, R.id.tv_nav_history},
             {R.id.iv_nav_qr_scan, R.id.tv_nav_qr_scan},
             {R.id.iv_nav_profile, R.id.tv_nav_profile}
@@ -44,7 +44,7 @@ public final class EntrantNavigationHelper {
             EntrantProfileActivity.class
     };
     private static final EntrantTab[] NAV_TABS = {
-            EntrantTab.HOME, EntrantTab.HISTORY, EntrantTab.QR_SCAN, EntrantTab.PROFILE
+            EntrantTab.EXPLORE, EntrantTab.HISTORY, EntrantTab.QR_SCAN, EntrantTab.PROFILE
     };
 
     private EntrantNavigationHelper() {
@@ -128,13 +128,13 @@ public final class EntrantNavigationHelper {
                                 | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     }
                     activity.startActivity(intent);
-                    // Detail screens: only finish when going Home.
-                    // Tab screens: always finish unless this IS Home.
+                    // Detail screens: only finish when going Explore.
+                    // Tab screens: always finish unless this IS Explore.
                     if (finishOnNavigate) {
                         if (target == EntrantMainActivity.class) {
                             activity.finish();
                         }
-                    } else if (currentTab != EntrantTab.HOME) {
+                    } else if (currentTab != EntrantTab.EXPLORE) {
                         activity.finish();
                     }
                 });
@@ -146,6 +146,6 @@ public final class EntrantNavigationHelper {
      * The four tabs in the entrant bottom-navigation bar.
      */
     public enum EntrantTab {
-        NONE, HOME, HISTORY, QR_SCAN, PROFILE
+        NONE, EXPLORE, HISTORY, QR_SCAN, PROFILE
     }
 }

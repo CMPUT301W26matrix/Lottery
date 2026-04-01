@@ -85,11 +85,11 @@ public class EntrantNavigationHelperTest {
     }
 
     // ================================================================
-    // From EntrantMainActivity  (currentTab = HOME)
+    // From EntrantMainActivity  (currentTab = EXPLORE)
     // ================================================================
 
     @Test
-    public void fromHome_toHistory() {
+    public void fromExplore_toHistory() {
         try (ActivityScenario<?> ignored =
                      launchScreen(EntrantMainActivity.class, entrantIntent(EntrantMainActivity.class))) {
             onView(withId(R.id.nav_history)).perform(click());
@@ -98,7 +98,7 @@ public class EntrantNavigationHelperTest {
     }
 
     @Test
-    public void fromHome_toQrScan() {
+    public void fromExplore_toQrScan() {
         try (ActivityScenario<?> ignored =
                      launchScreen(EntrantMainActivity.class, entrantIntent(EntrantMainActivity.class))) {
             onView(withId(R.id.nav_qr_scan)).perform(click());
@@ -107,7 +107,7 @@ public class EntrantNavigationHelperTest {
     }
 
     @Test
-    public void fromHome_toProfile() {
+    public void fromExplore_toProfile() {
         try (ActivityScenario<?> ignored =
                      launchScreen(EntrantMainActivity.class, entrantIntent(EntrantMainActivity.class))) {
             onView(withId(R.id.nav_profile)).perform(click());
@@ -120,10 +120,10 @@ public class EntrantNavigationHelperTest {
     // ================================================================
 
     @Test
-    public void fromHistory_toHome() {
+    public void fromHistory_toExplore() {
         try (ActivityScenario<?> ignored =
                      launchScreen(EntrantEventHistoryActivity.class, entrantIntent(EntrantEventHistoryActivity.class))) {
-            onView(withId(R.id.nav_home)).perform(click());
+            onView(withId(R.id.nav_explore)).perform(click());
             intended(intentTo(EntrantMainActivity.class));
         }
     }
@@ -151,10 +151,10 @@ public class EntrantNavigationHelperTest {
     // ================================================================
 
     @Test
-    public void fromQrScan_toHome() {
+    public void fromQrScan_toExplore() {
         try (ActivityScenario<?> ignored =
                      launchScreen(EntrantQrScanActivity.class, entrantIntent(EntrantQrScanActivity.class))) {
-            onView(withId(R.id.nav_home)).perform(click());
+            onView(withId(R.id.nav_explore)).perform(click());
             intended(intentTo(EntrantMainActivity.class));
         }
     }
@@ -182,10 +182,10 @@ public class EntrantNavigationHelperTest {
     // ================================================================
 
     @Test
-    public void fromProfile_toHome() {
+    public void fromProfile_toExplore() {
         try (ActivityScenario<?> ignored =
                      launchScreen(EntrantProfileActivity.class, entrantIntent(EntrantProfileActivity.class))) {
-            onView(withId(R.id.nav_home)).perform(click());
+            onView(withId(R.id.nav_explore)).perform(click());
             intended(intentTo(EntrantMainActivity.class));
         }
     }
@@ -219,10 +219,10 @@ public class EntrantNavigationHelperTest {
     }
 
     @Test
-    public void fromNotifications_toHome() {
+    public void fromNotifications_toExplore() {
         try (ActivityScenario<?> ignored =
                      launchScreen(NotificationsActivity.class, notificationsIntent())) {
-            onView(withId(R.id.nav_home)).perform(click());
+            onView(withId(R.id.nav_explore)).perform(click());
             intended(intentTo(EntrantMainActivity.class));
         }
     }
