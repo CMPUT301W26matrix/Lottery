@@ -83,6 +83,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
             new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
 
     private TextView tvEventTitle;
+    private TextView tvPlace;
     private TextView tvRegistrationPeriod;
     private TextView tvScheduledDate;
     private TextView tvEventEndDate;
@@ -213,7 +214,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
 
         EntrantNavigationHelper.setup(this, EntrantNavigationHelper.EntrantTab.HOME, userId, true);
         btnClose.setOnClickListener(v -> finish());
-        
+
         btnShowMore.setOnClickListener(v -> toggleDescription());
     }
 
@@ -222,6 +223,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
      */
     private void initializeViews() {
         tvEventTitle = findViewById(R.id.tvEventTitle);
+        tvPlace = findViewById(R.id.tvPlace);
         tvRegistrationPeriod = findViewById(R.id.tvRegistrationPeriod);
         tvWaitlistCount = findViewById(R.id.tvWaitlistCount);
         tvNotificationBadge = findViewById(R.id.tvNotificationBadge);
@@ -289,6 +291,18 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
             loadWaitlistCount();
             checkUnreadNotifications();
         }
+    }
+
+    /**
+     * Removes active listeners when the activity stops.
+     */
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (waitlistListener != null) {
+            waitlistListener.remove();
+            waitlistListener = null;
+        }
     }    /**
      * Requests location permissions and continues the current action if permission is granted.
      */
@@ -303,18 +317,6 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
             });
 
     /**
-     * Removes active listeners when the activity stops.
-     */
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (waitlistListener != null) {
-            waitlistListener.remove();
-            waitlistListener = null;
-        }
-    }
-
-    /**
      * Fetches event metadata from Firestore and populates the UI.
      */
     private void loadEventDetails() {
@@ -327,7 +329,15 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                     String title = documentSnapshot.getString("title");
                     String details = documentSnapshot.getString("details");
                     tvEventTitle.setText(title != null ? title : "");
-                    
+
+                    String place = documentSnapshot.getString("place");
+                    if (place != null && !place.trim().isEmpty()) {
+                        tvPlace.setText(place);
+                        tvPlace.setVisibility(View.VISIBLE);
+                    } else {
+                        tvPlace.setVisibility(View.GONE);
+                    }
+
                     if (details == null || details.trim().isEmpty()) {
                         cvEventDescription.setVisibility(View.GONE);
                     } else {
@@ -625,7 +635,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         } else {
             updates = InvitationFlowUtil.buildEntrantStatusUpdateFromResponse(
                     InvitationFlowUtil.RESPONSE_ACCEPTED
-                );
+            );
         }
 
         if (location != null) {

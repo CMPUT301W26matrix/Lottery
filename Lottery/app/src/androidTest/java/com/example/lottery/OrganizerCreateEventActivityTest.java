@@ -55,6 +55,14 @@ public class OrganizerCreateEventActivityTest {
     }
 
     /**
+     * Verifies whether Place text input is properly displayed in createEvent page.
+     */
+    @Test
+    public void testPlaceFieldDisplayed() {
+        onView(withId(R.id.etPlace)).perform(scrollTo()).check(matches(isDisplayed()));
+    }
+
+    /**
      * Verifies US 02.03.01 AC #1: Toggling the waiting list limit switch
      * correctly shows and hides the numeric input field.
      */

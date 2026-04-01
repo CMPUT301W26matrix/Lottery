@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Lottery</string>
     <string name="choose_your_role">Choose your role</string>
+    <string name="choose_role_subtitle">Select how you would like to use the app today</string>
     <string name="i_m_an_entrant">I\'m an Entrant</string>
     <string name="i_m_an_organizer">I\'m an Organizer</string>
     <string name="i_m_an_admin">I\'m an Admin</string>
@@ -23,6 +24,7 @@
     <string name="draw_date">Draw Date</string>
     <string name="maximum_capacity">Maximum Capacity</string>
     <string name="event_details_amp_description"><![CDATA[Event Details & Description]]></string>
+    <string name="event_place">Location</string>
     <string name="require_geolocation_for_entrants">Require Geolocation for Entrants</string>
     <string name="event_poster">Event Poster</string>
     <string name="poster_preview">Poster Preview</string>

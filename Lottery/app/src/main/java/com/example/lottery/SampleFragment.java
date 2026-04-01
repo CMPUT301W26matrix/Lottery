@@ -63,7 +63,7 @@ public class SampleFragment extends DialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         View view = getLayoutInflater().inflate(R.layout.sample_fragment, null);
         EditText input = view.findViewById(R.id.input_sampling_size);
-        
+
         return new MaterialAlertDialogBuilder(requireContext())
                 .setView(view)
                 .setNegativeButton("Cancel", null)
