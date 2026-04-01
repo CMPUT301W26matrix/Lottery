@@ -66,7 +66,7 @@ public class AdminProfileActivityTest {
     public void testEditModeIsHidden() {
         try (ActivityScenario<AdminProfileActivity> ignored =
                      ActivityScenario.launch(createAdminProfileIntent())) {
-            onView(withId(R.id.layout_profile_edit))
+            onView(withId(R.id.layout_profile_edit_container))
                     .check(matches(withEffectiveVisibility(Visibility.GONE)));
         }
     }
@@ -100,7 +100,7 @@ public class AdminProfileActivityTest {
                      ActivityScenario.launch(createAdminProfileIntent())) {
             onView(withId(R.id.tv_actions_header)).check(matches(isDisplayed()));
             onView(withId(R.id.tv_actions_header))
-                    .check(matches(withText("SWITCH ROLES")));
+                    .check(matches(withText("ACTIONS")));
         }
     }
 
