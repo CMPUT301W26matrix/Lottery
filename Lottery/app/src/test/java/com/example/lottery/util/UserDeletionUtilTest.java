@@ -22,7 +22,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -38,6 +37,8 @@ public class UserDeletionUtilTest {
     private FirebaseFirestore mockDb;
     private Query mockQuery;
     private WriteBatch mockBatch;
+    private Task<QuerySnapshot> mockQueryTask;
+    private Task<Void> mockCommitTask;
 
     @SuppressWarnings("unchecked")
     @Before
@@ -45,21 +46,28 @@ public class UserDeletionUtilTest {
         mockDb = mock(FirebaseFirestore.class);
         mockQuery = mock(Query.class);
         mockBatch = mock(WriteBatch.class);
+        mockQueryTask = mock(Task.class);
+        mockCommitTask = mock(Task.class);
 
         when(mockDb.collectionGroup(anyString())).thenReturn(mockQuery);
         when(mockQuery.whereEqualTo(anyString(), any())).thenReturn(mockQuery);
         when(mockDb.batch()).thenReturn(mockBatch);
+
+        // Stub query task to avoid NPE when listeners are added
+        when(mockQuery.get()).thenReturn(mockQueryTask);
+        when(mockQueryTask.addOnSuccessListener(any())).thenReturn(mockQueryTask);
+        when(mockQueryTask.addOnFailureListener(any())).thenReturn(mockQueryTask);
+
+        // Stub batch commit task to avoid NPE when listeners are added
+        when(mockBatch.commit()).thenReturn(mockCommitTask);
+        when(mockCommitTask.addOnSuccessListener(any())).thenReturn(mockCommitTask);
+        when(mockCommitTask.addOnFailureListener(any())).thenReturn(mockCommitTask);
+        when(mockCommitTask.addOnCompleteListener(any())).thenReturn(mockCommitTask);
     }
 
     @SuppressWarnings("unchecked")
     @Test
     public void cleanUp_withDocuments_batchDeletesAndCallsOnDone() {
-        // Mock query tasks
-        Task<QuerySnapshot> queryTask = mock(Task.class);
-        when(mockQuery.get()).thenReturn(queryTask);
-        when(queryTask.addOnSuccessListener(any())).thenReturn(queryTask);
-        when(queryTask.addOnFailureListener(any())).thenReturn(queryTask);
-
         AtomicBoolean callbackInvoked = new AtomicBoolean(false);
 
         // Act
@@ -68,7 +76,7 @@ public class UserDeletionUtilTest {
         // Capture listeners for the first query (Co-Organizers)
         ArgumentCaptor<OnSuccessListener<QuerySnapshot>> firstQueryCaptor =
                 ArgumentCaptor.forClass(OnSuccessListener.class);
-        verify(queryTask, atLeastOnce()).addOnSuccessListener(firstQueryCaptor.capture());
+        verify(mockQueryTask, atLeastOnce()).addOnSuccessListener(firstQueryCaptor.capture());
 
         // Simulate first query success
         QuerySnapshot mockSnapshot1 = mock(QuerySnapshot.class);
@@ -80,11 +88,9 @@ public class UserDeletionUtilTest {
         firstQueryCaptor.getAllValues().get(0).onSuccess(mockSnapshot1);
 
         // Now the second query (Waiting List) should be triggered.
-        // In this test setup, it uses the same mockQuery and queryTask.
-        // We capture the listeners added AFTER the first onSuccess.
         ArgumentCaptor<OnSuccessListener<QuerySnapshot>> secondQueryCaptor =
                 ArgumentCaptor.forClass(OnSuccessListener.class);
-        verify(queryTask, atLeastOnce()).addOnSuccessListener(secondQueryCaptor.capture());
+        verify(mockQueryTask, atLeastOnce()).addOnSuccessListener(secondQueryCaptor.capture());
 
         // Simulate second query success
         QuerySnapshot mockSnapshot2 = mock(QuerySnapshot.class);
@@ -102,14 +108,9 @@ public class UserDeletionUtilTest {
         verify(mockBatch).delete(ref2);
 
         // Handle batch commit
-        Task<Void> commitTask = mock(Task.class);
-        when(mockBatch.commit()).thenReturn(commitTask);
-        when(commitTask.addOnSuccessListener(any())).thenReturn(commitTask);
-        when(commitTask.addOnFailureListener(any())).thenReturn(commitTask);
-
         ArgumentCaptor<OnSuccessListener<Void>> commitSuccessCaptor =
                 ArgumentCaptor.forClass(OnSuccessListener.class);
-        verify(commitTask).addOnSuccessListener(commitSuccessCaptor.capture());
+        verify(mockCommitTask).addOnSuccessListener(commitSuccessCaptor.capture());
         commitSuccessCaptor.getValue().onSuccess(null);
 
         assertTrue("Callback should be invoked after successful cleanup", callbackInvoked.get());
@@ -118,18 +119,13 @@ public class UserDeletionUtilTest {
     @SuppressWarnings("unchecked")
     @Test
     public void cleanUp_withNoDocuments_callsOnDone() {
-        Task<QuerySnapshot> queryTask = mock(Task.class);
-        when(mockQuery.get()).thenReturn(queryTask);
-        when(queryTask.addOnSuccessListener(any())).thenReturn(queryTask);
-        when(queryTask.addOnFailureListener(any())).thenReturn(queryTask);
-
         AtomicBoolean callbackInvoked = new AtomicBoolean(false);
         UserDeletionUtil.cleanUpUserRecords(mockDb, "user456", () -> callbackInvoked.set(true));
 
         // Trigger first query success (empty)
         ArgumentCaptor<OnSuccessListener<QuerySnapshot>> firstQueryCaptor =
                 ArgumentCaptor.forClass(OnSuccessListener.class);
-        verify(queryTask, atLeastOnce()).addOnSuccessListener(firstQueryCaptor.capture());
+        verify(mockQueryTask, atLeastOnce()).addOnSuccessListener(firstQueryCaptor.capture());
         
         QuerySnapshot emptySnapshot = mock(QuerySnapshot.class);
         when(emptySnapshot.iterator()).thenReturn(Collections.emptyIterator());
@@ -138,19 +134,14 @@ public class UserDeletionUtilTest {
         // Trigger second query success (empty)
         ArgumentCaptor<OnSuccessListener<QuerySnapshot>> secondQueryCaptor =
                 ArgumentCaptor.forClass(OnSuccessListener.class);
-        verify(queryTask, atLeastOnce()).addOnSuccessListener(secondQueryCaptor.capture());
+        verify(mockQueryTask, atLeastOnce()).addOnSuccessListener(secondQueryCaptor.capture());
         List<OnSuccessListener<QuerySnapshot>> listeners = secondQueryCaptor.getAllValues();
         listeners.get(listeners.size() - 1).onSuccess(emptySnapshot);
 
         // Commit and finish
-        Task<Void> commitTask = mock(Task.class);
-        when(mockBatch.commit()).thenReturn(commitTask);
-        when(commitTask.addOnSuccessListener(any())).thenReturn(commitTask);
-        when(commitTask.addOnFailureListener(any())).thenReturn(commitTask);
-        
         ArgumentCaptor<OnSuccessListener<Void>> commitSuccessCaptor =
                 ArgumentCaptor.forClass(OnSuccessListener.class);
-        verify(commitTask).addOnSuccessListener(commitSuccessCaptor.capture());
+        verify(mockCommitTask).addOnSuccessListener(commitSuccessCaptor.capture());
         commitSuccessCaptor.getValue().onSuccess(null);
 
         assertTrue("Callback should be invoked even with no documents", callbackInvoked.get());
@@ -159,17 +150,12 @@ public class UserDeletionUtilTest {
     @SuppressWarnings("unchecked")
     @Test
     public void cleanUp_queryFails_callsOnDoneAnyway() {
-        Task<QuerySnapshot> queryTask = mock(Task.class);
-        when(mockQuery.get()).thenReturn(queryTask);
-        when(queryTask.addOnSuccessListener(any())).thenReturn(queryTask);
-        when(queryTask.addOnFailureListener(any())).thenReturn(queryTask);
-
         AtomicBoolean callbackInvoked = new AtomicBoolean(false);
         UserDeletionUtil.cleanUpUserRecords(mockDb, "user789", () -> callbackInvoked.set(true));
 
         ArgumentCaptor<OnFailureListener> failureCaptor =
                 ArgumentCaptor.forClass(OnFailureListener.class);
-        verify(queryTask, atLeastOnce()).addOnFailureListener(failureCaptor.capture());
+        verify(mockQueryTask, atLeastOnce()).addOnFailureListener(failureCaptor.capture());
         failureCaptor.getValue().onFailure(new Exception("Network error"));
 
         assertTrue("Callback should be invoked even when query fails", callbackInvoked.get());
