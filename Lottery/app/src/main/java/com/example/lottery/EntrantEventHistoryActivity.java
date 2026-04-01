@@ -159,6 +159,7 @@ public class EntrantEventHistoryActivity extends AppCompatActivity {
         Intent intent = new Intent(this, EntrantEventDetailsActivity.class);
         intent.putExtra(EntrantEventDetailsActivity.EXTRA_EVENT_ID, event.getEventId());
         intent.putExtra(EntrantEventDetailsActivity.EXTRA_USER_ID, userId);
+        intent.putExtra(EntrantEventDetailsActivity.EXTRA_SOURCE_TAB, "HISTORY");
         startActivity(intent);
     }
 }

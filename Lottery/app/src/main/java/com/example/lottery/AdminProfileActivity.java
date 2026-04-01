@@ -134,7 +134,7 @@ public class AdminProfileActivity extends AppCompatActivity {
                 Toast.makeText(this, "Device ID not found", Toast.LENGTH_SHORT).show();
                 return;
             }
-            String entrantUserId = "admin_entrant_" + adminDeviceId;
+            String entrantUserId = "entrant_" + adminDeviceId;
             checkAndSwitchToRole(entrantUserId, "ENTRANT");
         });
 
@@ -143,7 +143,7 @@ public class AdminProfileActivity extends AppCompatActivity {
                 Toast.makeText(this, "Device ID not found", Toast.LENGTH_SHORT).show();
                 return;
             }
-            String organizerUserId = "admin_organizer_" + adminDeviceId;
+            String organizerUserId = "organizer_" + adminDeviceId;
             checkAndSwitchToRole(organizerUserId, "ORGANIZER");
         });
 

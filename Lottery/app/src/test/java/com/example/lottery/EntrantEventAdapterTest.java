@@ -2,12 +2,17 @@ package com.example.lottery;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
+import android.app.Activity;
+import android.view.View;
 
 import com.example.lottery.model.Event;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
@@ -69,5 +74,34 @@ public class EntrantEventAdapterTest {
     @Test
     public void testAdapterNotNull() {
         assertNotNull(adapter);
+    }
+
+    /**
+     * Verifies that the item_event_home layout no longer contains a View Details button.
+     */
+    @Test
+    public void testViewDetailsButtonRemoved() {
+        Activity activity = Robolectric.buildActivity(Activity.class).create().get();
+        View itemView = activity.getLayoutInflater().inflate(R.layout.item_event_home, null);
+        View btnViewDetails = itemView.findViewById(R.id.btnViewDetails);
+        assertNull("btnViewDetails should no longer exist in item_event_home layout", btnViewDetails);
+    }
+
+    /**
+     * Verifies that the whole card is still clickable via itemView click listener.
+     */
+    @Test
+    public void testItemViewClickable() {
+        final boolean[] clicked = {false};
+        EntrantEventAdapter clickAdapter = new EntrantEventAdapter(eventList, event -> clicked[0] = true);
+
+        Activity activity = Robolectric.buildActivity(Activity.class).create().get();
+        EntrantEventAdapter.EntrantEventViewHolder holder =
+                clickAdapter.onCreateViewHolder(
+                        new android.widget.FrameLayout(activity), 0);
+        clickAdapter.onBindViewHolder(holder, 0);
+
+        holder.itemView.performClick();
+        assertEquals("Clicking itemView should trigger event click", true, clicked[0]);
     }
 }

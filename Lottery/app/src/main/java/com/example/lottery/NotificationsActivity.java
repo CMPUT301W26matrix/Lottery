@@ -1,6 +1,7 @@
 package com.example.lottery;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -31,6 +32,7 @@ import java.util.List;
  */
 public class NotificationsActivity extends AppCompatActivity implements NotificationAdapter.OnNotificationClickListener {
 
+    private static final String TAG = "NotificationsActivity";
     public static final String EXTRA_USER_ID = "userId";
     public static final String EXTRA_EVENT_ID = "eventId";
     public static final String EXTRA_EVENT_TITLE = "eventTitle";
@@ -116,11 +118,13 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
     }
 
     private void loadNotifications() {
-        Query query = db.collection(FirestorePaths.userInbox(userId))
-                .orderBy("createdAt", Query.Direction.DESCENDING);
-
+        Query query;
         if (eventId != null) {
-            query = query.whereEqualTo("eventId", eventId);
+            query = db.collection(FirestorePaths.userInbox(userId))
+                    .whereEqualTo("eventId", eventId);
+        } else {
+            query = db.collection(FirestorePaths.userInbox(userId))
+                    .orderBy("createdAt", Query.Direction.DESCENDING);
         }
 
         query.get()
@@ -134,10 +138,20 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
                         }
                     });
 
+                    if (eventId != null) {
+                        notificationList.sort((a, b) -> {
+                            if (a.getCreatedAt() == null && b.getCreatedAt() == null) return 0;
+                            if (a.getCreatedAt() == null) return 1;
+                            if (b.getCreatedAt() == null) return -1;
+                            return b.getCreatedAt().compareTo(a.getCreatedAt());
+                        });
+                    }
+
                     adapter.notifyDataSetChanged();
                     updateEmptyState();
                 })
                 .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to load notifications", e);
                     tvNoNotifications.setVisibility(View.VISIBLE);
                     tvNoNotifications.setText(R.string.failed_to_load_notifications);
                     rvNotifications.setVisibility(View.GONE);
