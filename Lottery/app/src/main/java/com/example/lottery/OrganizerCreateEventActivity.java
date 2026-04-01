@@ -66,7 +66,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
 
     private static final String TAG = "OrganizerCreateEvent";
 
-    private TextInputEditText etEventTitle, etMaxCapacity, etEventDetails, etWaitingListLimit;
+    private TextInputEditText etEventTitle, etMaxCapacity, etEventDetails, etPlace, etWaitingListLimit;
     private TextInputEditText etEventStart, etEventEnd, etRegStart, etRegEnd, etDrawDate;
     private TextInputLayout tilWaitingListLimit;
     private Button btnOpenUploadDialog, btnGenerateQRCode, btnCreateEvent;
@@ -224,6 +224,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         etEventTitle = findViewById(R.id.etEventTitle);
         etMaxCapacity = findViewById(R.id.etMaxCapacity);
         etEventDetails = findViewById(R.id.etEventDetails);
+        etPlace = findViewById(R.id.etPlace);
 
         etEventStart = findViewById(R.id.etEventStart);
         etEventEnd = findViewById(R.id.etEventEnd);
@@ -272,6 +273,9 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             etEventTitle.setText(event.getTitle());
             etMaxCapacity.setText(String.valueOf(event.getCapacity()));
             etEventDetails.setText(event.getDetails());
+            if (event.getPlace() != null) {
+                etPlace.setText(event.getPlace());
+            }
             swRequireLocation.setChecked(event.isRequireLocation());
             swIsPrivate.setChecked(event.isPrivate());
 
@@ -426,6 +430,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         String title = etEventTitle.getText() != null ? etEventTitle.getText().toString().trim() : "";
         String capacityStr = etMaxCapacity.getText() != null ? etMaxCapacity.getText().toString().trim() : "";
         String details = etEventDetails.getText() != null ? etEventDetails.getText().toString().trim() : "";
+        String place = etPlace.getText() != null ? etPlace.getText().toString().trim() : "";
         String waitingLimitStr = etWaitingListLimit.getText() != null ? etWaitingListLimit.getText().toString().trim() : "";
 
         // 1.1 Event must have title
@@ -497,19 +502,19 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                         if (snapshots.size() > finalWaitingListLimit) {
                             Toast.makeText(this, "New limit cannot be less than current entrants", Toast.LENGTH_LONG).show();
                         } else {
-                            persistEvent(title, capacityStr, details, finalWaitingListLimit);
+                            persistEvent(title, capacityStr, details, place, finalWaitingListLimit);
                         }
                     })
-                    .addOnFailureListener(e -> persistEvent(title, capacityStr, details, finalWaitingListLimit));
+                    .addOnFailureListener(e -> persistEvent(title, capacityStr, details, place, finalWaitingListLimit));
         } else {
-            persistEvent(title, capacityStr, details, finalWaitingListLimit);
+            persistEvent(title, capacityStr, details, place, finalWaitingListLimit);
         }
     }
 
     /**
      * Persists the event to Firestore, handling poster conversion to Base64 if needed.
      */
-    private void persistEvent(String title, String capacityStr, String details, Integer waitingListLimit) {
+    private void persistEvent(String title, String capacityStr, String details, String place, Integer waitingListLimit) {
         Log.d(TAG, "persistEvent started: Base64 mode");
         btnCreateEvent.setEnabled(false);
 
@@ -530,7 +535,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             }
         }
 
-        saveEventToFirestore(title, capacityStr, details, waitingListLimit, posterData);
+        saveEventToFirestore(title, capacityStr, details, place, waitingListLimit, posterData);
     }
 
     /**
@@ -576,7 +581,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
     /**
      * Final step to save the event object to Firestore.
      */
-    private void saveEventToFirestore(String title, String capacityStr, String details, Integer waitingListLimit, String posterBase64ToSave) {
+    private void saveEventToFirestore(String title, String capacityStr, String details, String place, Integer waitingListLimit, String posterBase64ToSave) {
         Log.d(TAG, "saveEventToFirestore started");
 
         boolean isPrivate = swIsPrivate.isChecked();
@@ -611,6 +616,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         eventMap.put("eventId", eventId);
         eventMap.put("title", title);
         eventMap.put("details", details);
+        eventMap.put("place", place);
         eventMap.put("organizerId", userId);
         eventMap.put("capacity", capacity);
         eventMap.put("waitingListLimit", waitingListLimit);

@@ -16,7 +16,6 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -138,7 +137,9 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
 
         etSearch.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (pendingSearch != null) searchHandler.removeCallbacks(pendingSearch);
@@ -146,8 +147,10 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
                 pendingSearch = () -> searchUsers(query);
                 searchHandler.postDelayed(pendingSearch, 300);
             }
+
             @Override
-            public void afterTextChanged(Editable s) {}
+            public void afterTextChanged(Editable s) {
+            }
         });
 
         return view;
@@ -222,7 +225,7 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
                         if (!user.isEntrant()) continue;
 
                         boolean match = (user.getUsername() != null && user.getUsername().toLowerCase().contains(lowerQuery))
-                        || (user.getEmail() != null && user.getEmail().toLowerCase().contains(lowerQuery));
+                                || (user.getEmail() != null && user.getEmail().toLowerCase().contains(lowerQuery));
 
                         if (match) searchResults.add(user);
                     }
@@ -345,13 +348,18 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
         }
 
         @Override
-        public int getItemCount() { return users.size(); }
+        public int getItemCount() {
+            return users.size();
+        }
 
-        interface OnRemoveListener { void onRemove(User user); }
+        interface OnRemoveListener {
+            void onRemove(User user);
+        }
 
         static class ViewHolder extends RecyclerView.ViewHolder {
             TextView tvUsername, tvEmail;
             ImageButton btnRemove;
+
             ViewHolder(View v) {
                 super(v);
                 tvUsername = v.findViewById(R.id.tvUsername);
@@ -404,12 +412,17 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
         }
 
         @Override
-        public int getItemCount() { return users.size(); }
+        public int getItemCount() {
+            return users.size();
+        }
 
-        interface OnUserClickListener { void onUserClick(User user); }
+        interface OnUserClickListener {
+            void onUserClick(User user);
+        }
 
         static class ViewHolder extends RecyclerView.ViewHolder {
             TextView text1, text2;
+
             ViewHolder(View v) {
                 super(v);
                 text1 = v.findViewById(android.R.id.text1);

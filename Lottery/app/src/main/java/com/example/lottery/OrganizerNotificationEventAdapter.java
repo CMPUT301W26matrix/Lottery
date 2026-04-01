@@ -12,7 +12,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lottery.model.Event;
-import com.example.lottery.util.InvitationFlowUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.List;

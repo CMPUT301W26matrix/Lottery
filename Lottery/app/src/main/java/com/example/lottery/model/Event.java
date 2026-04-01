@@ -33,6 +33,7 @@ public class Event {
     private String status; // open, closed
     private String posterBase64;
     private String category; // academic, social, sports, music, other
+    private String place;
     private Timestamp scheduledDateTime;
     private Timestamp eventEndDateTime;
     private Timestamp registrationStart;
@@ -65,6 +66,7 @@ public class Event {
                  String status,
                  String posterBase64,
                  String category,
+                 String place,
                  Timestamp scheduledDateTime,
                  Timestamp eventEndDateTime,
                  Timestamp registrationStart,
@@ -84,6 +86,7 @@ public class Event {
         this.status = status;
         this.posterBase64 = posterBase64;
         this.category = category == null ? "Other" : category;
+        this.place = place;
         this.scheduledDateTime = scheduledDateTime;
         this.eventEndDateTime = eventEndDateTime;
         this.registrationStart = registrationStart;
@@ -196,6 +199,14 @@ public class Event {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public String getPlace() {
+        return place;
+    }
+
+    public void setPlace(String place) {
+        this.place = place;
     }
 
     public Timestamp getScheduledDateTime() {

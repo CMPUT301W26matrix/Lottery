@@ -23,6 +23,7 @@
     <string name="draw_date">Draw Date</string>
     <string name="maximum_capacity">Maximum Capacity</string>
     <string name="event_details_amp_description"><![CDATA[Event Details & Description]]></string>
+    <string name="event_place">Location</string>
     <string name="require_geolocation_for_entrants">Require Geolocation for Entrants</string>
     <string name="event_poster">Event Poster</string>
     <string name="poster_preview">Poster Preview</string>
