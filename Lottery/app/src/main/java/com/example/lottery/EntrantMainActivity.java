@@ -132,7 +132,7 @@ public class EntrantMainActivity extends AppCompatActivity {
         chipSpotsAvailable = findViewById(R.id.chipSpotsAvailable);
         btnTimeFilter = findViewById(R.id.btnTimeFilter);
 
-        adapter = new EntrantEventAdapter(filteredEventList, this::openEventDetails);
+        adapter = new EntrantEventAdapter(filteredEventList, this::openEventDetails, userId);
         rvEvents.setLayoutManager(new LinearLayoutManager(this));
         rvEvents.setAdapter(adapter);
     }

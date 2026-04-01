@@ -106,6 +106,9 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     private TextView tvCoOrganizerStatus;
     private TextView btnShowMore;
 
+    private TextView tvRegistrationEndedTitle;
+    private TextView tvRegistrationEndedMessage;
+
     private Button btnWaitlistAction;
     private Button btnAcceptInvite;
     private Button btnDeclineInvite;
@@ -253,6 +256,9 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         tvDrawDate = findViewById(R.id.tvDrawDate);
         tvCoOrganizerStatus = findViewById(R.id.tvCoOrganizerStatus);
         btnShowMore = findViewById(R.id.btnShowMore);
+
+        tvRegistrationEndedTitle = findViewById(R.id.tvRegistrationEndedTitle);
+        tvRegistrationEndedMessage = findViewById(R.id.tvRegistrationEndedMessage);
 
         btnWaitlistAction = findViewById(R.id.btnWaitlistAction);
         btnAcceptInvite = findViewById(R.id.btnAcceptInvite);
@@ -624,6 +630,8 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         } else if (isCancelled) {
             invitationButtonsContainer.setVisibility(View.GONE);
             btnWaitlistAction.setVisibility(View.GONE);
+            tvRegistrationEndedTitle.setText(R.string.cannot_rejoin_event_title);
+            tvRegistrationEndedMessage.setText(R.string.cannot_rejoin_event_message);
             registrationEndedContainer.setVisibility(View.VISIBLE);
         } else {
             btnWaitlistAction.setVisibility(View.VISIBLE);
