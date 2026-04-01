@@ -23,12 +23,14 @@ public final class UserDeletionUtil {
      */
     public static void cleanUpUserRecords(FirebaseFirestore db, String userId, Runnable onDone) {
         // Step 1: Clean up Co-Organizers
+        // We use collectionGroup to find the user in any event's coOrganizers sub-collection
         db.collectionGroup(FirestorePaths.CO_ORGANIZERS)
                 .whereEqualTo("userId", userId)
                 .get()
                 .addOnSuccessListener(coOrganizerSnapshots -> {
                     
                     // Step 2: Clean up Waitlists / Entrant Lists
+                    // Similarly, remove the user from any event's waitingList (which includes all participation statuses)
                     db.collectionGroup(FirestorePaths.WAITING_LIST)
                             .whereEqualTo("userId", userId)
                             .get()
@@ -36,25 +38,28 @@ public final class UserDeletionUtil {
                                 
                                 WriteBatch batch = db.batch();
                                 
+                                // Add all found co-organizer documents to the deletion batch
                                 if (coOrganizerSnapshots != null) {
                                     for (DocumentSnapshot doc : coOrganizerSnapshots) {
                                         batch.delete(doc.getReference());
                                     }
                                 }
                                 
+                                // Add all found participation/waitlist documents to the deletion batch
                                 if (waitlistSnapshots != null) {
                                     for (DocumentSnapshot doc : waitlistSnapshots) {
                                         batch.delete(doc.getReference());
                                     }
                                 }
                                 
+                                // Commit the batch and trigger completion
                                 batch.commit()
                                         .addOnSuccessListener(unused -> onDone.run())
                                         .addOnFailureListener(e -> onDone.run());
                                 
                             })
                             .addOnFailureListener(e -> {
-                                // Even if waitlist query fails, delete whatever co-organizers we found
+                                // Fallback: Even if waitlist query fails, delete whatever co-organizers we found
                                 WriteBatch batch = db.batch();
                                 if (coOrganizerSnapshots != null) {
                                     for (DocumentSnapshot doc : coOrganizerSnapshots) {
@@ -75,7 +80,7 @@ public final class UserDeletionUtil {
      * @param onDone callback invoked after cleanup completes or fails
      */
     public static void cleanUpCoOrganizerRecords(FirebaseFirestore db, String userId, Runnable onDone) {
-        // For testing compatibility and minimal changes, redirect to the full cleanup logic
+        // Redirect to the unified cleanup logic which handles both roles
         cleanUpUserRecords(db, userId, onDone);
     }
 }
