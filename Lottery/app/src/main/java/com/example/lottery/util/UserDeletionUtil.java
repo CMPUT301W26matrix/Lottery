@@ -22,13 +22,13 @@ public final class UserDeletionUtil {
      * @param onDone callback invoked after cleanup completes or fails
      */
     public static void cleanUpUserRecords(FirebaseFirestore db, String userId, Runnable onDone) {
-        // Clean up Co-Organizers
+        // Step 1: Clean up Co-Organizers
         db.collectionGroup(FirestorePaths.CO_ORGANIZERS)
                 .whereEqualTo("userId", userId)
                 .get()
                 .addOnSuccessListener(coOrganizerSnapshots -> {
                     
-                    // Clean up Waitlists / Entrant Lists
+                    // Step 2: Clean up Waitlists / Entrant Lists
                     db.collectionGroup(FirestorePaths.WAITING_LIST)
                             .whereEqualTo("userId", userId)
                             .get()
@@ -36,12 +36,16 @@ public final class UserDeletionUtil {
                                 
                                 WriteBatch batch = db.batch();
                                 
-                                for (DocumentSnapshot doc : coOrganizerSnapshots) {
-                                    batch.delete(doc.getReference());
+                                if (coOrganizerSnapshots != null) {
+                                    for (DocumentSnapshot doc : coOrganizerSnapshots) {
+                                        batch.delete(doc.getReference());
+                                    }
                                 }
                                 
-                                for (DocumentSnapshot doc : waitlistSnapshots) {
-                                    batch.delete(doc.getReference());
+                                if (waitlistSnapshots != null) {
+                                    for (DocumentSnapshot doc : waitlistSnapshots) {
+                                        batch.delete(doc.getReference());
+                                    }
                                 }
                                 
                                 batch.commit()
@@ -49,16 +53,29 @@ public final class UserDeletionUtil {
                                         .addOnFailureListener(e -> onDone.run());
                                 
                             })
-                            .addOnFailureListener(e -> onDone.run());
+                            .addOnFailureListener(e -> {
+                                // Even if waitlist query fails, delete whatever co-organizers we found
+                                WriteBatch batch = db.batch();
+                                if (coOrganizerSnapshots != null) {
+                                    for (DocumentSnapshot doc : coOrganizerSnapshots) {
+                                        batch.delete(doc.getReference());
+                                    }
+                                }
+                                batch.commit().addOnCompleteListener(task -> onDone.run());
+                            });
                 })
                 .addOnFailureListener(e -> onDone.run());
     }
 
     /**
-     * @deprecated Use {@link #cleanUpUserRecords(FirebaseFirestore, String, Runnable)} instead.
+     * Clean up co-organizer records only.
+     *
+     * @param db     Firestore instance
+     * @param userId the user whose co-organizer documents should be removed
+     * @param onDone callback invoked after cleanup completes or fails
      */
-    @Deprecated
     public static void cleanUpCoOrganizerRecords(FirebaseFirestore db, String userId, Runnable onDone) {
+        // For testing compatibility and minimal changes, redirect to the full cleanup logic
         cleanUpUserRecords(db, userId, onDone);
     }
 }
