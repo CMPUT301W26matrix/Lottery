@@ -217,7 +217,6 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
 
                         // Skip the current organizer
                         if (user.getUserId().equals(senderId)) continue;
-                        if (currentCoOrganizerIds.contains(user.getUserId())) continue;
 
                         // US 02.09.01: only entrant-role users can be co-organizers
                         if (!user.isEntrant()) continue;
@@ -296,7 +295,7 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
                 : "You are no longer a co-organizer for: " + eventTitle;
 
         NotificationItem notification = new NotificationItem(
-                notificationId, title, message, "co_organizer_update",
+                notificationId, title, message, "co_organizer_assignment",
                 eventId, eventTitle, senderId, "ORGANIZER", false, Timestamp.now()
         );
 
@@ -383,9 +382,25 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             User user = users.get(position);
-            holder.text1.setText(user.getUsername());
-            holder.text2.setText(user.getEmail());
-            holder.itemView.setOnClickListener(v -> listener.onUserClick(user));
+
+            boolean isAlreadyCoOrg = existingIds != null && existingIds.contains(user.getUserId());
+            String displayName = user.getUsername();
+            if (isAlreadyCoOrg) {
+                displayName += " (Already Co-Organizer)";
+                holder.itemView.setEnabled(false);
+                holder.itemView.setAlpha(0.5f);
+                holder.itemView.setOnClickListener(null);
+            } else {
+                holder.itemView.setEnabled(true);
+                holder.itemView.setAlpha(1.0f);
+                holder.itemView.setOnClickListener(v -> listener.onUserClick(user));
+            }
+            holder.text1.setText(displayName);
+
+            String subtext = (user.getEmail() != null && !user.getEmail().isEmpty())
+                    ? user.getEmail()
+                    : user.getPhone();
+            holder.text2.setText(subtext);
         }
 
         @Override
