@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -60,7 +59,7 @@ public class AdminSignInActivity extends AppCompatActivity {
         backButton = findViewById(R.id.btnBack);
 
         signInButton.setOnClickListener(view -> validateAdminCode());
-        
+
         // Handle back button click
         if (backButton != null) {
             backButton.setOnClickListener(v -> finish());

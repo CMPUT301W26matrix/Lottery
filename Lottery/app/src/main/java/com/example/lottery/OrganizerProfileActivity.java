@@ -2,12 +2,8 @@ package com.example.lottery;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.util.Base64;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
@@ -30,11 +26,10 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.lottery.util.AdminRoleManager;
-import com.example.lottery.util.AvatarUtils;
 import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.OrganizerNavigationHelper;
+import com.example.lottery.util.ProfileImageHelper;
 import com.example.lottery.util.UserDeletionUtil;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;
@@ -42,8 +37,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -229,8 +223,8 @@ public class OrganizerProfileActivity extends AppCompatActivity {
                 etEmail.setText(email != null ? email : "");
                 etPhone.setText(phone != null ? phone : "");
 
-                displayProfileImage(savedImageBase64, ivProfileImage, ivProfilePlaceholder, username);
-                displayProfileImage(savedImageBase64, ivEditProfileImage, ivEditProfilePlaceholder, username);
+                ProfileImageHelper.displayProfileImage(savedImageBase64, ivProfileImage, ivProfilePlaceholder, username);
+                ProfileImageHelper.displayProfileImage(savedImageBase64, ivEditProfileImage, ivEditProfilePlaceholder, username);
 
                 if (forceEdit && username != null && !username.isEmpty() && email != null && !email.isEmpty()) {
                     forceEdit = false;
@@ -241,38 +235,11 @@ public class OrganizerProfileActivity extends AppCompatActivity {
         });
     }
 
-    private void displayProfileImage(String base64String, ImageView imageView, ImageView placeholderView, String username) {
-        if (base64String != null && !base64String.isEmpty()) {
-            try {
-                byte[] decodedString = Base64.decode(base64String, Base64.DEFAULT);
-                Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-                if (decodedByte != null) {
-                    imageView.setImageBitmap(decodedByte);
-                    imageView.setVisibility(View.VISIBLE);
-                    placeholderView.setVisibility(View.GONE);
-                } else {
-                    showDefaultPlaceholder(imageView, placeholderView, username);
-                }
-            } catch (Exception e) {
-                showDefaultPlaceholder(imageView, placeholderView, username);
-            }
-        } else {
-            showDefaultPlaceholder(imageView, placeholderView, username);
-        }
-    }
-
-    private void showDefaultPlaceholder(ImageView imageView, ImageView placeholderView, String username) {
-        Bitmap defaultAvatar = AvatarUtils.generateDefaultAvatar(username != null ? username : "?", 200);
-        imageView.setImageBitmap(defaultAvatar);
-        imageView.setVisibility(View.VISIBLE);
-        placeholderView.setVisibility(View.GONE);
-    }
-
     private void enterEditMode() {
         isEditing = true;
         selectedImageBase64 = null; // Reset temp storage
         // Ensure existing saved avatar is shown correctly when entering edit mode
-        displayProfileImage(savedImageBase64, ivEditProfileImage, ivEditProfilePlaceholder, etName.getText().toString());
+        ProfileImageHelper.displayProfileImage(savedImageBase64, ivEditProfileImage, ivEditProfilePlaceholder, etName.getText().toString());
 
         viewContainer.setVisibility(View.GONE);
         editContainer.setVisibility(View.VISIBLE);
@@ -295,7 +262,7 @@ public class OrganizerProfileActivity extends AppCompatActivity {
         isEditing = false;
         selectedImageBase64 = null; // Clear temp storage
         // Revert edit preview to saved state
-        displayProfileImage(savedImageBase64, ivEditProfileImage, ivEditProfilePlaceholder, etName.getText().toString());
+        ProfileImageHelper.displayProfileImage(savedImageBase64, ivEditProfileImage, ivEditProfilePlaceholder, etName.getText().toString());
 
         viewContainer.setVisibility(View.VISIBLE);
         editContainer.setVisibility(View.GONE);
@@ -305,72 +272,29 @@ public class OrganizerProfileActivity extends AppCompatActivity {
     }
 
     private void showAvatarOptions() {
-        // Determine if we currently have an image to remove
-        boolean hasImage = (selectedImageBase64 != null && !selectedImageBase64.isEmpty()) || 
-                          (selectedImageBase64 == null && savedImageBase64 != null && !savedImageBase64.isEmpty());
-
-        if (!hasImage) {
-            // No custom photo, go straight to picker
-            openImagePicker();
-        } else {
-            // Has custom photo, show options
-            BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
-            View view = getLayoutInflater().inflate(R.layout.layout_avatar_options_sheet, null);
-
-            view.findViewById(R.id.ll_change_photo).setOnClickListener(v -> {
-                openImagePicker();
-                bottomSheetDialog.dismiss();
-            });
-
-            view.findViewById(R.id.ll_remove_photo).setOnClickListener(v -> {
-                removeAvatar();
-                bottomSheetDialog.dismiss();
-            });
-
-            bottomSheetDialog.setContentView(view);
-            bottomSheetDialog.show();
-        }
-    }
-
-    private void openImagePicker() {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        imagePickerLauncher.launch(intent);
+        boolean hasImage = ProfileImageHelper.hasCustomImage(selectedImageBase64, savedImageBase64);
+        ProfileImageHelper.showAvatarOptions(this, hasImage,
+                () -> ProfileImageHelper.openImagePicker(imagePickerLauncher),
+                this::removeAvatar);
     }
 
     private void removeAvatar() {
-        selectedImageBase64 = ""; // Use empty string to mark removal
-        // Immediately show the default avatar in the preview
-        String currentName = etName.getText().toString();
-        Bitmap defaultAvatar = AvatarUtils.generateDefaultAvatar(currentName, 200);
-        ivEditProfileImage.setImageBitmap(defaultAvatar);
-        ivEditProfileImage.setVisibility(View.VISIBLE);
-        ivEditProfilePlaceholder.setVisibility(View.GONE);
+        selectedImageBase64 = "";
+        ProfileImageHelper.showDefaultAvatar(ivEditProfileImage, ivEditProfilePlaceholder, etName.getText().toString());
         Toast.makeText(this, "Avatar marked for removal", Toast.LENGTH_SHORT).show();
     }
 
     private void processSelectedImage(Uri imageUri) {
         try {
-            InputStream inputStream = getContentResolver().openInputStream(imageUri);
-            Bitmap originalBitmap = BitmapFactory.decodeStream(inputStream);
-            if (originalBitmap == null) return;
-
-            // Resize to small avatar size (e.g., 200x200)
-            int size = 200;
-            Bitmap scaledBitmap = Bitmap.createScaledBitmap(originalBitmap, size, size, true);
-
-            // Compress and convert to Base64
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 70, byteArrayOutputStream);
-            byte[] byteArray = byteArrayOutputStream.toByteArray();
-            selectedImageBase64 = Base64.encodeToString(byteArray, Base64.DEFAULT);
-
-            // Preview decoded bitmap
-            ivEditProfileImage.setImageBitmap(scaledBitmap);
-            ivEditProfileImage.setVisibility(View.VISIBLE);
-            ivEditProfilePlaceholder.setVisibility(View.GONE);
-
-            Toast.makeText(this, "Image selected", Toast.LENGTH_SHORT).show();
-        } catch (Exception e) {
+            ProfileImageHelper.ProcessedImage result =
+                    ProfileImageHelper.processSelectedImage(getContentResolver(), imageUri);
+            if (result != null) {
+                selectedImageBase64 = result.base64;
+                ivEditProfileImage.setImageBitmap(result.bitmap);
+                ivEditProfileImage.setVisibility(View.VISIBLE);
+                ivEditProfilePlaceholder.setVisibility(View.GONE);
+            }
+        } catch (IOException e) {
             Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show();
         }
     }
@@ -450,7 +374,7 @@ public class OrganizerProfileActivity extends AppCompatActivity {
     private void deleteUserProfile() {
         if (userId == null) return;
 
-        UserDeletionUtil.cleanUpCoOrganizerRecords(db, userId, () ->
+        UserDeletionUtil.cleanUpUserRecords(db, userId, () ->
                 db.collection(FirestorePaths.USERS).document(userId).delete()
                         .addOnSuccessListener(aVoid -> {
                             Toast.makeText(this, "Profile deleted successfully", Toast.LENGTH_SHORT).show();

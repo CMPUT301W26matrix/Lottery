@@ -144,7 +144,9 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
                     // Sort in-memory if we were in event-specific mode
                     if (eventId != null) {
                         Collections.sort(notificationList, (a, b) -> {
-                            if (a.getCreatedAt() == null || b.getCreatedAt() == null) return 0;
+                            if (a.getCreatedAt() == null && b.getCreatedAt() == null) return 0;
+                            if (a.getCreatedAt() == null) return 1;
+                            if (b.getCreatedAt() == null) return -1;
                             return b.getCreatedAt().compareTo(a.getCreatedAt()); // Descending
                         });
                     }

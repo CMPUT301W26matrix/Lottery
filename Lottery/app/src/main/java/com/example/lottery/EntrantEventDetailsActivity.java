@@ -12,10 +12,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.Layout;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -416,19 +414,6 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * Requests location permissions and continues the current action if permission is granted.
-     */
-    private final ActivityResultLauncher<String[]> locationPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
-                if (result.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false)
-                        || result.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)) {
-                    startLocationCollection();
-                } else {
-                    Toast.makeText(this, "Location is required to proceed", Toast.LENGTH_LONG).show();
-                }
-            });
-
-    /**
      * Handles an action that may require location before completion.
      *
      * @param isInviteFlow True when the user is accepting an invitation; false when joining waitlist.
@@ -479,7 +464,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
      */
     private void showCustomAlertDialog(String title, String message, String positiveBtnText, String negativeBtnText, Runnable onPositive, Runnable onNegative) {
         View dialogView = LayoutInflater.from(this).inflate(R.layout.layout_custom_alert_dialog, null);
-        
+
         TextView tvTitle = dialogView.findViewById(R.id.dialog_title);
         TextView tvMessage = dialogView.findViewById(R.id.dialog_message);
         Button btnPositive = dialogView.findViewById(R.id.btn_positive);
@@ -510,7 +495,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         });
 
         dialog.show();
-        
+
         // Adjust width to be more consistent
         Window window = dialog.getWindow();
         if (window != null) {
@@ -520,6 +505,19 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
             window.setAttributes(layoutParams);
         }
     }
+
+    /**
+     * Requests location permissions and continues the current action if permission is granted.
+     */
+    private final ActivityResultLauncher<String[]> locationPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
+                if (result.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false)
+                        || result.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)) {
+                    startLocationCollection();
+                } else {
+                    Toast.makeText(this, "Location is required to proceed", Toast.LENGTH_LONG).show();
+                }
+            });
 
     /**
      * Starts location collection or requests permission if needed.
@@ -846,6 +844,4 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                     Toast.makeText(this, R.string.left_waitlist, Toast.LENGTH_SHORT).show();
                 });
     }
-
-
 }
