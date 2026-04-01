@@ -66,7 +66,7 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
 
         initViews();
         setupHeader();
-        
+
         btnBack.setOnClickListener(v -> finish());
         EntrantNavigationHelper.setup(this, EntrantNavigationHelper.EntrantTab.NONE, userId, true);
         loadNotifications();
@@ -81,7 +81,7 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
         adapter = new NotificationAdapter(notificationList, this);
         // Set mode based on whether eventId is present
         adapter.setEventSpecificMode(eventId != null);
-        
+
         rvNotifications.setLayoutManager(new LinearLayoutManager(this));
         rvNotifications.setAdapter(adapter);
 
@@ -94,9 +94,9 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
 
     private void setupHeader() {
         if (eventId != null) {
-            String titleText = (eventTitle != null && !eventTitle.isEmpty()) 
-                ? eventTitle + " Notifications" 
-                : "Event Notifications";
+            String titleText = (eventTitle != null && !eventTitle.isEmpty())
+                    ? eventTitle + " Notifications"
+                    : "Event Notifications";
             tvTitle.setText(titleText);
             tvTitle.setTextColor(getResources().getColor(R.color.primary_blue));
             btnBack.getDrawable().setTint(getResources().getColor(R.color.primary_blue));

@@ -66,7 +66,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
         String rawTitle = item.getTitle() != null ? item.getTitle() : "";
         String eventTitle = item.getEventTitle() != null ? item.getEventTitle() : "";
-        
+
         String displayTitle = rawTitle;
 
         // In Global Mode (not event-specific), ensure the event title is prefixed if not already there
@@ -81,7 +81,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             } else if (rawTitle.contains(eventTitle)) {
                 displayTitle = rawTitle.replace(eventTitle, "").replace("for", "").replace(":", "").trim();
             }
-            
+
             // Capitalize first letter if shortened
             if (!displayTitle.isEmpty()) {
                 displayTitle = displayTitle.substring(0, 1).toUpperCase() + displayTitle.substring(1);
@@ -95,7 +95,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
         holder.tvTitle.setText(displayTitle);
         holder.tvType.setText(formatNotificationType(item.getType()));
-        
+
         String message = item.getMessage() != null ? item.getMessage() : "";
         holder.tvMessage.setText(message);
 

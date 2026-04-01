@@ -489,6 +489,28 @@
                             android:textSize="16sp" />
                     </com.google.android.material.textfield.TextInputLayout>
 
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilPlace"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:hint="@string/event_place"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxStrokeColor="@color/primary_blue"
+                        app:hintTextColor="@color/primary_blue">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etPlace"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="text"
+                            android:textSize="16sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
                     <!-- Limit Waiting List Row -->
                     <RelativeLayout
                         android:layout_width="match_parent"

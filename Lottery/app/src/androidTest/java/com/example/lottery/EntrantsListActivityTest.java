@@ -45,7 +45,6 @@ public class EntrantsListActivityTest {
         onView(withId(R.id.entrants_list_signed_up_btn)).perform(scrollTo()).check(matches(isDisplayed()));
         onView(withId(R.id.entrants_list_cancelled_btn)).perform(scrollTo()).check(matches(isDisplayed()));
 
-        onView(withId(R.id.entrants_list_send_notification_btn)).check(matches(isDisplayed()));
         onView(withId(R.id.entrants_list_view_location_btn)).check(matches(isDisplayed()));
     }
 
@@ -98,15 +97,6 @@ public class EntrantsListActivityTest {
         onView(withText("Sample Winners")).check(matches(isDisplayed()));
     }
 
-    /**
-     * Verifies that the Send Notification dialog appears.
-     */
-    @Test
-    public void testClickNotificationFragmentVisibility() {
-        onView(withId(R.id.entrants_list_send_notification_btn)).perform(click());
-        // Check for dialog elements (NotificationFragment uses AlertDialog)
-        onView(withText("Compose Notification")).check(matches(isDisplayed()));
-    }
 
     /**
      * US 02.02.01

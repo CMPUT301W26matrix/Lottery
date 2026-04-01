@@ -199,7 +199,7 @@ public class OrganizerNotificationsActivity extends AppCompatActivity
                 .addOnSuccessListener(querySnapshot -> {
                     WriteBatch batch = db.batch();
                     int totalPotentialRecipients = querySnapshot.size();
-                    
+
                     if (totalPotentialRecipients == 0) {
                         Toast.makeText(this, "No recipients found in group", Toast.LENGTH_SHORT).show();
                         return;

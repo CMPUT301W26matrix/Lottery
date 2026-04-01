@@ -30,9 +30,11 @@ public class EventTest {
         Timestamp now = Timestamp.now();
 
         // Testing the full constructor with compliant fields
+        String place = "Community Centre A, Room 101";
+
         Event event = new Event(eventId, title, details, organizerId, capacity,
                 waitingListLimit, qrCodeContent, status, posterBase64, category,
-                now, now, now, now, now, true, false, now, now);
+                place, now, now, now, now, now, true, false, now, now);
 
         assertEquals(eventId, event.getEventId());
         assertEquals(title, event.getTitle());
@@ -44,6 +46,7 @@ public class EventTest {
         assertEquals(status, event.getStatus());
         assertEquals(posterBase64, event.getPosterBase64());
         assertEquals(category, event.getCategory());
+        assertEquals(place, event.getPlace());
         assertEquals(now, event.getScheduledDateTime());
         assertTrue(event.isRequireLocation());
         assertFalse(event.isPrivate());
@@ -90,6 +93,16 @@ public class EventTest {
         Event event = new Event();
         event.setPosterBase64("");
         assertEquals("Poster Base64 should accept empty string", "", event.getPosterBase64());
+    }
+
+    @Test
+    public void testPlaceSetterGetter() {
+        Event event = new Event();
+        assertNull(event.getPlace());
+        event.setPlace("Local Rec Centre");
+        assertEquals("Local Rec Centre", event.getPlace());
+        event.setPlace(null);
+        assertNull(event.getPlace());
     }
 
     // US 03.04.01: Event should support nullable waiting list limit for admin browsing

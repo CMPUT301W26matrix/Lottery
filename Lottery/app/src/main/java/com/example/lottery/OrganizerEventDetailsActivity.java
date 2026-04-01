@@ -48,7 +48,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
             new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
 
     private ImageView ivEventPoster;
-    private TextView tvEventTitle, tvScheduledDate, tvEventEndDate, tvRegistrationStart, tvRegistrationDeadline, tvDrawDate, tvEventDetails, tvLocationRequirement;
+    private TextView tvEventTitle, tvPlace, tvScheduledDate, tvEventEndDate, tvRegistrationStart, tvRegistrationDeadline, tvDrawDate, tvEventDetails, tvLocationRequirement;
     private TextView tvWaitingListCapacity, tvEntrantCounts;
     private TextView btnShowMore;
     private Chip chipCategory, chipPrivate;
@@ -76,6 +76,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
 
         ivEventPoster = findViewById(R.id.ivEventPoster);
         tvEventTitle = findViewById(R.id.tvEventTitle);
+        tvPlace = findViewById(R.id.tvPlace);
         tvScheduledDate = findViewById(R.id.tvScheduledDate);
         tvRegistrationDeadline = findViewById(R.id.tvRegistrationDeadline);
         tvDrawDate = findViewById(R.id.tvDrawDate);
@@ -135,7 +136,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         });
 
         btnCoOrganizers.setOnClickListener(v -> openCoOrganizerDialog());
-        
+
         btnShowMore.setOnClickListener(v -> toggleDescription());
 
         btnBack.setOnClickListener(v -> finish());
@@ -257,6 +258,14 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
      */
     private void updateUI(Event event) {
         tvEventTitle.setText(event.getTitle() != null ? event.getTitle() : "");
+
+        if (event.getPlace() != null && !event.getPlace().isEmpty()) {
+            tvPlace.setText(event.getPlace());
+            tvPlace.setVisibility(View.VISIBLE);
+        } else {
+            tvPlace.setVisibility(View.GONE);
+        }
+
         tvEventDetails.setText(event.getDetails() != null ? event.getDetails() : "");
 
         // Determine if "Show more" is needed

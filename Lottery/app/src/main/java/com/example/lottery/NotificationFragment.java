@@ -119,7 +119,7 @@ public class NotificationFragment extends DialogFragment {
                 sendBtn.setTypeface(null, Typeface.BOLD);
                 sendBtn.setTextColor(ContextCompat.getColor(requireContext(), R.color.primary_blue));
             }
-            
+
             Button cancelBtn = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
             if (cancelBtn != null) {
                 // Set to a normal text color instead of faded text_secondary

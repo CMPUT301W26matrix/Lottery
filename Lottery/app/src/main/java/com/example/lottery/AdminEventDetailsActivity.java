@@ -46,6 +46,7 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
 
     private ImageView ivEventPoster;
     private TextView tvEventTitle;
+    private TextView tvPlace;
     private TextView tvScheduledDate;
     private TextView tvEventEndDate;
     private TextView tvRegistrationStart;
@@ -80,6 +81,7 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
 
         ivEventPoster = findViewById(R.id.ivEventPoster);
         tvEventTitle = findViewById(R.id.tvEventTitle);
+        tvPlace = findViewById(R.id.tvPlace);
         tvScheduledDate = findViewById(R.id.tvScheduledDate);
         tvEventEndDate = findViewById(R.id.tvEventEndDate);
         tvRegistrationStart = findViewById(R.id.tvRegistrationStart);
@@ -346,6 +348,14 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
 
     private void displayEventDetails(Event event) {
         tvEventTitle.setText(event.getTitle());
+
+        if (event.getPlace() != null && !event.getPlace().isEmpty()) {
+            tvPlace.setText(event.getPlace());
+            tvPlace.setVisibility(View.VISIBLE);
+        } else {
+            tvPlace.setVisibility(View.GONE);
+        }
+
         tvScheduledDate.setText(event.getScheduledDateTime() != null ? dateFormat.format(event.getScheduledDateTime().toDate()) : "");
         tvEventEndDate.setText(event.getEventEndDateTime() != null ? dateFormat.format(event.getEventEndDateTime().toDate()) : "");
         tvRegistrationStart.setText(event.getRegistrationStart() != null ? dateFormat.format(event.getRegistrationStart().toDate()) : "");
