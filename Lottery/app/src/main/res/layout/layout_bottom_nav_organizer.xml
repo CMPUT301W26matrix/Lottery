@@ -95,7 +95,7 @@
                     android:id="@+id/tv_nav_qr_code"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="QR Scan"
+                    android:text="QR Codes"
                     android:textColor="@color/text_gray"
                     android:textSize="11sp" />
             </LinearLayout>
