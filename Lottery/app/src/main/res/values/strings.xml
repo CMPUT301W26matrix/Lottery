@@ -242,4 +242,7 @@
     <string name="join_waitlist">Join Waitlist</string>
     <string name="leave_waitlist">Leave Waitlist</string>
     <string name="opening_details_to_join">Opening details to join...</string>
+    <string name="status_selected">Selected</string>
+    <string name="status_confirmed">Confirmed</string>
+    <string name="status_declined">Declined</string>
 </resources>

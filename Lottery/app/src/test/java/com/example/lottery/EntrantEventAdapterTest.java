@@ -57,7 +57,7 @@ public class EntrantEventAdapterTest {
 
         adapter = new EntrantEventAdapter(eventList, event -> {
             // No-op click listener for tests
-        });
+        }, "test-user-id");
     }
 
     /**
@@ -93,7 +93,7 @@ public class EntrantEventAdapterTest {
     @Test
     public void testItemViewClickable() {
         final boolean[] clicked = {false};
-        EntrantEventAdapter clickAdapter = new EntrantEventAdapter(eventList, event -> clicked[0] = true);
+        EntrantEventAdapter clickAdapter = new EntrantEventAdapter(eventList, event -> clicked[0] = true, "test-user-id");
 
         Activity activity = Robolectric.buildActivity(Activity.class).create().get();
         EntrantEventAdapter.EntrantEventViewHolder holder =

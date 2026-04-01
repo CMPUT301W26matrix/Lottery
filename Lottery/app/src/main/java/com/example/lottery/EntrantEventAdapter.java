@@ -8,6 +8,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lottery.model.Event;
@@ -73,7 +74,7 @@ public class EntrantEventAdapter extends RecyclerView.Adapter<EntrantEventAdapte
             holder.tvEventDescription.setVisibility(View.GONE);
         }
 
-        // Handle Quick Action Button (Waitlist Join/Leave)
+        // Handle Quick Action Button (Waitlist Join/Leave and Status display)
         updateWaitlistButton(holder, event);
 
         View.OnClickListener detailClickListener = v -> {
@@ -92,26 +93,45 @@ public class EntrantEventAdapter extends RecyclerView.Adapter<EntrantEventAdapte
             return;
         }
 
-        // Fetch user status for this specific event
+        // Reset button state
+        holder.btnWaitlistAction.setEnabled(true);
+        holder.btnWaitlistAction.setAlpha(1.0f);
+        holder.btnWaitlistAction.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.primary_blue));
+
         db.collection(FirestorePaths.eventWaitingList(event.getEventId()))
                 .document(userId)
                 .get()
                 .addOnSuccessListener(doc -> {
                     if (doc.exists()) {
                         String status = InvitationFlowUtil.normalizeEntrantStatus(doc.getString("status"));
+                        
                         if (InvitationFlowUtil.STATUS_WAITLISTED.equals(status)) {
-                            holder.btnWaitlistAction.setText("Leave Waitlist");
+                            holder.btnWaitlistAction.setText(R.string.leave_waitlist);
                             holder.btnWaitlistAction.setVisibility(View.VISIBLE);
                             holder.btnWaitlistAction.setOnClickListener(v -> leaveWaitlist(event, holder));
+                        } else if (InvitationFlowUtil.STATUS_INVITED.equals(status)) {
+                            holder.btnWaitlistAction.setText("Selected");
+                            holder.btnWaitlistAction.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), android.R.color.holo_green_dark));
+                            holder.btnWaitlistAction.setOnClickListener(v -> openEventDetails(event));
+                        } else if (InvitationFlowUtil.STATUS_ACCEPTED.equals(status)) {
+                            holder.btnWaitlistAction.setText("Confirmed");
+                            holder.btnWaitlistAction.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), android.R.color.holo_green_dark));
+                            holder.btnWaitlistAction.setOnClickListener(v -> openEventDetails(event));
+                        } else if (InvitationFlowUtil.STATUS_CANCELLED.equals(status)) {
+                            holder.btnWaitlistAction.setText("Declined");
+                            holder.btnWaitlistAction.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.text_gray));
+                            holder.btnWaitlistAction.setOnClickListener(v -> openEventDetails(event));
+                        } else if (InvitationFlowUtil.STATUS_NOT_SELECTED.equals(status)) {
+                            holder.btnWaitlistAction.setText("Not Selected");
+                            holder.btnWaitlistAction.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.text_gray));
+                            holder.btnWaitlistAction.setOnClickListener(v -> openEventDetails(event));
                         } else {
-                            // If in any other state (invited, accepted, cancelled), hide quick action
-                            // and force user to use the Detail page for safety.
                             holder.btnWaitlistAction.setVisibility(View.GONE);
                         }
                     } else {
                         // Not in list at all - check if registration is still open
                         if (isRegistrationOpen(event)) {
-                            holder.btnWaitlistAction.setText("Join Waitlist");
+                            holder.btnWaitlistAction.setText(R.string.join_waitlist);
                             holder.btnWaitlistAction.setVisibility(View.VISIBLE);
                             holder.btnWaitlistAction.setOnClickListener(v -> joinWaitlist(event, holder));
                         } else {
@@ -128,10 +148,8 @@ public class EntrantEventAdapter extends RecyclerView.Adapter<EntrantEventAdapte
     }
 
     private void joinWaitlist(Event event, EntrantEventViewHolder holder) {
-        // Since joining requires location check and other validations, 
-        // we delegate to the Detail page to ensure consistent behavior.
         if (listener != null) {
-            Toast.makeText(holder.itemView.getContext(), "Opening details to join...", Toast.LENGTH_SHORT).show();
+            Toast.makeText(holder.itemView.getContext(), R.string.opening_details_to_join, Toast.LENGTH_SHORT).show();
             listener.onEventClick(event);
         }
     }
@@ -141,9 +159,16 @@ public class EntrantEventAdapter extends RecyclerView.Adapter<EntrantEventAdapte
                 .document(userId)
                 .delete()
                 .addOnSuccessListener(unused -> {
-                    Toast.makeText(holder.itemView.getContext(), "Left waitlist", Toast.LENGTH_SHORT).show();
-                    notifyDataSetChanged();
+                    Toast.makeText(holder.itemView.getContext(), R.string.left_waitlist, Toast.LENGTH_SHORT).show();
+                    // Update specific item UI instead of full list reload if possible
+                    updateWaitlistButton(holder, event);
                 });
+    }
+
+    private void openEventDetails(Event event) {
+        if (listener != null) {
+            listener.onEventClick(event);
+        }
     }
 
     @Override

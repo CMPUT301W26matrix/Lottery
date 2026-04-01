@@ -52,25 +52,6 @@
             app:layout_constraintTop_toBottomOf="@+id/tvEventDate" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnWaitlistAction"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="32dp"
-            android:layout_marginTop="12dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:letterSpacing="0"
-            android:paddingHorizontal="12dp"
-            android:text="Join Waitlist"
-            android:textAllCaps="false"
-            android:textColor="@color/primary_blue"
-            android:textSize="12sp"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvEventDescription" />
-
-        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnViewDetail"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="wrap_content"
@@ -84,6 +65,29 @@
             android:textAllCaps="false"
             android:textColor="@color/text_secondary"
             android:textSize="12sp"
+            app:cornerRadius="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvEventDescription"
+            app:rippleColor="#10000000"
+            app:strokeColor="@color/divider_gray"
+            app:strokeWidth="1dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnWaitlistAction"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:layout_marginTop="12dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:letterSpacing="0"
+            android:paddingHorizontal="12dp"
+            android:text="@string/join_waitlist"
+            android:textAllCaps="false"
+            android:textColor="@color/primary_blue"
+            android:textSize="12sp"
+            android:textStyle="bold"
             app:cornerRadius="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
