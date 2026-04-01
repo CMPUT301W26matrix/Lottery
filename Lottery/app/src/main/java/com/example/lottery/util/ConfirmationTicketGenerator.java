@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.pdf.PdfDocument;
 import android.os.Environment;
@@ -121,12 +122,13 @@ public final class ConfirmationTicketGenerator {
      * @param canvas canvas to draw on
      */
     private static void drawHeader(Canvas canvas) {
+        float headerHeight = 165f;
         Paint headerPaint = new Paint();
         headerPaint.setColor(Color.parseColor("#1557FF"));
         headerPaint.setStyle(Paint.Style.FILL);
         headerPaint.setAntiAlias(true);
 
-        RectF headerRect = new RectF(0, 0, PAGE_WIDTH, 165);
+        RectF headerRect = new RectF(0, 0, PAGE_WIDTH, headerHeight);
         canvas.drawRect(headerRect, headerPaint);
 
         Paint titlePaint = new Paint();
@@ -140,24 +142,50 @@ public final class ConfirmationTicketGenerator {
         subtitlePaint.setTextSize(14f);
         subtitlePaint.setAntiAlias(true);
 
-        canvas.drawText("CONFIRMATION TICKET", SIDE_MARGIN, 78, titlePaint);
-        canvas.drawText("Official entry confirmation for your event", SIDE_MARGIN, 108, subtitlePaint);
+        // Header content vertical alignment
+        float titleY = 78f;
+        float subtitleY = 108f;
+        canvas.drawText("CONFIRMATION TICKET", SIDE_MARGIN, titleY, titlePaint);
+        canvas.drawText("Official entry confirmation for your event", SIDE_MARGIN, subtitleY, subtitlePaint);
 
-        Paint badgePaint = new Paint();
-        badgePaint.setColor(Color.WHITE);
-        badgePaint.setStyle(Paint.Style.FILL);
-        badgePaint.setAntiAlias(true);
-
-        RectF badgeRect = new RectF(PAGE_WIDTH - 170, 42, PAGE_WIDTH - 48, 82);
-        canvas.drawRoundRect(badgeRect, 18, 18, badgePaint);
-
+        // Badge: "LOTTERY APP"
+        String badgeText = "LOTTERY APP";
         Paint badgeTextPaint = new Paint();
         badgeTextPaint.setColor(Color.parseColor("#1557FF"));
-        badgeTextPaint.setTextSize(15f);
+        badgeTextPaint.setTextSize(14f);
         badgeTextPaint.setFakeBoldText(true);
         badgeTextPaint.setAntiAlias(true);
 
-        canvas.drawText("LOTTERY APP", PAGE_WIDTH - 150, 67, badgeTextPaint);
+        // Calculate badge dimensions based on text
+        Rect textBounds = new Rect();
+        badgeTextPaint.getTextBounds(badgeText, 0, badgeText.length(), textBounds);
+        float badgePaddingH = 14f;
+        float badgePaddingV = 8f;
+        float badgeWidth = textBounds.width() + (badgePaddingH * 2);
+        float badgeHeight = textBounds.height() + (badgePaddingV * 2);
+
+        // Position badge at top-right with margin
+        float badgeRight = PAGE_WIDTH - SIDE_MARGIN;
+        float badgeLeft = badgeRight - badgeWidth;
+        
+        // Vertically center badge relative to the title/subtitle row area
+        // (Middle between title top and subtitle bottom approx)
+        float contentCenterY = (titleY - 20 + subtitleY) / 2f;
+        float badgeTop = contentCenterY - (badgeHeight / 2f);
+        float badgeBottom = badgeTop + badgeHeight;
+
+        RectF badgeRect = new RectF(badgeLeft, badgeTop, badgeRight, badgeBottom);
+        
+        Paint badgeBgPaint = new Paint();
+        badgeBgPaint.setColor(Color.WHITE);
+        badgeBgPaint.setStyle(Paint.Style.FILL);
+        badgeBgPaint.setAntiAlias(true);
+        canvas.drawRoundRect(badgeRect, badgeHeight / 2f, badgeHeight / 2f, badgeBgPaint);
+
+        // Draw text centered in badge
+        float textX = badgeLeft + (badgeWidth - textBounds.width()) / 2f - textBounds.left;
+        float textY = badgeTop + (badgeHeight + textBounds.height()) / 2f - textBounds.bottom;
+        canvas.drawText(badgeText, textX, textY, badgeTextPaint);
     }
 
     /**
