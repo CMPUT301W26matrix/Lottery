@@ -8,9 +8,14 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.junit.Assert.assertEquals;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.widget.ImageView;
 
+import androidx.core.content.ContextCompat;
+import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 
@@ -122,5 +127,78 @@ public class EntrantEventDetailsActivityTest {
     @Test
     public void testEntrantScreenDoesNotExposeOrganizerEditButton() {
         onView(withId(R.id.btnEditEvent)).check(doesNotExist());
+    }
+
+    /**
+     * Verifies that launching without EXTRA_SOURCE_TAB defaults to highlighting the HOME tab.
+     */
+    @Test
+    public void testDefaultSourceTabHighlightsHome() {
+        Intent intent = new Intent(
+                ApplicationProvider.getApplicationContext(),
+                EntrantEventDetailsActivity.class
+        );
+        intent.putExtra(EntrantEventDetailsActivity.EXTRA_EVENT_ID, "test_event_" + UUID.randomUUID());
+        intent.putExtra(EntrantEventDetailsActivity.EXTRA_USER_ID, "test_user_id");
+
+        try (ActivityScenario<EntrantEventDetailsActivity> scenario = ActivityScenario.launch(intent)) {
+            scenario.onActivity(activity -> {
+                int activeColor = ContextCompat.getColor(activity, R.color.primary_blue);
+                int inactiveColor = ContextCompat.getColor(activity, R.color.text_gray);
+
+                ImageView homeIcon = activity.findViewById(R.id.iv_nav_home);
+                ImageView historyIcon = activity.findViewById(R.id.iv_nav_history);
+                assertEquals(activeColor, homeIcon.getImageTintList().getDefaultColor());
+                assertEquals(inactiveColor, historyIcon.getImageTintList().getDefaultColor());
+            });
+        }
+    }
+
+    /**
+     * Verifies that launching with EXTRA_SOURCE_TAB = "HISTORY" highlights the HISTORY tab.
+     */
+    @Test
+    public void testSourceTabHistoryHighlightsHistory() {
+        Intent intent = new Intent(
+                ApplicationProvider.getApplicationContext(),
+                EntrantEventDetailsActivity.class
+        );
+        intent.putExtra(EntrantEventDetailsActivity.EXTRA_EVENT_ID, "test_event_" + UUID.randomUUID());
+        intent.putExtra(EntrantEventDetailsActivity.EXTRA_USER_ID, "test_user_id");
+        intent.putExtra(EntrantEventDetailsActivity.EXTRA_SOURCE_TAB, "HISTORY");
+
+        try (ActivityScenario<EntrantEventDetailsActivity> scenario = ActivityScenario.launch(intent)) {
+            scenario.onActivity(activity -> {
+                int activeColor = ContextCompat.getColor(activity, R.color.primary_blue);
+                int inactiveColor = ContextCompat.getColor(activity, R.color.text_gray);
+
+                ImageView homeIcon = activity.findViewById(R.id.iv_nav_home);
+                ImageView historyIcon = activity.findViewById(R.id.iv_nav_history);
+                assertEquals(inactiveColor, homeIcon.getImageTintList().getDefaultColor());
+                assertEquals(activeColor, historyIcon.getImageTintList().getDefaultColor());
+            });
+        }
+    }
+
+    /**
+     * Verifies that an invalid EXTRA_SOURCE_TAB falls back to HOME.
+     */
+    @Test
+    public void testInvalidSourceTabFallsBackToHome() {
+        Intent intent = new Intent(
+                ApplicationProvider.getApplicationContext(),
+                EntrantEventDetailsActivity.class
+        );
+        intent.putExtra(EntrantEventDetailsActivity.EXTRA_EVENT_ID, "test_event_" + UUID.randomUUID());
+        intent.putExtra(EntrantEventDetailsActivity.EXTRA_USER_ID, "test_user_id");
+        intent.putExtra(EntrantEventDetailsActivity.EXTRA_SOURCE_TAB, "INVALID_TAB");
+
+        try (ActivityScenario<EntrantEventDetailsActivity> scenario = ActivityScenario.launch(intent)) {
+            scenario.onActivity(activity -> {
+                int activeColor = ContextCompat.getColor(activity, R.color.primary_blue);
+                ImageView homeIcon = activity.findViewById(R.id.iv_nav_home);
+                assertEquals(activeColor, homeIcon.getImageTintList().getDefaultColor());
+            });
+        }
     }
 }

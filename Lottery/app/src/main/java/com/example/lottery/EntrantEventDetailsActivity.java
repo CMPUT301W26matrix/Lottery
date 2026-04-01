@@ -84,6 +84,11 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
      */
     public static final String EXTRA_USER_ID = "userId";
 
+    /**
+     * Extra key for passing the source navigation tab name.
+     */
+    public static final String EXTRA_SOURCE_TAB = "sourceTab";
+
     private static final String TAG = "EntrantEventDetails";
 
     private final SimpleDateFormat dateFormat =
@@ -219,7 +224,14 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
             bottomSheet.show(getSupportFragmentManager(), "comment_bottom_sheet");
         });
 
-        EntrantNavigationHelper.setup(this, EntrantNavigationHelper.EntrantTab.HOME, userId, true);
+        String sourceTabName = getIntent().getStringExtra(EXTRA_SOURCE_TAB);
+        EntrantNavigationHelper.EntrantTab sourceTab = EntrantNavigationHelper.EntrantTab.HOME;
+        if (sourceTabName != null) {
+            try {
+                sourceTab = EntrantNavigationHelper.EntrantTab.valueOf(sourceTabName);
+            } catch (IllegalArgumentException ignored) { }
+        }
+        EntrantNavigationHelper.setup(this, sourceTab, userId, true);
         btnClose.setOnClickListener(v -> finish());
 
         btnShowMore.setOnClickListener(v -> toggleDescription());

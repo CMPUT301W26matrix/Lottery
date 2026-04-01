@@ -1,6 +1,7 @@
 package com.example.lottery;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -32,6 +33,7 @@ import java.util.List;
  */
 public class NotificationsActivity extends AppCompatActivity implements NotificationAdapter.OnNotificationClickListener {
 
+    private static final String TAG = "NotificationsActivity";
     public static final String EXTRA_USER_ID = "userId";
     public static final String EXTRA_EVENT_ID = "eventId";
     public static final String EXTRA_EVENT_TITLE = "eventTitle";
@@ -152,6 +154,7 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
                     updateEmptyState();
                 })
                 .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to load notifications", e);
                     tvNoNotifications.setVisibility(View.VISIBLE);
                     tvNoNotifications.setText(R.string.failed_to_load_notifications);
                     rvNotifications.setVisibility(View.GONE);
