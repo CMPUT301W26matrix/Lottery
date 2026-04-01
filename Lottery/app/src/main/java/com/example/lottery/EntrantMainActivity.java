@@ -22,18 +22,22 @@ import com.example.lottery.model.User;
 import com.example.lottery.util.AdminRoleManager;
 import com.example.lottery.util.EntrantNavigationHelper;
 import com.example.lottery.util.FirestorePaths;
+import com.example.lottery.util.InvitationFlowUtil;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Main activity for the entrant user role.
@@ -49,6 +53,7 @@ public class EntrantMainActivity extends AppCompatActivity {
     private final List<Event> masterEventList = new ArrayList<>();
     private final List<Event> filteredEventList = new ArrayList<>();
     private final List<String> userInterests = new ArrayList<>();
+    private final Map<String, Integer> eventWaitlistCounts = new HashMap<>();
     private RecyclerView rvEvents;
     private EntrantEventAdapter adapter;
     private View emptyStateContainer;
@@ -61,15 +66,15 @@ public class EntrantMainActivity extends AppCompatActivity {
     private View llSearchToggle;
     private TextInputLayout tilSearch;
     private TextInputEditText etSearch;
-    private ChipGroup cgBrowseTabs, cgCategories, cgQuickFilters;
+    private ChipGroup cgBrowseTabs, cgCategories;
+    private Chip chipSpotsAvailable;
     private MaterialButton btnTimeFilter;
 
     private String currentBrowseTab = TAB_ALL;
     private String currentSearchQuery = "";
     private String currentCategory = TAB_ALL;
     private String currentTimeFilter = "All Dates";
-    private boolean filterAvailable = false;
-    private boolean filterWaitlistOpen = false;
+    private boolean filterSpotsAvailable = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,7 +129,7 @@ public class EntrantMainActivity extends AppCompatActivity {
         etSearch = findViewById(R.id.etSearch);
         cgBrowseTabs = findViewById(R.id.cgBrowseTabs);
         cgCategories = findViewById(R.id.cgCategories);
-        cgQuickFilters = findViewById(R.id.cgQuickFilters);
+        chipSpotsAvailable = findViewById(R.id.chipSpotsAvailable);
         btnTimeFilter = findViewById(R.id.btnTimeFilter);
 
         adapter = new EntrantEventAdapter(filteredEventList, this::openEventDetails);
@@ -198,17 +203,20 @@ public class EntrantMainActivity extends AppCompatActivity {
             applyFilters();
         });
 
-        cgQuickFilters.setOnCheckedStateChangeListener((group, checkedIds) -> {
-            filterAvailable = checkedIds.contains(R.id.chipAvailable);
-            filterWaitlistOpen = checkedIds.contains(R.id.chipWaitlistOpen);
-            applyFilters();
+        chipSpotsAvailable.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            filterSpotsAvailable = isChecked;
+            if (isChecked) {
+                loadWaitlistCounts();
+            } else {
+                applyFilters();
+            }
         });
 
         btnTimeFilter.setOnClickListener(v -> showTimeFilterDialog());
     }
 
     private void showTimeFilterDialog() {
-        String[] options = {"All Dates", "Today", "This Week", "Upcoming"};
+        String[] options = {"All Dates", "Today", "This Week"};
         new androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle("Select Time Range")
                 .setItems(options, (dialog, which) -> {
@@ -222,6 +230,7 @@ public class EntrantMainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        loadEvents();
         checkUnreadNotifications();
         fetchUserInterests();
     }
@@ -232,15 +241,57 @@ public class EntrantMainActivity extends AppCompatActivity {
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     masterEventList.clear();
+                    eventWaitlistCounts.clear();
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         Event event = document.toObject(Event.class);
                         if (event == null) continue;
                         event.setEventId(document.getId());
                         masterEventList.add(event);
                     }
-                    applyFilters();
+                    if (filterSpotsAvailable) {
+                        loadWaitlistCounts();
+                    } else {
+                        applyFilters();
+                    }
                 })
                 .addOnFailureListener(e -> Toast.makeText(this, "Failed to load events", Toast.LENGTH_SHORT).show());
+    }
+
+    /**
+     * Loads waitlist counts for all events in the master list, then applies filters.
+     */
+    private void loadWaitlistCounts() {
+        eventWaitlistCounts.clear();
+        if (masterEventList.isEmpty()) {
+            applyFilters();
+            return;
+        }
+        final int[] remaining = {masterEventList.size()};
+        for (Event event : masterEventList) {
+            db.collection(FirestorePaths.eventWaitingList(event.getEventId()))
+                    .get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        int waitlistCount = 0;
+                        for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                            String normalized = InvitationFlowUtil.normalizeEntrantStatus(
+                                    doc.getString("status"));
+                            if (InvitationFlowUtil.STATUS_WAITLISTED.equals(normalized)) {
+                                waitlistCount++;
+                            }
+                        }
+                        eventWaitlistCounts.put(event.getEventId(), waitlistCount);
+                        remaining[0]--;
+                        if (remaining[0] == 0) {
+                            applyFilters();
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        remaining[0]--;
+                        if (remaining[0] == 0) {
+                            applyFilters();
+                        }
+                    });
+        }
     }
 
     /**
@@ -263,6 +314,10 @@ public class EntrantMainActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Applies all active filters (browse tab, search query, category, time range,
+     * and spots available) to the master event list and updates the displayed list.
+     */
     private void applyFilters() {
         filteredEventList.clear();
 
@@ -296,34 +351,26 @@ public class EntrantMainActivity extends AppCompatActivity {
             }
 
             // 4. Time filter
-            if (!"All Dates".equals(currentTimeFilter)) {
-                if (event.getScheduledDateTime() == null) continue;
-                Date eventDate = event.getScheduledDateTime().toDate();
-                if ("Today".equals(currentTimeFilter)) {
-                    if (eventDate.before(now) || eventDate.after(endOfToday)) continue;
-                } else if ("This Week".equals(currentTimeFilter)) {
-                    if (eventDate.before(now) || eventDate.after(endOfWeek)) continue;
-                } else if ("Upcoming".equals(currentTimeFilter)) {
-                    if (eventDate.before(now)) continue;
+            if (event.getScheduledDateTime() != null && event.getScheduledDateTime().toDate().before(now))
+                continue;
+            if ("Today".equals(currentTimeFilter)) {
+                if (event.getScheduledDateTime() == null || event.getScheduledDateTime().toDate().after(endOfToday))
+                    continue;
+            } else if ("This Week".equals(currentTimeFilter)) {
+                if (event.getScheduledDateTime() == null || event.getScheduledDateTime().toDate().after(endOfWeek))
+                    continue;
+            }
+
+            // 5. Spots Available filter: registration open AND waitlist has room
+            if (filterSpotsAvailable) {
+                if (event.getRegistrationDeadline() != null && event.getRegistrationDeadline().toDate().before(now))
+                    continue;
+                Integer waitlistLimit = event.getWaitingListLimit();
+                if (waitlistLimit != null) {
+                    if (!eventWaitlistCounts.containsKey(event.getEventId())) continue;
+                    int currentCount = eventWaitlistCounts.get(event.getEventId());
+                    if (currentCount >= waitlistLimit) continue;
                 }
-            }
-
-            // 5. Quick filter: Available (Registration still open and draw hasn't occurred)
-            if (filterAvailable) {
-                if (event.getRegistrationDeadline() != null && event.getRegistrationDeadline().toDate().before(now))
-                    continue;
-                if (event.getDrawDate() != null && event.getDrawDate().toDate().before(now))
-                    continue;
-                if (event.getScheduledDateTime() != null && event.getScheduledDateTime().toDate().before(now))
-                    continue;
-            }
-
-            // 6. Quick filter: Waitlist Open (Waitlist capacity remains)
-            if (filterWaitlistOpen) {
-                if (event.getWaitingListLimit() != null && event.getWaitingListLimit() <= 0)
-                    continue;
-                if (event.getRegistrationDeadline() != null && event.getRegistrationDeadline().toDate().before(now))
-                    continue;
             }
 
             filteredEventList.add(event);
