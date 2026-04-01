@@ -2,35 +2,52 @@ package com.example.lottery;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Base64;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.lottery.util.AdminRoleManager;
+import com.example.lottery.util.AvatarUtils;
 import com.example.lottery.util.EntrantNavigationHelper;
 import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.UserDeletionUtil;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,9 +63,12 @@ public class EntrantProfileActivity extends AppCompatActivity {
 
     private TextView tvName, tvEmail, tvPhone, tvNotificationBadge, tvActionsHeader;
     private EditText etName, etEmail, etPhone;
-    private Button btnLogout, btnEditSave, btnCancel, btnDeleteProfile, btnLotteryGuidelines;
-    private View dividerDelete, dividerCancel, dividerGuidelines, bottomNav;
-    private LinearLayout displayLayout, editLayout;
+    private Button btnLogout, btnEditProfile, btnSaveProfile, btnCancel, btnDeleteProfile, btnLotteryGuidelines;
+    private ImageView ivProfileImage, ivProfilePlaceholder, ivEditProfileImage, ivEditProfilePlaceholder;
+    private MaterialCardView cvEditProfileImage;
+    private Toolbar toolbarEdit;
+    private View bottomNav, topDivider;
+    private LinearLayout viewContainer, editContainer;
     private ChipGroup cgEditInterests, cgDisplayInterests;
     private Chip chipAcademic, chipSocial, chipSports, chipMusic;
     private SwitchMaterial swNotifications, swGeolocation;
@@ -56,6 +76,23 @@ public class EntrantProfileActivity extends AppCompatActivity {
     private String userId;
     private boolean isEditing = false;
     private boolean forceEdit = false;
+
+    // Permanent storage for the currently saved profile image in base64
+    private String savedImageBase64 = null;
+    // Temporary storage for the newly picked image in base64. Empty string means delete.
+    private String selectedImageBase64 = null;
+
+    private final ActivityResultLauncher<Intent> imagePickerLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    Uri imageUri = result.getData().getData();
+                    if (imageUri != null) {
+                        processSelectedImage(imageUri);
+                    }
+                }
+            }
+    );
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +108,6 @@ public class EntrantProfileActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
 
-        SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
         userId = getIntent().getStringExtra("userId");
 
         if (userId == null) {
@@ -111,15 +147,17 @@ public class EntrantProfileActivity extends AppCompatActivity {
             exitEditMode();
         }
 
-        btnEditSave.setOnClickListener(v -> {
-            if (isEditing) {
-                saveProfile();
-            } else {
-                enterEditMode();
+        btnEditProfile.setOnClickListener(v -> enterEditMode());
+
+        btnSaveProfile.setOnClickListener(v -> saveProfile());
+
+        btnCancel.setOnClickListener(v -> {
+            if (!forceEdit) {
+                exitEditMode();
             }
         });
 
-        btnCancel.setOnClickListener(v -> {
+        toolbarEdit.setNavigationOnClickListener(v -> {
             if (!forceEdit) {
                 exitEditMode();
             }
@@ -133,6 +171,8 @@ public class EntrantProfileActivity extends AppCompatActivity {
             Intent intent = new Intent(this, EntrantLotteryGuidelinesActivity.class);
             startActivity(intent);
         });
+
+        cvEditProfileImage.setOnClickListener(v -> showAvatarOptions());
     }
 
     private void initializeViews() {
@@ -146,19 +186,25 @@ public class EntrantProfileActivity extends AppCompatActivity {
         etEmail = findViewById(R.id.et_edit_email);
         etPhone = findViewById(R.id.et_edit_phone);
 
+        ivProfileImage = findViewById(R.id.iv_profile_image);
+        ivProfilePlaceholder = findViewById(R.id.iv_profile_placeholder);
+        ivEditProfileImage = findViewById(R.id.iv_edit_profile_image);
+        ivEditProfilePlaceholder = findViewById(R.id.iv_edit_profile_placeholder);
+        cvEditProfileImage = findViewById(R.id.cv_edit_profile_image);
+
         btnLogout = findViewById(R.id.btn_log_out);
-        btnEditSave = findViewById(R.id.btn_edit_save);
+        btnEditProfile = findViewById(R.id.btn_edit_profile);
+        btnSaveProfile = findViewById(R.id.btn_save_profile);
         btnCancel = findViewById(R.id.btn_cancel_edit);
         btnDeleteProfile = findViewById(R.id.btn_delete_profile);
         btnLotteryGuidelines = findViewById(R.id.btn_lottery_guidelines);
 
-        dividerDelete = findViewById(R.id.divider_delete);
-        dividerCancel = findViewById(R.id.divider_cancel);
-        dividerGuidelines = findViewById(R.id.divider_guidelines);
+        toolbarEdit = findViewById(R.id.toolbar_edit_profile);
+        topDivider = findViewById(R.id.view_top_divider);
         bottomNav = findViewById(R.id.bottom_nav_container);
 
-        displayLayout = findViewById(R.id.layout_profile_display);
-        editLayout = findViewById(R.id.layout_profile_edit);
+        viewContainer = findViewById(R.id.layout_profile_view_container);
+        editContainer = findViewById(R.id.layout_profile_edit_container);
 
         cgEditInterests = findViewById(R.id.cg_edit_interests);
         cgDisplayInterests = findViewById(R.id.cg_display_interests);
@@ -192,6 +238,7 @@ public class EntrantProfileActivity extends AppCompatActivity {
                 String username = documentSnapshot.getString("username");
                 String email = documentSnapshot.getString("email");
                 String phone = documentSnapshot.getString("phone");
+                savedImageBase64 = documentSnapshot.getString("profileImageBase64");
                 Boolean notificationsEnabled = documentSnapshot.getBoolean("notificationsEnabled");
                 Boolean geolocationEnabled = documentSnapshot.getBoolean("geolocationEnabled");
 
@@ -209,6 +256,9 @@ public class EntrantProfileActivity extends AppCompatActivity {
                 etEmail.setText(email != null ? email : "");
                 etPhone.setText(phone != null ? phone : "");
 
+                displayProfileImage(savedImageBase64, ivProfileImage, ivProfilePlaceholder, username);
+                displayProfileImage(savedImageBase64, ivEditProfileImage, ivEditProfilePlaceholder, username);
+
                 if (forceEdit && username != null && !username.isEmpty() && email != null && !email.isEmpty()) {
                     forceEdit = false;
                     exitEditMode();
@@ -224,10 +274,16 @@ public class EntrantProfileActivity extends AppCompatActivity {
                     chipMusic.setChecked(interests.contains("Music"));
 
                     for (String interest : interests) {
-                        Chip chip = new Chip(this);
+                        Chip chip = new Chip(this, null, com.google.android.material.R.attr.chipStyle);
                         chip.setText(interest);
                         chip.setClickable(false);
                         chip.setCheckable(false);
+                        int chipHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 32, getResources().getDisplayMetrics());
+                        chip.setChipMinHeight(chipHeight);
+                        chip.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
+                        chip.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.primary_light_blue)));
+                        chip.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.primary_blue)));
+                        chip.setChipStrokeWidth(0f);
                         cgDisplayInterests.addView(chip);
                     }
                 }
@@ -247,48 +303,138 @@ public class EntrantProfileActivity extends AppCompatActivity {
         });
     }
 
+    private void displayProfileImage(String base64String, ImageView imageView, ImageView placeholderView, String username) {
+        if (base64String != null && !base64String.isEmpty()) {
+            try {
+                byte[] decodedString = Base64.decode(base64String, Base64.DEFAULT);
+                Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                if (decodedByte != null) {
+                    imageView.setImageBitmap(decodedByte);
+                    imageView.setVisibility(View.VISIBLE);
+                    placeholderView.setVisibility(View.GONE);
+                } else {
+                    showDefaultPlaceholder(imageView, placeholderView, username);
+                }
+            } catch (Exception e) {
+                showDefaultPlaceholder(imageView, placeholderView, username);
+            }
+        } else {
+            showDefaultPlaceholder(imageView, placeholderView, username);
+        }
+    }
+
+    private void showDefaultPlaceholder(ImageView imageView, ImageView placeholderView, String username) {
+        Bitmap defaultAvatar = AvatarUtils.generateDefaultAvatar(username != null ? username : "?", 200);
+        imageView.setImageBitmap(defaultAvatar);
+        imageView.setVisibility(View.VISIBLE);
+        placeholderView.setVisibility(View.GONE);
+    }
+
     private void enterEditMode() {
         isEditing = true;
-        displayLayout.setVisibility(View.GONE);
-        editLayout.setVisibility(View.VISIBLE);
-        btnEditSave.setText(forceEdit ? "Complete Profile" : "Save Changes");
-
-        // Hide options when editing
-        btnDeleteProfile.setVisibility(View.GONE);
-        dividerDelete.setVisibility(View.GONE);
-        btnLotteryGuidelines.setVisibility(View.GONE);
-        dividerGuidelines.setVisibility(View.GONE);
+        selectedImageBase64 = null; // Reset temp storage
+        // Ensure existing saved avatar is shown correctly when entering edit mode
+        displayProfileImage(savedImageBase64, ivEditProfileImage, ivEditProfilePlaceholder, etName.getText().toString());
+        
+        viewContainer.setVisibility(View.GONE);
+        editContainer.setVisibility(View.VISIBLE);
+        toolbarEdit.setVisibility(View.VISIBLE);
+        topDivider.setVisibility(View.GONE);
+        bottomNav.setVisibility(View.GONE);
 
         if (forceEdit) {
+            toolbarEdit.setNavigationIcon(null);
+            toolbarEdit.setTitle("Create account");
             btnCancel.setVisibility(View.GONE);
-            dividerCancel.setVisibility(View.GONE);
-            btnLogout.setVisibility(View.GONE);
-            bottomNav.setVisibility(View.GONE);
-            tvActionsHeader.setVisibility(View.GONE);
         } else {
+            toolbarEdit.setNavigationIcon(R.drawable.ic_back);
+            toolbarEdit.setTitle("Edit Profile");
             btnCancel.setVisibility(View.VISIBLE);
-            dividerCancel.setVisibility(View.VISIBLE);
-            btnLogout.setVisibility(View.VISIBLE);
-            bottomNav.setVisibility(View.VISIBLE);
-            tvActionsHeader.setVisibility(View.VISIBLE);
         }
     }
 
     private void exitEditMode() {
         isEditing = false;
-        displayLayout.setVisibility(View.VISIBLE);
-        editLayout.setVisibility(View.GONE);
-        btnEditSave.setText("Edit Profile");
+        selectedImageBase64 = null; // Clear temp storage
+        // Revert edit preview to saved state
+        displayProfileImage(savedImageBase64, ivEditProfileImage, ivEditProfilePlaceholder, etName.getText().toString());
 
-        btnCancel.setVisibility(View.GONE);
-        dividerCancel.setVisibility(View.GONE);
-        btnDeleteProfile.setVisibility(View.VISIBLE);
-        dividerDelete.setVisibility(View.VISIBLE);
-        btnLotteryGuidelines.setVisibility(View.VISIBLE);
-        dividerGuidelines.setVisibility(View.VISIBLE);
-        btnLogout.setVisibility(View.VISIBLE);
+        viewContainer.setVisibility(View.VISIBLE);
+        editContainer.setVisibility(View.GONE);
+        toolbarEdit.setVisibility(View.GONE);
+        topDivider.setVisibility(View.VISIBLE);
         bottomNav.setVisibility(View.VISIBLE);
-        tvActionsHeader.setVisibility(View.VISIBLE);
+    }
+
+    private void showAvatarOptions() {
+        // Determine if we currently have an image to remove
+        boolean hasImage = (selectedImageBase64 != null && !selectedImageBase64.isEmpty()) || 
+                          (selectedImageBase64 == null && savedImageBase64 != null && !savedImageBase64.isEmpty());
+
+        if (!hasImage) {
+            // No custom photo, go straight to picker
+            openImagePicker();
+        } else {
+            // Has custom photo, show options
+            BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
+            View view = getLayoutInflater().inflate(R.layout.layout_avatar_options_sheet, null);
+
+            view.findViewById(R.id.ll_change_photo).setOnClickListener(v -> {
+                openImagePicker();
+                bottomSheetDialog.dismiss();
+            });
+
+            view.findViewById(R.id.ll_remove_photo).setOnClickListener(v -> {
+                removeAvatar();
+                bottomSheetDialog.dismiss();
+            });
+
+            bottomSheetDialog.setContentView(view);
+            bottomSheetDialog.show();
+        }
+    }
+
+    private void openImagePicker() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        imagePickerLauncher.launch(intent);
+    }
+
+    private void removeAvatar() {
+        selectedImageBase64 = ""; // Use empty string to mark removal
+        // Immediately show the default avatar in the preview
+        String currentName = etName.getText().toString();
+        Bitmap defaultAvatar = AvatarUtils.generateDefaultAvatar(currentName, 200);
+        ivEditProfileImage.setImageBitmap(defaultAvatar);
+        ivEditProfileImage.setVisibility(View.VISIBLE);
+        ivEditProfilePlaceholder.setVisibility(View.GONE);
+        Toast.makeText(this, "Avatar marked for removal", Toast.LENGTH_SHORT).show();
+    }
+
+    private void processSelectedImage(Uri imageUri) {
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(imageUri);
+            Bitmap originalBitmap = BitmapFactory.decodeStream(inputStream);
+            if (originalBitmap == null) return;
+
+            // Resize to small avatar size (e.g., 200x200)
+            int size = 200;
+            Bitmap scaledBitmap = Bitmap.createScaledBitmap(originalBitmap, size, size, true);
+
+            // Compress and convert to Base64
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 70, byteArrayOutputStream);
+            byte[] byteArray = byteArrayOutputStream.toByteArray();
+            selectedImageBase64 = Base64.encodeToString(byteArray, Base64.DEFAULT);
+
+            // Preview decoded bitmap
+            ivEditProfileImage.setImageBitmap(scaledBitmap);
+            ivEditProfileImage.setVisibility(View.VISIBLE);
+            ivEditProfilePlaceholder.setVisibility(View.GONE);
+
+            Toast.makeText(this, "Image selected", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void saveProfile() {
@@ -318,7 +464,17 @@ public class EntrantProfileActivity extends AppCompatActivity {
         updates.put("phone", phone);
         updates.put("interests", selectedInterests);
 
-        db.collection(FirestorePaths.USERS).document(userId).update(updates)
+        // Handle avatar update or removal
+        if (selectedImageBase64 != null) {
+            if (selectedImageBase64.isEmpty()) {
+                // If marked for removal, delete the field from Firestore
+                updates.put("profileImageBase64", FieldValue.delete());
+            } else {
+                updates.put("profileImageBase64", selectedImageBase64);
+            }
+        }
+
+        db.collection(FirestorePaths.USERS).document(userId).set(updates, SetOptions.merge())
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(this, "Profile updated", Toast.LENGTH_SHORT).show();
                     SharedPreferences.Editor editor = getSharedPreferences("AppPrefs", MODE_PRIVATE).edit();
@@ -346,13 +502,11 @@ public class EntrantProfileActivity extends AppCompatActivity {
 
         dialog.show();
 
-        // Make the Delete button visually distinct (red)
         Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
         if (positiveButton != null) {
             positiveButton.setTextColor(ContextCompat.getColor(this, R.color.error_red));
         }
 
-        // Soften title size slightly (Material default is usually 20sp)
         TextView titleView = dialog.findViewById(androidx.appcompat.R.id.alertTitle);
         if (titleView != null) {
             titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
@@ -362,7 +516,7 @@ public class EntrantProfileActivity extends AppCompatActivity {
     private void deleteUserProfile() {
         if (userId == null) return;
 
-        UserDeletionUtil.cleanUpCoOrganizerRecords(db, userId, () ->
+        UserDeletionUtil.cleanUpUserRecords(db, userId, () ->
                 db.collection(FirestorePaths.USERS).document(userId).delete()
                         .addOnSuccessListener(aVoid -> {
                             Toast.makeText(this, "Profile deleted successfully", Toast.LENGTH_SHORT).show();
@@ -373,20 +527,16 @@ public class EntrantProfileActivity extends AppCompatActivity {
     }
 
     private void logout() {
-        // Check if this is an admin role session
         if (AdminRoleManager.isAdminRoleSession(this)) {
             String adminUserId = AdminRoleManager.getAdminUserId(this);
-            // Clear the admin role session
             AdminRoleManager.clearAdminRoleSession(this);
 
-            // Navigate back to admin profile
             Intent intent = new Intent(this, AdminProfileActivity.class);
             intent.putExtra("userId", adminUserId);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();
         } else {
-            // Regular logout
             FirebaseAuth.getInstance().signOut();
             SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
             prefs.edit().clear().apply();

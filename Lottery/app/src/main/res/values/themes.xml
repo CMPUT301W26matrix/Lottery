@@ -12,12 +12,22 @@
         <item name="colorSurfaceContainerLow">@color/page_background</item>
         <item name="colorSurfaceContainerHigh">@color/page_background</item>
         <item name="colorSurfaceContainerHighest">@color/page_background</item>
+
+        <!-- Customize the image picker (MediaStore) and other system dialogs -->
+        <item name="actionBarTheme">@style/ThemeOverlay.App.ActionBar</item>
+        <item name="android:actionBarStyle">@style/Widget.App.ActionBar</item>
     </style>
 
     <style name="Theme.Lottery" parent="Base.Theme.Lottery" />
-    <!-- Source: https://stackoverflow.com/a/57843956 -->
-    <!-- Posted by Gabriele Mariotti -->
-    <!-- Retrieved 2026-03-09, License: CC BY-SA 4.0 -->
+
+    <style name="ThemeOverlay.App.ActionBar" parent="ThemeOverlay.Material3.ActionBar">
+        <item name="colorControlNormal">@color/primary_blue</item>
+        <item name="android:textColorPrimary">@color/primary_blue</item>
+    </style>
+
+    <style name="Widget.App.ActionBar" parent="Widget.Material3.ActionBar.Solid">
+        <item name="titleTextStyle">@style/ToolbarTitleAppearance</item>
+    </style>
 
     <style name="RoundedImageStyle">
         <item name="cornerSize">12dp</item>

@@ -5,12 +5,19 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Layout;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -436,28 +443,79 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
             return;
         }
 
-        new AlertDialog.Builder(this)
-                .setTitle("Location Required")
-                .setMessage("This event requires your location to proceed. Do you agree to provide it?")
-                .setPositiveButton("Agree", (dialog, which) -> startLocationCollection())
-                .setNegativeButton("Decline", null)
-                .show();
+        showCustomAlertDialog(
+                "Location Required",
+                "This event requires your location to proceed. Do you agree to provide it?",
+                "Agree",
+                "Decline",
+                () -> startLocationCollection(),
+                null
+        );
     }
 
     /**
      * Shows a dialog explaining that geolocation must be enabled first.
      */
     private void showGeolocationDisabledDialog() {
-        new AlertDialog.Builder(this)
-                .setTitle("Geolocation Disabled")
-                .setMessage("This event requires geolocation. Please enable it in your Profile preferences to proceed.")
-                .setPositiveButton("Go to Profile", (dialog, which) -> {
+        showCustomAlertDialog(
+                "Geolocation Disabled",
+                "This event requires geolocation. Please enable it in your Profile preferences to proceed.",
+                "Go to Profile",
+                "Cancel",
+                () -> {
                     Intent intent = new Intent(this, EntrantProfileActivity.class);
                     intent.putExtra("userId", userId);
                     startActivity(intent);
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+                },
+                null
+        );
+    }
+
+    /**
+     * Shows a customized AlertDialog that matches the project's blue-white style.
+     */
+    private void showCustomAlertDialog(String title, String message, String positiveBtnText, String negativeBtnText, Runnable onPositive, Runnable onNegative) {
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.layout_custom_alert_dialog, null);
+        
+        TextView tvTitle = dialogView.findViewById(R.id.dialog_title);
+        TextView tvMessage = dialogView.findViewById(R.id.dialog_message);
+        Button btnPositive = dialogView.findViewById(R.id.btn_positive);
+        Button btnNegative = dialogView.findViewById(R.id.btn_negative);
+
+        tvTitle.setText(title);
+        tvMessage.setText(message);
+        btnPositive.setText(positiveBtnText);
+        btnNegative.setText(negativeBtnText);
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(dialogView)
+                .setCancelable(false)
+                .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        btnPositive.setOnClickListener(v -> {
+            dialog.dismiss();
+            if (onPositive != null) onPositive.run();
+        });
+
+        btnNegative.setOnClickListener(v -> {
+            dialog.dismiss();
+            if (onNegative != null) onNegative.run();
+        });
+
+        dialog.show();
+        
+        // Adjust width to be more consistent
+        Window window = dialog.getWindow();
+        if (window != null) {
+            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+            layoutParams.copyFrom(window.getAttributes());
+            layoutParams.width = (int) (getResources().getDisplayMetrics().widthPixels * 0.85);
+            window.setAttributes(layoutParams);
+        }
     }
 
     /**
