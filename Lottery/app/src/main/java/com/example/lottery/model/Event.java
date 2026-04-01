@@ -7,7 +7,7 @@ import com.google.firebase.Timestamp;
  *
  * <p>Key Responsibilities:
  * <ul>
- *   <li>Encapsulates all metadata for an event, including titles, dates, and descriptions.</li>
+ *   <li>Encapsulates all metadata for an event, including titles, dates, descriptions, and place.</li>
  *   <li>Stores promotional poster image as a Base64 string and QR code content.</li>
  *   <li>Acts as a Data Transfer Object (DTO) for Firebase Firestore serialization.</li>
  * </ul>
