@@ -65,6 +65,11 @@ public class User {
     private List<String> interests;
 
     /**
+     * Base64 encoded profile image.
+     */
+    private String profileImageBase64;
+
+    /**
      * Default constructor required for Firestore.
      */
     public User() {
@@ -203,6 +208,14 @@ public class User {
 
     public void setInterests(List<String> interests) {
         this.interests = interests;
+    }
+
+    public String getProfileImageBase64() {
+        return profileImageBase64;
+    }
+
+    public void setProfileImageBase64(String profileImageBase64) {
+        this.profileImageBase64 = profileImageBase64;
     }
 
     // Helpers

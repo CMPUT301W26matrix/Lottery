@@ -24,6 +24,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -32,11 +33,10 @@ import java.util.List;
  */
 public class NotificationsActivity extends AppCompatActivity implements NotificationAdapter.OnNotificationClickListener {
 
-    private static final String TAG = "NotificationsActivity";
     public static final String EXTRA_USER_ID = "userId";
     public static final String EXTRA_EVENT_ID = "eventId";
     public static final String EXTRA_EVENT_TITLE = "eventTitle";
-
+    private static final String TAG = "NotificationsActivity";
     private final List<NotificationItem> notificationList = new ArrayList<>();
     private RecyclerView rvNotifications;
     private TextView tvNoNotifications;
@@ -120,9 +120,12 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
     private void loadNotifications() {
         Query query;
         if (eventId != null) {
+            // If filtering by eventId, don't use server-side orderBy to avoid requiring a composite index.
+            // We will sort in-memory instead.
             query = db.collection(FirestorePaths.userInbox(userId))
                     .whereEqualTo("eventId", eventId);
         } else {
+            // Global notifications mode: single field orderBy doesn't require extra index.
             query = db.collection(FirestorePaths.userInbox(userId))
                     .orderBy("createdAt", Query.Direction.DESCENDING);
         }
@@ -138,12 +141,13 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
                         }
                     });
 
+                    // Sort in-memory if we were in event-specific mode
                     if (eventId != null) {
-                        notificationList.sort((a, b) -> {
+                        Collections.sort(notificationList, (a, b) -> {
                             if (a.getCreatedAt() == null && b.getCreatedAt() == null) return 0;
                             if (a.getCreatedAt() == null) return 1;
                             if (b.getCreatedAt() == null) return -1;
-                            return b.getCreatedAt().compareTo(a.getCreatedAt());
+                            return b.getCreatedAt().compareTo(a.getCreatedAt()); // Descending
                         });
                     }
 

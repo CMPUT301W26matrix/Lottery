@@ -6,6 +6,7 @@
     <color name="primary_blue">#0052FF</color>
     <color name="accent_blue">#0047DB</color>
     <color name="primary_light_blue">#EEF3FF</color>
+    <color name="blue_light_visible">#DCE7FF</color>
 
     <color name="card_background">#FFFFFF</color>
     <color name="page_background">#F5F6FA</color>

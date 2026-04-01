@@ -377,7 +377,7 @@ public class AdminBrowseProfilesActivityTest {
 
             onView(withId(R.id.btnEnableDeleteProfile))
                     .check(matches(isDisplayed()))
-                    .check(matches(withText("Enable Deletion")));
+                    .check(matches(withText("Deletion")));
         }
     }
 }

@@ -2,19 +2,24 @@ package com.example.lottery;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -23,11 +28,16 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.lottery.util.AdminRoleManager;
 import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.OrganizerNavigationHelper;
+import com.example.lottery.util.ProfileImageHelper;
 import com.example.lottery.util.UserDeletionUtil;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,13 +49,33 @@ public class OrganizerProfileActivity extends AppCompatActivity {
 
     private TextView tvName, tvEmail, tvPhone, tvActionsHeader;
     private EditText etName, etEmail, etPhone;
-    private Button btnLogout, btnEditSave, btnCancel, btnDeleteProfile, btnLotteryGuidelines;
-    private View dividerDelete, dividerCancel, dividerGuidelines, bottomNav;
-    private LinearLayout displayLayout, editLayout;
+    private Button btnLogout, btnEditProfile, btnSaveProfile, btnCancel, btnDeleteProfile, btnLotteryGuidelines;
+    private ImageView ivProfileImage, ivProfilePlaceholder, ivEditProfileImage, ivEditProfilePlaceholder;
+    private MaterialCardView cvEditProfileImage;
+    private Toolbar toolbarEdit;
+    private View bottomNav, topDivider;
+    private LinearLayout viewContainer, editContainer;
     private FirebaseFirestore db;
     private String userId;
     private boolean isEditing = false;
     private boolean forceEdit = false;
+
+    // Permanent storage for the currently saved profile image in base64
+    private String savedImageBase64 = null;
+    // Temporary storage for the newly picked image in base64. Empty string means delete.
+    private String selectedImageBase64 = null;
+
+    private final ActivityResultLauncher<Intent> imagePickerLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    Uri imageUri = result.getData().getData();
+                    if (imageUri != null) {
+                        processSelectedImage(imageUri);
+                    }
+                }
+            }
+    );
 
     /**
      * Initializes the activity, sets up the layout, and configures UI components.
@@ -68,7 +98,6 @@ public class OrganizerProfileActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
 
-        SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
         userId = getIntent().getStringExtra("userId");
         if (userId == null) {
             Toast.makeText(this, "Session error: missing userId", Toast.LENGTH_SHORT).show();
@@ -93,18 +122,20 @@ public class OrganizerProfileActivity extends AppCompatActivity {
             exitEditMode();
         }
 
-        btnEditSave.setOnClickListener(v -> {
-            if (isEditing) {
-                saveProfile();
-            } else {
-                enterEditMode();
-            }
-        });
+        btnEditProfile.setOnClickListener(v -> enterEditMode());
+
+        btnSaveProfile.setOnClickListener(v -> saveProfile());
 
         btnCancel.setOnClickListener(v -> {
             if (forceEdit) {
                 Toast.makeText(this, "Profile completion is required", Toast.LENGTH_SHORT).show();
             } else {
+                exitEditMode();
+            }
+        });
+
+        toolbarEdit.setNavigationOnClickListener(v -> {
+            if (!forceEdit) {
                 exitEditMode();
             }
         });
@@ -117,6 +148,8 @@ public class OrganizerProfileActivity extends AppCompatActivity {
             Intent intent = new Intent(this, OrganizerLotteryGuidelinesActivity.class);
             startActivity(intent);
         });
+
+        cvEditProfileImage.setOnClickListener(v -> showAvatarOptions());
     }
 
     private void setupBackPressed() {
@@ -145,19 +178,25 @@ public class OrganizerProfileActivity extends AppCompatActivity {
         etEmail = findViewById(R.id.et_edit_email);
         etPhone = findViewById(R.id.et_edit_phone);
 
+        ivProfileImage = findViewById(R.id.iv_profile_image);
+        ivProfilePlaceholder = findViewById(R.id.iv_profile_placeholder);
+        ivEditProfileImage = findViewById(R.id.iv_edit_profile_image);
+        ivEditProfilePlaceholder = findViewById(R.id.iv_edit_profile_placeholder);
+        cvEditProfileImage = findViewById(R.id.cv_edit_profile_image);
+
         btnLogout = findViewById(R.id.btn_log_out);
-        btnEditSave = findViewById(R.id.btn_edit_save);
+        btnEditProfile = findViewById(R.id.btn_edit_profile);
+        btnSaveProfile = findViewById(R.id.btn_save_profile);
         btnCancel = findViewById(R.id.btn_cancel_edit);
         btnDeleteProfile = findViewById(R.id.btn_delete_profile);
         btnLotteryGuidelines = findViewById(R.id.btn_lottery_guidelines);
 
-        dividerDelete = findViewById(R.id.divider_delete);
-        dividerCancel = findViewById(R.id.divider_cancel);
-        dividerGuidelines = findViewById(R.id.divider_guidelines);
+        toolbarEdit = findViewById(R.id.toolbar_edit_profile);
+        topDivider = findViewById(R.id.view_top_divider);
         bottomNav = findViewById(R.id.bottom_nav_container);
 
-        displayLayout = findViewById(R.id.layout_profile_display);
-        editLayout = findViewById(R.id.layout_profile_edit);
+        viewContainer = findViewById(R.id.layout_profile_view_container);
+        editContainer = findViewById(R.id.layout_profile_edit_container);
     }
 
     private void loadUserProfile() {
@@ -168,6 +207,7 @@ public class OrganizerProfileActivity extends AppCompatActivity {
                 String username = documentSnapshot.getString("username");
                 String email = documentSnapshot.getString("email");
                 String phone = documentSnapshot.getString("phone");
+                savedImageBase64 = documentSnapshot.getString("profileImageBase64");
 
                 tvName.setText(username != null && !username.isEmpty() ? username : "Unknown");
                 tvEmail.setText(email != null && !email.isEmpty() ? email : "No Email");
@@ -183,6 +223,9 @@ public class OrganizerProfileActivity extends AppCompatActivity {
                 etEmail.setText(email != null ? email : "");
                 etPhone.setText(phone != null ? phone : "");
 
+                ProfileImageHelper.displayProfileImage(savedImageBase64, ivProfileImage, ivProfilePlaceholder, username);
+                ProfileImageHelper.displayProfileImage(savedImageBase64, ivEditProfileImage, ivEditProfilePlaceholder, username);
+
                 if (forceEdit && username != null && !username.isEmpty() && email != null && !email.isEmpty()) {
                     forceEdit = false;
                     exitEditMode();
@@ -194,46 +237,66 @@ public class OrganizerProfileActivity extends AppCompatActivity {
 
     private void enterEditMode() {
         isEditing = true;
-        displayLayout.setVisibility(View.GONE);
-        editLayout.setVisibility(View.VISIBLE);
-        btnEditSave.setText(forceEdit ? "Complete Profile" : "Save Changes");
+        selectedImageBase64 = null; // Reset temp storage
+        // Ensure existing saved avatar is shown correctly when entering edit mode
+        ProfileImageHelper.displayProfileImage(savedImageBase64, ivEditProfileImage, ivEditProfilePlaceholder, etName.getText().toString());
 
-        // Hide options when editing
-        btnDeleteProfile.setVisibility(View.GONE);
-        dividerDelete.setVisibility(View.GONE);
-        btnLotteryGuidelines.setVisibility(View.GONE);
-        dividerGuidelines.setVisibility(View.GONE);
+        viewContainer.setVisibility(View.GONE);
+        editContainer.setVisibility(View.VISIBLE);
+        toolbarEdit.setVisibility(View.VISIBLE);
+        topDivider.setVisibility(View.GONE);
+        bottomNav.setVisibility(View.GONE);
 
         if (forceEdit) {
+            toolbarEdit.setNavigationIcon(null);
+            toolbarEdit.setTitle("Create account");
             btnCancel.setVisibility(View.GONE);
-            dividerCancel.setVisibility(View.GONE);
-            btnLogout.setVisibility(View.GONE);
-            bottomNav.setVisibility(View.GONE);
-            tvActionsHeader.setVisibility(View.GONE);
         } else {
+            toolbarEdit.setNavigationIcon(R.drawable.ic_back);
+            toolbarEdit.setTitle("Edit Profile");
             btnCancel.setVisibility(View.VISIBLE);
-            dividerCancel.setVisibility(View.VISIBLE);
-            btnLogout.setVisibility(View.VISIBLE);
-            bottomNav.setVisibility(View.VISIBLE);
-            tvActionsHeader.setVisibility(View.VISIBLE);
         }
     }
 
     private void exitEditMode() {
         isEditing = false;
-        displayLayout.setVisibility(View.VISIBLE);
-        editLayout.setVisibility(View.GONE);
-        btnEditSave.setText("Edit Profile");
+        selectedImageBase64 = null; // Clear temp storage
+        // Revert edit preview to saved state
+        ProfileImageHelper.displayProfileImage(savedImageBase64, ivEditProfileImage, ivEditProfilePlaceholder, etName.getText().toString());
 
-        btnCancel.setVisibility(View.GONE);
-        dividerCancel.setVisibility(View.GONE);
-        btnDeleteProfile.setVisibility(View.VISIBLE);
-        dividerDelete.setVisibility(View.VISIBLE);
-        btnLotteryGuidelines.setVisibility(View.VISIBLE);
-        dividerGuidelines.setVisibility(View.VISIBLE);
-        btnLogout.setVisibility(View.VISIBLE);
+        viewContainer.setVisibility(View.VISIBLE);
+        editContainer.setVisibility(View.GONE);
+        toolbarEdit.setVisibility(View.GONE);
+        topDivider.setVisibility(View.VISIBLE);
         bottomNav.setVisibility(View.VISIBLE);
-        tvActionsHeader.setVisibility(View.VISIBLE);
+    }
+
+    private void showAvatarOptions() {
+        boolean hasImage = ProfileImageHelper.hasCustomImage(selectedImageBase64, savedImageBase64);
+        ProfileImageHelper.showAvatarOptions(this, hasImage,
+                () -> ProfileImageHelper.openImagePicker(imagePickerLauncher),
+                this::removeAvatar);
+    }
+
+    private void removeAvatar() {
+        selectedImageBase64 = "";
+        ProfileImageHelper.showDefaultAvatar(ivEditProfileImage, ivEditProfilePlaceholder, etName.getText().toString());
+        Toast.makeText(this, "Avatar marked for removal", Toast.LENGTH_SHORT).show();
+    }
+
+    private void processSelectedImage(Uri imageUri) {
+        try {
+            ProfileImageHelper.ProcessedImage result =
+                    ProfileImageHelper.processSelectedImage(getContentResolver(), imageUri);
+            if (result != null) {
+                selectedImageBase64 = result.base64;
+                ivEditProfileImage.setImageBitmap(result.bitmap);
+                ivEditProfileImage.setVisibility(View.VISIBLE);
+                ivEditProfilePlaceholder.setVisibility(View.GONE);
+            }
+        } catch (IOException e) {
+            Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void saveProfile() {
@@ -256,7 +319,17 @@ public class OrganizerProfileActivity extends AppCompatActivity {
         updates.put("email", email);
         updates.put("phone", phone);
 
-        db.collection(FirestorePaths.USERS).document(userId).update(updates)
+        // Handle avatar update or removal
+        if (selectedImageBase64 != null) {
+            if (selectedImageBase64.isEmpty()) {
+                // If marked for removal, delete the field from Firestore
+                updates.put("profileImageBase64", FieldValue.delete());
+            } else {
+                updates.put("profileImageBase64", selectedImageBase64);
+            }
+        }
+
+        db.collection(FirestorePaths.USERS).document(userId).set(updates, SetOptions.merge())
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(this, "Profile updated", Toast.LENGTH_SHORT).show();
 
@@ -301,7 +374,7 @@ public class OrganizerProfileActivity extends AppCompatActivity {
     private void deleteUserProfile() {
         if (userId == null) return;
 
-        UserDeletionUtil.cleanUpCoOrganizerRecords(db, userId, () ->
+        UserDeletionUtil.cleanUpUserRecords(db, userId, () ->
                 db.collection(FirestorePaths.USERS).document(userId).delete()
                         .addOnSuccessListener(aVoid -> {
                             Toast.makeText(this, "Profile deleted successfully", Toast.LENGTH_SHORT).show();

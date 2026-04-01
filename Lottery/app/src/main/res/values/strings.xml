@@ -196,10 +196,10 @@
     <string name="filter_music">Music</string>
     <string name="filter_other">Other</string>
     <string name="filter_all_dates">All Dates</string>
-    <string name="filter_available">Available</string>
+    <string name="filter_spots_available">Spots Available</string>
     <string name="filter_waitlist_open">Waitlist Open</string>
     <string name="deletion_active">Deletion Active</string>
-    <string name="enable_deletion">Enable Deletion</string>
+    <string name="enable_deletion">Deletion</string>
     <string name="all">All</string>
     <string name="entrant">Entrant</string>
     <string name="organizer">Organizer</string>

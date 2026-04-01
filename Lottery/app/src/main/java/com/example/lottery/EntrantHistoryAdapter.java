@@ -100,9 +100,9 @@ public class EntrantHistoryAdapter extends RecyclerView.Adapter<EntrantHistoryAd
         // Notification Icon Click - Event Specific Mode
         holder.ivNotificationIcon.setOnClickListener(v -> {
             Intent intent = new Intent(v.getContext(), NotificationsActivity.class);
-            intent.putExtra("userId", userId);
-            intent.putExtra("eventId", event.getEventId());
-            intent.putExtra("eventTitle", event.getTitle());
+            intent.putExtra(NotificationsActivity.EXTRA_USER_ID, userId);
+            intent.putExtra(NotificationsActivity.EXTRA_EVENT_ID, event.getEventId());
+            intent.putExtra(NotificationsActivity.EXTRA_EVENT_TITLE, event.getTitle());
             v.getContext().startActivity(intent);
         });
 
