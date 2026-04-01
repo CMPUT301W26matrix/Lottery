@@ -1,6 +1,5 @@
 package com.example.lottery;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
@@ -10,6 +9,8 @@ import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 /**
  * fragment for user to enter the number of invitations they want to send
@@ -62,8 +63,8 @@ public class SampleFragment extends DialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         View view = getLayoutInflater().inflate(R.layout.sample_fragment, null);
         EditText input = view.findViewById(R.id.input_sampling_size);
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        return builder
+        
+        return new MaterialAlertDialogBuilder(requireContext())
                 .setView(view)
                 .setNegativeButton("Cancel", null)
                 .setPositiveButton("Ok", (dialog, which) -> {

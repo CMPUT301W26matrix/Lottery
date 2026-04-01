@@ -1,15 +1,18 @@
 package com.example.lottery;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lottery.model.Event;
+import com.example.lottery.util.InvitationFlowUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -23,6 +26,7 @@ import java.util.Locale;
  * <ul>
  *   <li>Binds event data to the list items in the notification screen.</li>
  *   <li>Delegates button clicks to a listener to handle notification composition.</li>
+ *   <li>Provides navigation to the entrants management list.</li>
  * </ul>
  * </p>
  */
@@ -62,14 +66,24 @@ public class OrganizerNotificationEventAdapter extends RecyclerView.Adapter<Orga
             holder.tvEventDate.setText("No date set");
         }
 
+        // Navigation to EntrantsListActivity
+        holder.btnViewList.setOnClickListener(v -> {
+            Intent intent = new Intent(v.getContext(), EntrantsListActivity.class);
+            intent.putExtra("eventId", event.getEventId());
+            v.getContext().startActivity(intent);
+        });
+
         // Map UI buttons to backend status groups
         holder.btnNotifyWaiting.setOnClickListener(v -> {
             if (listener != null) listener.onGroupClick(event, "waitlisted");
         });
 
         holder.btnNotifySelected.setOnClickListener(v -> {
-            // Unified: use "invited" group identifier instead of "selected"
             if (listener != null) listener.onGroupClick(event, "invited");
+        });
+
+        holder.btnNotifyAccepted.setOnClickListener(v -> {
+            if (listener != null) listener.onGroupClick(event, "accepted");
         });
 
         holder.btnNotifyCancelled.setOnClickListener(v -> {
@@ -87,10 +101,10 @@ public class OrganizerNotificationEventAdapter extends RecyclerView.Adapter<Orga
      */
     public interface OnNotificationGroupClickListener {
         /**
-         * Called when a specific group (Waitlist, Invited, or Cancelled) is clicked for an event.
+         * Called when a specific group (Waitlist, Invited, Accepted, or Cancelled) is clicked for an event.
          *
          * @param event The event associated with the notification.
-         * @param group The group identifier (e.g., "waitlisted", "invited", "cancelled").
+         * @param group The group identifier (e.g., "waitlisted", "invited", "accepted", "cancelled").
          */
         void onGroupClick(Event event, String group);
     }
@@ -100,7 +114,8 @@ public class OrganizerNotificationEventAdapter extends RecyclerView.Adapter<Orga
      */
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvEventTitle, tvEventDate;
-        Button btnNotifyWaiting, btnNotifySelected, btnNotifyCancelled;
+        Button btnNotifyWaiting, btnNotifySelected, btnNotifyAccepted, btnNotifyCancelled;
+        ImageButton btnViewList;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -108,7 +123,9 @@ public class OrganizerNotificationEventAdapter extends RecyclerView.Adapter<Orga
             tvEventDate = itemView.findViewById(R.id.tvEventDate);
             btnNotifyWaiting = itemView.findViewById(R.id.btnNotifyWaiting);
             btnNotifySelected = itemView.findViewById(R.id.btnNotifySelected);
+            btnNotifyAccepted = itemView.findViewById(R.id.btnNotifyAccepted);
             btnNotifyCancelled = itemView.findViewById(R.id.btnNotifyCancelled);
+            btnViewList = itemView.findViewById(R.id.btnViewList);
         }
     }
 }

@@ -36,14 +36,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Activity that allows organizers to manage and send notifications to different groups of entrants.
- *
- * <p>Key Responsibilities:
- * <ul>
- *   <li>Display a list of events created by the current organizer.</li>
- *   <li>Provide options to send notifications to specific entrant sub-groups (e.g., waitlisted, selected, cancelled).</li>
- *   <li>Orchestrate the creation of notification logs and individual user inbox entries in Firestore.</li>
- * </ul>
- * </p>
  */
 public class OrganizerNotificationsActivity extends AppCompatActivity
         implements NotificationFragment.NotificationListener,
@@ -60,13 +52,6 @@ public class OrganizerNotificationsActivity extends AppCompatActivity
     private Event selectedEventForNotification;
     private String selectedGroup;
 
-    /**
-     * Initializes the activity, sets up the RecyclerView, and loads the organizer's events.
-     *
-     * @param savedInstanceState If the activity is being re-initialized after
-     *                           previously being shut down then this Bundle contains the data it most
-     *                           recently supplied in {@link #onSaveInstanceState}. <b>Note: Otherwise it is null.</b>
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,7 +66,6 @@ public class OrganizerNotificationsActivity extends AppCompatActivity
 
         db = FirebaseFirestore.getInstance();
 
-        // Unified userId retrieval
         userId = getIntent().getStringExtra("userId");
         if (userId == null) {
             SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
@@ -108,9 +92,6 @@ public class OrganizerNotificationsActivity extends AppCompatActivity
         loadOrganizerEvents();
     }
 
-    /**
-     * Fetches the list of events owned by the current organizer from Firestore.
-     */
     private void loadOrganizerEvents() {
         if (userId == null) return;
 
@@ -132,27 +113,40 @@ public class OrganizerNotificationsActivity extends AppCompatActivity
                 });
     }
 
-    /**
-     * Called when a notification group button is clicked in the adapter.
-     * Opens the {@link NotificationFragment} to compose a message.
-     *
-     * @param event The event associated with the notification.
-     * @param group The target group identifier.
-     */
     @Override
     public void onGroupClick(Event event, String group) {
         this.selectedEventForNotification = event;
         this.selectedGroup = group;
-        NotificationFragment fragment = NotificationFragment.newInstance();
+
+        String displayGroupName;
+        switch (group.toLowerCase()) {
+            case "waitlisted":
+                displayGroupName = "Notify Waiting List";
+                break;
+            case "invited":
+                displayGroupName = "Notify Invited Entrants";
+                break;
+            case "accepted":
+                displayGroupName = "Notify Accepted Entrants";
+                break;
+            case "cancelled":
+                displayGroupName = "Notify Cancelled Entrants";
+                break;
+            case "not_selected":
+                displayGroupName = "Notify Not Selected Entrants";
+                break;
+            default:
+                displayGroupName = "Notify Group: " + group;
+                break;
+        }
+
+        // Create a 2-line title: Line 1 Group Action, Line 2 Event Title
+        String dialogTitle = displayGroupName + "\n" + event.getTitle();
+
+        NotificationFragment fragment = NotificationFragment.newInstance(dialogTitle);
         fragment.show(getSupportFragmentManager(), "compose_notification");
     }
 
-    /**
-     * Callback from {@link NotificationFragment} with the message content.
-     * Initiates the multi-stage Firestore write process.
-     *
-     * @param message The text body of the notification.
-     */
     @Override
     public void sendNotification(String message) {
         if (selectedEventForNotification == null || selectedGroup == null || userId == null) return;
@@ -178,21 +172,20 @@ public class OrganizerNotificationsActivity extends AppCompatActivity
                 .addOnSuccessListener(aVoid -> fetchRecipientsAndSend(notificationId, message, globalNotif));
     }
 
-    /**
-     * Queries the event's waiting list for recipients matching the selected group and sends individual entries.
-     *
-     * @param notificationId The ID of the parent notification log.
-     * @param message        The message content.
-     * @param globalNotif    The full metadata map for the notification.
-     */
     private void fetchRecipientsAndSend(String notificationId, String message, Map<String, Object> globalNotif) {
         String targetStatus;
-        switch (selectedGroup) {
-            case "selected":
+        switch (selectedGroup.toLowerCase()) {
+            case "invited":
                 targetStatus = InvitationFlowUtil.STATUS_INVITED;
+                break;
+            case "accepted":
+                targetStatus = InvitationFlowUtil.STATUS_ACCEPTED;
                 break;
             case "cancelled":
                 targetStatus = InvitationFlowUtil.STATUS_CANCELLED;
+                break;
+            case "not_selected":
+                targetStatus = InvitationFlowUtil.STATUS_NOT_SELECTED;
                 break;
             case "waitlisted":
             default:
@@ -206,18 +199,18 @@ public class OrganizerNotificationsActivity extends AppCompatActivity
                 .addOnSuccessListener(querySnapshot -> {
                     WriteBatch batch = db.batch();
                     int totalPotentialRecipients = querySnapshot.size();
-                    AtomicInteger processedCount = new AtomicInteger(0);
-                    AtomicInteger actualSentCount = new AtomicInteger(0);
-
+                    
                     if (totalPotentialRecipients == 0) {
-                        Toast.makeText(this, "No recipients found in group: " + selectedGroup, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "No recipients found in group", Toast.LENGTH_SHORT).show();
                         return;
                     }
+
+                    AtomicInteger processedCount = new AtomicInteger(0);
+                    AtomicInteger actualSentCount = new AtomicInteger(0);
 
                     for (QueryDocumentSnapshot doc : querySnapshot) {
                         String recipientUid = doc.getId();
 
-                        // US 01.04.03: Respect notification preference
                         db.collection(FirestorePaths.USERS).document(recipientUid).get().addOnCompleteListener(task -> {
                             if (task.isSuccessful() && task.getResult() != null) {
                                 DocumentSnapshot userDoc = task.getResult();
@@ -235,9 +228,6 @@ public class OrganizerNotificationsActivity extends AppCompatActivity
                                     recData.put("deliveredAt", Timestamp.now());
                                     batch.set(recipientRef, recData);
 
-                                    DocumentReference inboxRef = db.collection(FirestorePaths.userInbox(recipientUid))
-                                            .document(notificationId);
-
                                     NotificationItem inboxItem = new NotificationItem(
                                             notificationId,
                                             (String) globalNotif.get("title"),
@@ -250,7 +240,7 @@ public class OrganizerNotificationsActivity extends AppCompatActivity
                                             false,
                                             (Timestamp) globalNotif.get("createdAt")
                                     );
-                                    batch.set(inboxRef, inboxItem);
+                                    batch.set(db.collection(FirestorePaths.userInbox(recipientUid)).document(notificationId), inboxItem);
                                     actualSentCount.incrementAndGet();
                                 }
                             }
