@@ -71,7 +71,6 @@ public class EntrantEventAdapter extends RecyclerView.Adapter<EntrantEventAdapte
             }
         };
 
-        holder.btnViewDetails.setOnClickListener(clickListener);
         holder.itemView.setOnClickListener(clickListener);
     }
 
@@ -91,14 +90,12 @@ public class EntrantEventAdapter extends RecyclerView.Adapter<EntrantEventAdapte
         private final TextView tvEventTitle;
         private final TextView tvEventDate;
         private final TextView tvEventDescription;
-        private final TextView btnViewDetails;
 
         EntrantEventViewHolder(@NonNull View itemView) {
             super(itemView);
             tvEventTitle = itemView.findViewById(R.id.tvEventTitle);
             tvEventDate = itemView.findViewById(R.id.tvEventDate);
             tvEventDescription = itemView.findViewById(R.id.tvEventDescription);
-            btnViewDetails = itemView.findViewById(R.id.btnViewDetails);
         }
     }
 }

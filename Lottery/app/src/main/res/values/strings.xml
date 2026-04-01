@@ -154,7 +154,7 @@
 
     <!-- Invitation strings -->
     <string name="decline_invite">Decline Invite</string>
-    <string name="cancel_event_membership">Cancel Event Membership</string>
+    <string name="cancel_event_membership">Cancel Membership</string>
 
     <!-- Registration period ended strings -->
     <string name="registration_period_ended">Registration Period Over</string>
@@ -224,7 +224,7 @@
     <string name="no_entrants_in_list">No entrants in this list</string>
 
     <!-- Confirmation Ticket -->
-    <string name="download_confirmation_ticket">Download Confirmation Ticket</string>
+    <string name="download_confirmation_ticket">Save Confirmation Ticket</string>
     <string name="open_confirmation_ticket">Open Confirmation Ticket</string>
     <string name="ticket_generated">Confirmation ticket generated.</string>
     <string name="ticket_generation_failed">Failed to generate confirmation ticket.</string>
