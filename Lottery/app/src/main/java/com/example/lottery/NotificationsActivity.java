@@ -32,11 +32,10 @@ import java.util.List;
  */
 public class NotificationsActivity extends AppCompatActivity implements NotificationAdapter.OnNotificationClickListener {
 
-    private static final String TAG = "NotificationsActivity";
     public static final String EXTRA_USER_ID = "userId";
     public static final String EXTRA_EVENT_ID = "eventId";
     public static final String EXTRA_EVENT_TITLE = "eventTitle";
-
+    private static final String TAG = "NotificationsActivity";
     private final List<NotificationItem> notificationList = new ArrayList<>();
     private RecyclerView rvNotifications;
     private TextView tvNoNotifications;
