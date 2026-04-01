@@ -135,6 +135,10 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:B">B</h2>
 <dl class="index">
+<dt><a href="com/example/lottery/util/ProfileImageHelper.ProcessedImage.html#base64" class="member-name-link">base64</a> - Variable in class com.example.lottery.util.<a href="com/example/lottery/util/ProfileImageHelper.ProcessedImage.html" title="class in com.example.lottery.util">ProfileImageHelper.ProcessedImage</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/util/ProfileImageHelper.ProcessedImage.html#bitmap" class="member-name-link">bitmap</a> - Variable in class com.example.lottery.util.<a href="com/example/lottery/util/ProfileImageHelper.ProcessedImage.html" title="class in com.example.lottery.util">ProfileImageHelper.ProcessedImage</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/util/InvitationFlowUtil.html#buildCancelledEntrantUpdate()" class="member-name-link">buildCancelledEntrantUpdate()</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/InvitationFlowUtil.html" title="class in com.example.lottery.util">InvitationFlowUtil</a></dt>
 <dd>
 <div class="block">Builds a Firestore update payload for cancelling an entrant's participation.</div>
@@ -172,7 +176,8 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/example/lottery/util/UserDeletionUtil.html#cleanUpCoOrganizerRecords(com.google.firebase.firestore.FirebaseFirestore,java.lang.String,java.lang.Runnable)" class="member-name-link">cleanUpCoOrganizerRecords(FirebaseFirestore, String, Runnable)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/UserDeletionUtil.html" title="class in com.example.lottery.util">UserDeletionUtil</a></dt>
 <dd>
-<div class="block">Clean up co-organizer records only.</div>
+<div class="block">Batch-deletes only co-organizer records for the given user across every event,
+ then invokes onDone.</div>
 </dd>
 <dt><a href="com/example/lottery/util/UserDeletionUtil.html#cleanUpUserRecords(com.google.firebase.firestore.FirebaseFirestore,java.lang.String,java.lang.Runnable)" class="member-name-link">cleanUpUserRecords(FirebaseFirestore, String, Runnable)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/UserDeletionUtil.html" title="class in com.example.lottery.util">UserDeletionUtil</a></dt>
 <dd>
@@ -239,6 +244,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/example/lottery/util/OrganizerNavigationHelper.html#disableNavigation(android.app.Activity)" class="member-name-link">disableNavigation(Activity)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/OrganizerNavigationHelper.html" title="class in com.example.lottery.util">OrganizerNavigationHelper</a></dt>
 <dd>
 <div class="block">Replaces all tab and FAB click listeners with no-ops.</div>
+</dd>
+<dt><a href="com/example/lottery/util/ProfileImageHelper.html#displayProfileImage(java.lang.String,android.widget.ImageView,android.widget.ImageView,java.lang.String)" class="member-name-link">displayProfileImage(String, ImageView, ImageView, String)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/ProfileImageHelper.html" title="class in com.example.lottery.util">ProfileImageHelper</a></dt>
+<dd>
+<div class="block">Displays a profile image from a Base64 string, or falls back to a generated default avatar.</div>
 </dd>
 </dl>
 <h2 class="title" id="I:E">E</h2>
@@ -636,6 +645,11 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:H">H</h2>
 <dl class="index">
+<dt><a href="com/example/lottery/util/ProfileImageHelper.html#hasCustomImage(java.lang.String,java.lang.String)" class="member-name-link">hasCustomImage(String, String)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/ProfileImageHelper.html" title="class in com.example.lottery.util">ProfileImageHelper</a></dt>
+<dd>
+<div class="block">Determines whether a custom profile image currently exists,
+ considering both the in-progress selection and the persisted state.</div>
+</dd>
 <dt><a href="com/example/lottery/util/EntrantNavigationHelper.EntrantTab.html#HISTORY" class="member-name-link">HISTORY</a> - Enum constant in enum class com.example.lottery.util.<a href="com/example/lottery/util/EntrantNavigationHelper.EntrantTab.html" title="enum class in com.example.lottery.util">EntrantNavigationHelper.EntrantTab</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/EntrantHistoryAdapter.HistoryItem.html#%3Cinit%3E(com.example.lottery.model.Event,java.lang.String)" class="member-name-link">HistoryItem(Event, String)</a> - Constructor for class com.example.lottery.<a href="com/example/lottery/EntrantHistoryAdapter.HistoryItem.html" title="class in com.example.lottery">EntrantHistoryAdapter.HistoryItem</a></dt>
@@ -1155,6 +1169,10 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/example/lottery/EntrantMapActivity.html#onStop()" class="member-name-link">onStop()</a> - Method in class com.example.lottery.<a href="com/example/lottery/EntrantMapActivity.html" title="class in com.example.lottery">EntrantMapActivity</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/util/ProfileImageHelper.html#openImagePicker(androidx.activity.result.ActivityResultLauncher)" class="member-name-link">openImagePicker(ActivityResultLauncher&lt;Intent&gt;)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/ProfileImageHelper.html" title="class in com.example.lottery.util">ProfileImageHelper</a></dt>
+<dd>
+<div class="block">Launches the system image picker.</div>
+</dd>
 <dt><a href="com/example/lottery/OrganizerBrowseEventsActivity.html" class="type-name-link" title="class in com.example.lottery">OrganizerBrowseEventsActivity</a> - Class in <a href="com/example/lottery/package-summary.html">com.example.lottery</a></dt>
 <dd>
 <div class="block">OrganizerBrowseEventsActivity serves as the organizer event browser, displaying a summary of published events.</div>
@@ -1277,6 +1295,13 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/example/lottery/LotteryApplication.html#PREFS_NAME" class="member-name-link">PREFS_NAME</a> - Static variable in class com.example.lottery.<a href="com/example/lottery/LotteryApplication.html" title="class in com.example.lottery">LotteryApplication</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/util/ProfileImageHelper.ProcessedImage.html#%3Cinit%3E(java.lang.String,android.graphics.Bitmap)" class="member-name-link">ProcessedImage(String, Bitmap)</a> - Constructor for class com.example.lottery.util.<a href="com/example/lottery/util/ProfileImageHelper.ProcessedImage.html" title="class in com.example.lottery.util">ProfileImageHelper.ProcessedImage</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/util/ProfileImageHelper.html#processSelectedImage(android.content.ContentResolver,android.net.Uri)" class="member-name-link">processSelectedImage(ContentResolver, Uri)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/ProfileImageHelper.html" title="class in com.example.lottery.util">ProfileImageHelper</a></dt>
+<dd>
+<div class="block">Processes a picked image URI: decodes, scales to avatar size, compresses to JPEG,
+ and returns both the Base64 string and the scaled bitmap.</div>
+</dd>
 <dt><a href="com/example/lottery/util/EntrantNavigationHelper.EntrantTab.html#PROFILE" class="member-name-link">PROFILE</a> - Enum constant in enum class com.example.lottery.util.<a href="com/example/lottery/util/EntrantNavigationHelper.EntrantTab.html" title="enum class in com.example.lottery.util">EntrantNavigationHelper.EntrantTab</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/util/OrganizerNavigationHelper.OrganizerTab.html#PROFILE" class="member-name-link">PROFILE</a> - Enum constant in enum class com.example.lottery.util.<a href="com/example/lottery/util/OrganizerNavigationHelper.OrganizerTab.html" title="enum class in com.example.lottery.util">OrganizerNavigationHelper.OrganizerTab</a></dt>
@@ -1288,6 +1313,14 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/example/lottery/ProfileAdapter.html#%3Cinit%3E(android.content.Context,java.util.ArrayList)" class="member-name-link">ProfileAdapter(Context, ArrayList&lt;User&gt;)</a> - Constructor for class com.example.lottery.<a href="com/example/lottery/ProfileAdapter.html" title="class in com.example.lottery">ProfileAdapter</a></dt>
 <dd>
 <div class="block">Creates an adapter for displaying a list of users.</div>
+</dd>
+<dt><a href="com/example/lottery/util/ProfileImageHelper.html" class="type-name-link" title="class in com.example.lottery.util">ProfileImageHelper</a> - Class in <a href="com/example/lottery/util/package-summary.html">com.example.lottery.util</a></dt>
+<dd>
+<div class="block">Shared helper for profile image operations.</div>
+</dd>
+<dt><a href="com/example/lottery/util/ProfileImageHelper.ProcessedImage.html" class="type-name-link" title="class in com.example.lottery.util">ProfileImageHelper.ProcessedImage</a> - Class in <a href="com/example/lottery/util/package-summary.html">com.example.lottery.util</a></dt>
+<dd>
+<div class="block">Holds the result of processing a picked image.</div>
 </dd>
 <dt><a href="com/example/lottery/util/AdminNavigationHelper.AdminTab.html#PROFILES" class="member-name-link">PROFILES</a> - Enum constant in enum class com.example.lottery.util.<a href="com/example/lottery/util/AdminNavigationHelper.AdminTab.html" title="enum class in com.example.lottery.util">AdminNavigationHelper.AdminTab</a></dt>
 <dd>&nbsp;</dd>
@@ -1510,6 +1543,15 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/EntrantEvent.html#setWaitlistedAt(com.google.firebase.Timestamp)" class="member-name-link">setWaitlistedAt(Timestamp)</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/EntrantEvent.html" title="class in com.example.lottery.model">EntrantEvent</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/util/ProfileImageHelper.html#showAvatarOptions(android.app.Activity,boolean,java.lang.Runnable,java.lang.Runnable)" class="member-name-link">showAvatarOptions(Activity, boolean, Runnable, Runnable)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/ProfileImageHelper.html" title="class in com.example.lottery.util">ProfileImageHelper</a></dt>
+<dd>
+<div class="block">Shows avatar options: if no image exists, runs onPickImage directly;
+ otherwise shows a bottom sheet with "Change photo" and "Remove photo" options.</div>
+</dd>
+<dt><a href="com/example/lottery/util/ProfileImageHelper.html#showDefaultAvatar(android.widget.ImageView,android.widget.ImageView,java.lang.String)" class="member-name-link">showDefaultAvatar(ImageView, ImageView, String)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/ProfileImageHelper.html" title="class in com.example.lottery.util">ProfileImageHelper</a></dt>
+<dd>
+<div class="block">Shows a deterministic, initial-based default avatar.</div>
+</dd>
 <dt><a href="com/example/lottery/SignedUpListAdapter.html" class="type-name-link" title="class in com.example.lottery">SignedUpListAdapter</a> - Class in <a href="com/example/lottery/package-summary.html">com.example.lottery</a></dt>
 <dd>
 <div class="block">Adapter for signed up entrants RecyclerView to display a list of entrants that signed up the specific event</div>
