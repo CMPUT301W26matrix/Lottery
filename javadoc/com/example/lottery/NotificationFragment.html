@@ -167,16 +167,21 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="NotificationFragment.html" title="class in com.example.lottery">NotificationFragment</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#newInstance()" class="member-name-link">newInstance</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Initializes and returns a new NotificationFragment.</div>
+<div class="block">Initializes and returns a new NotificationFragment with a default title.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onAttach(android.content.Context)" class="member-name-link">onAttach</a><wbr>(android.content.Context&nbsp;context)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="NotificationFragment.html" title="class in com.example.lottery">NotificationFragment</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#newInstance(java.lang.String)" class="member-name-link">newInstance</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;title)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Initializes and returns a new NotificationFragment with a specific title.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onAttach(android.content.Context)" class="member-name-link">onAttach</a><wbr>(android.content.Context&nbsp;context)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Attaches the fragment to its context and ensures it implements the <a href="NotificationFragment.NotificationListener.html" title="interface in com.example.lottery"><code>NotificationFragment.NotificationListener</code></a>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>android.app.Dialog</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onCreateDialog(android.os.Bundle)" class="member-name-link">onCreateDialog</a><wbr>(android.os.Bundle&nbsp;savedInstanceState)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>android.app.Dialog</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onCreateDialog(android.os.Bundle)" class="member-name-link">onCreateDialog</a><wbr>(android.os.Bundle&nbsp;savedInstanceState)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Creates and returns the notification composition dialog.</div>
 </div>
 </div>
@@ -220,8 +225,21 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="newInstance()">
 <h3>newInstance</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="NotificationFragment.html" title="class in com.example.lottery">NotificationFragment</a></span>&nbsp;<span class="element-name">newInstance</span>()</div>
-<div class="block">Initializes and returns a new NotificationFragment.</div>
+<div class="block">Initializes and returns a new NotificationFragment with a default title.</div>
 <dl class="notes">
+<dt>Returns:</dt>
+<dd>a new notification fragment</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="newInstance(java.lang.String)">
+<h3>newInstance</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="NotificationFragment.html" title="class in com.example.lottery">NotificationFragment</a></span>&nbsp;<span class="element-name">newInstance</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;title)</span></div>
+<div class="block">Initializes and returns a new NotificationFragment with a specific title.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>title</code> - The title to display on the dialog.</dd>
 <dt>Returns:</dt>
 <dd>a new notification fragment</dd>
 </dl>
