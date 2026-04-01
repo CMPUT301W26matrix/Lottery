@@ -128,6 +128,10 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/example/lottery/AdminSignInActivity.html#%3Cinit%3E()" class="member-name-link">AdminSignInActivity()</a> - Constructor for class com.example.lottery.<a href="com/example/lottery/AdminSignInActivity.html" title="class in com.example.lottery">AdminSignInActivity</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/util/AvatarUtils.html" class="type-name-link" title="class in com.example.lottery.util">AvatarUtils</a> - Class in <a href="com/example/lottery/util/package-summary.html">com.example.lottery.util</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/util/AvatarUtils.html#%3Cinit%3E()" class="member-name-link">AvatarUtils()</a> - Constructor for class com.example.lottery.util.<a href="com/example/lottery/util/AvatarUtils.html" title="class in com.example.lottery.util">AvatarUtils</a></dt>
+<dd>&nbsp;</dd>
 </dl>
 <h2 class="title" id="I:B">B</h2>
 <dl class="index">
@@ -168,7 +172,11 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/example/lottery/util/UserDeletionUtil.html#cleanUpCoOrganizerRecords(com.google.firebase.firestore.FirebaseFirestore,java.lang.String,java.lang.Runnable)" class="member-name-link">cleanUpCoOrganizerRecords(FirebaseFirestore, String, Runnable)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/UserDeletionUtil.html" title="class in com.example.lottery.util">UserDeletionUtil</a></dt>
 <dd>
-<div class="block">Batch-deletes all co-organizer records for the given user across every event,
+<div class="block">Clean up co-organizer records only.</div>
+</dd>
+<dt><a href="com/example/lottery/util/UserDeletionUtil.html#cleanUpUserRecords(com.google.firebase.firestore.FirebaseFirestore,java.lang.String,java.lang.Runnable)" class="member-name-link">cleanUpUserRecords(FirebaseFirestore, String, Runnable)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/UserDeletionUtil.html" title="class in com.example.lottery.util">UserDeletionUtil</a></dt>
+<dd>
+<div class="block">Batch-deletes all records for the given user across every event (co-organizers and waitlists),
  then invokes onDone.</div>
 </dd>
 <dt><a href="com/example/lottery/util/AdminRoleManager.html#clearAdminRoleSession(android.content.Context)" class="member-name-link">clearAdminRoleSession(Context)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/AdminRoleManager.html" title="class in com.example.lottery.util">AdminRoleManager</a></dt>
@@ -449,6 +457,10 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/example/lottery/GeneralSignInActivity.html#%3Cinit%3E()" class="member-name-link">GeneralSignInActivity()</a> - Constructor for class com.example.lottery.<a href="com/example/lottery/GeneralSignInActivity.html" title="class in com.example.lottery">GeneralSignInActivity</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/util/AvatarUtils.html#generateDefaultAvatar(java.lang.String,int)" class="member-name-link">generateDefaultAvatar(String, int)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/AvatarUtils.html" title="class in com.example.lottery.util">AvatarUtils</a></dt>
+<dd>
+<div class="block">Generates a default avatar bitmap with the user's initial.</div>
+</dd>
 <dt><a href="com/example/lottery/util/QRCodeUtils.html#generateQRCodeBitmap(java.lang.String)" class="member-name-link">generateQRCodeBitmap(String)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/QRCodeUtils.html" title="class in com.example.lottery.util">QRCodeUtils</a></dt>
 <dd>
 <div class="block">Generates a QR Code Bitmap from the given content string using the ZXing library.</div>
@@ -568,6 +580,8 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/example/lottery/model/Event.html#getPlace()" class="member-name-link">getPlace()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Event.html" title="class in com.example.lottery.model">Event</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/Event.html#getPosterBase64()" class="member-name-link">getPosterBase64()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Event.html" title="class in com.example.lottery.model">Event</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/model/User.html#getProfileImageBase64()" class="member-name-link">getProfileImageBase64()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/User.html" title="class in com.example.lottery.model">User</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/Event.html#getQrCodeContent()" class="member-name-link">getQrCodeContent()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Event.html" title="class in com.example.lottery.model">Event</a></dt>
 <dd>&nbsp;</dd>
@@ -913,10 +927,7 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/example/lottery/AdminImageDetailsActivity.html#onCreate(android.os.Bundle)" class="member-name-link">onCreate(Bundle)</a> - Method in class com.example.lottery.<a href="com/example/lottery/AdminImageDetailsActivity.html" title="class in com.example.lottery">AdminImageDetailsActivity</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/AdminProfileActivity.html#onCreate(android.os.Bundle)" class="member-name-link">onCreate(Bundle)</a> - Method in class com.example.lottery.<a href="com/example/lottery/AdminProfileActivity.html" title="class in com.example.lottery">AdminProfileActivity</a></dt>
-<dd>
-<div class="block">Initializes the activity, loads admin profile data, and sets up role switching buttons
- and bottom navigation.</div>
-</dd>
+<dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/AdminSignInActivity.html#onCreate(android.os.Bundle)" class="member-name-link">onCreate(Bundle)</a> - Method in class com.example.lottery.<a href="com/example/lottery/AdminSignInActivity.html" title="class in com.example.lottery">AdminSignInActivity</a></dt>
 <dd>
 <div class="block">Initialize the activity and binds UI views.</div>
@@ -1420,6 +1431,8 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/example/lottery/model/Event.html#setPosterBase64(java.lang.String)" class="member-name-link">setPosterBase64(String)</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Event.html" title="class in com.example.lottery.model">Event</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/Event.html#setPrivate(boolean)" class="member-name-link">setPrivate(boolean)</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Event.html" title="class in com.example.lottery.model">Event</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/model/User.html#setProfileImageBase64(java.lang.String)" class="member-name-link">setProfileImageBase64(String)</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/User.html" title="class in com.example.lottery.model">User</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/Event.html#setQrCodeContent(java.lang.String)" class="member-name-link">setQrCodeContent(String)</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/Event.html" title="class in com.example.lottery.model">Event</a></dt>
 <dd>&nbsp;</dd>
