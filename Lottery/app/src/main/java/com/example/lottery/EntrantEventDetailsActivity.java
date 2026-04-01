@@ -229,7 +229,8 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         if (sourceTabName != null) {
             try {
                 sourceTab = EntrantNavigationHelper.EntrantTab.valueOf(sourceTabName);
-            } catch (IllegalArgumentException ignored) { }
+            } catch (IllegalArgumentException ignored) {
+            }
         }
         EntrantNavigationHelper.setup(this, sourceTab, userId, true);
         btnClose.setOnClickListener(v -> finish());
@@ -322,18 +323,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
             waitlistListener.remove();
             waitlistListener = null;
         }
-    }    /**
-     * Requests location permissions and continues the current action if permission is granted.
-     */
-    private final ActivityResultLauncher<String[]> locationPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
-                if (result.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false)
-                        || result.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)) {
-                    startLocationCollection();
-                } else {
-                    Toast.makeText(this, "Location is required to proceed", Toast.LENGTH_LONG).show();
-                }
-            });
+    }
 
     /**
      * Fetches event metadata from Firestore and populates the UI.
@@ -424,6 +414,19 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                     Toast.makeText(this, "Failed to load event details", Toast.LENGTH_SHORT).show();
                 });
     }
+
+    /**
+     * Requests location permissions and continues the current action if permission is granted.
+     */
+    private final ActivityResultLauncher<String[]> locationPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
+                if (result.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false)
+                        || result.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)) {
+                    startLocationCollection();
+                } else {
+                    Toast.makeText(this, "Location is required to proceed", Toast.LENGTH_LONG).show();
+                }
+            });
 
     /**
      * Handles an action that may require location before completion.
