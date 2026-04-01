@@ -160,6 +160,8 @@
     <!-- Registration period ended strings -->
     <string name="registration_period_ended">Registration Period Over</string>
     <string name="cannot_join_event_lottery_drawn">You can no longer join this event as the lottery has already been drawn.</string>
+    <string name="cannot_rejoin_event_title">Cannot Rejoin Event</string>
+    <string name="cannot_rejoin_event_message">You previously declined or left this event, so you can no longer rejoin the waitlist.</string>
     <string name="delete_image">Delete Image</string>
     <string name="delete_event">Delete Event</string>
     <string name="confirm_deletion">Confirm Deletion</string>
@@ -236,4 +238,12 @@
     <!-- QR Select Screen -->
     <string name="tap_to_view_qr">Tap to view QR code</string>
     <string name="select_event_for_qr">Select Event for QR</string>
+
+    <!-- Waitlist Quick Action Strings -->
+    <string name="join_waitlist">Join Waitlist</string>
+    <string name="leave_waitlist">Leave Waitlist</string>
+    <string name="opening_details_to_join">Opening details to join...</string>
+    <string name="status_selected">Selected</string>
+    <string name="status_confirmed">Confirmed</string>
+    <string name="status_declined">Declined</string>
 </resources>
