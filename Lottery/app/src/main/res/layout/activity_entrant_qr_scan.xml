@@ -28,7 +28,8 @@
             android:padding="8dp"
             android:src="@drawable/ic_back"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/primary_blue" />
 
         <TextView
             android:id="@+id/tvTitle"
@@ -39,7 +40,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:text="QR Scan"
-            android:textColor="#333333"
+            android:textColor="@color/primary_blue"
             android:textSize="22sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="@id/btnBack"

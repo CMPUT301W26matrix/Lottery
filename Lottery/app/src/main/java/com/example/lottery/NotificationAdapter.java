@@ -22,6 +22,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
     private final List<NotificationItem> notifications;
     private final OnNotificationClickListener listener;
+    private boolean isEventSpecificMode = false;
 
     /**
      * Creates a new NotificationAdapter.
@@ -32,6 +33,16 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     public NotificationAdapter(List<NotificationItem> notifications, OnNotificationClickListener listener) {
         this.notifications = notifications;
         this.listener = listener;
+    }
+
+    /**
+     * Sets whether the adapter is operating in event-specific mode.
+     * In event-specific mode, redundant event titles are stripped from notification titles.
+     *
+     * @param eventSpecificMode true if in event-specific mode, false otherwise
+     */
+    public void setEventSpecificMode(boolean eventSpecificMode) {
+        this.isEventSpecificMode = eventSpecificMode;
     }
 
     /**
@@ -53,26 +64,50 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     public void onBindViewHolder(@NonNull NotificationViewHolder holder, int position) {
         NotificationItem item = notifications.get(position);
 
-        holder.tvTitle.setText(item.getTitle() != null ? item.getTitle() : "");
-        holder.tvType.setText(formatNotificationType(item.getType()));
-        holder.tvMessage.setText(item.getMessage() != null ? item.getMessage() : "");
+        String rawTitle = item.getTitle() != null ? item.getTitle() : "";
+        String eventTitle = item.getEventTitle() != null ? item.getEventTitle() : "";
+        
+        String displayTitle = rawTitle;
 
-        if (item.getEventTitle() != null && !item.getEventTitle().isEmpty()) {
-            holder.tvTitle.setText(item.getEventTitle() + ": " + item.getTitle());
+        // In Global Mode (not event-specific), ensure the event title is prefixed if not already there
+        if (!isEventSpecificMode && !eventTitle.isEmpty() && !rawTitle.startsWith(eventTitle)) {
+            displayTitle = eventTitle + ": " + rawTitle;
         }
+
+        // In Event-specific Mode, strip the redundant event title prefix
+        if (isEventSpecificMode && !eventTitle.isEmpty()) {
+            if (rawTitle.startsWith(eventTitle + ":")) {
+                displayTitle = rawTitle.substring(eventTitle.length() + 1).trim();
+            } else if (rawTitle.contains(eventTitle)) {
+                displayTitle = rawTitle.replace(eventTitle, "").replace("for", "").replace(":", "").trim();
+            }
+            
+            // Capitalize first letter if shortened
+            if (!displayTitle.isEmpty()) {
+                displayTitle = displayTitle.substring(0, 1).toUpperCase() + displayTitle.substring(1);
+            }
+
+            // Special case for invitations in event mode
+            if ("You've been invited!".equalsIgnoreCase(displayTitle) || displayTitle.contains("invited")) {
+                displayTitle = "You're invited";
+            }
+        }
+
+        holder.tvTitle.setText(displayTitle);
+        holder.tvType.setText(formatNotificationType(item.getType()));
+        
+        String message = item.getMessage() != null ? item.getMessage() : "";
+        holder.tvMessage.setText(message);
 
         if (!item.isRead()) {
             holder.tvNew.setVisibility(View.VISIBLE);
-            holder.itemView.setBackgroundColor(Color.parseColor("#FFF3E0"));
+            holder.itemView.setBackgroundColor(Color.parseColor("#EEF3FF"));
         } else {
             holder.tvNew.setVisibility(View.GONE);
             holder.itemView.setBackgroundColor(Color.WHITE);
         }
 
-        // Response display logic is simplified as the inbox model no longer tracks complex action state.
-        // If needed, the actual participation status should be checked from the event's waiting list.
         holder.tvResponse.setVisibility(View.GONE);
-
         holder.itemView.setOnClickListener(v -> listener.onNotificationClick(item));
     }
 

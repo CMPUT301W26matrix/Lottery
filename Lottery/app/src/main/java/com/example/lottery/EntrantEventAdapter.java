@@ -40,7 +40,7 @@ public class EntrantEventAdapter extends RecyclerView.Adapter<EntrantEventAdapte
     @Override
     public EntrantEventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_event_entrant, parent, false);
+                .inflate(R.layout.item_event_home, parent, false);
         return new EntrantEventViewHolder(view);
     }
 
@@ -56,7 +56,14 @@ public class EntrantEventAdapter extends RecyclerView.Adapter<EntrantEventAdapte
             holder.tvEventDate.setText("Date TBD");
         }
 
-        holder.tvEventDescription.setText(event.getDetails());
+        // Show description only if available
+        String details = event.getDetails();
+        if (details != null && !details.trim().isEmpty()) {
+            holder.tvEventDescription.setVisibility(View.VISIBLE);
+            holder.tvEventDescription.setText(details);
+        } else {
+            holder.tvEventDescription.setVisibility(View.GONE);
+        }
 
         View.OnClickListener clickListener = v -> {
             if (listener != null) {

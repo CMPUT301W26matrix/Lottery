@@ -63,9 +63,11 @@ public class EntrantEventHistoryActivity extends AppCompatActivity {
         emptyStateContainer = findViewById(R.id.emptyStateContainer);
         progressBar = findViewById(R.id.progressBar);
 
-        adapter = new EntrantHistoryAdapter(historyList, this::openEventDetails);
+        adapter = new EntrantHistoryAdapter(historyList, this::openEventDetails, userId);
         rvEventHistory.setLayoutManager(new LinearLayoutManager(this));
         rvEventHistory.setAdapter(adapter);
+
+        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());

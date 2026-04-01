@@ -2,6 +2,7 @@ package com.example.lottery;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Layout;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -49,15 +50,17 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
     private ImageView ivEventPoster;
     private TextView tvEventTitle, tvScheduledDate, tvEventEndDate, tvRegistrationStart, tvRegistrationDeadline, tvDrawDate, tvEventDetails, tvLocationRequirement;
     private TextView tvWaitingListCapacity, tvEntrantCounts;
+    private TextView btnShowMore;
     private Chip chipCategory, chipPrivate;
     private Button btnInviteEntrant;
-    private ImageButton btnEditEvent, btnComments, btnCoOrganizers;
+    private ImageButton btnEditEvent, btnComments, btnCoOrganizers, btnBack;
     private FirebaseFirestore db;
 
     private Event currentEvent;
     private String eventId;
     private String userId;
     private String userName;
+    private boolean isDescriptionExpanded = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,12 +83,14 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         tvLocationRequirement = findViewById(R.id.tvLocationRequirement);
         tvWaitingListCapacity = findViewById(R.id.tvWaitingListCapacity);
         tvEntrantCounts = findViewById(R.id.tvEntrantCounts);
+        btnShowMore = findViewById(R.id.btnShowMore);
         chipCategory = findViewById(R.id.chipCategory);
         chipPrivate = findViewById(R.id.chipPrivate);
         btnEditEvent = findViewById(R.id.btnEditEvent);
         btnInviteEntrant = findViewById(R.id.btnInviteEntrant);
         btnComments = findViewById(R.id.btnComments);
         btnCoOrganizers = findViewById(R.id.btnCoOrganizers);
+        btnBack = findViewById(R.id.btnBack);
         Button btnViewWaitingList = findViewById(R.id.btnViewWaitingList);
 
         tvEventEndDate = findViewById(R.id.tvEventEndDate);
@@ -130,6 +135,25 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         });
 
         btnCoOrganizers.setOnClickListener(v -> openCoOrganizerDialog());
+        
+        btnShowMore.setOnClickListener(v -> toggleDescription());
+
+        btnBack.setOnClickListener(v -> finish());
+    }
+
+    /**
+     * Toggles the description text view between collapsed and expanded states.
+     */
+    private void toggleDescription() {
+        if (isDescriptionExpanded) {
+            tvEventDetails.setMaxLines(3);
+            btnShowMore.setText("Show more");
+            isDescriptionExpanded = false;
+        } else {
+            tvEventDetails.setMaxLines(Integer.MAX_VALUE);
+            btnShowMore.setText("Show less");
+            isDescriptionExpanded = true;
+        }
     }
 
     private void openInviteDialog() {
@@ -234,6 +258,25 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
     private void updateUI(Event event) {
         tvEventTitle.setText(event.getTitle() != null ? event.getTitle() : "");
         tvEventDetails.setText(event.getDetails() != null ? event.getDetails() : "");
+
+        // Determine if "Show more" is needed
+        tvEventDetails.post(() -> {
+            Layout layout = tvEventDetails.getLayout();
+            if (layout != null) {
+                int lines = layout.getLineCount();
+                if (lines > 0) {
+                    if (layout.getEllipsisCount(lines - 1) > 0 || lines > 3) {
+                        btnShowMore.setVisibility(View.VISIBLE);
+                    } else {
+                        btnShowMore.setVisibility(View.GONE);
+                    }
+                }
+            } else {
+                if (tvEventDetails.getLineCount() > 3) {
+                    btnShowMore.setVisibility(View.VISIBLE);
+                }
+            }
+        });
 
         if (event.getScheduledDateTime() != null)
             tvScheduledDate.setText(dateFormat.format(event.getScheduledDateTime().toDate()));

@@ -1,5 +1,6 @@
 package com.example.lottery;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,7 +10,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lottery.model.Event;
+import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.InvitationFlowUtil;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -23,16 +26,19 @@ public class EntrantHistoryAdapter extends RecyclerView.Adapter<EntrantHistoryAd
     private final List<HistoryItem> historyItems;
     private final OnItemClickListener listener;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault());
+    private final String userId;
 
     /**
      * Creates a new EntrantHistoryAdapter.
      *
      * @param historyItems list of history items to display
      * @param listener     click listener for item interactions
+     * @param userId       the current user's ID
      */
-    public EntrantHistoryAdapter(List<HistoryItem> historyItems, OnItemClickListener listener) {
+    public EntrantHistoryAdapter(List<HistoryItem> historyItems, OnItemClickListener listener, String userId) {
         this.historyItems = historyItems;
         this.listener = listener;
+        this.userId = userId;
     }
 
     @NonNull
@@ -62,7 +68,14 @@ public class EntrantHistoryAdapter extends RecyclerView.Adapter<EntrantHistoryAd
             holder.tvOrganizer.setVisibility(View.GONE);
         }
 
-        holder.tvDescription.setText(event.getDetails());
+        // Show description only if available (Max 2 lines as per UI polish)
+        String details = event.getDetails();
+        if (details != null && !details.trim().isEmpty()) {
+            holder.tvDescription.setVisibility(View.VISIBLE);
+            holder.tvDescription.setText(details);
+        } else {
+            holder.tvDescription.setVisibility(View.GONE);
+        }
 
         // Set status badge
         holder.tvStatus.setVisibility(View.VISIBLE);
@@ -83,6 +96,29 @@ public class EntrantHistoryAdapter extends RecyclerView.Adapter<EntrantHistoryAd
 
         holder.itemView.setOnClickListener(v -> listener.onItemClick(event));
         holder.btnViewDetails.setOnClickListener(v -> listener.onItemClick(event));
+
+        // Notification Icon Click - Event Specific Mode
+        holder.ivNotificationIcon.setOnClickListener(v -> {
+            Intent intent = new Intent(v.getContext(), NotificationsActivity.class);
+            intent.putExtra("userId", userId);
+            intent.putExtra("eventId", event.getEventId());
+            intent.putExtra("eventTitle", event.getTitle());
+            v.getContext().startActivity(intent);
+        });
+
+        // Check for unread notifications for this user and event
+        checkUnreadNotifications(holder.tvNotificationBadge, event.getEventId());
+    }
+
+    private void checkUnreadNotifications(View badge, String eventId) {
+        if (userId == null || eventId == null) return;
+        FirebaseFirestore.getInstance().collection(FirestorePaths.userInbox(userId))
+                .whereEqualTo("eventId", eventId)
+                .whereEqualTo("isRead", false)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    badge.setVisibility(querySnapshot.isEmpty() ? View.GONE : View.VISIBLE);
+                });
     }
 
     @Override
@@ -124,7 +160,8 @@ public class EntrantHistoryAdapter extends RecyclerView.Adapter<EntrantHistoryAd
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvTitle, tvDate, tvDescription, tvStatus, tvOrganizer, btnViewDetails;
+        TextView tvTitle, tvDate, tvDescription, tvStatus, tvOrganizer, btnViewDetails, tvNotificationBadge;
+        View ivNotificationIcon;
 
         ViewHolder(View view) {
             super(view);
@@ -134,6 +171,8 @@ public class EntrantHistoryAdapter extends RecyclerView.Adapter<EntrantHistoryAd
             tvDescription = view.findViewById(R.id.tvEventDescription);
             tvStatus = view.findViewById(R.id.tvEventStatus);
             btnViewDetails = view.findViewById(R.id.btnViewDetails);
+            ivNotificationIcon = view.findViewById(R.id.ivNotificationIcon);
+            tvNotificationBadge = view.findViewById(R.id.tvNotificationBadge);
         }
     }
 }
