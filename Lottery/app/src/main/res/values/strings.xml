@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Lottery</string>
     <string name="choose_your_role">Choose your role</string>
+    <string name="choose_role_subtitle">Select how you would like to use the app today</string>
     <string name="i_m_an_entrant">I\'m an Entrant</string>
     <string name="i_m_an_organizer">I\'m an Organizer</string>
     <string name="i_m_an_admin">I\'m an Admin</string>
