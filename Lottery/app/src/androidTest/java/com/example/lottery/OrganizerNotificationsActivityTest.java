@@ -79,7 +79,7 @@ public class OrganizerNotificationsActivityTest {
             onView(withId(R.id.btnNotifyWaiting)).perform(click());
 
             // Verify Dialog title
-            onView(withText("Compose Notification")).inRoot(isDialog()).check(matches(isDisplayed()));
+            onView(withText("Notify Waiting List")).inRoot(isDialog()).check(matches(isDisplayed()));
             onView(withText("Send")).inRoot(isDialog()).check(matches(isDisplayed()));
         }
     }
@@ -91,7 +91,7 @@ public class OrganizerNotificationsActivityTest {
 
             onView(withId(R.id.btnNotifySelected)).perform(click());
 
-            onView(withText("Compose Notification")).inRoot(isDialog()).check(matches(isDisplayed()));
+            onView(withText("Notify Invited Entrants")).inRoot(isDialog()).check(matches(isDisplayed()));
         }
     }
 
@@ -102,7 +102,7 @@ public class OrganizerNotificationsActivityTest {
 
             onView(withId(R.id.btnNotifyCancelled)).perform(click());
 
-            onView(withText("Compose Notification")).inRoot(isDialog()).check(matches(isDisplayed()));
+            onView(withText("Notify Cancelled Entrants")).inRoot(isDialog()).check(matches(isDisplayed()));
         }
     }
 
@@ -121,7 +121,7 @@ public class OrganizerNotificationsActivityTest {
             onView(withText("Send")).inRoot(isDialog()).perform(click());
 
             // Verify dialog is dismissed
-            onView(withText("Compose Notification")).check(doesNotExist());
+            onView(withText("Notify Waiting List")).check(doesNotExist());
         }
     }
 }
