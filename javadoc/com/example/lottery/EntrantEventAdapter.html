@@ -109,9 +109,7 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code>static interface&nbsp;</code></div>
 <div class="col-second even-row-color"><code><a href="EntrantEventAdapter.OnEventClickListener.html" class="type-name-link" title="interface in com.example.lottery">EntrantEventAdapter.OnEventClickListener</a></code></div>
-<div class="col-last even-row-color">
-<div class="block">Listener interface used to notify when an event item is clicked.</div>
-</div>
+<div class="col-last even-row-color">&nbsp;</div>
 </div>
 <div class="inherited-list">
 <h2 id="nested-classes-inherited-from-class-androidx.recyclerview.widget.RecyclerView.Adapter">Nested classes/interfaces inherited from class&nbsp;androidx.recyclerview.widget.RecyclerView.Adapter</h2>
@@ -126,8 +124,9 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(java.util.List,com.example.lottery.EntrantEventAdapter.OnEventClickListener)" class="member-name-link">EntrantEventAdapter</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="model/Event.html" title="class in com.example.lottery.model">Event</a>&gt;&nbsp;eventList,
- <a href="EntrantEventAdapter.OnEventClickListener.html" title="interface in com.example.lottery">EntrantEventAdapter.OnEventClickListener</a>&nbsp;listener)</code></div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(java.util.List,com.example.lottery.EntrantEventAdapter.OnEventClickListener,java.lang.String)" class="member-name-link">EntrantEventAdapter</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="model/Event.html" title="class in com.example.lottery.model">Event</a>&gt;&nbsp;eventList,
+ <a href="EntrantEventAdapter.OnEventClickListener.html" title="interface in com.example.lottery">EntrantEventAdapter.OnEventClickListener</a>&nbsp;listener,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId)</code></div>
 <div class="col-last even-row-color">
 <div class="block">Constructs an EntrantEventAdapter.</div>
 </div>
@@ -177,15 +176,17 @@ loadScripts(document, 'script');</script>
 <h2>Constructor Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="&lt;init&gt;(java.util.List,com.example.lottery.EntrantEventAdapter.OnEventClickListener)">
+<section class="detail" id="&lt;init&gt;(java.util.List,com.example.lottery.EntrantEventAdapter.OnEventClickListener,java.lang.String)">
 <h3>EntrantEventAdapter</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">EntrantEventAdapter</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="model/Event.html" title="class in com.example.lottery.model">Event</a>&gt;&nbsp;eventList,
- <a href="EntrantEventAdapter.OnEventClickListener.html" title="interface in com.example.lottery">EntrantEventAdapter.OnEventClickListener</a>&nbsp;listener)</span></div>
+ <a href="EntrantEventAdapter.OnEventClickListener.html" title="interface in com.example.lottery">EntrantEventAdapter.OnEventClickListener</a>&nbsp;listener,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId)</span></div>
 <div class="block">Constructs an EntrantEventAdapter.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>eventList</code> - list of events to display</dd>
 <dd><code>listener</code> - listener that handles event selection</dd>
+<dd><code>userId</code> - current user ID to check waitlist status</dd>
 </dl>
 </section>
 </li>
