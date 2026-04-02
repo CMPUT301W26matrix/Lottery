@@ -65,7 +65,7 @@
                     android:id="@+id/tv_nav_notifications"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Notifications"
+                    android:text="@string/notifications_title"
                     android:textColor="@color/text_gray"
                     android:textSize="11sp" />
             </LinearLayout>
@@ -95,7 +95,7 @@
                     android:id="@+id/tv_nav_qr_code"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="QR Codes"
+                    android:text="@string/nav_qr_codes"
                     android:textColor="@color/text_gray"
                     android:textSize="11sp" />
             </LinearLayout>

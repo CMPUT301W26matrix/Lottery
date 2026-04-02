@@ -2,7 +2,10 @@ package com.example.lottery.admin;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -11,6 +14,7 @@ import androidx.activity.EdgeToEdge;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -20,16 +24,21 @@ import com.example.lottery.model.Event;
 import com.example.lottery.util.AdminNavigationHelper;
 import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.PosterImageLoader;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * AdminImageDetailsActivity displays a full-size poster preview for administrators.
+ * AdminImageDetailsActivity displays details of a specific event's poster image
+ * and provides functionality for an administrator to remove the image.
  *
  * <p>Key Responsibilities:
  * <ul>
- *   <li>Fetches the event record from Firestore using the supplied event ID.</li>
- *   <li>Renders the poster (Base64) at full width, event title, organizer name, and description.</li>
- *   <li>Provides a delete button for administrators to clear poster data from Firestore.</li>
+ *   <li>Displays the event poster, title, organizer name, and event details.</li>
+ *   <li>Allows the admin to delete the event's poster image from Firestore.</li>
+ *   <li>Handles navigation back to the image browser after deletion.</li>
  * </ul>
  * </p>
  */
@@ -64,6 +73,10 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
      * Button for deleting the poster image.
      */
     private Button btnDeleteImage;
+    /**
+     * ImageButton for returning to previous page.
+     */
+    private ImageButton btnBack;
     /**
      * Firebase Firestore instance for database operations.
      */
@@ -106,8 +119,10 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
         tvOrganizerName = findViewById(R.id.tvOrganizerName);
         tvEventDetails = findViewById(R.id.tvEventDetails);
         btnDeleteImage = findViewById(R.id.btnDeleteImage);
+        btnBack = findViewById(R.id.btnBack);
 
-        btnDeleteImage.setOnClickListener(v -> showDeleteConfirmationDialog());
+        btnBack.setOnClickListener(v -> finish());
+        btnDeleteImage.setOnClickListener(v -> showDeleteConfirmation());
 
         AdminNavigationHelper.setup(this, AdminNavigationHelper.AdminTab.IMAGES, userId, true);
         // Logs and Settings should keep image detail alive for Back navigation
@@ -124,6 +139,9 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
         fetchEventDetails();
     }
 
+    /**
+     * Fetches the latest event details from Firestore whenever the activity resumes.
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -133,16 +151,34 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * Launches a confirmation dialog before deleting the poster image.
+     * Displays a confirmation dialog before deleting the image.
      */
-    private void showDeleteConfirmationDialog() {
-        new AlertDialog.Builder(this).setTitle(R.string.confirm_deletion).setMessage(R.string.confirm_delete_image)
-                .setPositiveButton(R.string.delete, (dialog, which) -> deleteImage())
-                .setNegativeButton(R.string.cancel, null).show();
+    private void showDeleteConfirmation() {
+        AlertDialog dialog = new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.delete_image)
+                .setMessage(R.string.confirm_delete_image)
+                .setPositiveButton(R.string.confirm, (d, which) -> deleteImage())
+                .setNegativeButton(R.string.cancel, null)
+                .create();
+
+        dialog.show();
+
+        // Make the Delete button visually distinct (red) to match Organizer/Entrant style
+        Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        if (positiveButton != null) {
+            positiveButton.setTextColor(ContextCompat.getColor(this, R.color.error_red));
+        }
+
+        // Soften title size slightly to match unified style (18sp)
+        TextView titleView = dialog.findViewById(androidx.appcompat.R.id.alertTitle);
+        if (titleView != null) {
+            titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+        }
     }
 
     /**
-     * Clears the poster data directly from the Firestore event document.
+     * Deletes the event's poster image from Firestore by setting posterBase64 to an empty string.
+     * Navigates back to the image browser upon successful deletion.
      */
     private void deleteImage() {
         if (eventId == null || eventId.isEmpty()) {
@@ -214,7 +250,9 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
         tvEventDetails.setText(event.getDetails());
         currentPosterBase64 = event.getPosterBase64();
         PosterImageLoader.load(ivEventPoster, currentPosterBase64, R.drawable.event_placeholder);
-        btnDeleteImage.setEnabled(currentPosterBase64 != null && currentPosterBase64.trim().startsWith("data:image"));
+        
+        // Anti-zero protection: disable button if image is already empty
+        btnDeleteImage.setEnabled(currentPosterBase64 != null && !currentPosterBase64.trim().isEmpty());
 
         if (event.getOrganizerId() != null) {
             fetchOrganizerName(event.getOrganizerId());

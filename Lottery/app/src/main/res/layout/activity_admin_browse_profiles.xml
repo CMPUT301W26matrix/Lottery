@@ -8,51 +8,76 @@
     android:background="@color/page_background"
     tools:context=".admin.AdminBrowseProfilesActivity">
 
-    <LinearLayout
-        android:id="@+id/profiles_header"
+    <!-- Header Bar: Page Title (Browse Profiles) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_header_bar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingStart="20dp"
-        android:paddingTop="32dp"
-        android:paddingEnd="20dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/white"
+        android:elevation="4dp"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:id="@+id/tvBrowseProfilesTitle"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:text="@string/browse_profiles"
             android:textColor="@color/primary_blue"
-            android:textSize="28sp"
-            android:textStyle="bold" />
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.02"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnEnableDeleteProfile"
+            style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:backgroundTint="@color/primary_blue"
-            android:minHeight="40dp"
-            android:paddingHorizontal="16dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:paddingHorizontal="12dp"
             android:text="@string/enable_deletion"
-            android:textAllCaps="false" />
-    </LinearLayout>
+            android:textColor="@color/error_red"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Sub-header for Page Description (Shadow/Identity Strip) -->
     <LinearLayout
-        android:id="@+id/role_filter_bar"
+        android:id="@+id/layout_admin_identity"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:orientation="horizontal"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/profiles_header">
+        android:background="@color/primary_light_blue"
+        android:gravity="center"
+        android:paddingVertical="8dp"
+        app:layout_constraintTop_toBottomOf="@id/layout_header_bar">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Browse and manage user accounts in the system"
+            android:textColor="@color/primary_blue"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.1" />
+    </LinearLayout>
+
+    <!-- Role Filter Group (Segmented) -->
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/toggle_filter_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="20dp"
+        app:checkedButton="@+id/btnFilterAll"
+        app:layout_constraintTop_toBottomOf="@id/layout_admin_identity"
+        app:selectionRequired="true"
+        app:singleSelection="true">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnFilterAll"
@@ -61,8 +86,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/all"
-            android:textColor="@color/text_gray"
-            app:cornerRadius="0dp" />
+            android:textAllCaps="false"
+            android:textColor="@color/chip_text_color"
+            app:backgroundTint="@color/chip_background_color"
+            android:textSize="13sp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnFilterEntrant"
@@ -71,8 +98,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/entrant"
-            android:textColor="@color/text_gray"
-            app:cornerRadius="0dp" />
+            android:textAllCaps="false"
+            android:textColor="@color/chip_text_color"
+            app:backgroundTint="@color/chip_background_color"
+            android:textSize="13sp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnFilterOrganizer"
@@ -81,10 +110,12 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/organizer"
-            android:textColor="@color/text_gray"
-            app:cornerRadius="0dp" />
+            android:textAllCaps="false"
+            android:textColor="@color/chip_text_color"
+            app:backgroundTint="@color/chip_background_color"
+            android:textSize="13sp" />
 
-    </LinearLayout>
+    </com.google.android.material.button.MaterialButtonToggleGroup>
 
     <TextView
         android:id="@+id/tvEmptyProfiles"
@@ -98,9 +129,7 @@
         android:textColor="@color/text_gray"
         android:textSize="16sp"
         android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/role_filter_bar"
+        app:layout_constraintTop_toBottomOf="@id/toggle_filter_group"
         tools:visibility="gone" />
 
     <ListView
@@ -108,11 +137,12 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="12dp"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="8dp"
+        android:scrollbars="none"
         app:layout_constraintBottom_toTopOf="@id/bottom_nav_container"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/role_filter_bar"
+        app:layout_constraintTop_toBottomOf="@id/toggle_filter_group"
         tools:listitem="@android:layout/simple_list_item_2" />
 
     <FrameLayout

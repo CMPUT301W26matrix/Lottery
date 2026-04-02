@@ -79,6 +79,7 @@
     <string name="nav_explore">Explore</string>
     <string name="nav_history">My Events</string>
     <string name="nav_profile">Profile</string>
+    <string name="nav_qr_codes">QR Codes</string>
     <string name="admin_event_browser_title">Admin Dashboard</string>
     <string name="admin_event_browser_subtitle">Browse all published events</string>
     <string name="admin_event_details_title">Event Details</string>
