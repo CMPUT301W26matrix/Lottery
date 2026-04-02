@@ -72,6 +72,7 @@ public class EntrantMainActivity extends AppCompatActivity {
     private Chip chipSpotsAvailable;
     private MaterialButton btnTimeFilter;
 
+    private int loadGeneration = 0;
     private String currentBrowseTab = TAB_ALL;
     private String currentSearchQuery = "";
     private String currentCategory = TAB_ALL;
@@ -117,9 +118,6 @@ public class EntrantMainActivity extends AppCompatActivity {
             }
             startActivity(intent);
         });
-        loadEvents();
-        fetchUserInterests();
-        checkUnreadNotifications();
     }
 
     private void initViews() {
@@ -238,27 +236,74 @@ public class EntrantMainActivity extends AppCompatActivity {
     }
 
     private void loadEvents() {
+        final int thisGeneration = ++loadGeneration;
         db.collection(FirestorePaths.EVENTS)
                 .whereEqualTo("status", "open")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (thisGeneration != loadGeneration) return;
                     masterEventList.clear();
                     eventWaitlistCounts.clear();
+                    List<Event> candidateEvents = new ArrayList<>();
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         Event event = document.toObject(Event.class);
                         if (event == null) continue;
                         event.setEventId(document.getId());
                         // Private events should not be displayed publicly
                         if (event.isPrivate()) continue;
-                        masterEventList.add(event);
+                        candidateEvents.add(event);
                     }
-                    if (filterSpotsAvailable) {
-                        loadWaitlistCounts();
-                    } else {
-                        applyFilters();
-                    }
+                    filterOutParticipatedEvents(candidateEvents, thisGeneration);
                 })
                 .addOnFailureListener(e -> Toast.makeText(this, "Failed to load events", Toast.LENGTH_SHORT).show());
+    }
+
+    /**
+     * Excludes events the user has already interacted with (waitlisted, invited,
+     * accepted, declined, not selected) so Explore only shows new-to-user events.
+     */
+    private void filterOutParticipatedEvents(List<Event> candidateEvents, int generation) {
+        if (candidateEvents.isEmpty()) {
+            if (filterSpotsAvailable) {
+                loadWaitlistCounts();
+            } else {
+                applyFilters();
+            }
+            return;
+        }
+
+        final int[] remaining = {candidateEvents.size()};
+        for (Event event : candidateEvents) {
+            db.collection(FirestorePaths.eventWaitingList(event.getEventId()))
+                    .document(userId)
+                    .get()
+                    .addOnSuccessListener(doc -> {
+                        if (generation != loadGeneration) return;
+                        if (!doc.exists()) {
+                            masterEventList.add(event);
+                        }
+                        remaining[0]--;
+                        if (remaining[0] == 0) {
+                            if (filterSpotsAvailable) {
+                                loadWaitlistCounts();
+                            } else {
+                                applyFilters();
+                            }
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        if (generation != loadGeneration) return;
+                        masterEventList.add(event);
+                        remaining[0]--;
+                        if (remaining[0] == 0) {
+                            if (filterSpotsAvailable) {
+                                loadWaitlistCounts();
+                            } else {
+                                applyFilters();
+                            }
+                        }
+                    });
+        }
     }
 
     /**
