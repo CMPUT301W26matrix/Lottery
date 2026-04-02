@@ -22,6 +22,10 @@ import androidx.test.espresso.intent.Intents;
 import androidx.test.espresso.matcher.ViewMatchers.Visibility;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.example.lottery.organizer.EntrantsListActivity;
+import com.example.lottery.organizer.OrganizerCreateEventActivity;
+import com.example.lottery.organizer.OrganizerEventDetailsActivity;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

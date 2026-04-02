@@ -8,6 +8,8 @@ import static org.junit.Assert.assertTrue;
 
 import android.os.Bundle;
 
+import com.example.lottery.fragment.CommentBottomSheet;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;

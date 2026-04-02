@@ -9,11 +9,11 @@ import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
 
-import com.example.lottery.OrganizerBrowseEventsActivity;
-import com.example.lottery.OrganizerCreateEventActivity;
-import com.example.lottery.OrganizerNotificationsActivity;
-import com.example.lottery.OrganizerProfileActivity;
-import com.example.lottery.OrganizerQrEventListActivity;
+import com.example.lottery.organizer.OrganizerBrowseEventsActivity;
+import com.example.lottery.organizer.OrganizerCreateEventActivity;
+import com.example.lottery.organizer.OrganizerNotificationsActivity;
+import com.example.lottery.organizer.OrganizerProfileActivity;
+import com.example.lottery.organizer.OrganizerQrEventListActivity;
 import com.example.lottery.R;
 
 /**

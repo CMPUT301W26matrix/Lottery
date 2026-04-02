@@ -9,6 +9,7 @@ import android.widget.FrameLayout;
 
 import androidx.test.core.app.ApplicationProvider;
 
+import com.example.lottery.adapter.NotificationAdapter;
 import com.example.lottery.model.NotificationItem;
 import com.google.firebase.Timestamp;
 

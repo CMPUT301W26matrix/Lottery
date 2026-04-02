@@ -3,6 +3,7 @@ package com.example.lottery;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import com.example.lottery.adapter.OrganizerNotificationEventAdapter;
 import com.example.lottery.model.Event;
 
 import org.junit.Before;

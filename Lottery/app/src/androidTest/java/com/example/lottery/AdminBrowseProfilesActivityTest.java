@@ -23,6 +23,8 @@ import androidx.test.espresso.ViewAction;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import com.example.lottery.adapter.ProfileAdapter;
+import com.example.lottery.admin.AdminBrowseProfilesActivity;
 import com.example.lottery.model.User;
 
 import org.hamcrest.Matcher;

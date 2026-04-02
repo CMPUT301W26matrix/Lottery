@@ -25,6 +25,9 @@ import androidx.test.espresso.intent.Intents;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import com.example.lottery.adapter.NotificationAdapter;
+import com.example.lottery.entrant.EntrantEventDetailsActivity;
+import com.example.lottery.entrant.NotificationsActivity;
 import com.example.lottery.model.NotificationItem;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.FirebaseFirestore;

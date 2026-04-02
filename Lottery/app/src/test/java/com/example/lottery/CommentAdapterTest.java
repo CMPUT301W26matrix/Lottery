@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import androidx.test.core.app.ApplicationProvider;
 
+import com.example.lottery.adapter.CommentAdapter;
 import com.example.lottery.model.Comment;
 import com.google.firebase.Timestamp;
 

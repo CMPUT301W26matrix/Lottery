@@ -7,6 +7,7 @@ import static org.junit.Assert.assertNull;
 import android.app.Activity;
 import android.view.View;
 
+import com.example.lottery.adapter.EntrantEventAdapter;
 import com.example.lottery.model.Event;
 
 import org.junit.Before;

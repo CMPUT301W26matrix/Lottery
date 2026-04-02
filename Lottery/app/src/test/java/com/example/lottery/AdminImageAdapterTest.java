@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import androidx.test.core.app.ApplicationProvider;
 
+import com.example.lottery.adapter.AdminImageAdapter;
 import com.example.lottery.model.Event;
 import com.google.firebase.Timestamp;
 

@@ -22,6 +22,13 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.example.lottery.admin.AdminBrowseEventsActivity;
+import com.example.lottery.admin.AdminBrowseImagesActivity;
+import com.example.lottery.admin.AdminBrowseLogsActivity;
+import com.example.lottery.admin.AdminBrowseProfilesActivity;
+import com.example.lottery.admin.AdminEventDetailsActivity;
+import com.example.lottery.admin.AdminImageDetailsActivity;
+import com.example.lottery.admin.AdminProfileActivity;
 import com.example.lottery.model.Event;
 import com.example.lottery.util.FirestorePaths;
 import com.google.android.gms.tasks.Tasks;

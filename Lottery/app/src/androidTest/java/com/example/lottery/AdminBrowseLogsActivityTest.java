@@ -19,6 +19,11 @@ import androidx.test.espresso.matcher.ViewMatchers.Visibility;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.example.lottery.admin.AdminBrowseEventsActivity;
+import com.example.lottery.admin.AdminBrowseImagesActivity;
+import com.example.lottery.admin.AdminBrowseLogsActivity;
+import com.example.lottery.admin.AdminBrowseProfilesActivity;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;

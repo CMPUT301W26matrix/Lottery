@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import androidx.test.core.app.ApplicationProvider;
 
+import com.example.lottery.adapter.EntrantAdapter;
 import com.example.lottery.model.User;
 
 import org.junit.Before;

@@ -12,6 +12,8 @@ import android.widget.TextView;
 
 import androidx.test.core.app.ApplicationProvider;
 
+import com.example.lottery.adapter.NotificationAdapter;
+import com.example.lottery.fragment.OrganizerInviteCoOrganizerDialogFragment;
 import com.example.lottery.model.NotificationItem;
 import com.example.lottery.model.User;
 import com.google.firebase.Timestamp;
@@ -583,10 +585,10 @@ public class CoOrganizerTest {
 
     private Object createUserSearchAdapter(List<User> users, Set<String> existingIds) throws Exception {
         Class<?> adapterClass = Class.forName(
-                "com.example.lottery.OrganizerInviteCoOrganizerDialogFragment$UserSearchAdapter");
+                "com.example.lottery.fragment.OrganizerInviteCoOrganizerDialogFragment$UserSearchAdapter");
 
         Class<?> listenerClass = Class.forName(
-                "com.example.lottery.OrganizerInviteCoOrganizerDialogFragment$UserSearchAdapter$OnUserClickListener");
+                "com.example.lottery.fragment.OrganizerInviteCoOrganizerDialogFragment$UserSearchAdapter$OnUserClickListener");
 
         Constructor<?> constructor = adapterClass.getDeclaredConstructor(List.class, Set.class, listenerClass);
         constructor.setAccessible(true);

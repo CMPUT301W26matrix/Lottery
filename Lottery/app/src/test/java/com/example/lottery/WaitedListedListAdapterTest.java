@@ -7,6 +7,7 @@ import android.content.Context;
 
 import androidx.test.core.app.ApplicationProvider;
 
+import com.example.lottery.adapter.WaitedListedListAdapter;
 import com.example.lottery.model.EntrantEvent;
 
 import org.junit.Before;

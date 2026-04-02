@@ -2,6 +2,7 @@ package com.example.lottery;
 
 import static org.junit.Assert.assertEquals;
 
+import com.example.lottery.adapter.OrganizerQrEventAdapter;
 import com.example.lottery.model.Event;
 
 import org.junit.Test;

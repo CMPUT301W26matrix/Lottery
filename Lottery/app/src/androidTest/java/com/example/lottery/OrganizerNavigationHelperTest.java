@@ -23,6 +23,12 @@ import androidx.test.espresso.intent.Intents;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.example.lottery.model.Event;
+import com.example.lottery.organizer.OrganizerBrowseEventsActivity;
+import com.example.lottery.organizer.OrganizerCreateEventActivity;
+import com.example.lottery.organizer.OrganizerEventDetailsActivity;
+import com.example.lottery.organizer.OrganizerNotificationsActivity;
+import com.example.lottery.organizer.OrganizerProfileActivity;
+import com.example.lottery.organizer.OrganizerQrEventListActivity;
 import com.example.lottery.util.AdminRoleManager;
 import com.example.lottery.util.FirestorePaths;
 import com.google.android.gms.tasks.Tasks;

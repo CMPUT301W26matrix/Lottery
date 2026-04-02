@@ -18,6 +18,8 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.example.lottery.organizer.OrganizerCreateEventActivity;
+
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/page_background"
-    tools:context=".OrganizerProfileActivity">
+    tools:context=".organizer.OrganizerProfileActivity">
 
     <!-- Top App Bar for Edit Mode -->
     <com.google.android.material.appbar.MaterialToolbar

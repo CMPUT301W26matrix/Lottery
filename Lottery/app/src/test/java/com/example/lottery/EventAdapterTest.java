@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import androidx.test.core.app.ApplicationProvider;
 
+import com.example.lottery.adapter.EventAdapter;
 import com.example.lottery.model.Event;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;

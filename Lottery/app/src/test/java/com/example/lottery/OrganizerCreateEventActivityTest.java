@@ -1,5 +1,7 @@
 package com.example.lottery;
 
+import com.example.lottery.organizer.OrganizerCreateEventActivity;
+
 /**
  * Unit tests for organizer ownership behavior in {@link OrganizerCreateEventActivity}.
  * Note: Method organizerIdForUser was removed from OrganizerCreateEventActivity as per recent refactoring.

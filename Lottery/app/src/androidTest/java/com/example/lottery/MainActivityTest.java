@@ -21,6 +21,8 @@ import androidx.test.platform.app.InstrumentationRegistry;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.example.lottery.admin.AdminSignInActivity;
+import com.example.lottery.entrant.EntrantMainActivity;
 import com.example.lottery.util.FirestorePaths;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.Timestamp;

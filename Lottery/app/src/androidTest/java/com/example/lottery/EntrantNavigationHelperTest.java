@@ -22,6 +22,11 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.example.lottery.entrant.EntrantEventHistoryActivity;
+import com.example.lottery.entrant.EntrantMainActivity;
+import com.example.lottery.entrant.EntrantProfileActivity;
+import com.example.lottery.entrant.EntrantQrScanActivity;
+import com.example.lottery.entrant.NotificationsActivity;
 import com.example.lottery.util.AdminRoleManager;
 
 import org.hamcrest.Matcher;

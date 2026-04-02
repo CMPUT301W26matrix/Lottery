@@ -29,6 +29,8 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
+import com.example.lottery.entrant.EntrantMapActivity;
+import com.example.lottery.organizer.EntrantsListActivity;
 import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.InvitationFlowUtil;
 import com.google.android.gms.tasks.Tasks;

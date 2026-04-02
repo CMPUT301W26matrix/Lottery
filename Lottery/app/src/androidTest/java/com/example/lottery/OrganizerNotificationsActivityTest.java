@@ -19,7 +19,9 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import com.example.lottery.adapter.OrganizerNotificationEventAdapter;
 import com.example.lottery.model.Event;
+import com.example.lottery.organizer.OrganizerNotificationsActivity;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

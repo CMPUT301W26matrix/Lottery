@@ -4,6 +4,8 @@ import static org.junit.Assert.assertNotNull;
 
 import android.content.Intent;
 
+import com.example.lottery.entrant.EntrantQrScanActivity;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
