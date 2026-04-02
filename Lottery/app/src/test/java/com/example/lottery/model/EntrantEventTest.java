@@ -311,4 +311,5 @@ public class EntrantEventTest {
         assertNull(ee.getStatus());
         assertNull(ee.getRegisteredAt());
     }
+
 }
