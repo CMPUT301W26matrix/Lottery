@@ -222,8 +222,10 @@
     <string name="delete_profile">Delete Profile</string>
     <string name="delete_profile_message">This action cannot be undone. Your profile data will be deleted and you will be logged out.</string>
     <string name="log_out">Log Out</string>
-    <string name="no_entrant_locations_available">No entrant locations available for this event.</string>
+    <string name="no_entrant_locations_available">No entrant locations available for this status.</string>
     <string name="location_not_required_for_event">Geolocation is not required for this event.</string>
+    <string name="loading_entrant_locations">Loading entrant locations...</string>
+    <string name="failed_to_load_entrant_locations">Failed to load entrant locations.</string>
     <string name="no_entrants_in_list">No entrants in this list</string>
 
     <!-- Confirmation Ticket -->
