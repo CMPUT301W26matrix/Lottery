@@ -7,6 +7,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lottery.R;
@@ -85,7 +86,8 @@ public class AdminImageAdapter extends RecyclerView.Adapter<AdminImageAdapter.Im
     /**
      * ViewHolder class for holding and binding image item views.
      */
-    class ImageViewHolder extends RecyclerView.ViewHolder {
+    @VisibleForTesting
+    public class ImageViewHolder extends RecyclerView.ViewHolder {
         private final ImageView ivThumbnail;
         private final TextView tvEventTitle;
         private final TextView tvEventDate;

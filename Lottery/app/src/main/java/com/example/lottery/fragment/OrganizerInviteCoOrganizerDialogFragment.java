@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
@@ -86,9 +87,10 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
 
     /**
      * Filters a list of candidates by name or email matching the query (case-insensitive).
-     * Package-private for testing.
+     * Kept public so its filtering rules can be exercised directly in unit tests.
      */
-    static List<User> filterEntrants(List<User> candidates, String query) {
+    @VisibleForTesting
+    public static List<User> filterEntrants(List<User> candidates, String query) {
         List<User> result = new ArrayList<>();
         String lowerQuery = query.toLowerCase();
         for (User user : candidates) {
@@ -357,7 +359,7 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
             void onRemove(User user);
         }
 
-        static class ViewHolder extends RecyclerView.ViewHolder {
+        public static class ViewHolder extends RecyclerView.ViewHolder {
             TextView tvUsername, tvEmail;
             ImageButton btnRemove;
 
@@ -370,7 +372,8 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
         }
     }
 
-    private static class UserSearchAdapter extends RecyclerView.Adapter<UserSearchAdapter.ViewHolder> {
+    @VisibleForTesting
+    public static class UserSearchAdapter extends RecyclerView.Adapter<UserSearchAdapter.ViewHolder> {
         private final List<User> users;
         private final Set<String> existingIds;
         private final OnUserClickListener listener;
@@ -417,11 +420,11 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
             return users.size();
         }
 
-        interface OnUserClickListener {
+        public interface OnUserClickListener {
             void onUserClick(User user);
         }
 
-        static class ViewHolder extends RecyclerView.ViewHolder {
+        public static class ViewHolder extends RecyclerView.ViewHolder {
             TextView text1, text2;
 
             ViewHolder(View v) {

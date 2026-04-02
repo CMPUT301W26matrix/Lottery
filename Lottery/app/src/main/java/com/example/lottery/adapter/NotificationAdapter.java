@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lottery.R;
@@ -152,7 +153,8 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
      * ViewHolder that caches references to the notification item's UI components.
      */
     public static class NotificationViewHolder extends RecyclerView.ViewHolder {
-        TextView tvTitle, tvType, tvMessage, tvNew, tvResponse;
+        @VisibleForTesting
+        public TextView tvTitle, tvType, tvMessage, tvNew, tvResponse;
 
         /**
          * Creates a new NotificationViewHolder.
