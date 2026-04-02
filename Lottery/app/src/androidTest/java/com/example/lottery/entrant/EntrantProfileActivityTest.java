@@ -1,4 +1,4 @@
-package com.example.lottery;
+package com.example.lottery.entrant;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
@@ -22,8 +22,7 @@ import androidx.test.espresso.intent.Intents;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
-import com.example.lottery.entrant.EntrantLotteryGuidelinesActivity;
-import com.example.lottery.entrant.EntrantProfileActivity;
+import com.example.lottery.R;
 import com.example.lottery.util.FirestorePaths;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.Timestamp;

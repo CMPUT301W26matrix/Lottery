@@ -1,4 +1,4 @@
-package com.example.lottery;
+package com.example.lottery.admin;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -20,11 +20,12 @@ import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import com.example.lottery.R;
 import com.example.lottery.adapter.ProfileAdapter;
-import com.example.lottery.admin.AdminBrowseProfilesActivity;
 import com.example.lottery.model.User;
 
 import org.hamcrest.Matcher;
@@ -76,7 +77,7 @@ public class AdminBrowseProfilesActivityTest {
         try (ActivityScenario<AdminBrowseProfilesActivity> scenario = launchAdminActivity()) {
             Assert.assertEquals(Lifecycle.State.RESUMED, scenario.getState());
 
-            onView(withId(R.id.tvBrowseProfilesTitle))
+            onView(ViewMatchers.withId(R.id.tvBrowseProfilesTitle))
                     .check(matches(isDisplayed()));
             onView(withId(R.id.tvBrowseProfilesTitle))
                     .check(matches(withText("Browse Profiles")));

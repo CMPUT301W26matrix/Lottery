@@ -1,4 +1,4 @@
-package com.example.lottery;
+package com.example.lottery.entrant;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -20,13 +20,10 @@ import android.content.Intent;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.intent.Intents;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.example.lottery.entrant.EntrantEventHistoryActivity;
-import com.example.lottery.entrant.EntrantMainActivity;
-import com.example.lottery.entrant.EntrantProfileActivity;
-import com.example.lottery.entrant.EntrantQrScanActivity;
-import com.example.lottery.entrant.NotificationsActivity;
+import com.example.lottery.R;
 import com.example.lottery.util.AdminRoleManager;
 
 import org.hamcrest.Matcher;
@@ -104,7 +101,7 @@ public class EntrantNavigationHelperTest {
     public void fromExplore_toHistory() {
         try (ActivityScenario<?> ignored =
                      launchScreen(EntrantMainActivity.class, entrantIntent(EntrantMainActivity.class))) {
-            onView(withId(R.id.nav_history)).perform(click());
+            onView(ViewMatchers.withId(R.id.nav_history)).perform(click());
             intended(intentTo(EntrantEventHistoryActivity.class));
         }
     }

@@ -1,4 +1,4 @@
-package com.example.lottery;
+package com.example.lottery.admin;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -16,13 +16,12 @@ import android.content.Intent;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.intent.Intents;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.espresso.matcher.ViewMatchers.Visibility;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.example.lottery.admin.AdminBrowseEventsActivity;
-import com.example.lottery.admin.AdminBrowseImagesActivity;
-import com.example.lottery.admin.AdminBrowseProfilesActivity;
-import com.example.lottery.admin.AdminProfileActivity;
+import com.example.lottery.MainActivity;
+import com.example.lottery.R;
 
 import org.junit.After;
 import org.junit.Before;
@@ -61,7 +60,7 @@ public class AdminProfileActivityTest {
     public void testAdminProfileScreenIsDisplayed() {
         try (ActivityScenario<AdminProfileActivity> ignored =
                      ActivityScenario.launch(createAdminProfileIntent())) {
-            onView(withId(R.id.tv_profile_name)).check(matches(isDisplayed()));
+            onView(ViewMatchers.withId(R.id.tv_profile_name)).check(matches(isDisplayed()));
             onView(withId(R.id.tv_profile_email)).check(matches(isDisplayed()));
         }
     }

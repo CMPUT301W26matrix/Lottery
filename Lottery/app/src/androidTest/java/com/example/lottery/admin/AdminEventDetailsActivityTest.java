@@ -1,4 +1,4 @@
-package com.example.lottery;
+package com.example.lottery.admin;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -21,9 +21,10 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.PerformException;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.example.lottery.admin.AdminEventDetailsActivity;
+import com.example.lottery.R;
 import com.example.lottery.model.Event;
 import com.example.lottery.util.FirestorePaths;
 import com.google.android.gms.tasks.Tasks;
@@ -127,7 +128,7 @@ public class AdminEventDetailsActivityTest {
         intent.putExtra("eventId", TEST_EVENT_ID);
 
         try (ActivityScenario<AdminEventDetailsActivity> scenario = ActivityScenario.launch(intent)) {
-            onView(withId(R.id.tvPageHeader)).check(matches(isDisplayed()));
+            onView(ViewMatchers.withId(R.id.tvPageHeader)).check(matches(isDisplayed()));
             onView(withId(R.id.tvDetailsHeader)).perform(nestedScrollTo()).check(matches(isDisplayed()));
             onView(withId(R.id.btnDeleteEvent)).perform(nestedScrollTo()).check(matches(isDisplayed()));
             onView(withId(R.id.bottom_nav_container)).check(matches(isDisplayed()));

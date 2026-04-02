@@ -1,4 +1,4 @@
-package com.example.lottery;
+package com.example.lottery.entrant;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
@@ -18,10 +18,11 @@ import android.widget.TextView;
 import androidx.core.content.ContextCompat;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.platform.app.InstrumentationRegistry;
 
-import com.example.lottery.entrant.EntrantEventDetailsActivity;
+import com.example.lottery.R;
 import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.InvitationFlowUtil;
 import com.google.android.gms.tasks.Tasks;
@@ -250,7 +251,7 @@ public class EntrantEventDetailsActivityTest {
      */
     @Test
     public void testInitialUIState() {
-        onView(withId(R.id.tvEventDetailsTitle)).check(matches(isDisplayed()));
+        onView(ViewMatchers.withId(R.id.tvEventDetailsTitle)).check(matches(isDisplayed()));
         onView(withId(R.id.tvEventDetailsTitle)).check(matches(withText("Event Details")));
         onView(withId(R.id.btnBack)).check(matches(isDisplayed()));
     }

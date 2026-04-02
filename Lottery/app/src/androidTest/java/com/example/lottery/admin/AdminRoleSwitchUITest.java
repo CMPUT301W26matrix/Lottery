@@ -1,4 +1,4 @@
-package com.example.lottery;
+package com.example.lottery.admin;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -22,12 +22,11 @@ import android.content.Intent;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.intent.Intents;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.example.lottery.admin.AdminBrowseEventsActivity;
-import com.example.lottery.admin.AdminBrowseImagesActivity;
-import com.example.lottery.admin.AdminBrowseProfilesActivity;
-import com.example.lottery.admin.AdminProfileActivity;
+import com.example.lottery.MainActivity;
+import com.example.lottery.R;
 import com.example.lottery.entrant.EntrantProfileActivity;
 import com.example.lottery.organizer.OrganizerProfileActivity;
 import com.example.lottery.util.AdminRoleManager;
@@ -124,7 +123,7 @@ public class AdminRoleSwitchUITest {
             intending(hasComponent(AdminProfileActivity.class.getName()))
                     .respondWith(new Instrumentation.ActivityResult(Activity.RESULT_OK, null));
 
-            onView(withId(R.id.nav_admin_settings)).perform(click());
+            onView(ViewMatchers.withId(R.id.nav_admin_settings)).perform(click());
 
             intended(allOf(
                     hasComponent(AdminProfileActivity.class.getName()),

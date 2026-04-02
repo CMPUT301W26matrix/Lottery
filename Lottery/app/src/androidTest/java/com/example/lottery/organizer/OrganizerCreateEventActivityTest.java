@@ -1,4 +1,4 @@
-package com.example.lottery;
+package com.example.lottery.organizer;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -15,10 +15,11 @@ import android.content.Intent;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.example.lottery.organizer.OrganizerCreateEventActivity;
+import com.example.lottery.R;
 
 import org.junit.Assert;
 import org.junit.Rule;
@@ -46,7 +47,7 @@ public class OrganizerCreateEventActivityTest {
     @Test
     public void testUIComponentsDisplayed() {
         // Check if the header title is displayed
-        onView(withId(R.id.tvHeader)).check(matches(isDisplayed()));
+        onView(ViewMatchers.withId(R.id.tvHeader)).check(matches(isDisplayed()));
         onView(withId(R.id.tvHeader)).check(matches(withText("Create New Event")));
 
         // Check if the Event Title input field is displayed

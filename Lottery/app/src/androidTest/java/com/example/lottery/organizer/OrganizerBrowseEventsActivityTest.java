@@ -1,4 +1,4 @@
-package com.example.lottery;
+package com.example.lottery.organizer;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -13,13 +13,13 @@ import android.content.Intent;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.intent.Intents;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.espresso.matcher.ViewMatchers.Visibility;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.example.lottery.R;
 import com.example.lottery.model.Event;
-import com.example.lottery.organizer.OrganizerBrowseEventsActivity;
-import com.example.lottery.organizer.OrganizerEventDetailsActivity;
 
 import org.junit.After;
 import org.junit.Before;
@@ -49,7 +49,7 @@ public class OrganizerBrowseEventsActivityTest {
     public void testOrganizerBrowseEventsScreenIsDisplayed() {
         // Use withEffectiveVisibility for the RecyclerView because it may have 0 height if no data is loaded yet,
         // causing isDisplayed() (which checks for a non-empty rectangle) to fail.
-        onView(withId(R.id.tvYourEventsTitle)).check(matches(isDisplayed()));
+        onView(ViewMatchers.withId(R.id.tvYourEventsTitle)).check(matches(isDisplayed()));
         onView(withId(R.id.rvEvents)).check(matches(withEffectiveVisibility(Visibility.VISIBLE)));
     }
 

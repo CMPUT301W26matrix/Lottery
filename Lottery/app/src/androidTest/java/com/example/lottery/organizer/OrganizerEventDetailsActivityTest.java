@@ -1,4 +1,4 @@
-package com.example.lottery;
+package com.example.lottery.organizer;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -19,12 +19,11 @@ import android.content.Intent;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.intent.Intents;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.espresso.matcher.ViewMatchers.Visibility;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.example.lottery.organizer.EntrantsListActivity;
-import com.example.lottery.organizer.OrganizerCreateEventActivity;
-import com.example.lottery.organizer.OrganizerEventDetailsActivity;
+import com.example.lottery.R;
 
 import org.junit.After;
 import org.junit.Before;
@@ -61,7 +60,7 @@ public class OrganizerEventDetailsActivityTest {
 
         try (ActivityScenario<OrganizerEventDetailsActivity> scenario = ActivityScenario.launch(intent)) {
             // Check if the main components are displayed
-            onView(withId(R.id.tvEventTitle)).check(matches(isDisplayed()));
+            onView(ViewMatchers.withId(R.id.tvEventTitle)).check(matches(isDisplayed()));
             onView(withId(R.id.ivEventPoster)).check(matches(isDisplayed()));
         }
     }

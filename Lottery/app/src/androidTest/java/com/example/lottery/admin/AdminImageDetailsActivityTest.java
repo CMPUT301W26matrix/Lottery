@@ -1,4 +1,4 @@
-package com.example.lottery;
+package com.example.lottery.admin;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -14,10 +14,11 @@ import android.content.Intent;
 
 import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ActivityScenario;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
-import com.example.lottery.admin.AdminImageDetailsActivity;
+import com.example.lottery.R;
 import com.example.lottery.model.Event;
 
 import org.junit.After;
@@ -70,7 +71,7 @@ public class AdminImageDetailsActivityTest {
     @Test
     public void testPosterImageViewExists() {
         try (ActivityScenario<AdminImageDetailsActivity> ignored = launchWithEventId()) {
-            onView(withId(R.id.ivEventPoster)).check(matches(isDisplayed()));
+            onView(ViewMatchers.withId(R.id.ivEventPoster)).check(matches(isDisplayed()));
         }
     }
 

@@ -1,4 +1,4 @@
-package com.example.lottery;
+package com.example.lottery.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -7,8 +7,6 @@ import static org.junit.Assert.assertTrue;
 import android.content.Context;
 
 import androidx.test.core.app.ApplicationProvider;
-
-import com.example.lottery.util.ConfirmationTicketGenerator;
 
 import org.junit.After;
 import org.junit.Before;

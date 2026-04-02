@@ -1,4 +1,4 @@
-package com.example.lottery;
+package com.example.lottery.entrant;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -16,10 +16,11 @@ import android.content.Intent;
 
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.core.app.ActivityScenario;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
-import com.example.lottery.entrant.EntrantMainActivity;
+import com.example.lottery.R;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,7 +45,7 @@ public class EntrantMainActivityTest {
     @Test
     public void browseEvents_showsEventListAndBrowseTabs() {
         try (ActivityScenario<EntrantMainActivity> scenario = launchActivity()) {
-            onView(withId(R.id.rvEvents))
+            onView(ViewMatchers.withId(R.id.rvEvents))
                     .check(matches(isAssignableFrom(RecyclerView.class)));
             onView(withId(R.id.chipBrowseAll)).check(matches(isDisplayed()));
             onView(withId(R.id.chipBrowseNew)).check(matches(isDisplayed()));

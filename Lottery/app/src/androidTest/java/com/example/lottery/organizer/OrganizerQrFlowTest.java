@@ -1,4 +1,4 @@
-package com.example.lottery;
+package com.example.lottery.organizer;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -11,10 +11,10 @@ import android.content.Intent;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.example.lottery.organizer.OrganizerQrCodeDetailActivity;
-import com.example.lottery.organizer.OrganizerQrEventListActivity;
+import com.example.lottery.R;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,7 +38,7 @@ public class OrganizerQrFlowTest {
 
         try (ActivityScenario<OrganizerQrEventListActivity> scenario = ActivityScenario.launch(intent)) {
             // Check if the RecyclerView is displayed
-            onView(withId(R.id.rvQrEvents)).check(matches(isDisplayed()));
+            onView(ViewMatchers.withId(R.id.rvQrEvents)).check(matches(isDisplayed()));
         }
     }
 

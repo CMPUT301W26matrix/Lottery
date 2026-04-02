@@ -1,4 +1,4 @@
-package com.example.lottery;
+package com.example.lottery.admin;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -18,15 +18,12 @@ import android.app.Instrumentation;
 import android.view.View;
 
 import androidx.test.espresso.intent.Intents;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.espresso.matcher.ViewMatchers.Visibility;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.example.lottery.admin.AdminBrowseEventsActivity;
-import com.example.lottery.admin.AdminBrowseImagesActivity;
-import com.example.lottery.admin.AdminBrowseProfilesActivity;
-import com.example.lottery.admin.AdminImageDetailsActivity;
-import com.example.lottery.admin.AdminProfileActivity;
+import com.example.lottery.R;
 import com.example.lottery.model.Event;
 
 import org.junit.After;
@@ -55,7 +52,7 @@ public class AdminBrowseImagesActivityTest {
     // US 03.06.01: Admin should see image browser title
     @Test
     public void testBrowseImagesScreenIsDisplayed() {
-        onView(withId(R.id.tvAppTitle)).perform(scrollTo()).check(matches(isDisplayed()));
+        onView(ViewMatchers.withId(R.id.tvAppTitle)).perform(scrollTo()).check(matches(isDisplayed()));
         onView(withId(R.id.tvAppTitle)).check(matches(withText(R.string.admin_image_browser_title)));
     }
 

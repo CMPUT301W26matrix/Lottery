@@ -1,4 +1,4 @@
-package com.example.lottery;
+package com.example.lottery.admin;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -16,9 +16,10 @@ import android.content.Intent;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.example.lottery.admin.AdminImageDetailsActivity;
+import com.example.lottery.R;
 import com.example.lottery.model.Event;
 import com.example.lottery.util.FirestorePaths;
 import com.google.android.gms.tasks.Tasks;
@@ -113,7 +114,7 @@ public class PosterBase64InstrumentedTest {
         intent.putExtra("eventId", TEST_EVENT_ID);
 
         try (ActivityScenario<AdminImageDetailsActivity> ignored = ActivityScenario.launch(intent)) {
-            onView(withId(R.id.btnDeleteImage)).check(matches(not(isEnabled())));
+            onView(ViewMatchers.withId(R.id.btnDeleteImage)).check(matches(not(isEnabled())));
         } finally {
             AdminImageDetailsActivity.testEvent = null;
         }

@@ -1,4 +1,4 @@
-package com.example.lottery;
+package com.example.lottery.entrant;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -22,12 +22,12 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
 import androidx.test.espresso.intent.Intents;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import com.example.lottery.R;
 import com.example.lottery.adapter.NotificationAdapter;
-import com.example.lottery.entrant.EntrantEventDetailsActivity;
-import com.example.lottery.entrant.NotificationsActivity;
 import com.example.lottery.model.NotificationItem;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -165,7 +165,7 @@ public class NotificationsActivityTest {
             injectNotifications(scenario, items);
             onView(isRoot()).perform(waitFor(300));
 
-            onView(withId(R.id.rvNotifications))
+            onView(ViewMatchers.withId(R.id.rvNotifications))
                     .check(matches(isDisplayed()));
 
             onView(withId(R.id.btnBack))

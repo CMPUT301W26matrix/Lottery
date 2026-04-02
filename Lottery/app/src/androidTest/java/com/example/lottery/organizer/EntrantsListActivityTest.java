@@ -1,4 +1,4 @@
-package com.example.lottery;
+package com.example.lottery.organizer;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -24,13 +24,14 @@ import android.os.Environment;
 import androidx.core.content.FileProvider;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.intent.Intents;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.espresso.matcher.ViewMatchers.Visibility;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
+import com.example.lottery.R;
 import com.example.lottery.entrant.EntrantMapActivity;
-import com.example.lottery.organizer.EntrantsListActivity;
 import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.InvitationFlowUtil;
 import com.google.android.gms.tasks.Tasks;
@@ -194,7 +195,7 @@ public class EntrantsListActivityTest {
      */
     @Test
     public void testInitializedPageVisibility() {
-        onView(withId(R.id.entrants_list_waited_list_btn)).perform(scrollTo()).check(matches(isDisplayed()));
+        onView(ViewMatchers.withId(R.id.entrants_list_waited_list_btn)).perform(scrollTo()).check(matches(isDisplayed()));
         onView(withId(R.id.entrants_list_invited_btn)).perform(scrollTo()).check(matches(isDisplayed()));
         onView(withId(R.id.entrants_list_signed_up_btn)).perform(scrollTo()).check(matches(isDisplayed()));
         onView(withId(R.id.entrants_list_cancelled_btn)).perform(scrollTo()).check(matches(isDisplayed()));

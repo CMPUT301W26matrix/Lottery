@@ -1,4 +1,4 @@
-package com.example.lottery;
+package com.example.lottery.admin;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
@@ -16,12 +16,12 @@ import android.app.Activity;
 import android.app.Instrumentation;
 
 import androidx.test.espresso.intent.Intents;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.espresso.matcher.ViewMatchers.Visibility;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.example.lottery.admin.AdminBrowseEventsActivity;
-import com.example.lottery.admin.AdminEventDetailsActivity;
+import com.example.lottery.R;
 import com.example.lottery.model.Event;
 
 import org.junit.After;
@@ -57,7 +57,7 @@ public class AdminBrowseEventsActivityTest {
     // US 03.04.01: Admin should see event browser with title, subtitle, and event list
     @Test
     public void testAdminBrowseEventsScreenIsDisplayed() {
-        onView(withId(R.id.tvAppTitle)).perform(scrollTo()).check(matches(isDisplayed()));
+        onView(ViewMatchers.withId(R.id.tvAppTitle)).perform(scrollTo()).check(matches(isDisplayed()));
         onView(withId(R.id.tvAppTitle)).check(matches(withText(R.string.admin_event_browser_title)));
 
         onView(withId(R.id.tvSubtitle)).perform(scrollTo()).check(matches(isDisplayed()));

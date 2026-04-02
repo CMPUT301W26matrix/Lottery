@@ -1,4 +1,4 @@
-package com.example.lottery;
+package com.example.lottery.admin;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -15,14 +15,12 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import android.view.View;
 
 import androidx.test.espresso.intent.Intents;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.espresso.matcher.ViewMatchers.Visibility;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.example.lottery.admin.AdminBrowseEventsActivity;
-import com.example.lottery.admin.AdminBrowseImagesActivity;
-import com.example.lottery.admin.AdminBrowseLogsActivity;
-import com.example.lottery.admin.AdminBrowseProfilesActivity;
+import com.example.lottery.R;
 
 import org.junit.After;
 import org.junit.Before;
@@ -50,7 +48,7 @@ public class AdminBrowseLogsActivityTest {
     // US 03.08.01: Admin should see notification logs page title
     @Test
     public void testPageTitleIsDisplayed() {
-        onView(withId(R.id.tvPageTitle)).perform(scrollTo()).check(matches(isDisplayed()));
+        onView(ViewMatchers.withId(R.id.tvPageTitle)).perform(scrollTo()).check(matches(isDisplayed()));
         onView(withId(R.id.tvPageTitle)).check(matches(withText(R.string.admin_logs_title)));
     }
 

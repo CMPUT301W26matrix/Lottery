@@ -13,6 +13,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import android.content.Context;
 import android.content.Intent;
 import android.provider.Settings;
+import android.util.Log;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
@@ -44,36 +45,53 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(AndroidJUnit4.class)
 public class MainActivityTest {
 
+    private static final String TAG = "MainActivityTest";
+
     private ActivityScenario<MainActivity> scenario;
     private FirebaseFirestore db;
     private String androidId;
+    private boolean intentsInitialized;
+    private boolean seededExistingEntrant;
 
     @Before
     public void setUp() {
         Intents.init();
+        intentsInitialized = true;
         db = FirebaseFirestore.getInstance();
         androidId = Settings.Secure.getString(
                 ApplicationProvider.getApplicationContext().getContentResolver(),
                 Settings.Secure.ANDROID_ID
         );
+        seededExistingEntrant = false;
         clearSharedPreferences();
     }
 
     @After
-    public void tearDown() throws Exception {
-        if (scenario != null) {
-            scenario.close();
-        }
+    public void tearDown() {
+        try {
+            if (scenario != null) {
+                scenario.close();
+                scenario = null;
+            }
 
-        if (androidId != null && !androidId.isEmpty()) {
-            Tasks.await(
-                    db.collection(FirestorePaths.USERS).document("entrant_" + androidId).delete(),
-                    10,
-                    TimeUnit.SECONDS
-            );
+            if (seededExistingEntrant && androidId != null && !androidId.isEmpty()) {
+                try {
+                    Tasks.await(
+                            db.collection(FirestorePaths.USERS).document("entrant_" + androidId).delete(),
+                            5,
+                            TimeUnit.SECONDS
+                    );
+                } catch (Exception cleanupError) {
+                    Log.w(TAG, "Best-effort Firestore cleanup failed for entrant_" + androidId, cleanupError);
+                }
+            }
+            clearSharedPreferences();
+        } finally {
+            if (intentsInitialized) {
+                Intents.release();
+                intentsInitialized = false;
+            }
         }
-        clearSharedPreferences();
-        Intents.release();
     }
 
     private void clearSharedPreferences() {
@@ -107,6 +125,7 @@ public class MainActivityTest {
                 10,
                 TimeUnit.SECONDS
         );
+        seededExistingEntrant = true;
     }
 
     private void waitForIntent(Matcher<Intent> matcher) throws Exception {

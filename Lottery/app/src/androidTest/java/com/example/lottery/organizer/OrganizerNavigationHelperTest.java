@@ -1,4 +1,4 @@
-package com.example.lottery;
+package com.example.lottery.organizer;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -20,15 +20,11 @@ import android.content.Intent;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.intent.Intents;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.example.lottery.R;
 import com.example.lottery.model.Event;
-import com.example.lottery.organizer.OrganizerBrowseEventsActivity;
-import com.example.lottery.organizer.OrganizerCreateEventActivity;
-import com.example.lottery.organizer.OrganizerEventDetailsActivity;
-import com.example.lottery.organizer.OrganizerNotificationsActivity;
-import com.example.lottery.organizer.OrganizerProfileActivity;
-import com.example.lottery.organizer.OrganizerQrEventListActivity;
 import com.example.lottery.util.AdminRoleManager;
 import com.example.lottery.util.FirestorePaths;
 import com.google.android.gms.tasks.Tasks;
@@ -128,7 +124,7 @@ public class OrganizerNavigationHelperTest {
     public void fromHome_toNotifications() {
         try (ActivityScenario<?> ignored =
                      launchScreen(OrganizerBrowseEventsActivity.class, organizerIntent(OrganizerBrowseEventsActivity.class))) {
-            onView(withId(R.id.nav_notifications)).perform(click());
+            onView(ViewMatchers.withId(R.id.nav_notifications)).perform(click());
             intended(intentTo(OrganizerNotificationsActivity.class));
         }
     }

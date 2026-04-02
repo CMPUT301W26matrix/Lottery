@@ -1,4 +1,4 @@
-package com.example.lottery;
+package com.example.lottery.entrant;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -10,10 +10,11 @@ import static org.hamcrest.Matchers.anyOf;
 import android.content.Intent;
 
 import androidx.test.core.app.ActivityScenario;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
-import com.example.lottery.entrant.EntrantEventDetailsActivity;
+import com.example.lottery.R;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,7 +43,7 @@ public class EntrantEventDetailsWaitlistTest {
         try (ActivityScenario<EntrantEventDetailsActivity> scenario =
                      ActivityScenario.launch(intent)) {
 
-            onView(withId(R.id.btnWaitlistAction))
+            onView(ViewMatchers.withId(R.id.btnWaitlistAction))
                     .check(matches(isDisplayed()))
                     .check(matches(anyOf(
                             withText(R.string.join_wait_list),
