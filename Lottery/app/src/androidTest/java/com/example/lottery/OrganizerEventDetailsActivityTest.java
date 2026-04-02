@@ -2,6 +2,7 @@ package com.example.lottery;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.intent.Intents.intended;
@@ -44,8 +45,8 @@ public class OrganizerEventDetailsActivityTest {
     }
 
     /**
-     * Test Case 1: Verifies that the activity launches correctly when provided
-     * with a valid eventId via Intent.
+     * US 02.01.04: Opening an organizer's event details page with an eventId
+     * shows the main event details surface for that event.
      */
     @Test
     public void testActivityLaunchWithIntent() {
@@ -62,8 +63,8 @@ public class OrganizerEventDetailsActivityTest {
     }
 
     /**
-     * Test Case 2: Verifies that UI elements are present and initialized
-     * (Placeholder check). Note: Real Firestore data loading is asynchronous.
+     * US 02.01.04 / US 02.04.01: The organizer event-details page renders the
+     * core schedule and waiting-list controls needed to manage the event.
      */
     @Test
     public void testUIDisplay() {
@@ -83,8 +84,8 @@ public class OrganizerEventDetailsActivityTest {
     }
 
     /**
-     * Test Case 3: Verifies that the poster ImageView is visible.
-     * In the prototype, this will show the placeholder if the URI is invalid.
+     * US 02.04.01: The organizer event-details page reserves space for the event
+     * poster so visual information is available to entrants.
      */
     @Test
     public void testPosterImageViewVisibility() {
@@ -101,8 +102,8 @@ public class OrganizerEventDetailsActivityTest {
     }
 
     /**
-     * Verifies that organizers can enter edit mode from the details page and that the
-     * selected eventId is forwarded to the edit activity.
+     * US 02.04.02: Editing an event poster starts from the organizer details page
+     * and forwards the selected eventId into the edit flow.
      */
     @Test
     public void testEditEventButtonLaunchesEditScreen() {
@@ -122,6 +123,10 @@ public class OrganizerEventDetailsActivityTest {
         }
     }
 
+    /**
+     * US 03.01.01: Organizer event details do not expose the administrator-only
+     * event removal control reserved for admin moderation.
+     */
     @Test
     public void testOrganizerScreenDoesNotExposeAdminDeleteButton() {
         Context context = ApplicationProvider.getApplicationContext();
@@ -131,6 +136,28 @@ public class OrganizerEventDetailsActivityTest {
 
         try (ActivityScenario<OrganizerEventDetailsActivity> scenario = ActivityScenario.launch(intent)) {
             onView(withId(R.id.btnDeleteEvent)).check(doesNotExist());
+        }
+    }
+
+    /**
+     * US 02.02.01 / US 02.06.01: Clicking "View Waiting List" navigates to
+     * EntrantsListActivity with the correct eventId, so the organizer can
+     * view entrant lists and see where they joined from on a map.
+     */
+    @Test
+    public void testViewWaitingList_navigatesToEntrantsList() {
+        Context context = ApplicationProvider.getApplicationContext();
+        Intent intent = new Intent(context, OrganizerEventDetailsActivity.class);
+        intent.putExtra("eventId", "nav_test_event");
+        intent.putExtra("userId", "test_user_id");
+
+        try (ActivityScenario<OrganizerEventDetailsActivity> scenario = ActivityScenario.launch(intent)) {
+            onView(withId(R.id.btnViewWaitingList)).perform(scrollTo(), click());
+
+            intended(allOf(
+                    hasComponent(EntrantsListActivity.class.getName()),
+                    hasExtra("eventId", "nav_test_event")
+            ));
         }
     }
 }

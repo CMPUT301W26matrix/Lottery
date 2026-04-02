@@ -4,21 +4,54 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.intent.Intents.intended;
+import static androidx.test.espresso.intent.Intents.intending;
+import static androidx.test.espresso.intent.matcher.IntentMatchers.hasAction;
+import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
+import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.not;
 
+import android.app.Activity;
+import android.app.Instrumentation;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Environment;
 
+import androidx.core.content.FileProvider;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.espresso.intent.Intents;
+import androidx.test.espresso.matcher.ViewMatchers.Visibility;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
+import com.example.lottery.util.FirestorePaths;
+import com.example.lottery.util.InvitationFlowUtil;
+import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * UI tests for EntrantsListActivity.
@@ -28,15 +61,134 @@ import org.junit.runner.RunWith;
 @LargeTest
 public class EntrantsListActivityTest {
 
+    private static final String TEST_EVENT_ID =
+            "test_event_id_" + Long.toHexString(System.currentTimeMillis());
+    private static final String TEST_USER_ID = "test_user_id";
+
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final Set<String> seededEntrantIds = new HashSet<>();
+    private final Set<File> createdExportFiles = new HashSet<>();
+
     @Rule
     public ActivityScenarioRule<EntrantsListActivity> activityRule =
             new ActivityScenarioRule<>(new Intent(ApplicationProvider.getApplicationContext(), EntrantsListActivity.class)
-                    .putExtra("eventId", "test_event_id")
-                    .putExtra("userId", "test_user_id"));
+                    .putExtra("eventId", TEST_EVENT_ID)
+                    .putExtra("userId", TEST_USER_ID));
+
+    @Before
+    public void setUp() {
+        Intents.init();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        for (String entrantId : seededEntrantIds) {
+            Tasks.await(
+                    db.collection(FirestorePaths.eventWaitingList(TEST_EVENT_ID))
+                            .document(entrantId)
+                            .delete(),
+                    10,
+                    TimeUnit.SECONDS
+            );
+        }
+        seededEntrantIds.clear();
+
+        for (File file : createdExportFiles) {
+            if (file.exists()) {
+                file.delete();
+            }
+        }
+        createdExportFiles.clear();
+
+        Intents.release();
+    }
+
+    private void seedAcceptedEntrant(String userId, String userName, String email) throws Exception {
+        seededEntrantIds.add(userId);
+
+        Timestamp now = Timestamp.now();
+        Map<String, Object> record = new HashMap<>();
+        record.put("userId", userId);
+        record.put("userName", userName);
+        record.put("email", email);
+        record.put("status", InvitationFlowUtil.STATUS_ACCEPTED);
+        record.put("registeredAt", now);
+        record.put("acceptedAt", now);
+
+        Tasks.await(
+                db.collection(FirestorePaths.eventWaitingList(TEST_EVENT_ID))
+                        .document(userId)
+                        .set(record),
+                10,
+                TimeUnit.SECONDS
+        );
+    }
+
+    private void waitForActivityCondition(java.util.function.Predicate<EntrantsListActivity> condition)
+            throws Exception {
+        AssertionError lastError = null;
+        for (int attempt = 0; attempt < 20; attempt++) {
+            AtomicBoolean matched = new AtomicBoolean(false);
+            activityRule.getScenario().onActivity(activity -> matched.set(condition.test(activity)));
+            if (matched.get()) {
+                return;
+            }
+            lastError = new AssertionError("Timed out waiting for entrants list condition");
+            Thread.sleep(250);
+        }
+        throw lastError;
+    }
+
+    private File createExportTargetFile(String fileName) throws Exception {
+        File documentsDir = ApplicationProvider.getApplicationContext()
+                .getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
+        if (documentsDir == null) {
+            throw new IllegalStateException("External documents directory is unavailable");
+        }
+        if (!documentsDir.exists() && !documentsDir.mkdirs()) {
+            throw new IllegalStateException("Failed to create test documents directory");
+        }
+
+        File exportFile = new File(documentsDir, fileName);
+        if (exportFile.exists() && !exportFile.delete()) {
+            throw new IllegalStateException("Failed to reset export target file");
+        }
+        if (!exportFile.createNewFile()) {
+            throw new IllegalStateException("Failed to create export target file");
+        }
+        createdExportFiles.add(exportFile);
+        return exportFile;
+    }
+
+    private String waitForFileContents(File file) throws Exception {
+        AssertionError lastError = null;
+        for (int attempt = 0; attempt < 20; attempt++) {
+            if (file.exists() && file.length() > 0) {
+                try (
+                        InputStream inputStream = new FileInputStream(file);
+                        ByteArrayOutputStream outputStream = new ByteArrayOutputStream()
+                ) {
+                    byte[] buffer = new byte[1024];
+                    int bytesRead;
+                    while ((bytesRead = inputStream.read(buffer)) != -1) {
+                        outputStream.write(buffer, 0, bytesRead);
+                    }
+                    return outputStream.toString(StandardCharsets.UTF_8);
+                } catch (Exception e) {
+                    lastError = new AssertionError("Failed to read exported CSV", e);
+                }
+            }
+            Thread.sleep(250);
+        }
+        if (lastError != null) {
+            throw lastError;
+        }
+        throw new AssertionError("Timed out waiting for exported CSV file");
+    }
 
     /**
-     * Verifies that all navigation buttons are displayed upon initialization.
-     * Uses scrollTo() for buttons inside HorizontalScrollView to ensure they are visible to Espresso.
+     * US 02.02.01 / US 02.06.01 / US 02.06.02 / US 02.06.03: The organizer can
+     * access each entrant status view and the map action from the entrants screen.
      */
     @Test
     public void testInitializedPageVisibility() {
@@ -49,7 +201,8 @@ public class EntrantsListActivityTest {
     }
 
     /**
-     * Verifies switching to the Signed Up (Accepted) entrants list.
+     * US 02.06.03: Selecting the Signed Up tab shows the accepted entrants list
+     * and hides the other entrant groups.
      */
     @Test
     public void testSwitchToSignedUpList() {
@@ -63,7 +216,8 @@ public class EntrantsListActivityTest {
     }
 
     /**
-     * Verifies switching to the Waited List entrants list.
+     * US 02.02.01: Returning to the Waited List tab restores the waitlist view
+     * after navigating away to another entrant group.
      */
     @Test
     public void testSwitchToWaitedListedList() {
@@ -77,17 +231,21 @@ public class EntrantsListActivityTest {
     }
 
     /**
-     * Verifies switching to the Map view (View Location).
+     * US 02.02.02: Viewing entrant locations launches the map screen for the
+     * current event so the organizer can inspect all saved entrant locations.
      */
     @Test
-    public void testSwitchToViewLocation() {
+    public void testViewLocationLaunchesMapForEvent() {
+        onView(withId(R.id.entrants_list_invited_btn)).perform(scrollTo(), click());
         onView(withId(R.id.entrants_list_view_location_btn)).perform(click());
-        onView(withId(R.id.view_location_layout)).check(matches(isDisplayed()));
-        onView(withId(R.id.mapView)).check(matches(isDisplayed()));
+
+        intended(hasComponent(EntrantMapActivity.class.getName()));
+        intended(hasExtra("eventId", TEST_EVENT_ID));
     }
 
     /**
-     * Verifies that the Sample Winners dialog appears.
+     * US 02.05.02: The organizer can start the sampling workflow from the waitlist
+     * tab by opening the draw dialog and entering a sample size.
      */
     @Test
     public void testClickSampleFragmentVisibility() {
@@ -147,5 +305,102 @@ public class EntrantsListActivityTest {
     public void testEmptyStateNotSelectedList() {
         onView(withId(R.id.entrants_list_not_selected_btn)).perform(scrollTo(), click());
         onView(withId(R.id.not_selected_empty_text)).check(matches(isDisplayed()));
+    }
+
+    /**
+     * US 02.05.02: Clicking the sample button on the waitlist tab opens the
+     * dialog where the organizer starts drawing attendees from the waitlist.
+     */
+    @Test
+    public void testSampleButton_opensDrawDialog() {
+        onView(withId(R.id.entrants_list_waited_list_btn)).perform(scrollTo(), click());
+        onView(withId(R.id.entrants_list_sample_btn)).perform(click());
+        onView(withText("Sample Winners")).check(matches(isDisplayed()));
+    }
+
+    /**
+     * US 02.05.03: Switching to the not-selected tab shows its layout and empty state,
+     * confirming the organizer can view entrants who were not chosen.
+     */
+    @Test
+    public void testNotSelectedTab_showsLayoutAndEmptyState() {
+        onView(withId(R.id.entrants_list_not_selected_btn)).perform(scrollTo(), click());
+        onView(withId(R.id.not_selected_entrants_list_layout)).check(matches(isDisplayed()));
+        onView(withId(R.id.not_selected_empty_text)).check(matches(isDisplayed()));
+    }
+
+    /**
+     * US 02.06.02: Switching to the cancelled tab shows its layout and empty state,
+     * confirming the organizer can view cancelled entrants.
+     */
+    @Test
+    public void testCancelledTab_showsLayoutAndEmptyState() {
+        onView(withId(R.id.entrants_list_cancelled_btn)).perform(scrollTo(), click());
+        onView(withId(R.id.cancelled_entrants_list_layout)).check(matches(isDisplayed()));
+        onView(withId(R.id.cancelled_empty_text)).check(matches(isDisplayed()));
+    }
+
+    /**
+     * US 02.06.05: Exporting enrolled entrants only becomes available on the
+     * Signed Up tab and launches the document picker when accepted entrants exist.
+     */
+    @Test
+    public void testExportCsvButton_launchesDocumentPickerForSignedUpEntrants() throws Exception {
+        onView(withId(R.id.entrants_list_export_csv_btn)).check(matches(not(isDisplayed())));
+
+        seedAcceptedEntrant("accepted_user_1", "Accepted Entrant", "accepted@example.com");
+        onView(withId(R.id.entrants_list_signed_up_btn)).perform(scrollTo(), click());
+        waitForActivityCondition(activity -> activity.findViewById(R.id.signed_up_empty_text)
+                .getVisibility() == android.view.View.GONE);
+        onView(withId(R.id.entrants_list_export_csv_btn)).check(matches(isDisplayed()));
+
+        intending(hasAction(Intent.ACTION_CREATE_DOCUMENT))
+                .respondWith(new Instrumentation.ActivityResult(Activity.RESULT_CANCELED, null));
+
+        onView(withId(R.id.entrants_list_export_csv_btn)).perform(click());
+
+        intended(hasAction(Intent.ACTION_CREATE_DOCUMENT));
+
+        onView(withId(R.id.entrants_list_waited_list_btn)).perform(scrollTo(), click());
+        onView(withId(R.id.entrants_list_export_csv_btn)).check(matches(not(isDisplayed())));
+    }
+
+    /**
+     * US 02.06.05: Exporting enrolled entrants writes a CSV file containing the
+     * accepted entrants currently loaded into the Signed Up list.
+     */
+    @Test
+    public void testExportCsv_writesAcceptedEntrantRowsToFile() throws Exception {
+        seedAcceptedEntrant("csv_user_1", "Accepted Entrant", "accepted@example.com");
+        seedAcceptedEntrant("csv_user_2", "Quoted, \"Entrant\"", "quoted@example.com");
+
+        File exportFile = createExportTargetFile("accepted_entrants_test.csv");
+        Uri exportUri = FileProvider.getUriForFile(
+                ApplicationProvider.getApplicationContext(),
+                ApplicationProvider.getApplicationContext().getPackageName() + ".provider",
+                exportFile
+        );
+
+        Intent resultData = new Intent().setData(exportUri);
+        resultData.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+
+        intending(hasAction(Intent.ACTION_CREATE_DOCUMENT))
+                .respondWith(new Instrumentation.ActivityResult(Activity.RESULT_OK, resultData));
+
+        onView(withId(R.id.entrants_list_signed_up_btn)).perform(scrollTo(), click());
+        waitForActivityCondition(activity -> activity.findViewById(R.id.signed_up_empty_text)
+                .getVisibility() == android.view.View.GONE);
+        onView(withId(R.id.entrants_list_export_csv_btn)).check(matches(isDisplayed()));
+        onView(withId(R.id.entrants_list_export_csv_btn)).perform(click());
+
+        String csvContent = waitForFileContents(exportFile);
+
+        org.junit.Assert.assertTrue(csvContent.contains("\"User ID\",\"Name\",\"Email\",\"Status\""));
+        org.junit.Assert.assertTrue(csvContent.contains(
+                "\"csv_user_1\",\"Accepted Entrant\",\"accepted@example.com\",\"accepted\""));
+        org.junit.Assert.assertTrue(csvContent.contains(
+                "\"csv_user_2\",\"Quoted, \"\"Entrant\"\"\",\"quoted@example.com\",\"accepted\""));
+        onView(withId(R.id.signed_up_empty_text))
+                .check(matches(withEffectiveVisibility(Visibility.GONE)));
     }
 }
