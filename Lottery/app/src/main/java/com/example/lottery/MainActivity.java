@@ -13,6 +13,11 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.lottery.admin.AdminSignInActivity;
+import com.example.lottery.entrant.EntrantMainActivity;
+import com.example.lottery.entrant.EntrantProfileActivity;
+import com.example.lottery.organizer.OrganizerBrowseEventsActivity;
+import com.example.lottery.organizer.OrganizerProfileActivity;
 import com.example.lottery.util.FirestorePaths;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
@@ -52,6 +57,9 @@ public class MainActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         sharedPreferences = getSharedPreferences("AppPrefs", MODE_PRIVATE);
+
+        // Clear any stale admin role session when returning to the entry screen
+        com.example.lottery.util.AdminRoleManager.clearAdminRoleSession(this);
 
         Button entrantButton = findViewById(R.id.entrant_login_button);
         Button organizerButton = findViewById(R.id.organizer_login_button);
@@ -124,6 +132,7 @@ public class MainActivity extends AppCompatActivity {
         userData.put("createdAt", now);
         userData.put("updatedAt", now);
         userData.put("notificationsEnabled", true);
+        userData.put("geolocationEnabled", false);
 
         db.collection(FirestorePaths.USERS).document(userId).set(userData).addOnSuccessListener(aVoid -> {
             saveSessionLocally(userId, role, androidId, "");

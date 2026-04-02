@@ -49,6 +49,11 @@ public class User {
     private GeoPoint location;
 
     /**
+     * Whether this user has geolocation enabled.
+     */
+    private boolean geolocationEnabled;
+
+    /**
      * Whether this user has notifications enabled.
      */
     private boolean notificationsEnabled;
@@ -176,6 +181,14 @@ public class User {
 
     public void setLocation(GeoPoint location) {
         this.location = location;
+    }
+
+    public boolean isGeolocationEnabled() {
+        return geolocationEnabled;
+    }
+
+    public void setGeolocationEnabled(boolean geolocationEnabled) {
+        this.geolocationEnabled = geolocationEnabled;
     }
 
     public boolean isNotificationsEnabled() {

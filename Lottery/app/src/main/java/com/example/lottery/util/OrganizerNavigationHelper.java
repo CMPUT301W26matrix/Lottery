@@ -9,11 +9,11 @@ import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
 
-import com.example.lottery.OrganizerBrowseEventsActivity;
-import com.example.lottery.OrganizerCreateEventActivity;
-import com.example.lottery.OrganizerNotificationsActivity;
-import com.example.lottery.OrganizerProfileActivity;
-import com.example.lottery.OrganizerQrEventListActivity;
+import com.example.lottery.organizer.OrganizerBrowseEventsActivity;
+import com.example.lottery.organizer.OrganizerCreateEventActivity;
+import com.example.lottery.organizer.OrganizerNotificationsActivity;
+import com.example.lottery.organizer.OrganizerProfileActivity;
+import com.example.lottery.organizer.OrganizerQrEventListActivity;
 import com.example.lottery.R;
 
 /**
@@ -161,7 +161,14 @@ public final class OrganizerNavigationHelper {
     }
 
     /**
-     * The four regular tabs in the organizer bottom-navigation bar.
+     * Tabs in the organizer bottom-navigation bar.
+     *
+     * <ul>
+     *   <li>{@code HOME} – organizer's event dashboard</li>
+     *   <li>{@code NOTIFICATIONS} – event-related notifications</li>
+     *   <li>{@code QR_CODE} – generate / manage event QR codes</li>
+     *   <li>{@code PROFILE} – organizer profile settings</li>
+     * </ul>
      */
     public enum OrganizerTab {
         HOME, NOTIFICATIONS, QR_CODE, PROFILE

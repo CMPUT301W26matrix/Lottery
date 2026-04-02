@@ -62,7 +62,7 @@
     <string name="sub_header_sample_fragment">How Many Entrants Should Be Sampled?</string>
     <string name="view_location_header_string">Entrants Map</string>
     <string name="organizer_dashboard">Organizer Dashboard</string>
-    <string name="organizer_event_browser_title">Lottery Organizer</string>
+    <string name="organizer_event_browser_title">Organizer Dashboard</string>
     <string name="organizer_event_browser_subtitle">Browse events published by you</string>
     <string name="default_count">0</string>
     <string name="active_events">Active Events</string>
@@ -80,7 +80,7 @@
     <string name="nav_history">My Events</string>
     <string name="nav_profile">Profile</string>
     <string name="nav_qr_codes">QR Codes</string>
-    <string name="admin_event_browser_title">Lottery Admin</string>
+    <string name="admin_event_browser_title">Admin Dashboard</string>
     <string name="admin_event_browser_subtitle">Browse all published events</string>
     <string name="admin_event_details_title">Event Details</string>
     <string name="admin_all_events_title">All Events</string>
@@ -223,8 +223,10 @@
     <string name="delete_profile">Delete Profile</string>
     <string name="delete_profile_message">This action cannot be undone. Your profile data will be deleted and you will be logged out.</string>
     <string name="log_out">Log Out</string>
-    <string name="no_entrant_locations_available">No entrant locations available for this event.</string>
+    <string name="no_entrant_locations_available">No entrant locations available for this status.</string>
     <string name="location_not_required_for_event">Geolocation is not required for this event.</string>
+    <string name="loading_entrant_locations">Loading entrant locations...</string>
+    <string name="failed_to_load_entrant_locations">Failed to load entrant locations.</string>
     <string name="no_entrants_in_list">No entrants in this list</string>
 
     <!-- Confirmation Ticket -->

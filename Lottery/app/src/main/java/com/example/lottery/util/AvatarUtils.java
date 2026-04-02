@@ -8,8 +8,7 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 
 
-
-/** 
+/**
  * Utility class to generate default avatar.
  */
 public class AvatarUtils {

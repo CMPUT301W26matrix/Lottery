@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/page_background"
-    tools:context=".AdminProfileActivity">
+    tools:context=".admin.AdminProfileActivity">
 
     <!-- Header Container: Ensures scroll view stays below whichever header is visible -->
     <FrameLayout

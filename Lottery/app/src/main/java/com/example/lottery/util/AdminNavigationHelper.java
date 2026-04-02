@@ -9,11 +9,11 @@ import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
 
-import com.example.lottery.AdminBrowseEventsActivity;
-import com.example.lottery.AdminBrowseImagesActivity;
-import com.example.lottery.AdminBrowseLogsActivity;
-import com.example.lottery.AdminBrowseProfilesActivity;
-import com.example.lottery.AdminProfileActivity;
+import com.example.lottery.admin.AdminBrowseEventsActivity;
+import com.example.lottery.admin.AdminBrowseImagesActivity;
+import com.example.lottery.admin.AdminBrowseLogsActivity;
+import com.example.lottery.admin.AdminBrowseProfilesActivity;
+import com.example.lottery.admin.AdminProfileActivity;
 import com.example.lottery.R;
 
 /**
@@ -139,7 +139,15 @@ public final class AdminNavigationHelper {
     }
 
     /**
-     * The five tabs in the admin bottom-navigation bar.
+     * Tabs in the admin bottom-navigation bar.
+     *
+     * <ul>
+     *   <li>{@code EVENTS} – browse / manage all events</li>
+     *   <li>{@code PROFILES} – browse / manage user profiles</li>
+     *   <li>{@code IMAGES} – browse / manage uploaded images</li>
+     *   <li>{@code LOGS} – view system activity logs</li>
+     *   <li>{@code SETTINGS} – admin settings</li>
+     * </ul>
      */
     public enum AdminTab {
         EVENTS, PROFILES, IMAGES, LOGS, SETTINGS

@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/page_background"
-    tools:context=".AdminBrowseProfilesActivity">
+    tools:context=".admin.AdminBrowseProfilesActivity">
 
     <!-- Header Bar: Page Title (Browse Profiles) -->
     <androidx.constraintlayout.widget.ConstraintLayout
