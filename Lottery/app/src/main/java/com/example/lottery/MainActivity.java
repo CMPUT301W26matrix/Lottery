@@ -13,6 +13,11 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.lottery.admin.AdminSignInActivity;
+import com.example.lottery.entrant.EntrantMainActivity;
+import com.example.lottery.entrant.EntrantProfileActivity;
+import com.example.lottery.organizer.OrganizerBrowseEventsActivity;
+import com.example.lottery.organizer.OrganizerProfileActivity;
 import com.example.lottery.util.FirestorePaths;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;

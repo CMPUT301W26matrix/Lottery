@@ -50,96 +50,96 @@
         </activity>
 
         <activity
-            android:name=".NotificationsActivity"
+            android:name=".entrant.NotificationsActivity"
             android:exported="false" />
         <activity
-            android:name=".EntrantEventHistoryActivity"
+            android:name=".entrant.EntrantEventHistoryActivity"
             android:exported="false"
             android:label="My Events" />
         <activity
-            android:name=".EntrantEventDetailsActivity"
+            android:name=".entrant.EntrantEventDetailsActivity"
             android:exported="false" />
         <activity
-            android:name=".AdminSignInActivity"
+            android:name=".admin.AdminSignInActivity"
             android:exported="false" />
         <activity
-            android:name=".EntrantMainActivity"
+            android:name=".entrant.EntrantMainActivity"
             android:exported="false" />
         <activity
-            android:name=".EntrantProfileActivity"
+            android:name=".entrant.EntrantProfileActivity"
             android:exported="false" />
         <activity
-            android:name=".AdminBrowseProfilesActivity"
+            android:name=".admin.AdminBrowseProfilesActivity"
             android:exported="false" />
         <activity
-            android:name=".OrganizerCreateEventActivity"
+            android:name=".organizer.OrganizerCreateEventActivity"
             android:exported="false" />
         <activity
-            android:name=".OrganizerBrowseEventsActivity"
+            android:name=".organizer.OrganizerBrowseEventsActivity"
             android:exported="false"
             android:label="@string/organizer_dashboard" />
         <activity
-            android:name=".OrganizerNotificationsActivity"
+            android:name=".organizer.OrganizerNotificationsActivity"
             android:exported="false"
             android:label="Notifications" />
         <activity
-            android:name=".OrganizerQrEventListActivity"
+            android:name=".organizer.OrganizerQrEventListActivity"
             android:exported="false"
             android:label="Select Event for QR" />
         <activity
-            android:name=".OrganizerQrCodeDetailActivity"
+            android:name=".organizer.OrganizerQrCodeDetailActivity"
             android:exported="false"
             android:label="Event QR Code" />
         <activity
-            android:name=".EntrantQrScanActivity"
+            android:name=".entrant.EntrantQrScanActivity"
             android:exported="false"
             android:label="QR Scan" />
         <activity
-            android:name=".AdminBrowseEventsActivity"
+            android:name=".admin.AdminBrowseEventsActivity"
             android:exported="false"
             android:label="@string/admin_all_events_title"
             android:parentActivityName=".MainActivity" />
         <activity
-            android:name=".EntrantsListActivity"
+            android:name=".organizer.EntrantsListActivity"
             android:exported="false" />
 
         <activity
-            android:name=".AdminEventDetailsActivity"
+            android:name=".admin.AdminEventDetailsActivity"
             android:exported="false"
             android:label="@string/admin_event_details_title"
-            android:parentActivityName=".AdminBrowseEventsActivity" />
+            android:parentActivityName=".admin.AdminBrowseEventsActivity" />
         <activity
-            android:name=".OrganizerEventDetailsActivity"
+            android:name=".organizer.OrganizerEventDetailsActivity"
             android:exported="false"
             android:label="@string/event_details_title"
-            android:parentActivityName=".OrganizerBrowseEventsActivity" />
+            android:parentActivityName=".organizer.OrganizerBrowseEventsActivity" />
         <activity
-            android:name=".OrganizerProfileActivity"
+            android:name=".organizer.OrganizerProfileActivity"
             android:exported="false" />
         <activity
-            android:name=".AdminBrowseImagesActivity"
+            android:name=".admin.AdminBrowseImagesActivity"
             android:exported="false"
             android:label="@string/admin_image_browser_title" />
         <activity
-            android:name=".AdminImageDetailsActivity"
+            android:name=".admin.AdminImageDetailsActivity"
             android:exported="false"
             android:label="@string/admin_image_preview_title"
-            android:parentActivityName=".AdminBrowseImagesActivity" />
+            android:parentActivityName=".admin.AdminBrowseImagesActivity" />
         <activity
-            android:name=".AdminBrowseLogsActivity"
+            android:name=".admin.AdminBrowseLogsActivity"
             android:exported="false"
             android:label="@string/admin_logs_title" />
         <activity
-            android:name=".EntrantLotteryGuidelinesActivity"
+            android:name=".entrant.EntrantLotteryGuidelinesActivity"
             android:exported="false" />
         <activity
-            android:name=".OrganizerLotteryGuidelinesActivity"
+            android:name=".organizer.OrganizerLotteryGuidelinesActivity"
             android:exported="false" />
         <activity
-            android:name=".AdminProfileActivity"
+            android:name=".admin.AdminProfileActivity"
             android:exported="false" />
         <activity
-            android:name=".EntrantMapActivity"
+            android:name=".entrant.EntrantMapActivity"
             android:exported="false" />
 
         <provider

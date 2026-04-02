@@ -60,6 +60,7 @@ dependencies {
 
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    androidTestImplementation(libs.mockito.android)
     // Use consistent versions for Espresso components from Version Catalog if possible, 
     // or use the same version as espresso-core (3.7.0)
     androidTestImplementation("androidx.test.espresso:espresso-intents:3.6.1")

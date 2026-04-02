@@ -9,10 +9,10 @@ import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
 
-import com.example.lottery.EntrantEventHistoryActivity;
-import com.example.lottery.EntrantMainActivity;
-import com.example.lottery.EntrantProfileActivity;
-import com.example.lottery.EntrantQrScanActivity;
+import com.example.lottery.entrant.EntrantEventHistoryActivity;
+import com.example.lottery.entrant.EntrantMainActivity;
+import com.example.lottery.entrant.EntrantProfileActivity;
+import com.example.lottery.entrant.EntrantQrScanActivity;
 import com.example.lottery.R;
 
 /**
