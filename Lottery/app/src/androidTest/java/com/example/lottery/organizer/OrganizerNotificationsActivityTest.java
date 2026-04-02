@@ -16,6 +16,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
+import android.content.Context;
 import android.content.Intent;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -28,7 +29,9 @@ import com.example.lottery.R;
 import com.example.lottery.adapter.OrganizerNotificationEventAdapter;
 import com.example.lottery.model.Event;
 import com.example.lottery.util.FirestorePaths;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import org.junit.After;
@@ -199,6 +202,111 @@ public class OrganizerNotificationsActivityTest {
         assertTrue("Notification with group '" + expectedGroup + "' should exist in Firestore", found[0]);
     }
 
+    private String waitForNotificationIdWithGroup(String expectedGroup) throws Exception {
+        for (int attempt = 0; attempt < 20; attempt++) {
+            QuerySnapshot snapshot = Tasks.await(
+                    db.collection(FirestorePaths.NOTIFICATIONS)
+                            .whereEqualTo("senderId", TEST_USER_ID)
+                            .whereEqualTo("eventId", TEST_EVENT_ID)
+                            .whereEqualTo("group", expectedGroup)
+                            .get(),
+                    10,
+                    TimeUnit.SECONDS
+            );
+
+            if (!snapshot.isEmpty()) {
+                return snapshot.getDocuments().get(0).getId();
+            }
+            Thread.sleep(250);
+        }
+
+        throw new AssertionError("Timed out waiting for notification group " + expectedGroup);
+    }
+
+    private void waitForNotificationDelivery(String notificationId, String expectedRecipientId) throws Exception {
+        String[] allEntrantIds = {
+                ENTRANT_WAITLISTED,
+                ENTRANT_INVITED,
+                ENTRANT_ACCEPTED,
+                ENTRANT_CANCELLED
+        };
+
+        AssertionError lastError = null;
+        for (int attempt = 0; attempt < 20; attempt++) {
+            QuerySnapshot recipientSnapshot = Tasks.await(
+                    db.collection(FirestorePaths.notificationRecipients(notificationId)).get(),
+                    10,
+                    TimeUnit.SECONDS
+            );
+
+            boolean inboxStateMatches = true;
+            for (String entrantId : allEntrantIds) {
+                boolean inboxExists = Tasks.await(
+                        db.collection(FirestorePaths.userInbox(entrantId))
+                                .document(notificationId)
+                                .get(),
+                        10,
+                        TimeUnit.SECONDS
+                ).exists();
+                boolean shouldExist = expectedRecipientId.equals(entrantId);
+                if (inboxExists != shouldExist) {
+                    inboxStateMatches = false;
+                    break;
+                }
+            }
+
+            if (recipientSnapshot.size() == 1
+                    && expectedRecipientId.equals(recipientSnapshot.getDocuments().get(0).getString("userId"))
+                    && inboxStateMatches) {
+                return;
+            }
+
+            lastError = new AssertionError(
+                    "Timed out waiting for recipient and inbox delivery for notification " + notificationId
+            );
+            Thread.sleep(250);
+        }
+
+        throw lastError;
+    }
+
+    private void assertNotificationDeliveredToOnlyRecipient(String group, String expectedRecipientId) throws Exception {
+        String notificationId = waitForNotificationIdWithGroup(group);
+        waitForNotificationDelivery(notificationId, expectedRecipientId);
+
+        QuerySnapshot recipientSnapshot = Tasks.await(
+                db.collection(FirestorePaths.notificationRecipients(notificationId)).get(),
+                10,
+                TimeUnit.SECONDS
+        );
+        assertEquals("Expected exactly one recipient record for group " + group,
+                1, recipientSnapshot.size());
+        assertEquals(expectedRecipientId, recipientSnapshot.getDocuments().get(0).getString("userId"));
+
+        String[] allEntrantIds = {
+                ENTRANT_WAITLISTED,
+                ENTRANT_INVITED,
+                ENTRANT_ACCEPTED,
+                ENTRANT_CANCELLED
+        };
+
+        for (String entrantId : allEntrantIds) {
+            boolean inboxExists = Tasks.await(
+                    db.collection(FirestorePaths.userInbox(entrantId))
+                            .document(notificationId)
+                            .get(),
+                    10,
+                    TimeUnit.SECONDS
+            ).exists();
+
+            if (expectedRecipientId.equals(entrantId)) {
+                assertTrue("Expected inbox delivery for " + entrantId, inboxExists);
+            } else {
+                assertFalse("Unexpected inbox delivery for " + entrantId, inboxExists);
+            }
+        }
+    }
+
     /**
      * Queries Firestore to verify that no notification was persisted
      * for the test organizer and event (used for cancel/empty-message tests).
@@ -257,6 +365,11 @@ public class OrganizerNotificationsActivityTest {
      */
     @Test
     public void testActivityFinishesWithoutUserId() {
+        // Clear SharedPreferences so the fallback lookup also returns null
+        ApplicationProvider.getApplicationContext()
+                .getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+                .edit().remove("userId").commit();
+
         Intent intent = new Intent(ApplicationProvider.getApplicationContext(), OrganizerNotificationsActivity.class);
         // No userId extra — Activity should call finish() in onCreate
         try (ActivityScenario<OrganizerNotificationsActivity> scenario = ActivityScenario.launch(intent)) {
@@ -348,6 +461,25 @@ public class OrganizerNotificationsActivityTest {
     }
 
     /**
+     * US 02.07.01 – Sending to the waiting list writes a delivered recipient record
+     * and inbox notification only for waitlisted entrants.
+     */
+    @Test
+    public void testSendNotificationToWaitlist_deliversRecipientAndInbox() throws Exception {
+        try (ActivityScenario<OrganizerNotificationsActivity> scenario = ActivityScenario.launch(createLaunchIntent())) {
+            injectMockEvent(scenario);
+
+            onView(withId(R.id.btnNotifyWaiting)).perform(click());
+            onView(withText("Notify Waiting List")).inRoot(isDialog()).check(matches(isDisplayed()));
+            onView(withId(R.id.etNotificationContent)).inRoot(isDialog())
+                    .perform(typeText("Waitlist delivery check"), closeSoftKeyboard());
+            onView(withText("Send")).inRoot(isDialog()).perform(click());
+        }
+
+        assertNotificationDeliveredToOnlyRecipient("waitlisted", ENTRANT_WAITLISTED);
+    }
+
+    /**
      * US 02.07.02 – Organizer can send a notification to all selected (invited) entrants.
      */
     @Test
@@ -368,7 +500,27 @@ public class OrganizerNotificationsActivityTest {
     }
 
     /**
-     * Organizer can send a notification to accepted entrants.
+     * US 02.07.02 – Sending to selected entrants writes a delivered recipient
+     * record and inbox notification only for invited entrants.
+     */
+    @Test
+    public void testSendNotificationToInvited_deliversRecipientAndInbox() throws Exception {
+        try (ActivityScenario<OrganizerNotificationsActivity> scenario = ActivityScenario.launch(createLaunchIntent())) {
+            injectMockEvent(scenario);
+
+            onView(withId(R.id.btnNotifySelected)).perform(click());
+            onView(withText("Notify Invited Entrants")).inRoot(isDialog()).check(matches(isDisplayed()));
+            onView(withId(R.id.etNotificationContent)).inRoot(isDialog())
+                    .perform(typeText("Invited delivery check"), closeSoftKeyboard());
+            onView(withText("Send")).inRoot(isDialog()).perform(click());
+        }
+
+        assertNotificationDeliveredToOnlyRecipient("invited", ENTRANT_INVITED);
+    }
+
+    /**
+     * Regression coverage: accepted-group notifications are an organizer UX affordance
+     * in the app, but they do not map to a direct User Story in project_problem_descr.md.
      */
     @Test
     public void testSendNotificationToAccepted() throws InterruptedException {
@@ -405,5 +557,24 @@ public class OrganizerNotificationsActivityTest {
             onView(withText("Notify Cancelled Entrants")).check(doesNotExist());
         }
         assertNotificationPersistedWithGroup("cancelled");
+    }
+
+    /**
+     * US 02.07.03 – Sending to cancelled entrants writes a delivered recipient
+     * record and inbox notification only for cancelled entrants.
+     */
+    @Test
+    public void testSendNotificationToCancelled_deliversRecipientAndInbox() throws Exception {
+        try (ActivityScenario<OrganizerNotificationsActivity> scenario = ActivityScenario.launch(createLaunchIntent())) {
+            injectMockEvent(scenario);
+
+            onView(withId(R.id.btnNotifyCancelled)).perform(click());
+            onView(withText("Notify Cancelled Entrants")).inRoot(isDialog()).check(matches(isDisplayed()));
+            onView(withId(R.id.etNotificationContent)).inRoot(isDialog())
+                    .perform(typeText("Cancelled delivery check"), closeSoftKeyboard());
+            onView(withText("Send")).inRoot(isDialog()).perform(click());
+        }
+
+        assertNotificationDeliveredToOnlyRecipient("cancelled", ENTRANT_CANCELLED);
     }
 }

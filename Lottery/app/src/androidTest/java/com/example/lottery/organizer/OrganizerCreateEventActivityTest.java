@@ -56,6 +56,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * US 02.01.02: Create a private event.
  * US 02.03.01: Optionally Limit Waiting List Size.
  * US 02.02.03: Enable or disable the geolocation requirement for an event.
+ * US 02.04.01: Upload an event poster when creating an event.
  */
 @RunWith(AndroidJUnit4.class)
 public class OrganizerCreateEventActivityTest {
@@ -456,6 +457,57 @@ public class OrganizerCreateEventActivityTest {
             Assert.assertNotNull("Public event should persist an auto-generated QR code", qrCodeContent);
             Assert.assertEquals("QR code should decode back to the saved eventId",
                     eventId, QRCodeUtils.extractEventId(qrCodeContent));
+        }
+    }
+
+    /**
+     * US 02.04.01: Selecting a poster while creating a new event persists the
+     * chosen poster image to Firestore with the rest of the created event.
+     */
+    @Test
+    public void testCreateEvent_persistsPosterInFirestore() throws Exception {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(2030, Calendar.JUNE, 1, 9, 0, 0);
+        Date regStart = calendar.getTime();
+        calendar.set(2030, Calendar.JUNE, 5, 18, 0, 0);
+        Date regEnd = calendar.getTime();
+        calendar.set(2030, Calendar.JUNE, 10, 19, 0, 0);
+        Date eventStart = calendar.getTime();
+        calendar.set(2030, Calendar.JUNE, 10, 21, 0, 0);
+        Date eventEnd = calendar.getTime();
+        calendar.set(2030, Calendar.JUNE, 6, 12, 0, 0);
+        Date drawDate = calendar.getTime();
+
+        String uniqueTitle = "Poster Event " + System.currentTimeMillis();
+        String posterBase64 = "data:image/jpeg;base64,CREATED_POSTER_DATA";
+
+        try (ActivityScenario<OrganizerCreateEventActivity> scenario =
+                     ActivityScenario.launch(createLaunchIntent())) {
+            String eventId = readEventId(scenario);
+            trackEvent(eventId);
+
+            setDateField(scenario, "regStartDate", R.id.etRegStart, regStart);
+            setDateField(scenario, "regEndDate", R.id.etRegEnd, regEnd);
+            setDateField(scenario, "eventStartDate", R.id.etEventStart, eventStart);
+            setDateField(scenario, "eventEndDate", R.id.etEventEnd, eventEnd);
+            setDateField(scenario, "drawDate", R.id.etDrawDate, drawDate);
+
+            scenario.onActivity(activity -> {
+                android.os.Bundle bundle = new android.os.Bundle();
+                bundle.putString("posterBase64", posterBase64);
+                activity.getSupportFragmentManager().setFragmentResult("posterRequest", bundle);
+            });
+
+            onView(withId(R.id.etEventTitle)).perform(scrollTo(), replaceText(uniqueTitle), closeSoftKeyboard());
+            onView(withId(R.id.etMaxCapacity)).perform(scrollTo(), replaceText("40"), closeSoftKeyboard());
+            onView(withId(R.id.etEventDetails)).perform(scrollTo(), replaceText("Poster event details"), closeSoftKeyboard());
+            onView(withId(R.id.etPlace)).perform(scrollTo(), replaceText("CCIS"), closeSoftKeyboard());
+            onView(withId(R.id.btnCreateEvent)).perform(scrollTo(), click());
+
+            DocumentSnapshot snapshot = waitForEventDocument(eventId);
+            Assert.assertEquals(uniqueTitle, snapshot.getString("title"));
+            Assert.assertEquals("Selected poster should be saved with the new event",
+                    posterBase64, snapshot.getString("posterBase64"));
         }
     }
 

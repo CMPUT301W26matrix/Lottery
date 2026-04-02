@@ -4,26 +4,36 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.intent.Intents.intended;
 import static androidx.test.espresso.intent.Intents.intending;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasAction;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
+import static androidx.test.espresso.matcher.RootMatchers.isDialog;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.not;
+
+import static androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA;
 
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
+import android.view.View;
 
 import androidx.core.content.FileProvider;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.espresso.UiController;
+import androidx.test.espresso.ViewAction;
 import androidx.test.espresso.intent.Intents;
+import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.espresso.matcher.ViewMatchers.Visibility;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
@@ -36,6 +46,7 @@ import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.InvitationFlowUtil;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.junit.After;
@@ -127,6 +138,27 @@ public class EntrantsListActivityTest {
         );
     }
 
+    private void seedInvitedEntrant(String userId, String userName, String email) throws Exception {
+        seededEntrantIds.add(userId);
+
+        Timestamp now = Timestamp.now();
+        Map<String, Object> record = new HashMap<>();
+        record.put("userId", userId);
+        record.put("userName", userName);
+        record.put("email", email);
+        record.put("status", InvitationFlowUtil.STATUS_INVITED);
+        record.put("registeredAt", now);
+        record.put("invitedAt", now);
+
+        Tasks.await(
+                db.collection(FirestorePaths.eventWaitingList(TEST_EVENT_ID))
+                        .document(userId)
+                        .set(record),
+                10,
+                TimeUnit.SECONDS
+        );
+    }
+
     private void waitForActivityCondition(java.util.function.Predicate<EntrantsListActivity> condition)
             throws Exception {
         AssertionError lastError = null;
@@ -187,6 +219,52 @@ public class EntrantsListActivityTest {
             throw lastError;
         }
         throw new AssertionError("Timed out waiting for exported CSV file");
+    }
+
+    private void waitForEntrantStatus(String entrantId, String expectedStatus) throws Exception {
+        AssertionError lastError = null;
+        for (int attempt = 0; attempt < 20; attempt++) {
+            DocumentSnapshot snapshot = Tasks.await(
+                    db.collection(FirestorePaths.eventWaitingList(TEST_EVENT_ID))
+                            .document(entrantId)
+                            .get(),
+                    10,
+                    TimeUnit.SECONDS
+            );
+
+            String normalized = InvitationFlowUtil.normalizeEntrantStatus(snapshot.getString("status"));
+            if (expectedStatus.equals(normalized)) {
+                return;
+            }
+
+            lastError = new AssertionError(
+                    "Timed out waiting for entrant " + entrantId + " to reach status " + expectedStatus
+            );
+            Thread.sleep(250);
+        }
+        throw lastError;
+    }
+
+    private ViewAction clickChildViewWithId(int id) {
+        return new ViewAction() {
+            @Override
+            public org.hamcrest.Matcher<View> getConstraints() {
+                return isDisplayed();
+            }
+
+            @Override
+            public String getDescription() {
+                return "Click child view with id " + id;
+            }
+
+            @Override
+            public void perform(UiController uiController, View view) {
+                View child = view.findViewById(id);
+                if (child != null) {
+                    child.performClick();
+                }
+            }
+        };
     }
 
     /**
@@ -341,6 +419,64 @@ public class EntrantsListActivityTest {
         onView(withId(R.id.entrants_list_cancelled_btn)).perform(scrollTo(), click());
         onView(withId(R.id.cancelled_entrants_list_layout)).check(matches(isDisplayed()));
         onView(withId(R.id.cancelled_empty_text)).check(matches(isDisplayed()));
+    }
+
+    /**
+     * US 02.06.04: Viewing an invited entrant's details allows the organizer to
+     * cancel an entrant who has not signed up yet, and persists the cancelled
+     * status back to Firestore.
+     */
+    @Test
+    public void testInvitedEntrantDetails_cancelEntrantPersistsCancelledStatus() throws Exception {
+        seedInvitedEntrant("invited_cancel_1", "Invited To Cancel", "cancel-me@example.com");
+
+        onView(withId(R.id.entrants_list_invited_btn)).perform(scrollTo(), click());
+        waitForActivityCondition(activity -> activity.findViewById(R.id.invited_empty_text)
+                .getVisibility() == android.view.View.GONE);
+
+        onView(withId(R.id.invited_events_view)).perform(
+                RecyclerViewActions.actionOnItem(
+                        hasDescendant(withText("Invited To Cancel")),
+                        clickChildViewWithId(R.id.viewDetailsButton)
+                )
+        );
+
+        onView(withText("Cancel Entrant")).inRoot(isDialog()).check(matches(isDisplayed()));
+        onView(withText("Cancel Entrant")).inRoot(isDialog()).perform(click());
+        onView(withText("Yes, Cancel")).inRoot(isDialog()).check(matches(isDisplayed()));
+        onView(withText("Yes, Cancel")).inRoot(isDialog()).perform(click());
+
+        waitForEntrantStatus("invited_cancel_1", InvitationFlowUtil.STATUS_CANCELLED);
+
+        onView(withId(R.id.entrants_list_cancelled_btn)).perform(scrollTo(), click());
+        waitForActivityCondition(activity -> activity.findViewById(R.id.cancelled_empty_text)
+                .getVisibility() == android.view.View.GONE);
+        onView(allOf(withText("Invited To Cancel"),
+                isDescendantOfA(withId(R.id.cancelled_entrants_view))))
+                .check(matches(isDisplayed()));
+    }
+
+    /**
+     * US 02.06.04: The cancel action is only available for entrants who have not
+     * signed up yet; accepted entrants must not expose the organizer cancellation action.
+     */
+    @Test
+    public void testSignedUpEntrantDetails_doNotShowCancelAction() throws Exception {
+        seedAcceptedEntrant("accepted_locked_1", "Already Signed Up", "accepted@example.com");
+
+        onView(withId(R.id.entrants_list_signed_up_btn)).perform(scrollTo(), click());
+        waitForActivityCondition(activity -> activity.findViewById(R.id.signed_up_empty_text)
+                .getVisibility() == android.view.View.GONE);
+
+        onView(withId(R.id.signed_up_events_view)).perform(
+                RecyclerViewActions.actionOnItem(
+                        hasDescendant(withText("Already Signed Up")),
+                        clickChildViewWithId(R.id.viewDetailsButton)
+                )
+        );
+
+        onView(withText("Already Signed Up")).inRoot(isDialog()).check(matches(isDisplayed()));
+        onView(withText("Cancel Entrant")).check(doesNotExist());
     }
 
     /**
