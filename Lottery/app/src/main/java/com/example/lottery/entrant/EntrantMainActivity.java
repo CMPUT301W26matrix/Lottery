@@ -248,6 +248,8 @@ public class EntrantMainActivity extends AppCompatActivity {
                         Event event = document.toObject(Event.class);
                         if (event == null) continue;
                         event.setEventId(document.getId());
+                        // Private events should not be displayed publicly
+                        if (event.isPrivate()) continue;
                         masterEventList.add(event);
                     }
                     if (filterSpotsAvailable) {

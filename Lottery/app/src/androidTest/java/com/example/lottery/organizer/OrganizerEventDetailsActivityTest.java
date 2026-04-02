@@ -24,11 +24,20 @@ import androidx.test.espresso.matcher.ViewMatchers.Visibility;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.example.lottery.R;
+import com.example.lottery.util.FirestorePaths;
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Instrumented tests for OrganizerEventDetailsActivity.
@@ -37,14 +46,83 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class OrganizerEventDetailsActivityTest {
 
+    private static final String TEST_PRIVATE_EVENT_ID = "test_private_event_details";
+    private static final String TEST_PUBLIC_EVENT_ID = "test_public_event_details";
+    private static final String TEST_USER_ID = "test_user_id";
+    private static final String TEST_INVITE_TARGET = "test_invite_target_user";
+    private FirebaseFirestore db;
+
     @Before
-    public void setUp() {
+    public void setUp() throws InterruptedException {
         Intents.init();
+        db = FirebaseFirestore.getInstance();
+
+        // Seed a private event and a public event for invite-related tests
+        CountDownLatch latch = new CountDownLatch(3);
+
+        Map<String, Object> event = new HashMap<>();
+        event.put("eventId", TEST_PRIVATE_EVENT_ID);
+        event.put("title", "Test Private Event");
+        event.put("organizerId", TEST_USER_ID);
+        event.put("private", true);
+        event.put("capacity", 10);
+        event.put("status", "open");
+        event.put("createdAt", Timestamp.now());
+        db.collection(FirestorePaths.EVENTS).document(TEST_PRIVATE_EVENT_ID).set(event)
+                .addOnCompleteListener(t -> latch.countDown());
+
+        // Seed a public event
+        Map<String, Object> publicEvent = new HashMap<>();
+        publicEvent.put("eventId", TEST_PUBLIC_EVENT_ID);
+        publicEvent.put("title", "Test Public Event");
+        publicEvent.put("organizerId", TEST_USER_ID);
+        publicEvent.put("private", false);
+        publicEvent.put("capacity", 20);
+        publicEvent.put("status", "open");
+        publicEvent.put("createdAt", Timestamp.now());
+        db.collection(FirestorePaths.EVENTS).document(TEST_PUBLIC_EVENT_ID).set(publicEvent)
+                .addOnCompleteListener(t -> latch.countDown());
+
+        // Seed an entrant user that can be invited
+        Map<String, Object> user = new HashMap<>();
+        user.put("userId", TEST_INVITE_TARGET);
+        user.put("username", "InviteTestUser");
+        user.put("email", "invite@test.com");
+        user.put("role", "ENTRANT");
+        user.put("notificationsEnabled", true);
+        db.collection(FirestorePaths.USERS).document(TEST_INVITE_TARGET).set(user)
+                .addOnCompleteListener(t -> latch.countDown());
+
+        latch.await(10, TimeUnit.SECONDS);
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws InterruptedException {
         Intents.release();
+
+        // Clean up seeded data
+        CountDownLatch latch = new CountDownLatch(3);
+        db.collection(FirestorePaths.EVENTS).document(TEST_PRIVATE_EVENT_ID)
+                .delete().addOnCompleteListener(t -> latch.countDown());
+        db.collection(FirestorePaths.EVENTS).document(TEST_PUBLIC_EVENT_ID)
+                .delete().addOnCompleteListener(t -> latch.countDown());
+        db.collection(FirestorePaths.USERS).document(TEST_INVITE_TARGET)
+                .delete().addOnCompleteListener(t -> latch.countDown());
+        latch.await(10, TimeUnit.SECONDS);
+
+        // Clean up any waitingList entries and inbox items created by invite flow
+        CountDownLatch latch2 = new CountDownLatch(2);
+        db.collection(FirestorePaths.eventWaitingList(TEST_PRIVATE_EVENT_ID))
+                .get().addOnSuccessListener(snap -> {
+                    for (QueryDocumentSnapshot doc : snap) doc.getReference().delete();
+                    latch2.countDown();
+                }).addOnFailureListener(e -> latch2.countDown());
+        db.collection(FirestorePaths.userInbox(TEST_INVITE_TARGET))
+                .get().addOnSuccessListener(snap -> {
+                    for (QueryDocumentSnapshot doc : snap) doc.getReference().delete();
+                    latch2.countDown();
+                }).addOnFailureListener(e -> latch2.countDown());
+        latch2.await(10, TimeUnit.SECONDS);
     }
 
     /**
@@ -161,6 +239,78 @@ public class OrganizerEventDetailsActivityTest {
                     hasComponent(EntrantsListActivity.class.getName()),
                     hasExtra("eventId", "nav_test_event")
             ));
+        }
+    }
+
+    /**
+     * US 02.01.03: The invite button is visible when the event is private,
+     * allowing the organizer to invite specific entrants.
+     */
+    @Test
+    public void testInviteButtonVisibleForPrivateEvent() throws InterruptedException {
+        Context context = ApplicationProvider.getApplicationContext();
+        Intent intent = new Intent(context, OrganizerEventDetailsActivity.class);
+        intent.putExtra("eventId", TEST_PRIVATE_EVENT_ID);
+        intent.putExtra("userId", TEST_USER_ID);
+
+        try (ActivityScenario<OrganizerEventDetailsActivity> scenario = ActivityScenario.launch(intent)) {
+            // Wait for Firestore to load the event
+            Thread.sleep(3000);
+            onView(withId(R.id.btnInviteEntrant)).perform(scrollTo())
+                    .check(matches(isDisplayed()));
+        }
+    }
+
+    /**
+     * US 02.01.03: The private event chip is displayed for private events.
+     */
+    @Test
+    public void testPrivateChipVisibleForPrivateEvent() throws InterruptedException {
+        Context context = ApplicationProvider.getApplicationContext();
+        Intent intent = new Intent(context, OrganizerEventDetailsActivity.class);
+        intent.putExtra("eventId", TEST_PRIVATE_EVENT_ID);
+        intent.putExtra("userId", TEST_USER_ID);
+
+        try (ActivityScenario<OrganizerEventDetailsActivity> scenario = ActivityScenario.launch(intent)) {
+            Thread.sleep(3000);
+            onView(withId(R.id.chipPrivate)).check(matches(isDisplayed()));
+        }
+    }
+
+    /**
+     * US 02.01.03: Clicking the invite button opens the invite entrant dialog.
+     */
+    @Test
+    public void testInviteButtonOpensDialog() throws InterruptedException {
+        Context context = ApplicationProvider.getApplicationContext();
+        Intent intent = new Intent(context, OrganizerEventDetailsActivity.class);
+        intent.putExtra("eventId", TEST_PRIVATE_EVENT_ID);
+        intent.putExtra("userId", TEST_USER_ID);
+
+        try (ActivityScenario<OrganizerEventDetailsActivity> scenario = ActivityScenario.launch(intent)) {
+            Thread.sleep(3000);
+            onView(withId(R.id.btnInviteEntrant)).perform(scrollTo(), click());
+
+            // Verify the invite dialog's search input is displayed
+            onView(withId(R.id.etSearch)).check(matches(isDisplayed()));
+        }
+    }
+
+    /**
+     * US 02.01.03: The invite button is NOT visible for public events.
+     */
+    @Test
+    public void testInviteButtonHiddenForPublicEvent() throws InterruptedException {
+        Context context = ApplicationProvider.getApplicationContext();
+        Intent intent = new Intent(context, OrganizerEventDetailsActivity.class);
+        intent.putExtra("eventId", TEST_PUBLIC_EVENT_ID);
+        intent.putExtra("userId", TEST_USER_ID);
+
+        try (ActivityScenario<OrganizerEventDetailsActivity> scenario = ActivityScenario.launch(intent)) {
+            // Wait for Firestore to load the real public event
+            Thread.sleep(3000);
+            onView(withId(R.id.btnInviteEntrant))
+                    .check(matches(withEffectiveVisibility(Visibility.GONE)));
         }
     }
 }

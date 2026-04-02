@@ -21,9 +21,19 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.example.lottery.R;
+import com.example.lottery.util.FirestorePaths;
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.FirebaseFirestore;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Android instrumentation tests for {@link EntrantMainActivity}.
@@ -31,6 +41,38 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public class EntrantMainActivityTest {
+
+    private static final String TEST_PRIVATE_EVENT_ID = "test_private_event_visibility";
+    private FirebaseFirestore db;
+
+    /**
+     * Seed a private event to verify it does NOT appear in entrant listings.
+     */
+    @Before
+    public void seedTestData() throws InterruptedException {
+        db = FirebaseFirestore.getInstance();
+        CountDownLatch latch = new CountDownLatch(1);
+
+        Map<String, Object> event = new HashMap<>();
+        event.put("eventId", TEST_PRIVATE_EVENT_ID);
+        event.put("title", "Hidden Private Event");
+        event.put("private", true);
+        event.put("status", "open");
+        event.put("capacity", 10);
+        event.put("createdAt", Timestamp.now());
+        db.collection(FirestorePaths.EVENTS).document(TEST_PRIVATE_EVENT_ID).set(event)
+                .addOnCompleteListener(t -> latch.countDown());
+
+        latch.await(10, TimeUnit.SECONDS);
+    }
+
+    @After
+    public void cleanUpTestData() throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1);
+        db.collection(FirestorePaths.EVENTS).document(TEST_PRIVATE_EVENT_ID)
+                .delete().addOnCompleteListener(t -> latch.countDown());
+        latch.await(10, TimeUnit.SECONDS);
+    }
 
     private ActivityScenario<EntrantMainActivity> launchActivity() {
         Intent intent = new Intent(
@@ -161,6 +203,38 @@ public class EntrantMainActivityTest {
                     .check(matches(withText("This Week")));
             onView(withId(R.id.chipSpotsAvailable)).check(matches(isChecked()));
             onView(withId(R.id.tilSearch)).check(matches(isDisplayed()));
+        }
+    }
+
+    // US 02.01.02: Private events should not be displayed in the entrant event listing.
+    @Test
+    public void privateEvent_notDisplayedInEntrantListing() throws InterruptedException {
+        try (ActivityScenario<EntrantMainActivity> scenario = launchActivity()) {
+            // Wait for Firestore to load events
+            Thread.sleep(3000);
+
+            // Verify the private event title does NOT appear anywhere in the list
+            scenario.onActivity(activity -> {
+                RecyclerView rv = activity.findViewById(R.id.rvEvents);
+                RecyclerView.Adapter<?> adapter = rv.getAdapter();
+                if (adapter == null) return;
+
+                // Check that the seeded private event is not in the adapter's data
+                for (int i = 0; i < adapter.getItemCount(); i++) {
+                    android.view.View itemView = rv.findViewHolderForAdapterPosition(i) != null
+                            ? rv.findViewHolderForAdapterPosition(i).itemView : null;
+                    if (itemView != null) {
+                        android.widget.TextView tvTitle = itemView.findViewById(R.id.tvEventTitle);
+                        if (tvTitle != null) {
+                            org.junit.Assert.assertNotEquals(
+                                    "Private event should not appear in entrant listing",
+                                    "Hidden Private Event",
+                                    tvTitle.getText().toString()
+                            );
+                        }
+                    }
+                }
+            });
         }
     }
 }

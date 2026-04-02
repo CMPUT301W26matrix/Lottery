@@ -9,6 +9,7 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static org.hamcrest.Matchers.not;
 
 import android.content.Intent;
@@ -29,6 +30,7 @@ import org.junit.runner.RunWith;
 /**
  * Instrumentation tests for OrganizerCreateEventActivity.
  *
+ * US 02.01.02: Create a private event.
  * US 02.03.01: Optionally Limit Waiting List Size.
  * US 02.02.03: Enable or disable the geolocation requirement for an event.
  */
@@ -124,6 +126,57 @@ public class OrganizerCreateEventActivityTest {
             onView(withId(R.id.btnCreateEvent)).perform(scrollTo())
                     .check(matches(withText("Update Event")));
         }
+    }
+
+    // US 02.01.02: Toggling the private event switch hides the QR code card.
+    @Test
+    public void testPrivateEventSwitchHidesQrCard() {
+        // QR code card should be visible initially
+        onView(withId(R.id.cardQRCode)).perform(scrollTo())
+                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+
+        // Toggle private event ON
+        onView(withId(R.id.swIsPrivate)).perform(scrollTo(), click());
+
+        // QR code card should now be GONE (not just off-screen)
+        onView(withId(R.id.cardQRCode))
+                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+    }
+
+    // US 02.01.02: Toggling private event switch back OFF restores the QR code card.
+    @Test
+    public void testPrivateEventSwitchRestoresQrCard() {
+        // Toggle ON
+        onView(withId(R.id.swIsPrivate)).perform(scrollTo(), click());
+        onView(withId(R.id.cardQRCode))
+                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+
+        // Toggle OFF
+        onView(withId(R.id.swIsPrivate)).perform(scrollTo(), click());
+
+        // QR code card should be VISIBLE again
+        onView(withId(R.id.cardQRCode)).perform(scrollTo())
+                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+    }
+
+    // US 02.01.02: Private event switch state is correctly readable from the Activity.
+    @Test
+    public void testPrivateEventSwitchState() {
+        onView(withId(R.id.swIsPrivate)).perform(scrollTo(), click());
+
+        activityRule.getScenario().onActivity(activity -> {
+            com.google.android.material.switchmaterial.SwitchMaterial sw =
+                    activity.findViewById(R.id.swIsPrivate);
+            Assert.assertTrue("Private event switch should be ON after click", sw.isChecked());
+        });
+
+        onView(withId(R.id.swIsPrivate)).perform(scrollTo(), click());
+
+        activityRule.getScenario().onActivity(activity -> {
+            com.google.android.material.switchmaterial.SwitchMaterial sw =
+                    activity.findViewById(R.id.swIsPrivate);
+            Assert.assertFalse("Private event switch should be OFF after second click", sw.isChecked());
+        });
     }
 
     // US 02.02.03: Geolocation toggle switch should be visible on the create event screen.
