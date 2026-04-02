@@ -78,7 +78,7 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/admin/AdminEventDetailsActivity.html" class="type-name-link" title="class in com.example.lottery.admin">AdminEventDetailsActivity</a> - Class in <a href="com/example/lottery/admin/package-summary.html">com.example.lottery.admin</a></dt>
 <dd>
-<div class="block">AdminEventDetailsActivity displays a read-only administrator view of a specific event.</div>
+<div class="block">Activity that displays the details of a specific event from an administrator's perspective.</div>
 </dd>
 <dt><a href="com/example/lottery/admin/AdminEventDetailsActivity.html#%3Cinit%3E()" class="member-name-link">AdminEventDetailsActivity()</a> - Constructor for class com.example.lottery.admin.<a href="com/example/lottery/admin/AdminEventDetailsActivity.html" title="class in com.example.lottery.admin">AdminEventDetailsActivity</a></dt>
 <dd>&nbsp;</dd>
@@ -100,7 +100,8 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/example/lottery/admin/AdminImageDetailsActivity.html" class="type-name-link" title="class in com.example.lottery.admin">AdminImageDetailsActivity</a> - Class in <a href="com/example/lottery/admin/package-summary.html">com.example.lottery.admin</a></dt>
 <dd>
-<div class="block">AdminImageDetailsActivity displays a full-size poster preview for administrators.</div>
+<div class="block">AdminImageDetailsActivity displays details of a specific event's poster image
+ and provides functionality for an administrator to remove the image.</div>
 </dd>
 <dt><a href="com/example/lottery/admin/AdminImageDetailsActivity.html#%3Cinit%3E()" class="member-name-link">AdminImageDetailsActivity()</a> - Constructor for class com.example.lottery.admin.<a href="com/example/lottery/admin/AdminImageDetailsActivity.html" title="class in com.example.lottery.admin">AdminImageDetailsActivity</a></dt>
 <dd>&nbsp;</dd>
@@ -986,7 +987,9 @@ loadScripts(document, 'script');</script>
  and loads all user profiles from Firestore.</div>
 </dd>
 <dt><a href="com/example/lottery/admin/AdminEventDetailsActivity.html#onCreate(android.os.Bundle)" class="member-name-link">onCreate(Bundle)</a> - Method in class com.example.lottery.admin.<a href="com/example/lottery/admin/AdminEventDetailsActivity.html" title="class in com.example.lottery.admin">AdminEventDetailsActivity</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Initializes the activity, sets up UI components, and retrieves the event ID from the intent.</div>
+</dd>
 <dt><a href="com/example/lottery/admin/AdminImageDetailsActivity.html#onCreate(android.os.Bundle)" class="member-name-link">onCreate(Bundle)</a> - Method in class com.example.lottery.admin.<a href="com/example/lottery/admin/AdminImageDetailsActivity.html" title="class in com.example.lottery.admin">AdminImageDetailsActivity</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/admin/AdminProfileActivity.html#onCreate(android.os.Bundle)" class="member-name-link">onCreate(Bundle)</a> - Method in class com.example.lottery.admin.<a href="com/example/lottery/admin/AdminProfileActivity.html" title="class in com.example.lottery.admin">AdminProfileActivity</a></dt>
@@ -1187,9 +1190,13 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/example/lottery/admin/AdminBrowseProfilesActivity.html#onResume()" class="member-name-link">onResume()</a> - Method in class com.example.lottery.admin.<a href="com/example/lottery/admin/AdminBrowseProfilesActivity.html" title="class in com.example.lottery.admin">AdminBrowseProfilesActivity</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/admin/AdminEventDetailsActivity.html#onResume()" class="member-name-link">onResume()</a> - Method in class com.example.lottery.admin.<a href="com/example/lottery/admin/AdminEventDetailsActivity.html" title="class in com.example.lottery.admin">AdminEventDetailsActivity</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Fetches the latest event details from Firestore whenever the activity resumes.</div>
+</dd>
 <dt><a href="com/example/lottery/admin/AdminImageDetailsActivity.html#onResume()" class="member-name-link">onResume()</a> - Method in class com.example.lottery.admin.<a href="com/example/lottery/admin/AdminImageDetailsActivity.html" title="class in com.example.lottery.admin">AdminImageDetailsActivity</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Fetches the latest event details from Firestore whenever the activity resumes.</div>
+</dd>
 <dt><a href="com/example/lottery/entrant/EntrantEventDetailsActivity.html#onResume()" class="member-name-link">onResume()</a> - Method in class com.example.lottery.entrant.<a href="com/example/lottery/entrant/EntrantEventDetailsActivity.html" title="class in com.example.lottery.entrant">EntrantEventDetailsActivity</a></dt>
 <dd>
 <div class="block">Refreshes data when the activity returns to the foreground.</div>
