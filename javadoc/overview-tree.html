@@ -52,7 +52,12 @@ loadScripts(document, 'script');</script>
 <span class="package-hierarchy-label">Package Hierarchies:</span>
 <ul class="horizontal contents-list">
 <li><a href="com/example/lottery/package-tree.html">com.example.lottery</a>, </li>
+<li><a href="com/example/lottery/adapter/package-tree.html">com.example.lottery.adapter</a>, </li>
+<li><a href="com/example/lottery/admin/package-tree.html">com.example.lottery.admin</a>, </li>
+<li><a href="com/example/lottery/entrant/package-tree.html">com.example.lottery.entrant</a>, </li>
+<li><a href="com/example/lottery/fragment/package-tree.html">com.example.lottery.fragment</a>, </li>
 <li><a href="com/example/lottery/model/package-tree.html">com.example.lottery.model</a>, </li>
+<li><a href="com/example/lottery/organizer/package-tree.html">com.example.lottery.organizer</a>, </li>
 <li><a href="com/example/lottery/util/package-tree.html">com.example.lottery.util</a></li>
 </ul>
 <section class="hierarchy">
@@ -67,8 +72,8 @@ loadScripts(document, 'script');</script>
 <ul>
 <li class="circle">android.widget.ArrayAdapter&lt;T&gt; (implements android.widget.Filterable, android.widget.ThemedSpinnerAdapter)
 <ul>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/EntrantAdapter.html" class="type-name-link" title="class in com.example.lottery">EntrantAdapter</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/ProfileAdapter.html" class="type-name-link" title="class in com.example.lottery">ProfileAdapter</a></li>
+<li class="circle">com.example.lottery.adapter.<a href="com/example/lottery/adapter/EntrantAdapter.html" class="type-name-link" title="class in com.example.lottery.adapter">EntrantAdapter</a></li>
+<li class="circle">com.example.lottery.adapter.<a href="com/example/lottery/adapter/ProfileAdapter.html" class="type-name-link" title="class in com.example.lottery.adapter">ProfileAdapter</a></li>
 </ul>
 </li>
 </ul>
@@ -96,34 +101,34 @@ loadScripts(document, 'script');</script>
 <ul>
 <li class="circle">androidx.appcompat.app.AppCompatActivity (implements androidx.appcompat.app.ActionBarDrawerToggle.DelegateProvider, androidx.appcompat.app.AppCompatCallback, androidx.core.app.TaskStackBuilder.SupportParentable)
 <ul>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/AdminBrowseEventsActivity.html" class="type-name-link" title="class in com.example.lottery">AdminBrowseEventsActivity</a> (implements com.example.lottery.<a href="com/example/lottery/EventAdapter.OnEventClickListener.html" title="interface in com.example.lottery">EventAdapter.OnEventClickListener</a>)</li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/AdminBrowseImagesActivity.html" class="type-name-link" title="class in com.example.lottery">AdminBrowseImagesActivity</a> (implements com.example.lottery.<a href="com/example/lottery/AdminImageAdapter.OnImageClickListener.html" title="interface in com.example.lottery">AdminImageAdapter.OnImageClickListener</a>)</li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/AdminBrowseLogsActivity.html" class="type-name-link" title="class in com.example.lottery">AdminBrowseLogsActivity</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/AdminBrowseProfilesActivity.html" class="type-name-link" title="class in com.example.lottery">AdminBrowseProfilesActivity</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/AdminEventDetailsActivity.html" class="type-name-link" title="class in com.example.lottery">AdminEventDetailsActivity</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/AdminImageDetailsActivity.html" class="type-name-link" title="class in com.example.lottery">AdminImageDetailsActivity</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/AdminProfileActivity.html" class="type-name-link" title="class in com.example.lottery">AdminProfileActivity</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/AdminSignInActivity.html" class="type-name-link" title="class in com.example.lottery">AdminSignInActivity</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/EntrantEventDetailsActivity.html" class="type-name-link" title="class in com.example.lottery">EntrantEventDetailsActivity</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/EntrantEventHistoryActivity.html" class="type-name-link" title="class in com.example.lottery">EntrantEventHistoryActivity</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/EntrantLotteryGuidelinesActivity.html" class="type-name-link" title="class in com.example.lottery">EntrantLotteryGuidelinesActivity</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/EntrantMainActivity.html" class="type-name-link" title="class in com.example.lottery">EntrantMainActivity</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/EntrantMapActivity.html" class="type-name-link" title="class in com.example.lottery">EntrantMapActivity</a> (implements com.google.android.gms.maps.OnMapReadyCallback)</li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/EntrantProfileActivity.html" class="type-name-link" title="class in com.example.lottery">EntrantProfileActivity</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/EntrantQrScanActivity.html" class="type-name-link" title="class in com.example.lottery">EntrantQrScanActivity</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/EntrantsListActivity.html" class="type-name-link" title="class in com.example.lottery">EntrantsListActivity</a></li>
+<li class="circle">com.example.lottery.admin.<a href="com/example/lottery/admin/AdminBrowseEventsActivity.html" class="type-name-link" title="class in com.example.lottery.admin">AdminBrowseEventsActivity</a> (implements com.example.lottery.adapter.<a href="com/example/lottery/adapter/EventAdapter.OnEventClickListener.html" title="interface in com.example.lottery.adapter">EventAdapter.OnEventClickListener</a>)</li>
+<li class="circle">com.example.lottery.admin.<a href="com/example/lottery/admin/AdminBrowseImagesActivity.html" class="type-name-link" title="class in com.example.lottery.admin">AdminBrowseImagesActivity</a> (implements com.example.lottery.adapter.<a href="com/example/lottery/adapter/AdminImageAdapter.OnImageClickListener.html" title="interface in com.example.lottery.adapter">AdminImageAdapter.OnImageClickListener</a>)</li>
+<li class="circle">com.example.lottery.admin.<a href="com/example/lottery/admin/AdminBrowseLogsActivity.html" class="type-name-link" title="class in com.example.lottery.admin">AdminBrowseLogsActivity</a></li>
+<li class="circle">com.example.lottery.admin.<a href="com/example/lottery/admin/AdminBrowseProfilesActivity.html" class="type-name-link" title="class in com.example.lottery.admin">AdminBrowseProfilesActivity</a></li>
+<li class="circle">com.example.lottery.admin.<a href="com/example/lottery/admin/AdminEventDetailsActivity.html" class="type-name-link" title="class in com.example.lottery.admin">AdminEventDetailsActivity</a></li>
+<li class="circle">com.example.lottery.admin.<a href="com/example/lottery/admin/AdminImageDetailsActivity.html" class="type-name-link" title="class in com.example.lottery.admin">AdminImageDetailsActivity</a></li>
+<li class="circle">com.example.lottery.admin.<a href="com/example/lottery/admin/AdminProfileActivity.html" class="type-name-link" title="class in com.example.lottery.admin">AdminProfileActivity</a></li>
+<li class="circle">com.example.lottery.admin.<a href="com/example/lottery/admin/AdminSignInActivity.html" class="type-name-link" title="class in com.example.lottery.admin">AdminSignInActivity</a></li>
+<li class="circle">com.example.lottery.entrant.<a href="com/example/lottery/entrant/EntrantEventDetailsActivity.html" class="type-name-link" title="class in com.example.lottery.entrant">EntrantEventDetailsActivity</a></li>
+<li class="circle">com.example.lottery.entrant.<a href="com/example/lottery/entrant/EntrantEventHistoryActivity.html" class="type-name-link" title="class in com.example.lottery.entrant">EntrantEventHistoryActivity</a></li>
+<li class="circle">com.example.lottery.entrant.<a href="com/example/lottery/entrant/EntrantLotteryGuidelinesActivity.html" class="type-name-link" title="class in com.example.lottery.entrant">EntrantLotteryGuidelinesActivity</a></li>
+<li class="circle">com.example.lottery.entrant.<a href="com/example/lottery/entrant/EntrantMainActivity.html" class="type-name-link" title="class in com.example.lottery.entrant">EntrantMainActivity</a></li>
+<li class="circle">com.example.lottery.entrant.<a href="com/example/lottery/entrant/EntrantMapActivity.html" class="type-name-link" title="class in com.example.lottery.entrant">EntrantMapActivity</a> (implements com.google.android.gms.maps.OnMapReadyCallback)</li>
+<li class="circle">com.example.lottery.entrant.<a href="com/example/lottery/entrant/EntrantProfileActivity.html" class="type-name-link" title="class in com.example.lottery.entrant">EntrantProfileActivity</a></li>
+<li class="circle">com.example.lottery.entrant.<a href="com/example/lottery/entrant/EntrantQrScanActivity.html" class="type-name-link" title="class in com.example.lottery.entrant">EntrantQrScanActivity</a></li>
+<li class="circle">com.example.lottery.organizer.<a href="com/example/lottery/organizer/EntrantsListActivity.html" class="type-name-link" title="class in com.example.lottery.organizer">EntrantsListActivity</a> (implements com.example.lottery.fragment.<a href="com/example/lottery/fragment/SampleFragment.SamplingListener.html" title="interface in com.example.lottery.fragment">SampleFragment.SamplingListener</a>)</li>
 <li class="circle">com.example.lottery.<a href="com/example/lottery/GeneralSignInActivity.html" class="type-name-link" title="class in com.example.lottery">GeneralSignInActivity</a></li>
 <li class="circle">com.example.lottery.<a href="com/example/lottery/MainActivity.html" class="type-name-link" title="class in com.example.lottery">MainActivity</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/NotificationsActivity.html" class="type-name-link" title="class in com.example.lottery">NotificationsActivity</a> (implements com.example.lottery.<a href="com/example/lottery/NotificationAdapter.OnNotificationClickListener.html" title="interface in com.example.lottery">NotificationAdapter.OnNotificationClickListener</a>)</li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/OrganizerBrowseEventsActivity.html" class="type-name-link" title="class in com.example.lottery">OrganizerBrowseEventsActivity</a> (implements com.example.lottery.<a href="com/example/lottery/EventAdapter.OnEventClickListener.html" title="interface in com.example.lottery">EventAdapter.OnEventClickListener</a>)</li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/OrganizerCreateEventActivity.html" class="type-name-link" title="class in com.example.lottery">OrganizerCreateEventActivity</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/OrganizerEventDetailsActivity.html" class="type-name-link" title="class in com.example.lottery">OrganizerEventDetailsActivity</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/OrganizerLotteryGuidelinesActivity.html" class="type-name-link" title="class in com.example.lottery">OrganizerLotteryGuidelinesActivity</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/OrganizerNotificationsActivity.html" class="type-name-link" title="class in com.example.lottery">OrganizerNotificationsActivity</a> (implements com.example.lottery.<a href="com/example/lottery/NotificationFragment.NotificationListener.html" title="interface in com.example.lottery">NotificationFragment.NotificationListener</a>, com.example.lottery.<a href="com/example/lottery/OrganizerNotificationEventAdapter.OnNotificationGroupClickListener.html" title="interface in com.example.lottery">OrganizerNotificationEventAdapter.OnNotificationGroupClickListener</a>)</li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/OrganizerProfileActivity.html" class="type-name-link" title="class in com.example.lottery">OrganizerProfileActivity</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/OrganizerQrCodeDetailActivity.html" class="type-name-link" title="class in com.example.lottery">OrganizerQrCodeDetailActivity</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/OrganizerQrEventListActivity.html" class="type-name-link" title="class in com.example.lottery">OrganizerQrEventListActivity</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/WaitingListActivity.html" class="type-name-link" title="class in com.example.lottery">WaitingListActivity</a></li>
+<li class="circle">com.example.lottery.entrant.<a href="com/example/lottery/entrant/NotificationsActivity.html" class="type-name-link" title="class in com.example.lottery.entrant">NotificationsActivity</a> (implements com.example.lottery.adapter.<a href="com/example/lottery/adapter/NotificationAdapter.OnNotificationClickListener.html" title="interface in com.example.lottery.adapter">NotificationAdapter.OnNotificationClickListener</a>)</li>
+<li class="circle">com.example.lottery.organizer.<a href="com/example/lottery/organizer/OrganizerBrowseEventsActivity.html" class="type-name-link" title="class in com.example.lottery.organizer">OrganizerBrowseEventsActivity</a> (implements com.example.lottery.adapter.<a href="com/example/lottery/adapter/EventAdapter.OnEventClickListener.html" title="interface in com.example.lottery.adapter">EventAdapter.OnEventClickListener</a>)</li>
+<li class="circle">com.example.lottery.organizer.<a href="com/example/lottery/organizer/OrganizerCreateEventActivity.html" class="type-name-link" title="class in com.example.lottery.organizer">OrganizerCreateEventActivity</a></li>
+<li class="circle">com.example.lottery.organizer.<a href="com/example/lottery/organizer/OrganizerEventDetailsActivity.html" class="type-name-link" title="class in com.example.lottery.organizer">OrganizerEventDetailsActivity</a></li>
+<li class="circle">com.example.lottery.organizer.<a href="com/example/lottery/organizer/OrganizerLotteryGuidelinesActivity.html" class="type-name-link" title="class in com.example.lottery.organizer">OrganizerLotteryGuidelinesActivity</a></li>
+<li class="circle">com.example.lottery.organizer.<a href="com/example/lottery/organizer/OrganizerNotificationsActivity.html" class="type-name-link" title="class in com.example.lottery.organizer">OrganizerNotificationsActivity</a> (implements com.example.lottery.fragment.<a href="com/example/lottery/fragment/NotificationFragment.NotificationListener.html" title="interface in com.example.lottery.fragment">NotificationFragment.NotificationListener</a>, com.example.lottery.adapter.<a href="com/example/lottery/adapter/OrganizerNotificationEventAdapter.OnNotificationGroupClickListener.html" title="interface in com.example.lottery.adapter">OrganizerNotificationEventAdapter.OnNotificationGroupClickListener</a>)</li>
+<li class="circle">com.example.lottery.organizer.<a href="com/example/lottery/organizer/OrganizerProfileActivity.html" class="type-name-link" title="class in com.example.lottery.organizer">OrganizerProfileActivity</a></li>
+<li class="circle">com.example.lottery.organizer.<a href="com/example/lottery/organizer/OrganizerQrCodeDetailActivity.html" class="type-name-link" title="class in com.example.lottery.organizer">OrganizerQrCodeDetailActivity</a></li>
+<li class="circle">com.example.lottery.organizer.<a href="com/example/lottery/organizer/OrganizerQrEventListActivity.html" class="type-name-link" title="class in com.example.lottery.organizer">OrganizerQrEventListActivity</a></li>
+<li class="circle">com.example.lottery.organizer.<a href="com/example/lottery/organizer/WaitingListActivity.html" class="type-name-link" title="class in com.example.lottery.organizer">WaitingListActivity</a></li>
 </ul>
 </li>
 </ul>
@@ -141,7 +146,7 @@ loadScripts(document, 'script');</script>
 </ul>
 </li>
 <li class="circle">com.example.lottery.model.<a href="com/example/lottery/model/EntrantEvent.html" class="type-name-link" title="class in com.example.lottery.model">EntrantEvent</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/EntrantHistoryAdapter.HistoryItem.html" class="type-name-link" title="class in com.example.lottery">EntrantHistoryAdapter.HistoryItem</a></li>
+<li class="circle">com.example.lottery.adapter.<a href="com/example/lottery/adapter/EntrantHistoryAdapter.HistoryItem.html" class="type-name-link" title="class in com.example.lottery.adapter">EntrantHistoryAdapter.HistoryItem</a></li>
 <li class="circle">com.example.lottery.util.<a href="com/example/lottery/util/EntrantNavigationHelper.html" class="type-name-link" title="class in com.example.lottery.util">EntrantNavigationHelper</a></li>
 <li class="circle">com.example.lottery.model.<a href="com/example/lottery/model/Event.html" class="type-name-link" title="class in com.example.lottery.model">Event</a></li>
 <li class="circle">com.example.lottery.util.<a href="com/example/lottery/util/EventValidationUtils.html" class="type-name-link" title="class in com.example.lottery.util">EventValidationUtils</a></li>
@@ -154,17 +159,17 @@ loadScripts(document, 'script');</script>
 <ul>
 <li class="circle">com.google.android.material.bottomsheet.BottomSheetDialogFragment
 <ul>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/CommentBottomSheet.html" class="type-name-link" title="class in com.example.lottery">CommentBottomSheet</a></li>
+<li class="circle">com.example.lottery.fragment.<a href="com/example/lottery/fragment/CommentBottomSheet.html" class="type-name-link" title="class in com.example.lottery.fragment">CommentBottomSheet</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/EntrantDetailsFragment.html" class="type-name-link" title="class in com.example.lottery">EntrantDetailsFragment</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/NotificationFragment.html" class="type-name-link" title="class in com.example.lottery">NotificationFragment</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/OrganizerInviteCoOrganizerDialogFragment.html" class="type-name-link" title="class in com.example.lottery">OrganizerInviteCoOrganizerDialogFragment</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/OrganizerInviteEntrantDialogFragment.html" class="type-name-link" title="class in com.example.lottery">OrganizerInviteEntrantDialogFragment</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/OrganizerUploadPosterDialogFragment.html" class="type-name-link" title="class in com.example.lottery">OrganizerUploadPosterDialogFragment</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/SampleFragment.html" class="type-name-link" title="class in com.example.lottery">SampleFragment</a></li>
+<li class="circle">com.example.lottery.fragment.<a href="com/example/lottery/fragment/EntrantDetailsFragment.html" class="type-name-link" title="class in com.example.lottery.fragment">EntrantDetailsFragment</a></li>
+<li class="circle">com.example.lottery.fragment.<a href="com/example/lottery/fragment/NotificationFragment.html" class="type-name-link" title="class in com.example.lottery.fragment">NotificationFragment</a></li>
+<li class="circle">com.example.lottery.fragment.<a href="com/example/lottery/fragment/OrganizerInviteCoOrganizerDialogFragment.html" class="type-name-link" title="class in com.example.lottery.fragment">OrganizerInviteCoOrganizerDialogFragment</a></li>
+<li class="circle">com.example.lottery.fragment.<a href="com/example/lottery/fragment/OrganizerInviteEntrantDialogFragment.html" class="type-name-link" title="class in com.example.lottery.fragment">OrganizerInviteEntrantDialogFragment</a></li>
+<li class="circle">com.example.lottery.fragment.<a href="com/example/lottery/fragment/OrganizerUploadPosterDialogFragment.html" class="type-name-link" title="class in com.example.lottery.fragment">OrganizerUploadPosterDialogFragment</a></li>
+<li class="circle">com.example.lottery.fragment.<a href="com/example/lottery/fragment/SampleFragment.html" class="type-name-link" title="class in com.example.lottery.fragment">SampleFragment</a></li>
 </ul>
 </li>
 </ul>
@@ -178,31 +183,34 @@ loadScripts(document, 'script');</script>
 <li class="circle">com.example.lottery.util.<a href="com/example/lottery/util/QRCodeUtils.html" class="type-name-link" title="class in com.example.lottery.util">QRCodeUtils</a></li>
 <li class="circle">androidx.recyclerview.widget.RecyclerView.Adapter&lt;VH&gt;
 <ul>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/AdminImageAdapter.html" class="type-name-link" title="class in com.example.lottery">AdminImageAdapter</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/CancelledListAdapter.html" class="type-name-link" title="class in com.example.lottery">CancelledListAdapter</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/CommentAdapter.html" class="type-name-link" title="class in com.example.lottery">CommentAdapter</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/EntrantEventAdapter.html" class="type-name-link" title="class in com.example.lottery">EntrantEventAdapter</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/EntrantHistoryAdapter.html" class="type-name-link" title="class in com.example.lottery">EntrantHistoryAdapter</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/EventAdapter.html" class="type-name-link" title="class in com.example.lottery">EventAdapter</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/InvitedListAdapter.html" class="type-name-link" title="class in com.example.lottery">InvitedListAdapter</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/NotificationAdapter.html" class="type-name-link" title="class in com.example.lottery">NotificationAdapter</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/NotificationLogAdapter.html" class="type-name-link" title="class in com.example.lottery">NotificationLogAdapter</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/NotSelectedListAdapter.html" class="type-name-link" title="class in com.example.lottery">NotSelectedListAdapter</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/OrganizerNotificationEventAdapter.html" class="type-name-link" title="class in com.example.lottery">OrganizerNotificationEventAdapter</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/OrganizerQrEventAdapter.html" class="type-name-link" title="class in com.example.lottery">OrganizerQrEventAdapter</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/SignedUpListAdapter.html" class="type-name-link" title="class in com.example.lottery">SignedUpListAdapter</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/WaitedListedListAdapter.html" class="type-name-link" title="class in com.example.lottery">WaitedListedListAdapter</a></li>
+<li class="circle">com.example.lottery.adapter.<a href="com/example/lottery/adapter/AdminImageAdapter.html" class="type-name-link" title="class in com.example.lottery.adapter">AdminImageAdapter</a></li>
+<li class="circle">com.example.lottery.adapter.<a href="com/example/lottery/adapter/CancelledListAdapter.html" class="type-name-link" title="class in com.example.lottery.adapter">CancelledListAdapter</a></li>
+<li class="circle">com.example.lottery.adapter.<a href="com/example/lottery/adapter/CommentAdapter.html" class="type-name-link" title="class in com.example.lottery.adapter">CommentAdapter</a></li>
+<li class="circle">com.example.lottery.adapter.<a href="com/example/lottery/adapter/EntrantEventAdapter.html" class="type-name-link" title="class in com.example.lottery.adapter">EntrantEventAdapter</a></li>
+<li class="circle">com.example.lottery.adapter.<a href="com/example/lottery/adapter/EntrantHistoryAdapter.html" class="type-name-link" title="class in com.example.lottery.adapter">EntrantHistoryAdapter</a></li>
+<li class="circle">com.example.lottery.adapter.<a href="com/example/lottery/adapter/EventAdapter.html" class="type-name-link" title="class in com.example.lottery.adapter">EventAdapter</a></li>
+<li class="circle">com.example.lottery.adapter.<a href="com/example/lottery/adapter/InvitedListAdapter.html" class="type-name-link" title="class in com.example.lottery.adapter">InvitedListAdapter</a></li>
+<li class="circle">com.example.lottery.adapter.<a href="com/example/lottery/adapter/NotificationAdapter.html" class="type-name-link" title="class in com.example.lottery.adapter">NotificationAdapter</a></li>
+<li class="circle">com.example.lottery.adapter.<a href="com/example/lottery/adapter/NotificationLogAdapter.html" class="type-name-link" title="class in com.example.lottery.adapter">NotificationLogAdapter</a></li>
+<li class="circle">com.example.lottery.adapter.<a href="com/example/lottery/adapter/NotSelectedListAdapter.html" class="type-name-link" title="class in com.example.lottery.adapter">NotSelectedListAdapter</a></li>
+<li class="circle">com.example.lottery.fragment.<a href="com/example/lottery/fragment/OrganizerInviteCoOrganizerDialogFragment.UserSearchAdapter.html" class="type-name-link" title="class in com.example.lottery.fragment">OrganizerInviteCoOrganizerDialogFragment.UserSearchAdapter</a></li>
+<li class="circle">com.example.lottery.adapter.<a href="com/example/lottery/adapter/OrganizerNotificationEventAdapter.html" class="type-name-link" title="class in com.example.lottery.adapter">OrganizerNotificationEventAdapter</a></li>
+<li class="circle">com.example.lottery.adapter.<a href="com/example/lottery/adapter/OrganizerQrEventAdapter.html" class="type-name-link" title="class in com.example.lottery.adapter">OrganizerQrEventAdapter</a></li>
+<li class="circle">com.example.lottery.adapter.<a href="com/example/lottery/adapter/SignedUpListAdapter.html" class="type-name-link" title="class in com.example.lottery.adapter">SignedUpListAdapter</a></li>
+<li class="circle">com.example.lottery.adapter.<a href="com/example/lottery/adapter/WaitedListedListAdapter.html" class="type-name-link" title="class in com.example.lottery.adapter">WaitedListedListAdapter</a></li>
 </ul>
 </li>
 <li class="circle">androidx.recyclerview.widget.RecyclerView.ViewHolder
 <ul>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/CancelledListAdapter.ViewHolder.html" class="type-name-link" title="class in com.example.lottery">CancelledListAdapter.ViewHolder</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/InvitedListAdapter.ViewHolder.html" class="type-name-link" title="class in com.example.lottery">InvitedListAdapter.ViewHolder</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/NotificationAdapter.NotificationViewHolder.html" class="type-name-link" title="class in com.example.lottery">NotificationAdapter.NotificationViewHolder</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/NotSelectedListAdapter.ViewHolder.html" class="type-name-link" title="class in com.example.lottery">NotSelectedListAdapter.ViewHolder</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/OrganizerNotificationEventAdapter.ViewHolder.html" class="type-name-link" title="class in com.example.lottery">OrganizerNotificationEventAdapter.ViewHolder</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/SignedUpListAdapter.ViewHolder.html" class="type-name-link" title="class in com.example.lottery">SignedUpListAdapter.ViewHolder</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/WaitedListedListAdapter.ViewHolder.html" class="type-name-link" title="class in com.example.lottery">WaitedListedListAdapter.ViewHolder</a></li>
+<li class="circle">com.example.lottery.adapter.<a href="com/example/lottery/adapter/AdminImageAdapter.ImageViewHolder.html" class="type-name-link" title="class in com.example.lottery.adapter">AdminImageAdapter.ImageViewHolder</a></li>
+<li class="circle">com.example.lottery.adapter.<a href="com/example/lottery/adapter/CancelledListAdapter.ViewHolder.html" class="type-name-link" title="class in com.example.lottery.adapter">CancelledListAdapter.ViewHolder</a></li>
+<li class="circle">com.example.lottery.adapter.<a href="com/example/lottery/adapter/InvitedListAdapter.ViewHolder.html" class="type-name-link" title="class in com.example.lottery.adapter">InvitedListAdapter.ViewHolder</a></li>
+<li class="circle">com.example.lottery.adapter.<a href="com/example/lottery/adapter/NotificationAdapter.NotificationViewHolder.html" class="type-name-link" title="class in com.example.lottery.adapter">NotificationAdapter.NotificationViewHolder</a></li>
+<li class="circle">com.example.lottery.adapter.<a href="com/example/lottery/adapter/NotSelectedListAdapter.ViewHolder.html" class="type-name-link" title="class in com.example.lottery.adapter">NotSelectedListAdapter.ViewHolder</a></li>
+<li class="circle">com.example.lottery.fragment.<a href="com/example/lottery/fragment/OrganizerInviteCoOrganizerDialogFragment.UserSearchAdapter.ViewHolder.html" class="type-name-link" title="class in com.example.lottery.fragment">OrganizerInviteCoOrganizerDialogFragment.UserSearchAdapter.ViewHolder</a></li>
+<li class="circle">com.example.lottery.adapter.<a href="com/example/lottery/adapter/OrganizerNotificationEventAdapter.ViewHolder.html" class="type-name-link" title="class in com.example.lottery.adapter">OrganizerNotificationEventAdapter.ViewHolder</a></li>
+<li class="circle">com.example.lottery.adapter.<a href="com/example/lottery/adapter/SignedUpListAdapter.ViewHolder.html" class="type-name-link" title="class in com.example.lottery.adapter">SignedUpListAdapter.ViewHolder</a></li>
+<li class="circle">com.example.lottery.adapter.<a href="com/example/lottery/adapter/WaitedListedListAdapter.ViewHolder.html" class="type-name-link" title="class in com.example.lottery.adapter">WaitedListedListAdapter.ViewHolder</a></li>
 </ul>
 </li>
 <li class="circle">com.example.lottery.util.<a href="com/example/lottery/util/SessionUtil.html" class="type-name-link" title="class in com.example.lottery.util">SessionUtil</a></li>
@@ -216,14 +224,16 @@ loadScripts(document, 'script');</script>
 <section class="hierarchy">
 <h2 title="Interface Hierarchy">Interface Hierarchy</h2>
 <ul>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/AdminImageAdapter.OnImageClickListener.html" class="type-name-link" title="interface in com.example.lottery">AdminImageAdapter.OnImageClickListener</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/EntrantEventAdapter.OnEventClickListener.html" class="type-name-link" title="interface in com.example.lottery">EntrantEventAdapter.OnEventClickListener</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/EntrantHistoryAdapter.OnItemClickListener.html" class="type-name-link" title="interface in com.example.lottery">EntrantHistoryAdapter.OnItemClickListener</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/EventAdapter.OnEventClickListener.html" class="type-name-link" title="interface in com.example.lottery">EventAdapter.OnEventClickListener</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/NotificationAdapter.OnNotificationClickListener.html" class="type-name-link" title="interface in com.example.lottery">NotificationAdapter.OnNotificationClickListener</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/NotificationFragment.NotificationListener.html" class="type-name-link" title="interface in com.example.lottery">NotificationFragment.NotificationListener</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/OrganizerNotificationEventAdapter.OnNotificationGroupClickListener.html" class="type-name-link" title="interface in com.example.lottery">OrganizerNotificationEventAdapter.OnNotificationGroupClickListener</a></li>
-<li class="circle">com.example.lottery.<a href="com/example/lottery/OrganizerQrEventAdapter.OnEventClickListener.html" class="type-name-link" title="interface in com.example.lottery">OrganizerQrEventAdapter.OnEventClickListener</a></li>
+<li class="circle">com.example.lottery.adapter.<a href="com/example/lottery/adapter/AdminImageAdapter.OnImageClickListener.html" class="type-name-link" title="interface in com.example.lottery.adapter">AdminImageAdapter.OnImageClickListener</a></li>
+<li class="circle">com.example.lottery.adapter.<a href="com/example/lottery/adapter/EntrantEventAdapter.OnEventClickListener.html" class="type-name-link" title="interface in com.example.lottery.adapter">EntrantEventAdapter.OnEventClickListener</a></li>
+<li class="circle">com.example.lottery.adapter.<a href="com/example/lottery/adapter/EntrantHistoryAdapter.OnItemClickListener.html" class="type-name-link" title="interface in com.example.lottery.adapter">EntrantHistoryAdapter.OnItemClickListener</a></li>
+<li class="circle">com.example.lottery.adapter.<a href="com/example/lottery/adapter/EventAdapter.OnEventClickListener.html" class="type-name-link" title="interface in com.example.lottery.adapter">EventAdapter.OnEventClickListener</a></li>
+<li class="circle">com.example.lottery.adapter.<a href="com/example/lottery/adapter/NotificationAdapter.OnNotificationClickListener.html" class="type-name-link" title="interface in com.example.lottery.adapter">NotificationAdapter.OnNotificationClickListener</a></li>
+<li class="circle">com.example.lottery.fragment.<a href="com/example/lottery/fragment/NotificationFragment.NotificationListener.html" class="type-name-link" title="interface in com.example.lottery.fragment">NotificationFragment.NotificationListener</a></li>
+<li class="circle">com.example.lottery.fragment.<a href="com/example/lottery/fragment/OrganizerInviteCoOrganizerDialogFragment.UserSearchAdapter.OnUserClickListener.html" class="type-name-link" title="interface in com.example.lottery.fragment">OrganizerInviteCoOrganizerDialogFragment.UserSearchAdapter.OnUserClickListener</a></li>
+<li class="circle">com.example.lottery.adapter.<a href="com/example/lottery/adapter/OrganizerNotificationEventAdapter.OnNotificationGroupClickListener.html" class="type-name-link" title="interface in com.example.lottery.adapter">OrganizerNotificationEventAdapter.OnNotificationGroupClickListener</a></li>
+<li class="circle">com.example.lottery.adapter.<a href="com/example/lottery/adapter/OrganizerQrEventAdapter.OnEventClickListener.html" class="type-name-link" title="interface in com.example.lottery.adapter">OrganizerQrEventAdapter.OnEventClickListener</a></li>
+<li class="circle">com.example.lottery.fragment.<a href="com/example/lottery/fragment/SampleFragment.SamplingListener.html" class="type-name-link" title="interface in com.example.lottery.fragment">SampleFragment.SamplingListener</a></li>
 </ul>
 </section>
 <section class="hierarchy">

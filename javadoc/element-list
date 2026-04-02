@@ -1,3 +1,8 @@
 com.example.lottery
+com.example.lottery.adapter
+com.example.lottery.admin
+com.example.lottery.entrant
+com.example.lottery.fragment
 com.example.lottery.model
+com.example.lottery.organizer
 com.example.lottery.util

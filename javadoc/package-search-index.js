@@ -1,1 +1,1 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.example.lottery"},{"l":"com.example.lottery.model"},{"l":"com.example.lottery.util"}];updateSearchResults();
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.example.lottery"},{"l":"com.example.lottery.adapter"},{"l":"com.example.lottery.admin"},{"l":"com.example.lottery.entrant"},{"l":"com.example.lottery.fragment"},{"l":"com.example.lottery.model"},{"l":"com.example.lottery.organizer"},{"l":"com.example.lottery.util"}];updateSearchResults();
