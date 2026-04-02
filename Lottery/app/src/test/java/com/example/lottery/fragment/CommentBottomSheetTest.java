@@ -1,4 +1,4 @@
-package com.example.lottery;
+package com.example.lottery.fragment;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -7,8 +7,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.os.Bundle;
-
-import com.example.lottery.fragment.CommentBottomSheet;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,7 +20,7 @@ import org.robolectric.annotation.Config;
  * Covers US 01.08.01: Entrant can post a comment on an event.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 28)
+@Config(sdk = 34)
 public class CommentBottomSheetTest {
 
     // US 03.10.01: newInstanceForAdmin sets isAdmin=true and only requires eventId

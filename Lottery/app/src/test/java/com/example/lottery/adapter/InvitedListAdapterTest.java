@@ -1,4 +1,4 @@
-package com.example.lottery;
+package com.example.lottery.adapter;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -7,7 +7,6 @@ import android.content.Context;
 
 import androidx.test.core.app.ApplicationProvider;
 
-import com.example.lottery.adapter.InvitedListAdapter;
 import com.example.lottery.model.EntrantEvent;
 
 import org.junit.Before;
@@ -47,6 +46,7 @@ public class InvitedListAdapterTest {
         adapter = new InvitedListAdapter(context, entrantList);
     }
 
+    // US 02.06.01: Verify adapter returns correct item count for invited entrants list
     /**
      * Verifies that the adapter returns the correct number of items.
      */
@@ -55,6 +55,7 @@ public class InvitedListAdapterTest {
         assertEquals(2, adapter.getItemCount());
     }
 
+    // US 02.06.01: Verify invited list adapter is correctly instantiated
     /**
      * Verifies that the adapter is correctly instantiated.
      */

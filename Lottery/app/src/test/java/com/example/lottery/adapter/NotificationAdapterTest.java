@@ -1,4 +1,4 @@
-package com.example.lottery;
+package com.example.lottery.adapter;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -9,7 +9,7 @@ import android.widget.FrameLayout;
 
 import androidx.test.core.app.ApplicationProvider;
 
-import com.example.lottery.adapter.NotificationAdapter;
+import com.example.lottery.R;
 import com.example.lottery.model.NotificationItem;
 import com.google.firebase.Timestamp;
 
@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 28)
+@Config(sdk = 34)
 public class NotificationAdapterTest {
 
     private NotificationAdapter adapter;
@@ -42,11 +42,13 @@ public class NotificationAdapterTest {
         });
     }
 
+    // US 01.04.01: Verify adapter returns correct item count for entrant notifications
     @Test
     public void testItemCount() {
         assertEquals(2, adapter.getItemCount());
     }
 
+    // US 01.04.01: Verify notification view holder is created with expected layout elements
     @Test
     public void testOnCreateViewHolder() {
         FrameLayout parent = new FrameLayout(context);
@@ -55,6 +57,7 @@ public class NotificationAdapterTest {
         assertNotNull(holder.itemView.findViewById(R.id.tvNotificationTitle));
     }
 
+    // US 01.04.01: Verify notification adapter binds title, message, and read status correctly
     @Test
     public void testOnBindViewHolder() {
         FrameLayout parent = new FrameLayout(context);
@@ -72,6 +75,7 @@ public class NotificationAdapterTest {
         assertEquals(View.GONE, holder.tvNew.getVisibility());
     }
 
+    // US 01.04.01: Verify notification adapter displays only title when event title is empty
     @Test
     public void testOnBindViewHolder_noEventTitle() {
         notifications.clear();

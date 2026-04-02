@@ -1,4 +1,4 @@
-package com.example.lottery;
+package com.example.lottery.adapter;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import androidx.test.core.app.ApplicationProvider;
 
-import com.example.lottery.adapter.CommentAdapter;
+import com.example.lottery.R;
 import com.example.lottery.model.Comment;
 import com.google.firebase.Timestamp;
 
@@ -33,7 +33,7 @@ import java.util.List;
  * Also covers US 02.08.01: Organizer can view and delete entrant comments.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 28)
+@Config(sdk = 34)
 public class CommentAdapterTest {
 
     private Context context;
@@ -111,7 +111,7 @@ public class CommentAdapterTest {
         assertEquals("Alice", tvAuthor.getText().toString());
     }
 
-    // US 02.08.02: Organizer comments display "(Organizer)" marker
+    // US 02.08.01: Organizer comments display "(Organizer)" marker
     @Test
     public void testOrganizerRoleDisplaysMarker() {
         CommentAdapter adapter = new CommentAdapter(commentList, false, "event1");
@@ -173,7 +173,7 @@ public class CommentAdapterTest {
         assertEquals(View.VISIBLE, btnDelete.getVisibility());
     }
 
-    // US 01.08.01: Entrant should not see delete button
+    // US 01.08.02: Entrant should not see delete button
     @Test
     public void testDeleteButtonHiddenWhenCannotDelete() {
         CommentAdapter adapter = new CommentAdapter(commentList, false, "event1");

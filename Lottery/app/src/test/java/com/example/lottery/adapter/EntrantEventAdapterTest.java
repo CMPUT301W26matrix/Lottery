@@ -1,19 +1,20 @@
-package com.example.lottery;
+package com.example.lottery.adapter;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
-import android.app.Activity;
+import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
 
-import com.example.lottery.adapter.EntrantEventAdapter;
+import androidx.test.core.app.ApplicationProvider;
+
+import com.example.lottery.R;
 import com.example.lottery.model.Event;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
@@ -40,6 +41,7 @@ public class EntrantEventAdapterTest {
      */
     private List<Event> eventList;
     private String userId;
+    private Context context;
 
     /**
      * Sets up the test environment before each test case.
@@ -47,6 +49,8 @@ public class EntrantEventAdapterTest {
      */
     @Before
     public void setUp() {
+        context = ApplicationProvider.getApplicationContext();
+        context.setTheme(R.style.Theme_Lottery);
         eventList = new ArrayList<>();
         Event event1 = new Event();
         event1.setTitle("Test Event 1");
@@ -64,6 +68,7 @@ public class EntrantEventAdapterTest {
         }, "test-user-id");
     }
 
+    // US 01.02.03: Verify adapter returns correct item count for entrant event list
     /**
      * Verifies that the adapter returns the correct number of items based on the provided list.
      */
@@ -72,6 +77,7 @@ public class EntrantEventAdapterTest {
         assertEquals(2, adapter.getItemCount());
     }
 
+    // US 01.02.03: Verify entrant event adapter is correctly instantiated
     /**
      * Verifies that the adapter is correctly instantiated and not null.
      */
@@ -80,17 +86,18 @@ public class EntrantEventAdapterTest {
         assertNotNull(adapter);
     }
 
+    // US 01.02.03: Verify event item layout contains a View Detail button for navigation
     /**
      * Verifies that the item_event_explore layout contains a View Detail button.
      */
     @Test
     public void testViewDetailButtonExists() {
-        Activity activity = Robolectric.buildActivity(Activity.class).create().get();
-        View itemView = activity.getLayoutInflater().inflate(R.layout.item_event_explore, null);
+        View itemView = LayoutInflater.from(context).inflate(R.layout.item_event_explore, null);
         View btnViewDetail = itemView.findViewById(R.id.btnViewDetail);
         assertNotNull("btnViewDetail should exist in item_event_explore layout", btnViewDetail);
     }
 
+    // US 01.02.03: Verify clicking an event item triggers the event click listener
     /**
      * Verifies that the whole card is still clickable via itemView click listener.
      */
@@ -99,10 +106,9 @@ public class EntrantEventAdapterTest {
         final boolean[] clicked = {false};
         EntrantEventAdapter clickAdapter = new EntrantEventAdapter(eventList, event -> clicked[0] = true, "test-user-id");
 
-        Activity activity = Robolectric.buildActivity(Activity.class).create().get();
         EntrantEventAdapter.EntrantEventViewHolder holder =
                 clickAdapter.onCreateViewHolder(
-                        new android.widget.FrameLayout(activity), 0);
+                        new android.widget.FrameLayout(context), 0);
         clickAdapter.onBindViewHolder(holder, 0);
 
         holder.itemView.performClick();

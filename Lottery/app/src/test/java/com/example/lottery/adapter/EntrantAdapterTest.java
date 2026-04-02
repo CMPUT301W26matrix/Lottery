@@ -1,4 +1,4 @@
-package com.example.lottery;
+package com.example.lottery.adapter;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import androidx.test.core.app.ApplicationProvider;
 
-import com.example.lottery.adapter.EntrantAdapter;
+import com.example.lottery.R;
 import com.example.lottery.model.User;
 
 import org.junit.Before;
@@ -23,7 +23,7 @@ import org.robolectric.annotation.Config;
 import java.util.ArrayList;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 28)
+@Config(sdk = 34)
 public class EntrantAdapterTest {
 
     private EntrantAdapter adapter;
@@ -40,11 +40,13 @@ public class EntrantAdapterTest {
         adapter = new EntrantAdapter(context, entrants);
     }
 
+    // US 02.06.01: Verify adapter returns correct count for entrants list
     @Test
     public void testGetCount() {
         assertEquals(2, adapter.getCount());
     }
 
+    // US 02.06.01: Verify adapter renders entrant name correctly in list view
     @Test
     public void testGetView() {
         ViewGroup parent = new FrameLayout(context);

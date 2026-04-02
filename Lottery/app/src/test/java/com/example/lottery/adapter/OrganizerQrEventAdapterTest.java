@@ -15,6 +15,7 @@ import java.util.List;
  */
 public class OrganizerQrEventAdapterTest {
 
+    // US 02.01.01: Verify adapter returns correct item count for organizer QR event list
     /**
      * Verifies that the getItemCount method returns the correct size of the event list.
      */
@@ -31,6 +32,7 @@ public class OrganizerQrEventAdapterTest {
         assertEquals("Adapter item count should match the list size", 3, adapter.getItemCount());
     }
 
+    // US 02.01.01: Verify adapter handles an empty QR event list correctly
     /**
      * Verifies that the adapter correctly handles an empty list.
      */

@@ -1,4 +1,4 @@
-package com.example.lottery;
+package com.example.lottery.adapter;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -7,7 +7,6 @@ import android.content.Context;
 
 import androidx.test.core.app.ApplicationProvider;
 
-import com.example.lottery.adapter.CancelledListAdapter;
 import com.example.lottery.model.EntrantEvent;
 
 import org.junit.Before;
@@ -20,13 +19,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Unit tests for the {@link CancelledListAdapter} class.
+ * Unit tests for the {@link WaitedListedListAdapter} class.
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
-public class CancelledListAdapterTest {
+public class WaitedListedListAdapterTest {
 
-    private CancelledListAdapter adapter;
+    private WaitedListedListAdapter adapter;
     private List<EntrantEvent> entrantList;
     private Context context;
 
@@ -36,12 +35,13 @@ public class CancelledListAdapterTest {
         entrantList = new ArrayList<>();
 
         EntrantEvent e = new EntrantEvent();
-        e.setUserName("Cancelled User");
+        e.setUserName("Waitlisted User");
         entrantList.add(e);
 
-        adapter = new CancelledListAdapter(context, entrantList);
+        adapter = new WaitedListedListAdapter(context, entrantList);
     }
 
+    // US 02.02.01: Verify adapter returns correct item count for waitlisted entrants list
     /**
      * Verifies that the adapter returns the correct number of items.
      */
@@ -50,6 +50,7 @@ public class CancelledListAdapterTest {
         assertEquals(1, adapter.getItemCount());
     }
 
+    // US 02.02.01: Verify waitlisted list adapter is correctly instantiated
     /**
      * Verifies that the adapter is correctly instantiated.
      */

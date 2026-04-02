@@ -1,4 +1,4 @@
-package com.example.lottery;
+package com.example.lottery.adapter;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import androidx.test.core.app.ApplicationProvider;
 
-import com.example.lottery.adapter.ProfileAdapter;
+import com.example.lottery.R;
 import com.example.lottery.model.User;
 
 import org.junit.Before;
@@ -23,7 +23,7 @@ import org.robolectric.annotation.Config;
 import java.util.ArrayList;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 28)
+@Config(sdk = 34)
 public class ProfileAdapterTest {
 
     private ProfileAdapter adapter;

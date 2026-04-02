@@ -1,4 +1,4 @@
-package com.example.lottery;
+package com.example.lottery.adapter;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -7,7 +7,6 @@ import android.content.Context;
 
 import androidx.test.core.app.ApplicationProvider;
 
-import com.example.lottery.adapter.WaitedListedListAdapter;
 import com.example.lottery.model.EntrantEvent;
 
 import org.junit.Before;
@@ -20,13 +19,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Unit tests for the {@link WaitedListedListAdapter} class.
+ * Unit tests for the {@link SignedUpListAdapter} class.
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
-public class WaitedListedListAdapterTest {
+public class SignedUpListAdapterTest {
 
-    private WaitedListedListAdapter adapter;
+    private SignedUpListAdapter adapter;
     private List<EntrantEvent> entrantList;
     private Context context;
 
@@ -36,12 +35,13 @@ public class WaitedListedListAdapterTest {
         entrantList = new ArrayList<>();
 
         EntrantEvent e = new EntrantEvent();
-        e.setUserName("Waitlisted User");
+        e.setUserName("Confirmed User");
         entrantList.add(e);
 
-        adapter = new WaitedListedListAdapter(context, entrantList);
+        adapter = new SignedUpListAdapter(context, entrantList);
     }
 
+    // US 02.06.03: Verify adapter returns correct item count for signed-up entrants list
     /**
      * Verifies that the adapter returns the correct number of items.
      */
@@ -50,6 +50,7 @@ public class WaitedListedListAdapterTest {
         assertEquals(1, adapter.getItemCount());
     }
 
+    // US 02.06.03: Verify signed-up list adapter is correctly instantiated
     /**
      * Verifies that the adapter is correctly instantiated.
      */

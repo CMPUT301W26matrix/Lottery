@@ -20,19 +20,11 @@ import org.robolectric.annotation.Config;
 import java.lang.reflect.Method;
 
 /**
- * Unit tests for {@link PosterImageLoader}.
- * Verifies Base64 detection and decoding logic used for poster image rendering.
- *
- * <p>Covers User Stories:</p>
- * <ul>
- *   <li>US 02.04.01: As an organizer, I want to upload an event poster so entrants
- *       can see what the event looks like. (poster rendering from Base64)</li>
- *   <li>US 03.06.01: As an administrator, I want to browse all uploaded event posters.
- *       (poster thumbnail loading)</li>
- * </ul>
+ * Tests for {@link PosterImageLoader}.
+ * Verifies Base64 detection, decoding, and Robolectric-side loading behavior.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 28)
+@Config(sdk = 34)
 public class PosterImageLoaderTest {
 
     private Method isBase64Method;
@@ -42,77 +34,71 @@ public class PosterImageLoaderTest {
     public void setUp() throws Exception {
         isBase64Method = PosterImageLoader.class.getDeclaredMethod("isBase64", String.class);
         isBase64Method.setAccessible(true);
-
         decodeBase64Method = PosterImageLoader.class.getDeclaredMethod("decodeBase64", String.class);
         decodeBase64Method.setAccessible(true);
     }
 
-    // --- isBase64() detection tests ---
-
-    // US 02.04.01: JPEG poster stored as data URI should be recognized as Base64
+    // US 02.04.01: Verify isBase64 detects JPEG data URI prefix
     @Test
     public void testIsBase64WithDataImageJpegPrefix() throws Exception {
         assertTrue((boolean) isBase64Method.invoke(null, "data:image/jpeg;base64,/9j/4AAQ"));
     }
 
-    // US 02.04.01: PNG poster stored as data URI should be recognized as Base64
+    // US 02.04.01: Verify isBase64 detects PNG data URI prefix
     @Test
     public void testIsBase64WithDataImagePngPrefix() throws Exception {
         assertTrue((boolean) isBase64Method.invoke(null, "data:image/png;base64,iVBORw0KGgo"));
     }
 
-    // US 02.04.01: HTTP URLs should not be mistaken for Base64 poster data
+    // US 02.04.01: Verify isBase64 returns false for HTTP URLs
     @Test
     public void testIsBase64WithHttpUrl() throws Exception {
         assertEquals(false, isBase64Method.invoke(null, "https://example.com/poster.jpg"));
     }
 
-    // US 02.04.01: Content URIs should not be mistaken for Base64 poster data
+    // US 02.04.01: Verify isBase64 returns false for content URIs
     @Test
     public void testIsBase64WithContentUri() throws Exception {
         assertEquals(false, isBase64Method.invoke(null, "content://media/external/images/123"));
     }
 
-    // US 02.04.01: Empty string should not be detected as Base64
+    // US 02.04.01: Verify isBase64 returns false for empty string
     @Test
     public void testIsBase64WithEmptyString() throws Exception {
         assertEquals(false, isBase64Method.invoke(null, ""));
     }
 
-    // US 02.04.01: Arbitrary text should not be detected as Base64
+    // US 02.04.01: Verify isBase64 returns false for plain text
     @Test
     public void testIsBase64WithPlainText() throws Exception {
         assertEquals(false, isBase64Method.invoke(null, "just some plain text"));
     }
 
-    // --- decodeBase64() decoding tests ---
-
-    // US 02.04.01: Base64 data URI with prefix should decode to original bytes
+    // US 02.04.01: Verify decodeBase64 correctly decodes data with URI prefix
     @Test
     public void testDecodeBase64WithDataPrefix() throws Exception {
         byte[] original = {1, 2, 3, 4, 5};
-        String encoded = "data:image/jpeg;base64," + Base64.encodeToString(original, Base64.DEFAULT);
+        String encoded = "data:image/jpeg;base64,"
+                + Base64.encodeToString(original, Base64.NO_WRAP);
         byte[] decoded = (byte[]) decodeBase64Method.invoke(null, encoded);
-        assertNotNull("Decoded bytes should not be null", decoded);
+        assertNotNull(decoded);
         assertEquals(original.length, decoded.length);
         for (int i = 0; i < original.length; i++) {
             assertEquals(original[i], decoded[i]);
         }
     }
 
-    // US 02.04.01: Raw Base64 string without data URI prefix should still decode
+    // US 02.04.01: Verify decodeBase64 correctly decodes raw Base64 without prefix
     @Test
     public void testDecodeBase64WithoutPrefix() throws Exception {
         byte[] original = {10, 20, 30};
-        String encoded = Base64.encodeToString(original, Base64.DEFAULT);
+        String encoded = Base64.encodeToString(original, Base64.NO_WRAP);
         byte[] decoded = (byte[]) decodeBase64Method.invoke(null, encoded);
-        assertNotNull("Decoded bytes should not be null", decoded);
+        assertNotNull(decoded);
         assertEquals(original.length, decoded.length);
     }
 
-    // --- load() integration tests ---
-
-    // US 03.06.01: Loading with null source should show placeholder without crashing
+    // US 03.06.01: Verify load does not crash when source is null
     @Test
     public void testLoadWithNullSource() {
         android.content.Context context = ApplicationProvider.getApplicationContext();
@@ -121,7 +107,7 @@ public class PosterImageLoaderTest {
         PosterImageLoader.load(imageView, null, R.drawable.event_placeholder);
     }
 
-    // US 03.06.01: Loading with empty string should show placeholder without crashing
+    // US 03.06.01: Verify load does not crash when source is empty
     @Test
     public void testLoadWithEmptyString() {
         android.content.Context context = ApplicationProvider.getApplicationContext();
@@ -130,13 +116,13 @@ public class PosterImageLoaderTest {
         PosterImageLoader.load(imageView, "", R.drawable.event_placeholder);
     }
 
-    // US 03.06.01: Loading with null ImageView should be a safe no-op
+    // US 03.06.01: Verify load does not crash when ImageView is null
     @Test
     public void testLoadWithNullImageView() {
         PosterImageLoader.load(null, "data:image/jpeg;base64,/9j/4AAQ", R.drawable.event_placeholder);
     }
 
-    // US 02.04.01: Loading a Base64-encoded poster should not throw
+    // US 02.04.01: Verify load handles Base64-encoded poster image
     @Test
     public void testLoadWithBase64String() {
         android.content.Context context = ApplicationProvider.getApplicationContext();
@@ -147,7 +133,7 @@ public class PosterImageLoaderTest {
         PosterImageLoader.load(imageView, base64, R.drawable.event_placeholder);
     }
 
-    // US 02.04.01: Loading a remote URL poster should not throw (Glide handles fetch)
+    // US 02.04.01: Verify load handles HTTP URL poster image source
     @Test
     public void testLoadWithHttpUrl() {
         android.content.Context context = ApplicationProvider.getApplicationContext();

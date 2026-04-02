@@ -37,11 +37,13 @@ public class OrganizerNotificationEventAdapterTest {
         });
     }
 
+    // US 02.07.01: Verify adapter returns correct item count for organizer notification event list
     @Test
     public void testItemCount() {
         assertEquals(2, adapter.getItemCount());
     }
 
+    // US 02.07.01: Verify organizer notification event adapter is correctly instantiated
     @Test
     public void testAdapterNotNull() {
         assertNotNull(adapter);
