@@ -2,6 +2,7 @@ package com.example.lottery;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -12,6 +13,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -20,6 +22,7 @@ import com.example.lottery.model.Event;
 import com.example.lottery.util.AdminNavigationHelper;
 import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.PosterImageLoader;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -32,7 +35,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 /**
- * AdminEventDetailsActivity displays a read-only administrator view of a specific event.
+ * Activity that displays the details of a specific event from an administrator's perspective.
+ * Administrators can view event information and have the authority to delete the event
+ * and all its associated data (waiting lists, notifications, comments, etc.).
  */
 public class AdminEventDetailsActivity extends AppCompatActivity {
 
@@ -60,6 +65,12 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
     private String eventId;
     private String userId;
 
+    /**
+     * Initializes the activity, sets up UI components, and retrieves the event ID from the intent.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut down,
+     *                           this Bundle contains the data it most recently supplied.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,7 +103,9 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
         tvLocationRequirement = findViewById(R.id.tvLocationRequirement);
         btnDeleteEvent = findViewById(R.id.btnDeleteEvent);
         ImageButton btnComments = findViewById(R.id.btnComments);
+        ImageButton btnBack = findViewById(R.id.btnBack);
 
+        btnBack.setOnClickListener(v -> finish());
         btnDeleteEvent.setOnClickListener(v -> showDeleteConfirmationDialog());
 
         btnComments.setOnClickListener(v -> {
@@ -109,6 +122,9 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Fetches the latest event details from Firestore whenever the activity resumes.
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -118,14 +134,35 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * Launches a confirmation dialog before deleting the event for confirmation.
+     * Displays a confirmation dialog to the administrator before proceeding with event deletion.
      */
     private void showDeleteConfirmationDialog() {
-        new AlertDialog.Builder(this).setTitle(R.string.confirm_deletion).setMessage(R.string.confirm_delete_event)
-                .setPositiveButton(R.string.delete, (dialog, which) -> deleteEvent())
-                .setNegativeButton(R.string.cancel, null).show();
+        AlertDialog dialog = new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.confirm_deletion)
+                .setMessage(R.string.confirm_delete_event)
+                .setPositiveButton(R.string.delete, (d, which) -> deleteEvent())
+                .setNegativeButton(R.string.cancel, null)
+                .create();
+
+        dialog.show();
+
+        // Make the Delete button visually distinct (red) to match Organizer/Entrant style
+        Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        if (positiveButton != null) {
+            positiveButton.setTextColor(ContextCompat.getColor(this, R.color.error_red));
+        }
+
+        // Soften title size slightly to match unified style (18sp)
+        TextView titleView = dialog.findViewById(androidx.appcompat.R.id.alertTitle);
+        if (titleView != null) {
+            titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+        }
     }
 
+    /**
+     * Initiates the multi-step deletion process for an event, including cleaning up all
+     * associated sub-collections, notifications, and user inbox entries.
+     */
     private void deleteEvent() {
         if (eventId == null || eventId.isEmpty()) {
             Toast.makeText(this, R.string.error_event_id_empty, Toast.LENGTH_SHORT).show();
@@ -157,6 +194,11 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Handles any failure during the deletion process by logging the error and notifying the user.
+     *
+     * @param message The error message to display and log.
+     */
     private void abortDelete(String message) {
         Log.e(TAG, message);
         runOnUiThread(() -> {
@@ -165,6 +207,12 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Identifies all users associated with the event (organizer, co-organizers, participants)
+     * so their inbox entries and notifications can be cleaned up.
+     *
+     * @param onComplete Callback invoked with the set of unique user IDs found.
+     */
     private void collectAffectedUserIds(Consumer<Set<String>> onComplete) {
         Set<String> userIds = new HashSet<>();
         AtomicInteger done = new AtomicInteger(0);
@@ -212,6 +260,12 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Removes inbox entries related to this event from the personal inboxes of all affected users.
+     *
+     * @param userIds    The set of user IDs to clean up.
+     * @param onComplete Callback invoked with a boolean indicating success or failure.
+     */
     private void deleteInboxEntriesForUsers(Set<String> userIds, Consumer<Boolean> onComplete) {
         if (userIds.isEmpty()) {
             onComplete.accept(true);
@@ -247,6 +301,11 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Deletes all notifications related to this event, including their recipient sub-collections.
+     *
+     * @param onComplete Callback invoked with a boolean indicating success or failure.
+     */
     private void deleteEventNotifications(Consumer<Boolean> onComplete) {
         db.collection(FirestorePaths.NOTIFICATIONS)
                 .whereEqualTo("eventId", eventId)
@@ -288,6 +347,11 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> onComplete.accept(false));
     }
 
+    /**
+     * Deletes all documents within the event's sub-collections (waiting list, co-organizers, comments).
+     *
+     * @param onComplete Callback invoked with a boolean indicating success or failure.
+     */
     private void deleteSubCollections(Consumer<Boolean> onComplete) {
         String[] paths = {
                 FirestorePaths.eventWaitingList(eventId),
@@ -320,6 +384,9 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Final step of the deletion process: deletes the main event document from Firestore.
+     */
     private void deleteEventDocument() {
         db.collection(FirestorePaths.EVENTS).document(eventId).delete()
                 .addOnSuccessListener(aVoid -> {
@@ -329,6 +396,9 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> abortDelete(getString(R.string.failed_to_delete_event)));
     }
 
+    /**
+     * Fetches the event details from the Firestore database.
+     */
     private void fetchEventDetails() {
         db.collection(FirestorePaths.EVENTS).document(eventId).get()
                 .addOnSuccessListener(documentSnapshot -> {
@@ -346,6 +416,11 @@ public class AdminEventDetailsActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Populates the activity's views with the data from the provided Event object.
+     *
+     * @param event The Event object containing the details to display.
+     */
     private void displayEventDetails(Event event) {
         tvEventTitle.setText(event.getTitle());
 

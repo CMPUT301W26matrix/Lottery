@@ -48,7 +48,7 @@ public class AdminProfileActivity extends AppCompatActivity {
     private ImageView ivProfileImage, ivProfilePlaceholder, ivEditProfileImage, ivEditProfilePlaceholder;
     private MaterialCardView cvEditProfileImage;
     private Toolbar toolbarEdit;
-    private View bottomNav;
+    private View bottomNav, topBar;
     private LinearLayout viewContainer, editContainer;
     private FirebaseFirestore db;
     private String adminUserId;
@@ -131,6 +131,7 @@ public class AdminProfileActivity extends AppCompatActivity {
         btnLogout = findViewById(R.id.btn_log_out);
 
         toolbarEdit = findViewById(R.id.toolbar_edit_profile);
+        topBar = findViewById(R.id.topBar);
         bottomNav = findViewById(R.id.bottom_nav_container);
         viewContainer = findViewById(R.id.layout_profile_view_container);
         editContainer = findViewById(R.id.layout_profile_edit_container);
@@ -181,6 +182,7 @@ public class AdminProfileActivity extends AppCompatActivity {
         viewContainer.setVisibility(View.GONE);
         editContainer.setVisibility(View.VISIBLE);
         toolbarEdit.setVisibility(View.VISIBLE);
+        if (topBar != null) topBar.setVisibility(View.GONE);
         bottomNav.setVisibility(View.GONE);
     }
 
@@ -191,6 +193,7 @@ public class AdminProfileActivity extends AppCompatActivity {
         viewContainer.setVisibility(View.VISIBLE);
         editContainer.setVisibility(View.GONE);
         toolbarEdit.setVisibility(View.GONE);
+        if (topBar != null) topBar.setVisibility(View.VISIBLE);
         bottomNav.setVisibility(View.VISIBLE);
     }
 

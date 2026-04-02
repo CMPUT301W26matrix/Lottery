@@ -7,46 +7,73 @@
     android:background="@color/page_background"
     tools:context=".AdminBrowseEventsActivity">
 
+    <!-- Header Bar: Lottery Brand -->
+    <LinearLayout
+        android:id="@+id/layout_lottery_header"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/white"
+        android:elevation="4dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="cursive"
+            android:includeFontPadding="false"
+            android:layout_marginEnd="-4dp"
+            android:text="L"
+            android:textColor="@color/primary_blue"
+            android:textSize="36sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:includeFontPadding="false"
+            android:letterSpacing="0.02"
+            android:text="ottery"
+            android:textColor="@color/primary_blue"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Sub-header for Admin Identity -->
+    <LinearLayout
+        android:id="@+id/layout_admin_identity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/primary_light_blue"
+        android:gravity="center"
+        android:paddingVertical="8dp"
+        app:layout_constraintTop_toBottomOf="@id/layout_lottery_header">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ADMIN"
+            android:textColor="@color/primary_blue"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.2" />
+    </LinearLayout>
+
     <androidx.core.widget.NestedScrollView
         android:id="@+id/main_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:fillViewport="true"
         app:layout_constraintBottom_toTopOf="@id/bottom_nav_container"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/layout_admin_identity">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="24dp">
 
-            <TextView
-                android:id="@+id/tvAppTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="32dp"
-                android:text="@string/admin_event_browser_title"
-                android:textColor="@color/primary_blue"
-                android:textSize="28sp"
-                android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/tvSubtitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="4dp"
-                android:letterSpacing="0.1"
-                android:text="@string/admin_event_browser_subtitle"
-                android:textColor="@color/text_gray"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvAppTitle" />
-
+            <!-- Summary Cards Section -->
             <GridLayout
                 android:id="@+id/glSummary"
                 android:layout_width="match_parent"
@@ -55,7 +82,7 @@
                 android:layout_marginTop="24dp"
                 android:columnCount="2"
                 android:rowCount="2"
-                app:layout_constraintTop_toBottomOf="@id/tvSubtitle">
+                app:layout_constraintTop_toTopOf="parent">
 
                 <com.google.android.material.card.MaterialCardView
                     style="@style/Widget.Material3.CardView.Elevated"

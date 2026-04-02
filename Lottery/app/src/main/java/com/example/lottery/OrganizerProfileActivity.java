@@ -53,7 +53,7 @@ public class OrganizerProfileActivity extends AppCompatActivity {
     private ImageView ivProfileImage, ivProfilePlaceholder, ivEditProfileImage, ivEditProfilePlaceholder;
     private MaterialCardView cvEditProfileImage;
     private Toolbar toolbarEdit;
-    private View bottomNav, topDivider;
+    private View bottomNav, topBar;
     private LinearLayout viewContainer, editContainer;
     private FirebaseFirestore db;
     private String userId;
@@ -192,7 +192,7 @@ public class OrganizerProfileActivity extends AppCompatActivity {
         btnLotteryGuidelines = findViewById(R.id.btn_lottery_guidelines);
 
         toolbarEdit = findViewById(R.id.toolbar_edit_profile);
-        topDivider = findViewById(R.id.view_top_divider);
+        topBar = findViewById(R.id.topBar);
         bottomNav = findViewById(R.id.bottom_nav_container);
 
         viewContainer = findViewById(R.id.layout_profile_view_container);
@@ -244,7 +244,7 @@ public class OrganizerProfileActivity extends AppCompatActivity {
         viewContainer.setVisibility(View.GONE);
         editContainer.setVisibility(View.VISIBLE);
         toolbarEdit.setVisibility(View.VISIBLE);
-        topDivider.setVisibility(View.GONE);
+        if (topBar != null) topBar.setVisibility(View.GONE);
         bottomNav.setVisibility(View.GONE);
 
         if (forceEdit) {
@@ -267,7 +267,7 @@ public class OrganizerProfileActivity extends AppCompatActivity {
         viewContainer.setVisibility(View.VISIBLE);
         editContainer.setVisibility(View.GONE);
         toolbarEdit.setVisibility(View.GONE);
-        topDivider.setVisibility(View.VISIBLE);
+        if (topBar != null) topBar.setVisibility(View.VISIBLE);
         bottomNav.setVisibility(View.VISIBLE);
     }
 

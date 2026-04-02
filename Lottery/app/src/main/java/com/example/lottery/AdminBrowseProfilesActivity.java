@@ -3,6 +3,7 @@ package com.example.lottery;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
@@ -25,6 +26,8 @@ import com.example.lottery.util.InvitationFlowUtil;
 import com.example.lottery.util.UserDeletionUtil;
 import com.example.lottery.util.WaitlistPromotionUtil;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButtonToggleGroup;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -54,10 +57,8 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
     ArrayList<User> filteredUsers;
     private ListView lvProfiles;
     private TextView tvEmptyProfiles;
-    private Button btnEnableDeletion;
-    private MaterialButton btnFilterAll;
-    private MaterialButton btnFilterEntrant;
-    private MaterialButton btnFilterOrganizer;
+    private MaterialButton btnEnableDeletion;
+    private MaterialButtonToggleGroup toggleFilterGroup;
     private ProfileAdapter profileAdapter;
 
     private FirebaseFirestore db;
@@ -86,9 +87,7 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
         lvProfiles = findViewById(R.id.lvProfiles);
         tvEmptyProfiles = findViewById(R.id.tvEmptyProfiles);
         btnEnableDeletion = findViewById(R.id.btnEnableDeleteProfile);
-        btnFilterAll = findViewById(R.id.btnFilterAll);
-        btnFilterEntrant = findViewById(R.id.btnFilterEntrant);
-        btnFilterOrganizer = findViewById(R.id.btnFilterOrganizer);
+        toggleFilterGroup = findViewById(R.id.toggle_filter_group);
 
         db = FirebaseFirestore.getInstance();
 
@@ -103,7 +102,7 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
         lvProfiles.setAdapter(profileAdapter);
 
         AdminNavigationHelper.setup(this, AdminNavigationHelper.AdminTab.PROFILES, userId);
-        setupFilterButtons();
+        setupFilterToggles();
 
         String role = getIntent().getStringExtra("role");
         if (role == null || !role.equals("admin")) {
@@ -112,7 +111,7 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
             return;
         }
 
-        btnEnableDeletion.setOnClickListener(v -> setDeleteMode(true));
+        btnEnableDeletion.setOnClickListener(v -> setDeleteMode(!isDeletionModeEnabled));
 
         lvProfiles.setOnItemClickListener((parent, view, position, id) -> {
             if (!isDeletionModeEnabled) return;
@@ -128,48 +127,21 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
     }
 
     /**
-     * Configures the role filter buttons.
-     * Sets the default selection to "All" and attaches click listeners
-     * that update the current filter and refresh the displayed list.
+     * Configures the role filter toggle group.
      */
-    private void setupFilterButtons() {
-        highlightFilterButton(btnFilterAll);
-        bindFilterButton(btnFilterAll, "ALL");
-        bindFilterButton(btnFilterEntrant, "ENTRANT");
-        bindFilterButton(btnFilterOrganizer, "ORGANIZER");
-    }
-
-    /**
-     * Binds a filter button so that clicking it sets the current filter and refreshes the list.
-     *
-     * @param button the MaterialButton to bind.
-     * @param filter the role filter value this button represents.
-     */
-    private void bindFilterButton(MaterialButton button, String filter) {
-        button.setOnClickListener(v -> {
-            currentFilter = filter;
-            highlightFilterButton(button);
+    private void setupFilterToggles() {
+        toggleFilterGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            if (!isChecked) return;
+            
+            if (checkedId == R.id.btnFilterAll) {
+                currentFilter = "ALL";
+            } else if (checkedId == R.id.btnFilterEntrant) {
+                currentFilter = "ENTRANT";
+            } else if (checkedId == R.id.btnFilterOrganizer) {
+                currentFilter = "ORGANIZER";
+            }
             applyFilter();
         });
-    }
-
-    /**
-     * Updates filter button styles so the active button is highlighted in primary blue
-     * and all others are dimmed to gray.
-     *
-     * @param activeButton the button to highlight as the current selection.
-     */
-    private void highlightFilterButton(MaterialButton activeButton) {
-        int activeColor = ContextCompat.getColor(this, R.color.primary_blue);
-        int inactiveColor = ContextCompat.getColor(this, R.color.text_gray);
-
-        MaterialButton[] buttons = {btnFilterAll, btnFilterEntrant, btnFilterOrganizer};
-        for (MaterialButton btn : buttons) {
-            btn.setTextColor(inactiveColor);
-            btn.setStrokeColor(ColorStateList.valueOf(inactiveColor));
-        }
-        activeButton.setTextColor(activeColor);
-        activeButton.setStrokeColor(ColorStateList.valueOf(activeColor));
     }
 
     /**
@@ -210,11 +182,17 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
             btnEnableDeletion.setText(R.string.deletion_active);
             btnEnableDeletion.setBackgroundTintList(ColorStateList.valueOf(
                     ContextCompat.getColor(this, android.R.color.holo_red_dark)));
+            btnEnableDeletion.setTextColor(ContextCompat.getColor(this, android.R.color.white));
+            btnEnableDeletion.setStrokeWidth(0); // 隐藏边框
             Toast.makeText(this, R.string.click_profile_to_delete, Toast.LENGTH_SHORT).show();
         } else {
             btnEnableDeletion.setText(R.string.enable_deletion);
             btnEnableDeletion.setBackgroundTintList(ColorStateList.valueOf(
-                    ContextCompat.getColor(this, R.color.primary_blue)));
+                    ContextCompat.getColor(this, android.R.color.transparent)));
+            btnEnableDeletion.setTextColor(ContextCompat.getColor(this, R.color.error_red));
+            btnEnableDeletion.setStrokeWidth(1); // 显示边框
+            btnEnableDeletion.setStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.divider_gray)));
+            Toast.makeText(this, "Deletion mode disabled", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -265,15 +243,30 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
                 ? getString(R.string.confirm_delete_organizer, selectedUser.getUsername())
                 : getString(R.string.confirm_delete_profile_message, selectedUser.getUsername());
 
-        new AlertDialog.Builder(this)
+        AlertDialog dialog = new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.delete_profile)
                 .setMessage(message)
-                .setPositiveButton(R.string.confirm, (dialog, which) -> {
+                .setPositiveButton(R.string.confirm, (d, which) -> {
                     deleteProfile(selectedUser);
-                    setDeleteMode(false);
                 })
-                .setNegativeButton(R.string.cancel, (dialog, which) -> setDeleteMode(false))
-                .show();
+                .setNegativeButton(R.string.cancel, (d, which) -> {
+                    setDeleteMode(false); // 取消弹窗时退出删除模式
+                })
+                .create();
+
+        dialog.show();
+
+        // Make the Delete button visually distinct (red) to match Organizer/Entrant style
+        Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        if (positiveButton != null) {
+            positiveButton.setTextColor(ContextCompat.getColor(this, R.color.error_red));
+        }
+
+        // Soften title size slightly to match unified style (18sp)
+        TextView titleView = dialog.findViewById(androidx.appcompat.R.id.alertTitle);
+        if (titleView != null) {
+            titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+        }
     }
 
     /**

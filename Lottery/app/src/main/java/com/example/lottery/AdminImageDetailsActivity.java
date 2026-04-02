@@ -2,82 +2,52 @@ package com.example.lottery;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.example.lottery.model.Event;
 import com.example.lottery.util.AdminNavigationHelper;
 import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.PosterImageLoader;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * AdminImageDetailsActivity displays a full-size poster preview for administrators.
+ * AdminImageDetailsActivity displays details of a specific event's poster image
+ * and provides functionality for an administrator to remove the image.
  *
  * <p>Key Responsibilities:
  * <ul>
- *   <li>Fetches the event record from Firestore using the supplied event ID.</li>
- *   <li>Renders the poster (Base64) at full width, event title, organizer name, and description.</li>
- *   <li>Provides a delete button for administrators to clear poster data from Firestore.</li>
+ *   <li>Displays the event poster, title, organizer name, and event details.</li>
+ *   <li>Allows the admin to delete the event's poster image from Firestore.</li>
+ *   <li>Handles navigation back to the image browser after deletion.</li>
  * </ul>
  * </p>
  */
 public class AdminImageDetailsActivity extends AppCompatActivity {
 
     private static final String TAG = "AdminImageDetails";
-    private static final String EXTRA_EVENT_ID = "eventId";
-
-    /**
-     * Inject a test Event to bypass Firestore while still exercising updateUi().
-     */
-    @VisibleForTesting
-    static Event testEvent;
-
-    /**
-     * ImageView used for displaying the full-size event poster.
-     */
     private ImageView ivEventPoster;
-    /**
-     * TextView for rendering the event title.
-     */
-    private TextView tvEventTitle;
-    /**
-     * TextView for displaying the organizer name.
-     */
-    private TextView tvOrganizerName;
-    /**
-     * TextView for displaying the event description.
-     */
-    private TextView tvEventDetails;
-    /**
-     * Button for deleting the poster image.
-     */
+    private TextView tvEventTitle, tvOrganizerName, tvEventDetails;
     private Button btnDeleteImage;
-    /**
-     * Firebase Firestore instance for database operations.
-     */
+    private ImageButton btnBack;
     private FirebaseFirestore db;
-    /**
-     * Identifier of the event currently being displayed.
-     */
     private String eventId;
-    /**
-     * The current poster Base64, saved for deletion from Firestore.
-     */
-    private String currentPosterBase64;
-    /**
-     * The userId of admin for jump to other pages.
-     */
     private String userId;
 
     @Override
@@ -93,150 +63,101 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
         });
 
         db = FirebaseFirestore.getInstance();
-
-        // Get userId from intent or shared preferences
-        userId = getIntent().getStringExtra("userId");
-        if (userId == null) {
-            userId = getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("userId", null);
-        }
+        eventId = getIntent().getStringExtra("eventId");
+        userId = getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("userId", null);
 
         ivEventPoster = findViewById(R.id.ivEventPoster);
         tvEventTitle = findViewById(R.id.tvEventTitle);
         tvOrganizerName = findViewById(R.id.tvOrganizerName);
         tvEventDetails = findViewById(R.id.tvEventDetails);
         btnDeleteImage = findViewById(R.id.btnDeleteImage);
+        btnBack = findViewById(R.id.btnBack);
 
-        btnDeleteImage.setOnClickListener(v -> showDeleteConfirmationDialog());
-
-        AdminNavigationHelper.setup(this, AdminNavigationHelper.AdminTab.IMAGES, userId, true);
-        // Logs and Settings should keep image detail alive for Back navigation
-        AdminNavigationHelper.overrideTabWithoutFinish(this, AdminNavigationHelper.AdminTab.LOGS, userId);
-        AdminNavigationHelper.overrideTabWithoutFinish(this, AdminNavigationHelper.AdminTab.SETTINGS, userId);
-
-        eventId = getIntent().getStringExtra(EXTRA_EVENT_ID);
-        if (eventId == null || eventId.isEmpty()) {
-            Toast.makeText(this, R.string.error_event_id_missing, Toast.LENGTH_SHORT).show();
+        if (eventId == null) {
+            Toast.makeText(this, "Error: Missing event ID", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
-        fetchEventDetails();
+        btnBack.setOnClickListener(v -> finish());
+        btnDeleteImage.setOnClickListener(v -> showDeleteConfirmation());
+
+        loadEventDetails();
+        AdminNavigationHelper.setup(this, AdminNavigationHelper.AdminTab.IMAGES, userId);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (eventId != null && !eventId.isEmpty()) {
-            fetchEventDetails();
+    /**
+     * Fetches event data from Firestore using the provided eventId.
+     * Updates the UI with the event title, organizer ID, poster image, and details.
+     */
+    private void loadEventDetails() {
+        db.collection(FirestorePaths.EVENTS).document(eventId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String title = documentSnapshot.getString("title");
+                        String organizerId = documentSnapshot.getString("organizerId");
+                        String details = documentSnapshot.getString("description");
+                        String posterBase64 = documentSnapshot.getString("posterBase64");
+
+                        tvEventTitle.setText(title);
+                        tvOrganizerName.setText(getString(R.string.admin_organizer_label, organizerId));
+                        tvEventDetails.setText(details);
+
+                        // Use PosterImageLoader instead of ProfileImageHelper to support full-size posters
+                        PosterImageLoader.load(ivEventPoster, posterBase64, R.drawable.event_placeholder);
+                    } else {
+                        Toast.makeText(this, "Event not found", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error loading event", e);
+                    Toast.makeText(this, "Failed to load event details", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    /**
+     * Displays a confirmation dialog before deleting the image.
+     */
+    private void showDeleteConfirmation() {
+        AlertDialog dialog = new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.delete_image)
+                .setMessage(R.string.confirm_delete_image)
+                .setPositiveButton(R.string.confirm, (d, which) -> deleteImage())
+                .setNegativeButton(R.string.cancel, null)
+                .create();
+
+        dialog.show();
+
+        // Make the Delete button visually distinct (red) to match Organizer/Entrant style
+        Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        if (positiveButton != null) {
+            positiveButton.setTextColor(ContextCompat.getColor(this, R.color.error_red));
+        }
+
+        // Soften title size slightly to match unified style (18sp)
+        TextView titleView = dialog.findViewById(androidx.appcompat.R.id.alertTitle);
+        if (titleView != null) {
+            titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
         }
     }
 
     /**
-     * Launches a confirmation dialog before deleting the poster image.
-     */
-    private void showDeleteConfirmationDialog() {
-        new AlertDialog.Builder(this).setTitle(R.string.confirm_deletion).setMessage(R.string.confirm_delete_image)
-                .setPositiveButton(R.string.delete, (dialog, which) -> deleteImage())
-                .setNegativeButton(R.string.cancel, null).show();
-    }
-
-    /**
-     * Clears the poster data directly from the Firestore event document.
+     * Deletes the event's poster image from Firestore by setting posterBase64 to an empty string.
+     * Navigates back to the image browser upon successful deletion.
      */
     private void deleteImage() {
-        if (eventId == null || eventId.isEmpty()) {
-            Toast.makeText(this, R.string.error_event_id_empty, Toast.LENGTH_SHORT).show();
-            return;
-        }
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("posterBase64", ""); // Clearing the poster
 
-        btnDeleteImage.setEnabled(false);
-        clearPosterBase64InFirestore();
-    }
-
-    /**
-     * Clears the posterBase64 field in Firestore.
-     */
-    private void clearPosterBase64InFirestore() {
-        db.collection(FirestorePaths.EVENTS).document(eventId)
-                .update("posterBase64", null)
-                .addOnSuccessListener(unused -> {
+        db.collection(FirestorePaths.EVENTS).document(eventId).update(updates)
+                .addOnSuccessListener(aVoid -> {
                     Toast.makeText(this, R.string.image_deleted, Toast.LENGTH_SHORT).show();
                     finish();
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Failed to clear posterBase64", e);
-                    btnDeleteImage.setEnabled(true);
+                    Log.e(TAG, "Error deleting image", e);
                     Toast.makeText(this, R.string.failed_to_delete_image, Toast.LENGTH_SHORT).show();
                 });
-    }
-
-    /**
-     * Fetches the event details from Firestore.
-     */
-    private void fetchEventDetails() {
-        if (testEvent != null) {
-            updateUi(testEvent);
-            return;
-        }
-        db.collection(FirestorePaths.EVENTS)
-                .document(eventId)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (!documentSnapshot.exists()) {
-                        Toast.makeText(this, R.string.event_not_found, Toast.LENGTH_SHORT).show();
-                        finish();
-                        return;
-                    }
-
-                    Event event = documentSnapshot.toObject(Event.class);
-                    if (event == null) {
-                        Toast.makeText(this, R.string.failed_to_load_event_details, Toast.LENGTH_SHORT).show();
-                        finish();
-                        return;
-                    }
-
-                    updateUi(event);
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error fetching event details", e);
-                    Toast.makeText(this, R.string.failed_to_load_event_details, Toast.LENGTH_SHORT).show();
-                });
-    }
-
-    /**
-     * Updates the UI components with the provided event data.
-     *
-     * @param event The event data to display.
-     */
-    private void updateUi(Event event) {
-        tvEventTitle.setText(event.getTitle());
-        tvEventDetails.setText(event.getDetails());
-        currentPosterBase64 = event.getPosterBase64();
-        PosterImageLoader.load(ivEventPoster, currentPosterBase64, R.drawable.event_placeholder);
-        btnDeleteImage.setEnabled(currentPosterBase64 != null && currentPosterBase64.trim().startsWith("data:image"));
-
-        if (event.getOrganizerId() != null) {
-            fetchOrganizerName(event.getOrganizerId());
-        } else {
-            tvOrganizerName.setText(getString(R.string.admin_organizer_label,
-                    getString(R.string.admin_unknown_organizer)));
-        }
-    }
-
-    /**
-     * Fetches the organizer name from the users' collection.
-     *
-     * @param organizerId The ID of the organizer to look up.
-     */
-    private void fetchOrganizerName(String organizerId) {
-        db.collection(FirestorePaths.USERS).document(organizerId).get()
-                .addOnSuccessListener(doc -> {
-                    String name = doc.getString("username");
-                    tvOrganizerName.setText(getString(R.string.admin_organizer_label,
-                            name != null ? name : getString(R.string.admin_unknown_organizer)));
-                })
-                .addOnFailureListener(e ->
-                        tvOrganizerName.setText(getString(R.string.admin_organizer_label,
-                                getString(R.string.admin_unknown_organizer))));
     }
 }
