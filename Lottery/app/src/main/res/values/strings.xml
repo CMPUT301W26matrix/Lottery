@@ -48,7 +48,7 @@
     <string name="registration_end">Registration End</string>
     <string name="waiting_list_capacity">Waiting List Capacity</string>
     <string name="about_this_event">About this Event</string>
-    <string name="location_verification_required">Location Verification Required</string>
+    <string name="location_verification_required">Location Required</string>
     <string name="cancelled_entrants_list_header_text">Entrants</string>
     <string name="entrants_list_toggle_button_group_waited_list_button_text">Waited</string>
     <string name="entrants_list_toggle_button_group_signed_up_button_text">Accepted</string>

@@ -418,7 +418,7 @@
                     android:layout_height="48dp"
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
-                    android:backgroundTint="@color/accent_blue"
+                    android:backgroundTint="@color/primary_blue"
                     android:text="Invite Entrant"
                     android:textAllCaps="false"
                     android:textSize="14sp"

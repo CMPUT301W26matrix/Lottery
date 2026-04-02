@@ -201,6 +201,50 @@ public class EntrantEventDetailsActivityTest {
         );
     }
 
+    private void seedPrivateEvent(String eventId, boolean requireLocation) throws Exception {
+        seededEventIds.add(eventId);
+
+        Timestamp now = Timestamp.now();
+        Map<String, Object> event = new HashMap<>();
+        event.put("eventId", eventId);
+        event.put("title", "Private Test Event");
+        event.put("details", "Private event for invite testing");
+        event.put("place", "Private Venue");
+        event.put("scheduledDateTime", now);
+        event.put("eventEndDateTime", now);
+        event.put("registrationStart", now);
+        event.put("registrationDeadline", new Timestamp(
+                new java.util.Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1))
+        ));
+        event.put("drawDate", now);
+        event.put("private", true);
+        event.put("requireLocation", requireLocation);
+        event.put("waitingListLimit", 100L);
+
+        Tasks.await(
+                db.collection(FirestorePaths.EVENTS).document(eventId).set(event),
+                10,
+                TimeUnit.SECONDS
+        );
+    }
+
+    private void seedPrivateInviteStatus(String eventId, String userId) throws Exception {
+        Timestamp now = Timestamp.now();
+        Map<String, Object> record = new HashMap<>();
+        record.put("userId", userId);
+        record.put("userName", "Test Entrant");
+        record.put("email", "entrant@example.com");
+        record.put("status", InvitationFlowUtil.STATUS_INVITED);
+        record.put("invitedAt", now);
+        // No waitlistedAt — entrant was directly invited to a private event
+
+        Tasks.await(
+                db.collection(FirestorePaths.eventWaitingList(eventId)).document(userId).set(record),
+                10,
+                TimeUnit.SECONDS
+        );
+    }
+
     private void seedWaitlistCount(String eventId, int count) throws Exception {
         WriteBatch batch = db.batch();
         Timestamp now = Timestamp.now();
@@ -508,6 +552,103 @@ public class EntrantEventDetailsActivityTest {
                     .getText().toString().contains("42"));
             onView(withId(R.id.tvWaitlistCount)).check(matches(isDisplayed()));
             onView(withId(R.id.tvWaitlistCount)).check(matches(withText(containsString("42"))));
+        }
+    }
+
+    /**
+     * US 02.01.03: A privately-invited entrant (no prior waitlist history)
+     * sees Accept/Decline buttons and the waitlist action is hidden.
+     */
+    @Test
+    public void testPrivateInvite_showsAcceptDeclineButtons() throws Exception {
+        String eventId = "priv_invite_" + UUID.randomUUID();
+        String userId = "priv_user_" + UUID.randomUUID();
+        seedPrivateEvent(eventId, false);
+        seedUser(userId);
+        seedPrivateInviteStatus(eventId, userId);
+
+        try (ActivityScenario<EntrantEventDetailsActivity> scenario =
+                     ActivityScenario.launch(createIntent(eventId, userId))) {
+            waitForCondition(scenario, activity -> activity.findViewById(R.id.invitationButtonsContainer)
+                    .getVisibility() == android.view.View.VISIBLE);
+            onView(withId(R.id.invitationButtonsContainer)).check(matches(isDisplayed()));
+            onView(withId(R.id.btnAcceptInvite)).check(matches(isDisplayed()));
+            onView(withId(R.id.btnDeclineInvite)).check(matches(isDisplayed()));
+            onView(withId(R.id.btnWaitlistAction)).check(matches(withEffectiveVisibility(GONE)));
+        }
+    }
+
+    /**
+     * US 02.01.03: After a privately-invited entrant accepts (no requireLocation),
+     * they join the waitlist, the invitation buttons are hidden, and
+     * "Leave Wait List" is shown.
+     */
+    @Test
+    public void testPrivateInviteAccept_noLocation_joinsWaitlistAndHidesInviteButtons() throws Exception {
+        String eventId = "priv_accept_" + UUID.randomUUID();
+        String userId = "priv_accept_user_" + UUID.randomUUID();
+        seedPrivateEvent(eventId, false);
+        seedUser(userId);
+        seedPrivateInviteStatus(eventId, userId);
+
+        try (ActivityScenario<EntrantEventDetailsActivity> scenario =
+                     ActivityScenario.launch(createIntent(eventId, userId))) {
+            // Wait for invite buttons to appear
+            waitForCondition(scenario, activity -> activity.findViewById(R.id.invitationButtonsContainer)
+                    .getVisibility() == android.view.View.VISIBLE);
+
+            // Click Accept
+            onView(withId(R.id.btnAcceptInvite)).perform(
+                    androidx.test.espresso.action.ViewActions.click());
+
+            // Wait for status to update — should show "Leave Wait List"
+            waitForCondition(scenario, activity -> {
+                TextView btn = activity.findViewById(R.id.btnWaitlistAction);
+                return btn.getVisibility() == android.view.View.VISIBLE
+                        && activity.getString(R.string.leave_wait_list).contentEquals(btn.getText());
+            });
+
+            onView(withId(R.id.btnWaitlistAction)).check(matches(withText(R.string.leave_wait_list)));
+            onView(withId(R.id.invitationButtonsContainer)).check(matches(withEffectiveVisibility(GONE)));
+        }
+    }
+
+    /**
+     * US 02.01.03: After a privately-invited entrant accepts an event that
+     * requires location, the location consent dialog is shown.
+     */
+    @Test
+    public void testPrivateInviteAccept_withLocation_showsLocationDialog() throws Exception {
+        String eventId = "priv_loc_" + UUID.randomUUID();
+        String userId = "priv_loc_user_" + UUID.randomUUID();
+        seedPrivateEvent(eventId, true);
+        // Seed user with geolocation enabled so the geo-disabled dialog is not shown
+        seededUserIds.add(userId);
+        Map<String, Object> user = new HashMap<>();
+        user.put("userId", userId);
+        user.put("username", "GeoUser");
+        user.put("email", "geo@test.com");
+        user.put("role", "ENTRANT");
+        user.put("deviceId", "test-device");
+        user.put("notificationsEnabled", true);
+        user.put("geolocationEnabled", true);
+        user.put("createdAt", Timestamp.now());
+        user.put("updatedAt", Timestamp.now());
+        Tasks.await(db.collection(FirestorePaths.USERS).document(userId).set(user), 10, TimeUnit.SECONDS);
+
+        seedPrivateInviteStatus(eventId, userId);
+
+        try (ActivityScenario<EntrantEventDetailsActivity> scenario =
+                     ActivityScenario.launch(createIntent(eventId, userId))) {
+            waitForCondition(scenario, activity -> activity.findViewById(R.id.invitationButtonsContainer)
+                    .getVisibility() == android.view.View.VISIBLE);
+
+            // Click Accept — should trigger location consent dialog
+            onView(withId(R.id.btnAcceptInvite)).perform(
+                    androidx.test.espresso.action.ViewActions.click());
+
+            // Verify the location consent dialog appears
+            onView(withText("Location Required")).check(matches(isDisplayed()));
         }
     }
 }

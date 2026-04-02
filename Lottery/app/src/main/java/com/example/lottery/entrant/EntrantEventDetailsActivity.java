@@ -55,6 +55,7 @@ import com.google.firebase.firestore.SetOptions;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -640,6 +641,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
             tvRegistrationEndedMessage.setText(R.string.cannot_rejoin_event_message);
             registrationEndedContainer.setVisibility(View.VISIBLE);
         } else {
+            invitationButtonsContainer.setVisibility(View.GONE);
             btnWaitlistAction.setVisibility(View.VISIBLE);
             btnWaitlistAction.setText(isInWaitlist
                     ? R.string.leave_wait_list
@@ -712,23 +714,118 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
      * Does not require geolocation — location is only collected when joining the waitlist.
      */
     private void acceptInvitation() {
-        Map<String, Object> updates;
-
         if (isInvited && !wasWaitlisted) {
-            updates = InvitationFlowUtil.buildWaitlistJoinUpdate();
+            // Private event invite: entrant has never been on the waitlist.
+            // Collect location if required, then accept without waitlist gating.
+            handlePrivateInviteLocationCheck();
+            return;
+        }
+
+        // Public event invite: entrant already provided location when joining
+        // the waitlist, so just update the status to accepted.
+        Map<String, Object> updates = InvitationFlowUtil.buildEntrantStatusUpdateFromResponse(
+                InvitationFlowUtil.RESPONSE_ACCEPTED
+        );
+
+        db.collection(FirestorePaths.eventWaitingList(eventId)).document(userId)
+                .set(updates, SetOptions.merge())
+                .addOnSuccessListener(unused -> checkUserEventStatus());
+    }
+
+    /**
+     * Location check flow specifically for private event invites.
+     * Routes to {@link #acceptPrivateInvite(Location)} instead of joinWaitlist,
+     * so that deadline, waitlist-limit, and other public waitlist gates are skipped.
+     */
+    private void handlePrivateInviteLocationCheck() {
+        if (!eventDetailsLoaded) {
+            Toast.makeText(this, "Loading event details, please try again", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!eventRequiresLocation) {
+            acceptPrivateInvite(null);
+            return;
+        }
+
+        if (!userGeolocationEnabled) {
+            showGeolocationDisabledDialog();
+            return;
+        }
+
+        showCustomAlertDialog(
+                "Location Required",
+                "This event requires your location to proceed. Do you agree to provide it?",
+                "Agree",
+                "Decline",
+                () -> startPrivateInviteLocationCollection(),
+                null
+        );
+    }
+
+    /**
+     * Collects location for private invite acceptance.
+     * Requests permission if not yet granted, then fetches GPS.
+     */
+    private void startPrivateInviteLocationCollection() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
+                    .addOnSuccessListener(this, location -> {
+                        if (location == null) {
+                            Toast.makeText(this, "Unable to get location. Please try again.", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        acceptPrivateInvite(location);
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e(TAG, "Failed to get location for private invite", e);
+                        Toast.makeText(this, "Unable to get location. Please try again.", Toast.LENGTH_SHORT).show();
+                    });
         } else {
-            updates = InvitationFlowUtil.buildEntrantStatusUpdateFromResponse(
-                    InvitationFlowUtil.RESPONSE_ACCEPTED
-            );
+            privateInviteLocationPermissionLauncher.launch(new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+            });
+        }
+    }
+
+    /**
+     * Permission callback for private invite location collection.
+     * Re-attempts location collection if permission is granted.
+     */
+    private final ActivityResultLauncher<String[]> privateInviteLocationPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
+                if (result.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false)
+                        || result.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)) {
+                    startPrivateInviteLocationCollection();
+                } else {
+                    Toast.makeText(this, "Location permission is required to accept this invite", Toast.LENGTH_LONG).show();
+                }
+            });
+
+    /**
+     * Accepts a private event invite by updating the existing Firestore record.
+     * Uses merge to preserve the invitedAt timestamp. Skips deadline and waitlist
+     * limit checks because the organizer explicitly invited this entrant.
+     *
+     * @param location The entrant's location, or null if not required by the event.
+     */
+    private void acceptPrivateInvite(Location location) {
+        Timestamp now = Timestamp.now();
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("status", InvitationFlowUtil.STATUS_WAITLISTED);
+        updates.put("waitlistedAt", now);
+        updates.put("registeredAt", now);
+        if (location != null) {
+            updates.put("location", new GeoPoint(location.getLatitude(), location.getLongitude()));
         }
 
         db.collection(FirestorePaths.eventWaitingList(eventId)).document(userId)
                 .set(updates, SetOptions.merge())
                 .addOnSuccessListener(unused -> {
                     checkUserEventStatus();
-                    if (!wasWaitlisted) {
-                        Toast.makeText(this, R.string.joined_waitlist, Toast.LENGTH_SHORT).show();
-                    }
+                    Toast.makeText(this, R.string.joined_waitlist, Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -809,8 +906,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         db.collection(FirestorePaths.eventWaitingList(eventId)).document(userId)
                 .set(record)
                 .addOnSuccessListener(unused -> {
-                    isInWaitlist = true;
-                    updateUIBasedOnStatus();
+                    checkUserEventStatus();
                     Toast.makeText(this, R.string.joined_waitlist, Toast.LENGTH_SHORT).show();
                 });
     }

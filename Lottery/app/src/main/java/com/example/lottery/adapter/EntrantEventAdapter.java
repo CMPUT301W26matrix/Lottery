@@ -95,50 +95,20 @@ public class EntrantEventAdapter extends RecyclerView.Adapter<EntrantEventAdapte
             return;
         }
 
-        // Reset button state
-        holder.btnWaitlistAction.setEnabled(true);
-        holder.btnWaitlistAction.setAlpha(1.0f);
-        holder.btnWaitlistAction.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.primary_blue));
+        holder.btnWaitlistAction.setVisibility(View.GONE);
 
         db.collection(FirestorePaths.eventWaitingList(event.getEventId()))
                 .document(userId)
                 .get()
                 .addOnSuccessListener(doc -> {
                     if (doc.exists()) {
-                        String status = InvitationFlowUtil.normalizeEntrantStatus(doc.getString("status"));
-
-                        if (InvitationFlowUtil.STATUS_WAITLISTED.equals(status)) {
-                            holder.btnWaitlistAction.setText(R.string.leave_waitlist);
-                            holder.btnWaitlistAction.setVisibility(View.VISIBLE);
-                            holder.btnWaitlistAction.setOnClickListener(v -> leaveWaitlist(event, holder));
-                        } else if (InvitationFlowUtil.STATUS_INVITED.equals(status)) {
-                            holder.btnWaitlistAction.setText("Selected");
-                            holder.btnWaitlistAction.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), android.R.color.holo_green_dark));
-                            holder.btnWaitlistAction.setOnClickListener(v -> openEventDetails(event));
-                        } else if (InvitationFlowUtil.STATUS_ACCEPTED.equals(status)) {
-                            holder.btnWaitlistAction.setText("Confirmed");
-                            holder.btnWaitlistAction.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), android.R.color.holo_green_dark));
-                            holder.btnWaitlistAction.setOnClickListener(v -> openEventDetails(event));
-                        } else if (InvitationFlowUtil.STATUS_CANCELLED.equals(status)) {
-                            holder.btnWaitlistAction.setText("Declined");
-                            holder.btnWaitlistAction.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.text_gray));
-                            holder.btnWaitlistAction.setOnClickListener(v -> openEventDetails(event));
-                        } else if (InvitationFlowUtil.STATUS_NOT_SELECTED.equals(status)) {
-                            holder.btnWaitlistAction.setText("Not Selected");
-                            holder.btnWaitlistAction.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.text_gray));
-                            holder.btnWaitlistAction.setOnClickListener(v -> openEventDetails(event));
-                        } else {
-                            holder.btnWaitlistAction.setVisibility(View.GONE);
-                        }
-                    } else {
-                        // Not in list at all - check if registration is still open
-                        if (isRegistrationOpen(event)) {
-                            holder.btnWaitlistAction.setText(R.string.join_waitlist);
-                            holder.btnWaitlistAction.setVisibility(View.VISIBLE);
-                            holder.btnWaitlistAction.setOnClickListener(v -> joinWaitlist(event, holder));
-                        } else {
-                            holder.btnWaitlistAction.setVisibility(View.GONE);
-                        }
+                        // User already participated — hide the card's action button
+                        holder.btnWaitlistAction.setVisibility(View.GONE);
+                    } else if (isRegistrationOpen(event)) {
+                        holder.btnWaitlistAction.setText(R.string.join_waitlist);
+                        holder.btnWaitlistAction.setVisibility(View.VISIBLE);
+                        holder.btnWaitlistAction.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.primary_blue));
+                        holder.btnWaitlistAction.setOnClickListener(v -> joinWaitlist(event, holder));
                     }
                 })
                 .addOnFailureListener(e -> holder.btnWaitlistAction.setVisibility(View.GONE));
@@ -152,23 +122,6 @@ public class EntrantEventAdapter extends RecyclerView.Adapter<EntrantEventAdapte
     private void joinWaitlist(Event event, EntrantEventViewHolder holder) {
         if (listener != null) {
             Toast.makeText(holder.itemView.getContext(), R.string.opening_details_to_join, Toast.LENGTH_SHORT).show();
-            listener.onEventClick(event);
-        }
-    }
-
-    private void leaveWaitlist(Event event, EntrantEventViewHolder holder) {
-        db.collection(FirestorePaths.eventWaitingList(event.getEventId()))
-                .document(userId)
-                .delete()
-                .addOnSuccessListener(unused -> {
-                    Toast.makeText(holder.itemView.getContext(), R.string.left_waitlist, Toast.LENGTH_SHORT).show();
-                    // Update specific item UI instead of full list reload if possible
-                    updateWaitlistButton(holder, event);
-                });
-    }
-
-    private void openEventDetails(Event event) {
-        if (listener != null) {
             listener.onEventClick(event);
         }
     }

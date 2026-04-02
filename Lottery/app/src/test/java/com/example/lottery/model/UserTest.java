@@ -355,6 +355,23 @@ public class UserTest {
     // Full constructor — all fields
     // -------------------------------------------------------------------------
 
+    // US 01.02.01: setUserId updates the user identifier
+    @Test
+    public void setUserId_updatesValue() {
+        User user = new User();
+        user.setUserId("new-uid");
+        assertEquals("new-uid", user.getUserId());
+    }
+
+    // US 01.02.02: setUpdatedAt directly sets the updatedAt timestamp
+    @Test
+    public void setUpdatedAt_updatesValue() {
+        User user = new User();
+        Timestamp ts = Timestamp.now();
+        user.setUpdatedAt(ts);
+        assertEquals(ts, user.getUpdatedAt());
+    }
+
     // US 01.02.01 / US 01.04.03 / US 02.02.03 / US 03.05.01: Full user records retain all profile and preference fields
     @Test
     public void fullConstructor_setsAllFields() {

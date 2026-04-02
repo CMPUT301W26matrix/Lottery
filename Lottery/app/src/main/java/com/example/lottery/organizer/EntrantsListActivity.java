@@ -354,12 +354,12 @@ public class EntrantsListActivity extends AppCompatActivity implements
 
                     maxSampleSize = min(
                             capacity - entrantSignedUpArrayList.size() - entrantInvitedArrayList.size(),
-                            entrantWaitedListArrayList.size()
+                            waitlistedDocs.size()
                     );
 
                     if (maxSampleSize < sampleSize || sampleSize <= 0) {
                         String errorMessage = String.format(
-                                "ERROR: check failed: 0 < sample size < %d",
+                                "ERROR: check failed: 0 < sample size <= %d",
                                 maxSampleSize
                         );
                         Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
