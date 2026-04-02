@@ -1,4 +1,4 @@
-package com.example.lottery;
+package com.example.lottery.adapter;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -14,7 +14,7 @@ import android.widget.TextView;
 
 import androidx.test.core.app.ApplicationProvider;
 
-import com.example.lottery.adapter.EventAdapter;
+import com.example.lottery.R;
 import com.example.lottery.model.Event;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
@@ -40,7 +40,7 @@ import java.util.List;
  * Covers US 03.04.01: As an administrator, I want to be able to browse events.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 28)
+@Config(sdk = 34)
 public class EventAdapterTest {
 
     private Context context;

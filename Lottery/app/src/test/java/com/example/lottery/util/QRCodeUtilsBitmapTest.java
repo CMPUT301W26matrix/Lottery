@@ -1,11 +1,9 @@
-package com.example.lottery;
+package com.example.lottery.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import android.graphics.Bitmap;
-
-import com.example.lottery.util.QRCodeUtils;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

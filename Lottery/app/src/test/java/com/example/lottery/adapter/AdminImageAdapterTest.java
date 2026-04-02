@@ -1,4 +1,4 @@
-package com.example.lottery;
+package com.example.lottery.adapter;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import androidx.test.core.app.ApplicationProvider;
 
-import com.example.lottery.adapter.AdminImageAdapter;
+import com.example.lottery.R;
 import com.example.lottery.model.Event;
 import com.google.firebase.Timestamp;
 
@@ -34,7 +34,7 @@ import java.util.List;
  * Covers US 03.03.01: As an administrator, I want to be able to remove event posters.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 28)
+@Config(sdk = 34)
 public class AdminImageAdapterTest {
 
     private AdminImageAdapter adapter;
@@ -202,7 +202,7 @@ public class AdminImageAdapterTest {
         FrameLayout parent = new FrameLayout(context);
         AdminImageAdapter.ImageViewHolder holder = singleAdapter.onCreateViewHolder(parent, 0);
         singleAdapter.onBindViewHolder(holder, 0);
-        
+
         TextView tvTitle = holder.itemView.findViewById(R.id.tvEventTitle);
         assertEquals("No ID Event", tvTitle.getText().toString());
     }

@@ -1,8 +1,7 @@
-package com.example.lottery;
+package com.example.lottery.adapter;
 
 import static org.junit.Assert.assertEquals;
 
-import com.example.lottery.adapter.OrganizerQrEventAdapter;
 import com.example.lottery.model.Event;
 
 import org.junit.Test;
