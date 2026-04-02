@@ -88,8 +88,6 @@ public class EntrantsListActivity extends AppCompatActivity implements
     private long capacity, maxSampleSize;
     private boolean requireLocation = false;
     private ListenerRegistration entrantsReg;
-    private String activeGroupStatus = InvitationFlowUtil.STATUS_WAITLISTED;
-
     private ActivityResultLauncher<String> createCsvLauncher;
 
     @SuppressLint("NotifyDataSetChanged")
@@ -150,23 +148,18 @@ public class EntrantsListActivity extends AppCompatActivity implements
         showLayout(waitedListEntrantsListLayout);
 
         btnSwitchSignedUp.setOnClickListener(v -> {
-            activeGroupStatus = InvitationFlowUtil.STATUS_ACCEPTED;
             showLayout(signedUpEntrantsListLayout);
         });
         btnSwitchCancelled.setOnClickListener(v -> {
-            activeGroupStatus = InvitationFlowUtil.STATUS_CANCELLED;
             showLayout(cancelledEntrantsListLayout);
         });
         btnSwitchWaitedList.setOnClickListener(v -> {
-            activeGroupStatus = InvitationFlowUtil.STATUS_WAITLISTED;
             showLayout(waitedListEntrantsListLayout);
         });
         btnSwitchInvited.setOnClickListener(v -> {
-            activeGroupStatus = InvitationFlowUtil.STATUS_INVITED;
             showLayout(invitedEntrantsListLayout);
         });
         btnSwitchNotSelected.setOnClickListener(v -> {
-            activeGroupStatus = InvitationFlowUtil.STATUS_NOT_SELECTED;
             showLayout(notSelectedEntrantsListLayout);
         });
 
@@ -176,12 +169,11 @@ public class EntrantsListActivity extends AppCompatActivity implements
         });
 
         /**
-         * navigate to the map screen to view entrant locations (US 02.02.02)
+         * navigate to the map screen to view all saved entrant locations for this event (US 02.02.02)
          */
         btnViewLocation.setOnClickListener(v -> {
             Intent intent = new Intent(this, EntrantMapActivity.class);
             intent.putExtra("eventId", eventId);
-            intent.putExtra("status", activeGroupStatus);
             startActivity(intent);
         });
 

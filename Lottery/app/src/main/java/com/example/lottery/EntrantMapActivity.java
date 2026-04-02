@@ -2,7 +2,9 @@ package com.example.lottery;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -30,8 +32,8 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 
 /**
- * Activity to display entrants' locations on a map for a specific event.
- * Shows all entrants regardless of their individual status if requireLocation is true for the event.
+ * Activity to display the locations of all entrants with saved coordinates for a
+ * specific event's waitingList records.
  */
 public class EntrantMapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -39,6 +41,7 @@ public class EntrantMapActivity extends AppCompatActivity implements OnMapReadyC
     private final ArrayList<EntrantEvent> entrants = new ArrayList<>();
     private GoogleMap googleMap;
     private MapView mapView;
+    private TextView tvMapState;
     private String eventId;
     private FirebaseFirestore db;
 
@@ -57,7 +60,7 @@ public class EntrantMapActivity extends AppCompatActivity implements OnMapReadyC
         eventId = getIntent().getStringExtra("eventId");
 
         if (eventId == null) {
-            Toast.makeText(this, "Event ID missing", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.error_event_id_missing, Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
@@ -68,10 +71,31 @@ public class EntrantMapActivity extends AppCompatActivity implements OnMapReadyC
         }
 
         mapView = findViewById(R.id.mapView);
+        tvMapState = findViewById(R.id.tvMapState);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
+        showMapState(R.string.loading_entrant_locations);
 
         checkRequirementAndFetch();
+    }
+
+    private void showMapState(int messageResId) {
+        if (tvMapState != null) {
+            tvMapState.setText(messageResId);
+            tvMapState.setVisibility(View.VISIBLE);
+        }
+        if (mapView != null) {
+            mapView.setVisibility(View.GONE);
+        }
+    }
+
+    private void showMapContent() {
+        if (tvMapState != null) {
+            tvMapState.setVisibility(View.GONE);
+        }
+        if (mapView != null) {
+            mapView.setVisibility(View.VISIBLE);
+        }
     }
 
     /**
@@ -86,17 +110,20 @@ public class EntrantMapActivity extends AppCompatActivity implements OnMapReadyC
                         if (requireLocation != null && requireLocation) {
                             fetchAllEntrantsLocations();
                         } else {
-                            // If location is not required, the map should technically be empty or not shown.
-                            // Here we show a toast as per user request.
-                            Toast.makeText(this, R.string.location_not_required_for_event, Toast.LENGTH_LONG).show();
+                            showMapState(R.string.location_not_required_for_event);
                         }
+                    } else {
+                        showMapState(R.string.event_not_found);
                     }
                 })
-                .addOnFailureListener(e -> Log.e(TAG, "Error checking event requirement", e));
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error checking event requirement", e);
+                    showMapState(R.string.failed_to_load_entrant_locations);
+                });
     }
 
     /**
-     * Fetches all entrants from the waitingList subcollection who have location data.
+     * Fetches all waitingList entrants for the event who have location data.
      */
     private void fetchAllEntrantsLocations() {
         db.collection(FirestorePaths.eventWaitingList(eventId))
@@ -109,22 +136,22 @@ public class EntrantMapActivity extends AppCompatActivity implements OnMapReadyC
                             entrant.setUserId(snapshot.getId());
                         }
 
-                        // We collect all entrants who have a location, regardless of their status
-                        // (waitlisted, invited, accepted, etc.)
-                        if (entrant.getLocation() != null) {
-                            entrants.add(entrant);
-                        }
+                        if (entrant.getLocation() == null) continue;
+
+                        entrants.add(entrant);
                     }
 
                     if (entrants.isEmpty()) {
-                        Toast.makeText(this, R.string.no_entrant_locations_available, Toast.LENGTH_LONG).show();
-                    }
-
-                    if (googleMap != null) {
+                        showMapState(R.string.no_entrant_locations_available);
+                    } else if (googleMap != null) {
+                        showMapContent();
                         insertMarkers(entrants);
                     }
                 })
-                .addOnFailureListener(e -> Log.e(TAG, "Error fetching entrants", e));
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error fetching entrants", e);
+                    showMapState(R.string.failed_to_load_entrant_locations);
+                });
     }
 
     @Override
@@ -137,6 +164,7 @@ public class EntrantMapActivity extends AppCompatActivity implements OnMapReadyC
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultCenter, 3f));
 
         if (!entrants.isEmpty()) {
+            showMapContent();
             insertMarkers(entrants);
         }
     }
