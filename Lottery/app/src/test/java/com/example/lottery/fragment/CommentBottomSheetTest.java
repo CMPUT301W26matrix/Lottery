@@ -17,6 +17,7 @@ import org.robolectric.annotation.Config;
  * Unit tests for CommentBottomSheet factory methods and argument passing.
  * Covers US 03.10.01: Admin can remove event comments that violate app policy.
  * Covers US 02.08.01: Organizer can view and delete entrant comments.
+ * Covers US 02.08.02: Organizer can comment on events.
  * Covers US 01.08.01: Entrant can post a comment on an event.
  */
 @RunWith(RobolectricTestRunner.class)

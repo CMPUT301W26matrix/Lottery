@@ -301,7 +301,7 @@ public class EntrantsListActivityTest {
     }
 
     /**
-     * US 02.06.04
+     * US 02.05.03
      * Verifies that the empty state text is shown when switching to the Not Selected tab with no entrants.
      */
     @Test

@@ -30,7 +30,8 @@ import java.util.List;
 /**
  * Unit tests for CommentAdapter.
  * Covers US 03.10.01: Admin can remove event comments that violate app policy.
- * Also covers US 02.08.01: Organizer can view and delete entrant comments.
+ * Covers US 02.08.01: Organizer can view and delete entrant comments.
+ * Covers US 02.08.02: Organizer can comment on events.
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
@@ -111,7 +112,7 @@ public class CommentAdapterTest {
         assertEquals("Alice", tvAuthor.getText().toString());
     }
 
-    // US 02.08.01: Organizer comments display "(Organizer)" marker
+    // US 02.08.01 / US 02.08.02: Organizer comments display "(Organizer)" marker
     @Test
     public void testOrganizerRoleDisplaysMarker() {
         CommentAdapter adapter = new CommentAdapter(commentList, false, "event1");
