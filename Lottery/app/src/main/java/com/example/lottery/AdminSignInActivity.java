@@ -134,6 +134,8 @@ public class AdminSignInActivity extends AppCompatActivity {
                     prefs.edit()
                             .putString("userId", "admin_main")
                             .putString("deviceId", androidId)
+                            .remove("userName")
+                            .remove("userRole")
                             .apply();
 
                     Intent intent = new Intent(this, AdminBrowseEventsActivity.class);

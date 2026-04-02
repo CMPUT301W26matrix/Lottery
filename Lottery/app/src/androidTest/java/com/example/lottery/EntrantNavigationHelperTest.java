@@ -8,6 +8,9 @@ import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static org.hamcrest.Matchers.allOf;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
 import android.app.Instrumentation;
@@ -18,6 +21,8 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+
+import com.example.lottery.util.AdminRoleManager;
 
 import org.hamcrest.Matcher;
 import org.junit.After;
@@ -34,6 +39,7 @@ import org.junit.runner.RunWith;
 public class EntrantNavigationHelperTest {
 
     private static final String TEST_USER_ID = "nav_test_entrant";
+    private static final String TEST_ADMIN_USER_ID = "admin_main";
     private Context context;
 
     @Before
@@ -44,6 +50,7 @@ public class EntrantNavigationHelperTest {
 
     @After
     public void tearDown() {
+        AdminRoleManager.clearAdminRoleSession(context);
         Intents.release();
     }
 
@@ -209,7 +216,7 @@ public class EntrantNavigationHelperTest {
     }
 
     // ================================================================
-    // From NotificationsActivity  (currentTab = HISTORY, finishOnNavigate)
+    // From NotificationsActivity  (currentTab = NONE, finishOnNavigate)
     // ================================================================
 
     private Intent notificationsIntent() {
@@ -251,6 +258,142 @@ public class EntrantNavigationHelperTest {
                      launchScreen(NotificationsActivity.class, notificationsIntent())) {
             onView(withId(R.id.nav_profile)).perform(click());
             intended(intentTo(EntrantProfileActivity.class));
+        }
+    }
+
+    // ================================================================
+    // Current-tab no-op — clicking the active tab fires no new intent
+    // (US 01.01.01 – entrant navigation)
+    // ================================================================
+
+    /**
+     * Clicking the PROFILE tab while on EntrantProfileActivity should be a no-op.
+     */
+    @Test
+    public void fromProfile_clickProfile_isNoOp() {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(EntrantProfileActivity.class, entrantIntent(EntrantProfileActivity.class))) {
+            int before = Intents.getIntents().size();
+            onView(withId(R.id.nav_profile)).perform(click());
+            assertEquals("Clicking current tab should be a no-op",
+                    before, Intents.getIntents().size());
+        }
+    }
+
+    /**
+     * Clicking the HISTORY tab while on EntrantEventHistoryActivity should be a no-op.
+     */
+    @Test
+    public void fromHistory_clickHistory_isNoOp() {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(EntrantEventHistoryActivity.class, entrantIntent(EntrantEventHistoryActivity.class))) {
+            int before = Intents.getIntents().size();
+            onView(withId(R.id.nav_history)).perform(click());
+            assertEquals("Clicking current tab should be a no-op",
+                    before, Intents.getIntents().size());
+        }
+    }
+
+    // ================================================================
+    // Admin-role extras — when admin switches to entrant role,
+    // navigation intents carry isAdminRole and adminUserId
+    // (US 03.09.01 – admin role switch)
+    // ================================================================
+
+    /**
+     * Navigation from EXPLORE should propagate admin-role extras when in admin session.
+     */
+    @Test
+    public void fromHome_toHistory_adminRole_passesExtras() {
+        AdminRoleManager.setAdminRoleSession(context, TEST_ADMIN_USER_ID);
+        try (ActivityScenario<?> ignored =
+                     launchScreen(EntrantMainActivity.class, entrantIntent(EntrantMainActivity.class))) {
+            onView(withId(R.id.nav_history)).perform(click());
+            intended(allOf(
+                    hasComponent(EntrantEventHistoryActivity.class.getName()),
+                    hasExtra("userId", TEST_USER_ID),
+                    hasExtra("isAdminRole", true),
+                    hasExtra("adminUserId", TEST_ADMIN_USER_ID)
+            ));
+        }
+    }
+
+    /**
+     * Navigation to PROFILE should also carry admin-role extras.
+     */
+    @Test
+    public void fromHome_toProfile_adminRole_passesExtras() {
+        AdminRoleManager.setAdminRoleSession(context, TEST_ADMIN_USER_ID);
+        try (ActivityScenario<?> ignored =
+                     launchScreen(EntrantMainActivity.class, entrantIntent(EntrantMainActivity.class))) {
+            onView(withId(R.id.nav_profile)).perform(click());
+            intended(allOf(
+                    hasComponent(EntrantProfileActivity.class.getName()),
+                    hasExtra("userId", TEST_USER_ID),
+                    hasExtra("isAdminRole", true),
+                    hasExtra("adminUserId", TEST_ADMIN_USER_ID)
+            ));
+        }
+    }
+
+    // ================================================================
+    // finish() behaviour — EXPLORE never finishes itself;
+    // non-EXPLORE tabs finish when navigating away; detail screens
+    // finish only when going to EXPLORE
+    // (US 01.01.01 – entrant navigation)
+    // ================================================================
+
+    /**
+     * EXPLORE is the root tab; navigating away should NOT finish it.
+     */
+    @Test
+    public void fromExplore_toHistory_doesNotFinishSelf() {
+        try (ActivityScenario<?> scenario =
+                     launchScreen(EntrantMainActivity.class, entrantIntent(EntrantMainActivity.class))) {
+            onView(withId(R.id.nav_history)).perform(click());
+            scenario.onActivity(activity ->
+                    assertFalse("EXPLORE should not finish itself", activity.isFinishing()));
+        }
+    }
+
+    /**
+     * Non-EXPLORE tab should finish itself when navigating away.
+     */
+    @Test
+    public void fromHistory_toExplore_finishesSelf() {
+        try (ActivityScenario<?> scenario =
+                     launchScreen(EntrantEventHistoryActivity.class, entrantIntent(EntrantEventHistoryActivity.class))) {
+            onView(withId(R.id.nav_explore)).perform(click());
+            scenario.onActivity(activity ->
+                    assertTrue("Non-EXPLORE tab should finish on navigate", activity.isFinishing()));
+        }
+    }
+
+    /**
+     * Detail screen (finishOnNavigate) should finish when navigating to EXPLORE.
+     */
+    @Test
+    public void fromNotifications_toExplore_finishesSelf() {
+        try (ActivityScenario<?> scenario =
+                     launchScreen(NotificationsActivity.class, notificationsIntent())) {
+            onView(withId(R.id.nav_explore)).perform(click());
+            scenario.onActivity(activity ->
+                    assertTrue("Detail screen should finish when navigating to EXPLORE",
+                            activity.isFinishing()));
+        }
+    }
+
+    /**
+     * Detail screen (finishOnNavigate) should NOT finish when navigating to non-EXPLORE.
+     */
+    @Test
+    public void fromNotifications_toHistory_doesNotFinishSelf() {
+        try (ActivityScenario<?> scenario =
+                     launchScreen(NotificationsActivity.class, notificationsIntent())) {
+            onView(withId(R.id.nav_history)).perform(click());
+            scenario.onActivity(activity ->
+                    assertFalse("Detail screen should not finish when navigating to non-EXPLORE",
+                            activity.isFinishing()));
         }
     }
 }

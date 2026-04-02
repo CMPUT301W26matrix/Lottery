@@ -18,10 +18,13 @@ import org.junit.runner.RunWith;
 
 /**
  * Waitlist-specific instrumentation tests for {@link EntrantEventDetailsActivity}.
+ *
+ * US 01.01.01: Entrant joins the waiting list for a specific event.
  */
 @RunWith(AndroidJUnit4.class)
 public class EntrantEventDetailsWaitlistTest {
 
+    // US 01.01.01: Waitlist button should show a supported state text
     @Test
     public void waitlistButton_showsSupportedStateText() {
         Intent intent = new Intent(

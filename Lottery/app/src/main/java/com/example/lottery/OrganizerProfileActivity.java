@@ -333,9 +333,11 @@ public class OrganizerProfileActivity extends AppCompatActivity {
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(this, "Profile updated", Toast.LENGTH_SHORT).show();
 
-                    SharedPreferences.Editor editor = getSharedPreferences("AppPrefs", MODE_PRIVATE).edit();
-                    editor.putString("userName", username);
-                    editor.apply();
+                    if (!AdminRoleManager.isAdminRoleSession(this)) {
+                        SharedPreferences.Editor editor = getSharedPreferences("AppPrefs", MODE_PRIVATE).edit();
+                        editor.putString("userName", username);
+                        editor.apply();
+                    }
 
                     if (forceEdit) {
                         forceEdit = false;
@@ -388,10 +390,10 @@ public class OrganizerProfileActivity extends AppCompatActivity {
         // Check if this is an admin role session
         if (AdminRoleManager.isAdminRoleSession(this)) {
             String adminUserId = AdminRoleManager.getAdminUserId(this);
-            // Clear the admin role session
             AdminRoleManager.clearAdminRoleSession(this);
+            // Remove stale role userName from global prefs
+            getSharedPreferences("AppPrefs", MODE_PRIVATE).edit().remove("userName").apply();
 
-            // Navigate back to admin profile
             Intent intent = new Intent(this, AdminProfileActivity.class);
             intent.putExtra("userId", adminUserId);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

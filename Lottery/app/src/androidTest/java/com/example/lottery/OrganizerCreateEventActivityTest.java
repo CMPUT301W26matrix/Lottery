@@ -18,13 +18,16 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
  * Instrumentation tests for OrganizerCreateEventActivity.
- * Focuses on US 02.03.01: Optionally Limit Waiting List Size and general UI.
+ *
+ * US 02.03.01: Optionally Limit Waiting List Size.
+ * US 02.02.03: Enable or disable the geolocation requirement for an event.
  */
 @RunWith(AndroidJUnit4.class)
 public class OrganizerCreateEventActivityTest {
@@ -118,5 +121,33 @@ public class OrganizerCreateEventActivityTest {
             onView(withId(R.id.btnCreateEvent)).perform(scrollTo())
                     .check(matches(withText("Update Event")));
         }
+    }
+
+    // US 02.02.03: Geolocation toggle switch should be visible on the create event screen.
+    @Test
+    public void testGeolocationSwitchExists() {
+        onView(withId(R.id.swRequireLocation))
+                .perform(scrollTo())
+                .check(matches(isDisplayed()));
+    }
+
+    // US 02.02.03: Organizer can toggle geolocation switch on and off.
+    @Test
+    public void testGeolocationSwitchToggles() {
+        onView(withId(R.id.swRequireLocation)).perform(scrollTo(), click());
+
+        activityRule.getScenario().onActivity(activity -> {
+            com.google.android.material.switchmaterial.SwitchMaterial sw =
+                    activity.findViewById(R.id.swRequireLocation);
+            Assert.assertTrue("Geolocation switch should be ON after click", sw.isChecked());
+        });
+
+        onView(withId(R.id.swRequireLocation)).perform(scrollTo(), click());
+
+        activityRule.getScenario().onActivity(activity -> {
+            com.google.android.material.switchmaterial.SwitchMaterial sw =
+                    activity.findViewById(R.id.swRequireLocation);
+            Assert.assertFalse("Geolocation switch should be OFF after second click", sw.isChecked());
+        });
     }
 }

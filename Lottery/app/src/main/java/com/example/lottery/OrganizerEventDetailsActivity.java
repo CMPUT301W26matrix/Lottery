@@ -115,6 +115,15 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         }
 
         OrganizerNavigationHelper.setup(this, OrganizerNavigationHelper.OrganizerTab.HOME, userId, true);
+        // Fetch authoritative name from Firestore
+        db.collection(FirestorePaths.USERS).document(userId).get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        String name = doc.getString("username");
+                        if (name != null && !name.isEmpty()) userName = name;
+                    }
+                });
+
         fetchEventDetails(eventId);
         fetchEntrantCounts(eventId);
 

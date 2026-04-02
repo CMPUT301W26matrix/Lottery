@@ -8,6 +8,9 @@ import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static org.hamcrest.Matchers.allOf;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
 import android.app.Instrumentation;
@@ -20,6 +23,7 @@ import androidx.test.espresso.intent.Intents;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.example.lottery.model.Event;
+import com.example.lottery.util.AdminRoleManager;
 import com.example.lottery.util.FirestorePaths;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -43,6 +47,7 @@ public class OrganizerNavigationHelperTest {
 
     private static final String TEST_USER_ID = "nav_test_organizer";
     private static final String TEST_EVENT_ID = "nav_test_event";
+    private static final String TEST_ADMIN_USER_ID = "admin_main";
     private Context context;
     private FirebaseFirestore db;
 
@@ -65,6 +70,7 @@ public class OrganizerNavigationHelperTest {
 
     @After
     public void tearDown() throws Exception {
+        AdminRoleManager.clearAdminRoleSession(context);
         Intents.release();
         Tasks.await(db.collection(FirestorePaths.EVENTS).document(TEST_EVENT_ID).delete(), 10, TimeUnit.SECONDS);
     }
@@ -320,6 +326,141 @@ public class OrganizerNavigationHelperTest {
                      launchScreen(OrganizerEventDetailsActivity.class, eventDetailIntent())) {
             onView(withId(R.id.nav_create_container)).perform(click());
             intended(intentTo(OrganizerCreateEventActivity.class));
+        }
+    }
+
+    // ================================================================
+    // Current-tab no-op — clicking the active tab fires no new intent
+    // (US 02.01.01 – organizer navigation)
+    // ================================================================
+
+    /**
+     * Clicking the PROFILE tab while on OrganizerProfileActivity should be a no-op.
+     */
+    @Test
+    public void fromProfile_clickProfile_isNoOp() {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(OrganizerProfileActivity.class, organizerIntent(OrganizerProfileActivity.class))) {
+            int before = Intents.getIntents().size();
+            onView(withId(R.id.nav_profile)).perform(click());
+            assertEquals("Clicking current tab should be a no-op",
+                    before, Intents.getIntents().size());
+        }
+    }
+
+    /**
+     * Clicking NOTIFICATIONS while on OrganizerNotificationsActivity should be a no-op.
+     */
+    @Test
+    public void fromNotifications_clickNotifications_isNoOp() {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(OrganizerNotificationsActivity.class, organizerIntent(OrganizerNotificationsActivity.class))) {
+            int before = Intents.getIntents().size();
+            onView(withId(R.id.nav_notifications)).perform(click());
+            assertEquals("Clicking current tab should be a no-op",
+                    before, Intents.getIntents().size());
+        }
+    }
+
+    // ================================================================
+    // Admin-role extras — when admin switches to organizer role,
+    // navigation intents carry isAdminRole and adminUserId
+    // (US 03.09.01 – admin role switch)
+    // ================================================================
+
+    /**
+     * Navigation from HOME should propagate admin-role extras when in admin session.
+     */
+    @Test
+    public void fromHome_toNotifications_adminRole_passesExtras() {
+        AdminRoleManager.setAdminRoleSession(context, TEST_ADMIN_USER_ID);
+        try (ActivityScenario<?> ignored =
+                     launchScreen(OrganizerBrowseEventsActivity.class, organizerIntent(OrganizerBrowseEventsActivity.class))) {
+            onView(withId(R.id.nav_notifications)).perform(click());
+            intended(allOf(
+                    hasComponent(OrganizerNotificationsActivity.class.getName()),
+                    hasExtra("userId", TEST_USER_ID),
+                    hasExtra("isAdminRole", true),
+                    hasExtra("adminUserId", TEST_ADMIN_USER_ID)
+            ));
+        }
+    }
+
+    /**
+     * Create FAB should also carry admin-role extras.
+     */
+    @Test
+    public void fromHome_toCreate_adminRole_passesExtras() {
+        AdminRoleManager.setAdminRoleSession(context, TEST_ADMIN_USER_ID);
+        try (ActivityScenario<?> ignored =
+                     launchScreen(OrganizerBrowseEventsActivity.class, organizerIntent(OrganizerBrowseEventsActivity.class))) {
+            onView(withId(R.id.nav_create_container)).perform(click());
+            intended(allOf(
+                    hasComponent(OrganizerCreateEventActivity.class.getName()),
+                    hasExtra("userId", TEST_USER_ID),
+                    hasExtra("isAdminRole", true),
+                    hasExtra("adminUserId", TEST_ADMIN_USER_ID)
+            ));
+        }
+    }
+
+    // ================================================================
+    // finish() behaviour — HOME never finishes; non-HOME finishes;
+    // detail screens (finishOnNavigate) finish only when going HOME
+    // (US 02.01.01 – organizer navigation)
+    // ================================================================
+
+    /**
+     * HOME tab should NOT finish itself when navigating to another tab.
+     */
+    @Test
+    public void fromHome_toNotifications_doesNotFinishSelf() {
+        try (ActivityScenario<?> scenario =
+                     launchScreen(OrganizerBrowseEventsActivity.class, organizerIntent(OrganizerBrowseEventsActivity.class))) {
+            onView(withId(R.id.nav_notifications)).perform(click());
+            scenario.onActivity(activity ->
+                    assertFalse("HOME should not finish itself", activity.isFinishing()));
+        }
+    }
+
+    /**
+     * Non-HOME tab should finish itself when navigating away.
+     */
+    @Test
+    public void fromNotifications_toHome_finishesSelf() {
+        try (ActivityScenario<?> scenario =
+                     launchScreen(OrganizerNotificationsActivity.class, organizerIntent(OrganizerNotificationsActivity.class))) {
+            onView(withId(R.id.nav_home)).perform(click());
+            scenario.onActivity(activity ->
+                    assertTrue("Non-HOME tab should finish on navigate", activity.isFinishing()));
+        }
+    }
+
+    /**
+     * Detail screen (finishOnNavigate) should finish when navigating to HOME.
+     */
+    @Test
+    public void fromEventDetails_toHome_finishesSelf() {
+        try (ActivityScenario<?> scenario =
+                     launchScreen(OrganizerEventDetailsActivity.class, eventDetailIntent())) {
+            onView(withId(R.id.nav_home)).perform(click());
+            scenario.onActivity(activity ->
+                    assertTrue("Detail screen should finish when navigating to HOME",
+                            activity.isFinishing()));
+        }
+    }
+
+    /**
+     * Detail screen (finishOnNavigate) should NOT finish when navigating to non-HOME.
+     */
+    @Test
+    public void fromEventDetails_toProfile_doesNotFinishSelf() {
+        try (ActivityScenario<?> scenario =
+                     launchScreen(OrganizerEventDetailsActivity.class, eventDetailIntent())) {
+            onView(withId(R.id.nav_profile)).perform(click());
+            scenario.onActivity(activity ->
+                    assertFalse("Detail screen should not finish when navigating to non-HOME",
+                            activity.isFinishing()));
         }
     }
 }

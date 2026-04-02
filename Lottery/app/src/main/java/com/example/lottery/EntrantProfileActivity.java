@@ -401,9 +401,11 @@ public class EntrantProfileActivity extends AppCompatActivity {
         db.collection(FirestorePaths.USERS).document(userId).set(updates, SetOptions.merge())
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(this, "Profile updated", Toast.LENGTH_SHORT).show();
-                    SharedPreferences.Editor editor = getSharedPreferences("AppPrefs", MODE_PRIVATE).edit();
-                    editor.putString("userName", username);
-                    editor.apply();
+                    if (!AdminRoleManager.isAdminRoleSession(this)) {
+                        SharedPreferences.Editor editor = getSharedPreferences("AppPrefs", MODE_PRIVATE).edit();
+                        editor.putString("userName", username);
+                        editor.apply();
+                    }
 
                     if (forceEdit) {
                         forceEdit = false;
@@ -454,6 +456,8 @@ public class EntrantProfileActivity extends AppCompatActivity {
         if (AdminRoleManager.isAdminRoleSession(this)) {
             String adminUserId = AdminRoleManager.getAdminUserId(this);
             AdminRoleManager.clearAdminRoleSession(this);
+            // Remove stale role userName from global prefs
+            getSharedPreferences("AppPrefs", MODE_PRIVATE).edit().remove("userName").apply();
 
             Intent intent = new Intent(this, AdminProfileActivity.class);
             intent.putExtra("userId", adminUserId);

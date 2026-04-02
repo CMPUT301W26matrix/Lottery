@@ -144,7 +144,6 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     private boolean isDescriptionExpanded = false;
 
     private ListenerRegistration waitlistListener;
-    private boolean isAcceptingInviteMode = false;
     /**
      * True once event metadata has been successfully loaded from Firestore.
      */
@@ -183,8 +182,16 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         if (userId == null) {
             userId = prefs.getString("userId", null);
         }
-        userName = prefs.getString("userName", "");
-        userEmail = prefs.getString("userEmail", "");
+        // Use prefs as synchronous fallback for normal users; admin-role sessions
+        // start blank because prefs may contain the admin's identity.
+        // loadUserProfileSettings() overwrites with the authoritative Firestore data.
+        if (!com.example.lottery.util.AdminRoleManager.isAdminRoleSession(this)) {
+            userName = prefs.getString("userName", "");
+            userEmail = prefs.getString("userEmail", "");
+        } else {
+            userName = "";
+            userEmail = "";
+        }
 
         eventId = getIntent().getStringExtra(EXTRA_EVENT_ID);
 
@@ -200,7 +207,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         loadWaitlistCount();
         checkUnreadNotifications();
 
-        btnAcceptInvite.setOnClickListener(v -> handleActionWithLocationCheck(true));
+        btnAcceptInvite.setOnClickListener(v -> acceptInvitation());
         btnDeclineInvite.setOnClickListener(v -> declineInvitation());
 
         btnWaitlistAction.setOnClickListener(v -> {
@@ -213,7 +220,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
             } else if (isInWaitlist) {
                 leaveWaitlist();
             } else {
-                handleActionWithLocationCheck(false);
+                handleActionWithLocationCheck();
             }
         });
 
@@ -298,6 +305,10 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                     if (doc.exists()) {
                         Boolean geo = doc.getBoolean("geolocationEnabled");
                         userGeolocationEnabled = geo != null && geo;
+                        String name = doc.getString("username");
+                        if (name != null && !name.isEmpty()) userName = name;
+                        String email = doc.getString("email");
+                        if (email != null) userEmail = email;
                     }
                 });
     }
@@ -422,13 +433,10 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     /**
      * Handles an action that may require location before completion.
      *
-     * @param isInviteFlow True when the user is accepting an invitation; false when joining waitlist.
      */
-    private void handleActionWithLocationCheck(boolean isInviteFlow) {
-        this.isAcceptingInviteMode = isInviteFlow;
-
+    private void handleActionWithLocationCheck() {
         if (!eventRequiresLocation) {
-            finalizeAction(null);
+            joinWaitlist(null);
             return;
         }
 
@@ -513,19 +521,6 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * Requests location permissions and continues the current action if permission is granted.
-     */
-    private final ActivityResultLauncher<String[]> locationPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
-                if (result.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false)
-                        || result.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)) {
-                    startLocationCollection();
-                } else {
-                    Toast.makeText(this, "Location is required to proceed", Toast.LENGTH_LONG).show();
-                }
-            });
-
-    /**
      * Starts location collection or requests permission if needed.
      */
     private void startLocationCollection() {
@@ -546,16 +541,25 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     }
 
     /**
+     * Requests location permissions and continues the current action if permission is granted.
+     */
+    private final ActivityResultLauncher<String[]> locationPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
+                if (result.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false)
+                        || result.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)) {
+                    startLocationCollection();
+                } else {
+                    Toast.makeText(this, "Location is required to proceed", Toast.LENGTH_LONG).show();
+                }
+            });
+
+    /**
      * Finalizes the current action once optional location collection is complete.
      *
      * @param location The collected location, or null if unavailable.
      */
     private void finalizeAction(Location location) {
-        if (isAcceptingInviteMode) {
-            acceptInvitation(location);
-        } else {
-            joinWaitlist(location);
-        }
+        joinWaitlist(location);
     }
 
     /**
@@ -703,10 +707,9 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
 
     /**
      * Performs the accept-invitation action by updating the Firestore record.
-     *
-     * @param location The user's current location if required by the event, otherwise null.
+     * Does not require geolocation — location is only collected when joining the waitlist.
      */
-    private void acceptInvitation(Location location) {
+    private void acceptInvitation() {
         Map<String, Object> updates;
 
         if (isInvited && !wasWaitlisted) {
@@ -715,10 +718,6 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
             updates = InvitationFlowUtil.buildEntrantStatusUpdateFromResponse(
                     InvitationFlowUtil.RESPONSE_ACCEPTED
             );
-        }
-
-        if (location != null) {
-            updates.put("location", new GeoPoint(location.getLatitude(), location.getLongitude()));
         }
 
         db.collection(FirestorePaths.eventWaitingList(eventId)).document(userId)
@@ -852,4 +851,6 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                     Toast.makeText(this, R.string.left_waitlist, Toast.LENGTH_SHORT).show();
                 });
     }
+
+
 }

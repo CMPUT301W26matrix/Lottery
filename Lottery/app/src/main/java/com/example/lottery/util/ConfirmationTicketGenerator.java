@@ -167,7 +167,7 @@ public final class ConfirmationTicketGenerator {
         // Position badge at top-right with margin
         float badgeRight = PAGE_WIDTH - SIDE_MARGIN;
         float badgeLeft = badgeRight - badgeWidth;
-        
+
         // Vertically center badge relative to the title/subtitle row area
         // (Middle between title top and subtitle bottom approx)
         float contentCenterY = (titleY - 20 + subtitleY) / 2f;
@@ -175,7 +175,7 @@ public final class ConfirmationTicketGenerator {
         float badgeBottom = badgeTop + badgeHeight;
 
         RectF badgeRect = new RectF(badgeLeft, badgeTop, badgeRight, badgeBottom);
-        
+
         Paint badgeBgPaint = new Paint();
         badgeBgPaint.setColor(Color.WHITE);
         badgeBgPaint.setStyle(Paint.Style.FILL);

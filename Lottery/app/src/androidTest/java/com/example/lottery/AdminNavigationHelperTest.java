@@ -8,6 +8,9 @@ import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static org.hamcrest.Matchers.allOf;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
 import android.app.Instrumentation;
@@ -427,6 +430,85 @@ public class AdminNavigationHelperTest {
                      launchScreen(AdminImageDetailsActivity.class, imageDetailIntent())) {
             onView(withId(R.id.nav_admin_settings)).perform(click());
             intended(intentTo(AdminProfileActivity.class));
+        }
+    }
+
+    // ================================================================
+    // Current-tab no-op — clicking the active tab fires no new intent
+    // (US 03.01.01, US 03.02.01 – admin browse navigation)
+    // ================================================================
+
+    /**
+     * Clicking the PROFILES tab while on AdminBrowseProfilesActivity should be a no-op.
+     */
+    @Test
+    public void fromProfiles_clickProfiles_isNoOp() {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(AdminBrowseProfilesActivity.class, adminIntent(AdminBrowseProfilesActivity.class))) {
+            int before = Intents.getIntents().size();
+            onView(withId(R.id.nav_profiles)).perform(click());
+            assertEquals("Clicking current tab should be a no-op",
+                    before, Intents.getIntents().size());
+        }
+    }
+
+    /**
+     * Clicking the SETTINGS tab while on AdminProfileActivity should be a no-op.
+     */
+    @Test
+    public void fromSettings_clickSettings_isNoOp() {
+        try (ActivityScenario<?> ignored =
+                     launchScreen(AdminProfileActivity.class, adminIntent(AdminProfileActivity.class))) {
+            int before = Intents.getIntents().size();
+            onView(withId(R.id.nav_admin_settings)).perform(click());
+            assertEquals("Clicking current tab should be a no-op",
+                    before, Intents.getIntents().size());
+        }
+    }
+
+    // ================================================================
+    // finish() behaviour — EVENTS (HOME) never finishes itself;
+    // non-EVENTS tabs finish when navigating away; detail screens
+    // always finish.
+    // (US 03.01.01 – admin browse events navigation)
+    // ================================================================
+
+    /**
+     * EVENTS is the root tab; navigating away should NOT finish it.
+     */
+    @Test
+    public void fromEvents_toProfiles_doesNotFinishSelf() {
+        try (ActivityScenario<?> scenario =
+                     launchScreen(AdminBrowseEventsActivity.class, adminIntent(AdminBrowseEventsActivity.class))) {
+            onView(withId(R.id.nav_profiles)).perform(click());
+            scenario.onActivity(activity ->
+                    assertFalse("EVENTS (HOME) should not finish itself", activity.isFinishing()));
+        }
+    }
+
+    /**
+     * Non-EVENTS tabs should finish themselves when navigating away.
+     */
+    @Test
+    public void fromProfiles_toEvents_finishesSelf() {
+        try (ActivityScenario<?> scenario =
+                     launchScreen(AdminBrowseProfilesActivity.class, adminIntent(AdminBrowseProfilesActivity.class))) {
+            onView(withId(R.id.nav_home)).perform(click());
+            scenario.onActivity(activity ->
+                    assertTrue("Non-EVENTS tab should finish on navigate", activity.isFinishing()));
+        }
+    }
+
+    /**
+     * Detail screen (finishOnNavigate) should always finish when navigating.
+     */
+    @Test
+    public void fromEventDetails_toEvents_finishesSelf() {
+        try (ActivityScenario<?> scenario =
+                     launchScreen(AdminEventDetailsActivity.class, eventDetailIntent())) {
+            onView(withId(R.id.nav_home)).perform(click());
+            scenario.onActivity(activity ->
+                    assertTrue("Detail screen should finish on navigate", activity.isFinishing()));
         }
     }
 }

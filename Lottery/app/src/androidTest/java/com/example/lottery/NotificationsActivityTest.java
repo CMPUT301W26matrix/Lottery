@@ -4,11 +4,15 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.intent.Intents.intended;
+import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
+import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
 import static androidx.test.espresso.matcher.RootMatchers.isDialog;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.Matchers.allOf;
 
 import android.content.Intent;
 import android.view.View;
@@ -17,14 +21,18 @@ import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
+import androidx.test.espresso.intent.Intents;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.example.lottery.model.NotificationItem;
+import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.hamcrest.Matcher;
+import org.junit.After;
 import org.junit.Assert;
-import org.junit.Ignore;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -34,17 +42,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * TEMPORARILY DISABLED: Stable instrumented tests for NotificationsActivity.
- * <p>
- * REASON:
- * - This test suite is currently blocked by a Firestore/protobuf runtime dependency conflict during androidTest.
- * - Error: java.lang.RuntimeException: Internal error in Cloud Firestore
- * - Caused by: java.lang.NoSuchMethodError involving com.google.protobuf.GeneratedMessageLite
- * - This should be revisited after a thorough Gradle/Firebase dependency cleanup.
+ * Instrumented tests for NotificationsActivity.
+ * Firestore network is disabled so onCreate's loadNotifications() resolves
+ * from empty cache immediately; test data is injected via reflection.
+ *
+ * US 01.04.01: Entrant receives and views notifications.
  */
-@Ignore("Blocked by Firestore/protobuf androidTest runtime conflict. Revisit after dependency cleanup.")
 @RunWith(AndroidJUnit4.class)
 public class NotificationsActivityTest {
+
+    private static final String TEST_USER_ID = "test-user-123";
+
+    @Before
+    public void setUp() throws Exception {
+        Tasks.await(FirebaseFirestore.getInstance().disableNetwork());
+        Intents.init();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        Intents.release();
+        Tasks.await(FirebaseFirestore.getInstance().enableNetwork());
+    }
 
     private static ViewAction waitFor(final long millis) {
         return new ViewAction() {
@@ -70,7 +89,7 @@ public class NotificationsActivityTest {
                 InstrumentationRegistry.getInstrumentation().getTargetContext(),
                 NotificationsActivity.class
         );
-        intent.putExtra(NotificationsActivity.EXTRA_USER_ID, "test-user-123");
+        intent.putExtra(NotificationsActivity.EXTRA_USER_ID, TEST_USER_ID);
         return ActivityScenario.launch(intent);
     }
 
@@ -131,10 +150,17 @@ public class NotificationsActivityTest {
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
     }
 
+    // US 01.04.01: Activity launches and shows the notification list
     @Test
     public void testActivityLaunch() {
         try (ActivityScenario<NotificationsActivity> scenario = launchActivity()) {
             Assert.assertEquals(Lifecycle.State.RESUMED, scenario.getState());
+
+            List<NotificationItem> items = new ArrayList<>();
+            items.add(createNotification(
+                    "notif-launch", "Launch Test", "msg", "general", null, false));
+            injectNotifications(scenario, items);
+            onView(isRoot()).perform(waitFor(300));
 
             onView(withId(R.id.rvNotifications))
                     .check(matches(isDisplayed()));
@@ -144,11 +170,10 @@ public class NotificationsActivityTest {
         }
     }
 
+    // US 01.04.01: Empty inbox shows a placeholder message
     @Test
     public void testEmptyStateShowsNoNotificationsMessage() {
         try (ActivityScenario<NotificationsActivity> scenario = launchActivity()) {
-            Assert.assertEquals(Lifecycle.State.RESUMED, scenario.getState());
-
             injectNotifications(scenario, new ArrayList<>());
             onView(isRoot()).perform(waitFor(300));
 
@@ -157,11 +182,10 @@ public class NotificationsActivityTest {
         }
     }
 
+    // US 01.04.01: Injected notification title is visible in the list
     @Test
     public void testNotificationDisplay() {
         try (ActivityScenario<NotificationsActivity> scenario = launchActivity()) {
-            Assert.assertEquals(Lifecycle.State.RESUMED, scenario.getState());
-
             List<NotificationItem> items = new ArrayList<>();
             items.add(createNotification(
                     "notif-1",
@@ -180,11 +204,10 @@ public class NotificationsActivityTest {
         }
     }
 
+    // US 01.04.01: Clicking a general notification opens an AlertDialog
     @Test
-    public void testNotificationClickOpensDialog() {
+    public void testGeneralNotificationClickOpensDialog() {
         try (ActivityScenario<NotificationsActivity> scenario = launchActivity()) {
-            Assert.assertEquals(Lifecycle.State.RESUMED, scenario.getState());
-
             List<NotificationItem> items = new ArrayList<>();
             items.add(createNotification(
                     "notif-2",
@@ -197,11 +220,8 @@ public class NotificationsActivityTest {
 
             injectNotifications(scenario, items);
 
-            // Directly trigger click callback instead of clicking RecyclerView item,
-            // to avoid real Firestore read/write side effects from production click flow.
             scenario.onActivity(activity -> activity.onNotificationClick(items.get(0)));
-
-            onView(isRoot()).perform(waitFor(300));
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
             onView(withText("Normal Notification")).inRoot(isDialog())
                     .check(matches(isDisplayed()));
@@ -214,11 +234,10 @@ public class NotificationsActivityTest {
         }
     }
 
+    // US 01.04.01: OK button dismisses the general notification dialog
     @Test
-    public void testNormalNotificationDialogOkButtonDismissesDialog() {
+    public void testGeneralNotificationDialogOkDismisses() {
         try (ActivityScenario<NotificationsActivity> scenario = launchActivity()) {
-            Assert.assertEquals(Lifecycle.State.RESUMED, scenario.getState());
-
             NotificationItem item = createNotification(
                     "notif-5",
                     "Dismiss Dialog Notification",
@@ -234,7 +253,7 @@ public class NotificationsActivityTest {
             injectNotifications(scenario, items);
 
             scenario.onActivity(activity -> activity.onNotificationClick(item));
-            onView(isRoot()).perform(waitFor(300));
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
             onView(withText("Dismiss Dialog Notification")).inRoot(isDialog())
                     .check(matches(isDisplayed()));
@@ -244,19 +263,18 @@ public class NotificationsActivityTest {
 
             onView(isRoot()).perform(waitFor(300));
 
-            onView(withText("Dismiss Dialog Notification"))
+            onView(withText("OK"))
                     .check(doesNotExist());
         }
     }
 
+    // US 01.04.01: Clicking an invitation notification navigates to event details
     @Test
-    public void testInvitationNotificationClickShowsActionButtons() {
+    public void testInvitationNotificationNavigatesToEventDetails() {
         try (ActivityScenario<NotificationsActivity> scenario = launchActivity()) {
-            Assert.assertEquals(Lifecycle.State.RESUMED, scenario.getState());
-
             NotificationItem item = createNotification(
                     "notif-3",
-                    "Invitation Notification",
+                    "You've been invited!",
                     "You have been invited to an event.",
                     "event_invitation",
                     "event-123",
@@ -265,80 +283,85 @@ public class NotificationsActivityTest {
 
             List<NotificationItem> items = new ArrayList<>();
             items.add(item);
-
             injectNotifications(scenario, items);
 
             scenario.onActivity(activity -> activity.onNotificationClick(item));
-            onView(isRoot()).perform(waitFor(300));
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
-            onView(withText("Invitation Notification")).inRoot(isDialog())
-                    .check(matches(isDisplayed()));
-
-            onView(withText("You have been invited to an event.")).inRoot(isDialog())
-                    .check(matches(isDisplayed()));
-
-            onView(withText(R.string.accept_invite)).inRoot(isDialog())
-                    .check(matches(isDisplayed()));
-
-            onView(withText(R.string.reject)).inRoot(isDialog())
-                    .check(matches(isDisplayed()));
-
-            onView(withText(R.string.close)).inRoot(isDialog())
-                    .check(matches(isDisplayed()));
+            intended(allOf(
+                    hasComponent(EntrantEventDetailsActivity.class.getName()),
+                    hasExtra(EntrantEventDetailsActivity.EXTRA_EVENT_ID, "event-123"),
+                    hasExtra(EntrantEventDetailsActivity.EXTRA_USER_ID, TEST_USER_ID)
+            ));
         }
     }
 
+    // US 01.04.01: Invitation without eventId falls back to a dialog instead of navigating
     @Test
-    public void testInvitationDialogAcceptButtonExists() {
+    public void testInvitationWithoutEventIdShowsDialog() {
         try (ActivityScenario<NotificationsActivity> scenario = launchActivity()) {
-            Assert.assertEquals(Lifecycle.State.RESUMED, scenario.getState());
-
             NotificationItem item = createNotification(
-                    "notif-7",
-                    "Invitation Accept Test",
-                    "Accept button should be shown.",
+                    "notif-4",
+                    "Invitation (no event)",
+                    "Event ID is missing.",
                     "event_invitation",
-                    "event-789",
+                    null,
                     false
             );
 
             List<NotificationItem> items = new ArrayList<>();
             items.add(item);
-
             injectNotifications(scenario, items);
 
             scenario.onActivity(activity -> activity.onNotificationClick(item));
-            onView(isRoot()).perform(waitFor(300));
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
-            onView(withText(R.string.accept_invite)).inRoot(isDialog())
+            onView(withText("Invitation (no event)")).inRoot(isDialog())
                     .check(matches(isDisplayed()));
         }
     }
 
+    // US 01.04.01: Unread notification shows "NEW" badge with highlight background
     @Test
-    public void testInvitationDialogRejectButtonExists() {
+    public void testUnreadNotificationShowsNewBadge() {
         try (ActivityScenario<NotificationsActivity> scenario = launchActivity()) {
-            Assert.assertEquals(Lifecycle.State.RESUMED, scenario.getState());
-
-            NotificationItem item = createNotification(
-                    "notif-8",
-                    "Invitation Reject Test",
-                    "Reject button should be shown.",
-                    "event_invitation",
-                    "event-999",
-                    false
-            );
-
             List<NotificationItem> items = new ArrayList<>();
-            items.add(item);
+            items.add(createNotification(
+                    "notif-6",
+                    "Unread Notification",
+                    "This should show a NEW badge.",
+                    "general",
+                    null,
+                    false
+            ));
 
             injectNotifications(scenario, items);
-
-            scenario.onActivity(activity -> activity.onNotificationClick(item));
             onView(isRoot()).perform(waitFor(300));
 
-            onView(withText(R.string.reject)).inRoot(isDialog())
+            onView(withText("Unread Notification"))
                     .check(matches(isDisplayed()));
+
+            scenario.onActivity(activity -> {
+                androidx.recyclerview.widget.RecyclerView rv =
+                        activity.findViewById(R.id.rvNotifications);
+                Assert.assertNotNull("RecyclerView should exist", rv);
+
+                View itemView = rv.findViewHolderForAdapterPosition(0).itemView;
+                Assert.assertNotNull("First item view should exist", itemView);
+
+                // Verify "NEW" badge is visible
+                View tvNew = itemView.findViewById(R.id.tvNotificationNew);
+                Assert.assertNotNull("tvNotificationNew should exist", tvNew);
+                Assert.assertEquals("NEW badge should be VISIBLE for unread notification",
+                        View.VISIBLE, tvNew.getVisibility());
+
+                // Verify highlight background color (#EEF3FF)
+                android.graphics.drawable.ColorDrawable bg =
+                        (android.graphics.drawable.ColorDrawable) itemView.getBackground();
+                Assert.assertNotNull("Item should have a background color", bg);
+                Assert.assertEquals("Unread item should have #EEF3FF background",
+                        android.graphics.Color.parseColor("#EEF3FF"), bg.getColor());
+            });
         }
     }
 }

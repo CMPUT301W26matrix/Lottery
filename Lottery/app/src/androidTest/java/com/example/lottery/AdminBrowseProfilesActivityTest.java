@@ -14,6 +14,7 @@ import static org.hamcrest.Matchers.containsString;
 import android.content.Intent;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ActivityScenario;
@@ -247,7 +248,8 @@ public class AdminBrowseProfilesActivityTest {
     @Test
     public void filterOrganizer_emptyState_showsMessage() {
         try (ActivityScenario<AdminBrowseProfilesActivity> scenario = launchAdminActivity()) {
-            // Inject only entrants into allUsers
+            // Inject data, click filter, and assert atomically on the UI thread
+            // to avoid race with the async Firestore loadProfiles() callback
             scenario.onActivity(activity -> {
                 User entrant = new User("e-1", "EntrantOnly", "e@test.com", "");
                 entrant.setRole("ENTRANT");
@@ -260,13 +262,13 @@ public class AdminBrowseProfilesActivityTest {
                 ListView listView = activity.findViewById(R.id.lvProfiles);
                 listView.setVisibility(View.VISIBLE);
                 ((ProfileAdapter) listView.getAdapter()).notifyDataSetChanged();
+
+                // Click filter and assert in the same UI thread turn
+                activity.findViewById(R.id.btnFilterOrganizer).performClick();
+
+                TextView tvEmpty = activity.findViewById(R.id.tvEmptyProfiles);
+                Assert.assertEquals(View.VISIBLE, tvEmpty.getVisibility());
             });
-            InstrumentationRegistry.getInstrumentation().waitForIdleSync();
-
-            onView(withId(R.id.btnFilterOrganizer)).perform(click());
-            onView(isRoot()).perform(waitFor(300));
-
-            onView(withId(R.id.tvEmptyProfiles)).check(matches(isDisplayed()));
         }
     }
 

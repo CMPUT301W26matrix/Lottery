@@ -359,6 +359,10 @@ public class AdminProfileActivity extends AppCompatActivity {
     private void logout() {
         SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
         prefs.edit().clear().apply();
+
+        // Clear admin role session to prevent stale state after re-login
+        AdminRoleManager.clearAdminRoleSession(this);
+
         FirebaseAuth.getInstance().signOut();
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

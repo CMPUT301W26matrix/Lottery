@@ -53,6 +53,9 @@ public class MainActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         sharedPreferences = getSharedPreferences("AppPrefs", MODE_PRIVATE);
 
+        // Clear any stale admin role session when returning to the entry screen
+        com.example.lottery.util.AdminRoleManager.clearAdminRoleSession(this);
+
         Button entrantButton = findViewById(R.id.entrant_login_button);
         Button organizerButton = findViewById(R.id.organizer_login_button);
         Button adminButton = findViewById(R.id.admin_login_button);
@@ -124,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
         userData.put("createdAt", now);
         userData.put("updatedAt", now);
         userData.put("notificationsEnabled", true);
+        userData.put("geolocationEnabled", false);
 
         db.collection(FirestorePaths.USERS).document(userId).set(userData).addOnSuccessListener(aVoid -> {
             saveSessionLocally(userId, role, androidId, "");

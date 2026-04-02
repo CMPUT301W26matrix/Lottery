@@ -80,14 +80,14 @@ public class EntrantEventAdapterTest {
     }
 
     /**
-     * Verifies that the item_event_home layout no longer contains a View Details button.
+     * Verifies that the item_event_explore layout contains a View Detail button.
      */
     @Test
-    public void testViewDetailsButtonRemoved() {
+    public void testViewDetailButtonExists() {
         Activity activity = Robolectric.buildActivity(Activity.class).create().get();
-        View itemView = activity.getLayoutInflater().inflate(R.layout.item_event_home, null);
-        View btnViewDetails = itemView.findViewById(R.id.btnViewDetails);
-        assertNull("btnViewDetails should no longer exist in item_event_home layout", btnViewDetails);
+        View itemView = activity.getLayoutInflater().inflate(R.layout.item_event_explore, null);
+        View btnViewDetail = itemView.findViewById(R.id.btnViewDetail);
+        assertNotNull("btnViewDetail should exist in item_event_explore layout", btnViewDetail);
     }
 
     /**

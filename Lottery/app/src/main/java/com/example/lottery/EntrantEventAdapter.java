@@ -50,7 +50,7 @@ public class EntrantEventAdapter extends RecyclerView.Adapter<EntrantEventAdapte
     @Override
     public EntrantEventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_event_home, parent, false);
+                .inflate(R.layout.item_event_explore, parent, false);
         return new EntrantEventViewHolder(view);
     }
 
@@ -104,7 +104,7 @@ public class EntrantEventAdapter extends RecyclerView.Adapter<EntrantEventAdapte
                 .addOnSuccessListener(doc -> {
                     if (doc.exists()) {
                         String status = InvitationFlowUtil.normalizeEntrantStatus(doc.getString("status"));
-                        
+
                         if (InvitationFlowUtil.STATUS_WAITLISTED.equals(status)) {
                             holder.btnWaitlistAction.setText(R.string.leave_waitlist);
                             holder.btnWaitlistAction.setVisibility(View.VISIBLE);
@@ -176,6 +176,9 @@ public class EntrantEventAdapter extends RecyclerView.Adapter<EntrantEventAdapte
         return eventList.size();
     }
 
+    /**
+     * Listener interface used to notify when an event item is clicked.
+     */
     public interface OnEventClickListener {
         void onEventClick(Event event);
     }

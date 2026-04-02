@@ -79,6 +79,11 @@ public class EntrantQrScanActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         userId = getIntent().getStringExtra("userId");
+        if (userId == null) {
+            Toast.makeText(this, "Session error: missing userId", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
         tvNotificationBadge = findViewById(R.id.tvNotificationBadge);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {

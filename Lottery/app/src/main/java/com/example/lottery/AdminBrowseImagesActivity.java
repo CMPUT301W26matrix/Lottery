@@ -140,6 +140,7 @@ public class AdminBrowseImagesActivity extends AppCompatActivity implements Admi
     public void onImageClick(Event event) {
         Intent intent = new Intent(this, AdminImageDetailsActivity.class);
         intent.putExtra("eventId", event.getEventId());
+        intent.putExtra("userId", userId);
         startActivity(intent);
     }
 }

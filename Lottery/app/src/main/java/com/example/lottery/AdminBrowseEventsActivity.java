@@ -187,6 +187,7 @@ public class AdminBrowseEventsActivity extends AppCompatActivity implements Even
     public void onEventClick(Event event) {
         Intent intent = new Intent(this, AdminEventDetailsActivity.class);
         intent.putExtra("eventId", event.getEventId());
+        intent.putExtra("userId", userId);
         startActivity(intent);
     }
 }
