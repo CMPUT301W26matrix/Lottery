@@ -138,6 +138,27 @@ public class EntrantsListActivityTest {
         );
     }
 
+    private void seedWaitlistedEntrant(String userId, String userName, String email) throws Exception {
+        seededEntrantIds.add(userId);
+
+        Timestamp now = Timestamp.now();
+        Map<String, Object> record = new HashMap<>();
+        record.put("userId", userId);
+        record.put("userName", userName);
+        record.put("email", email);
+        record.put("status", InvitationFlowUtil.STATUS_WAITLISTED);
+        record.put("registeredAt", now);
+        record.put("waitlistedAt", now);
+
+        Tasks.await(
+                db.collection(FirestorePaths.eventWaitingList(TEST_EVENT_ID))
+                        .document(userId)
+                        .set(record),
+                10,
+                TimeUnit.SECONDS
+        );
+    }
+
     private void seedInvitedEntrant(String userId, String userName, String email) throws Exception {
         seededEntrantIds.add(userId);
 
@@ -309,6 +330,48 @@ public class EntrantsListActivityTest {
         onView(withId(R.id.waited_list_entrants_list_layout)).check(matches(isDisplayed()));
 
         onView(withId(R.id.signed_up_entrants_list_layout)).check(matches(not(isDisplayed())));
+    }
+
+    /**
+     * US 02.02.01: Waitlisted entrants seeded for the event are rendered in the
+     * Waited List view instead of the empty state.
+     */
+    @Test
+    public void testWaitedList_showsSeededWaitlistedEntrants() throws Exception {
+        seedWaitlistedEntrant("waitlisted_user_1", "Waitlisted User One", "wait1@example.com");
+
+        onView(withId(R.id.entrants_list_waited_list_btn)).perform(scrollTo(), click());
+        waitForActivityCondition(activity -> activity.findViewById(R.id.waited_list_empty_text)
+                .getVisibility() == android.view.View.GONE);
+
+        onView(allOf(withText("Waitlisted User One"),
+                isDescendantOfA(withId(R.id.waited_list_events_view))))
+                .check(matches(isDisplayed()));
+    }
+
+    /**
+     * US 02.02.01: The Waited List view only shows waitlisted entrants and excludes
+     * entrants currently in invited or accepted states.
+     */
+    @Test
+    public void testWaitedList_filtersOutNonWaitlistedEntrants() throws Exception {
+        seedWaitlistedEntrant("waitlisted_user_2", "Waitlisted Only", "wait2@example.com");
+        seedInvitedEntrant("invited_user_hidden", "Invited Hidden", "invited@example.com");
+        seedAcceptedEntrant("accepted_user_hidden", "Accepted Hidden", "accepted@example.com");
+
+        onView(withId(R.id.entrants_list_waited_list_btn)).perform(scrollTo(), click());
+        waitForActivityCondition(activity -> activity.findViewById(R.id.waited_list_empty_text)
+                .getVisibility() == android.view.View.GONE);
+
+        onView(allOf(withText("Waitlisted Only"),
+                isDescendantOfA(withId(R.id.waited_list_events_view))))
+                .check(matches(isDisplayed()));
+        onView(allOf(withText("Invited Hidden"),
+                isDescendantOfA(withId(R.id.waited_list_events_view))))
+                .check(doesNotExist());
+        onView(allOf(withText("Accepted Hidden"),
+                isDescendantOfA(withId(R.id.waited_list_events_view))))
+                .check(doesNotExist());
     }
 
     /**
