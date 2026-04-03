@@ -116,7 +116,7 @@ public class EventAdapterTest {
         Timestamp future = new Timestamp(new Date(System.currentTimeMillis() + 86400000L * 7));
         event.setRegistrationDeadline(past);
         event.setDrawDate(future);
-        assertEquals("pending", EventAdapter.resolveDisplayStatus(event));
+        assertEquals("pending_draw", EventAdapter.resolveDisplayStatus(event));
     }
 
     // US 03.04.01: Event with future scheduled date should be "open"
@@ -128,13 +128,13 @@ public class EventAdapterTest {
         assertEquals("open", EventAdapter.resolveDisplayStatus(event));
     }
 
-    // US 03.04.01: Event with past scheduled date should be "closed"
+    // US 03.04.01: Event with past scheduled date should be "finished"
     @Test
-    public void resolveDisplayStatus_pastScheduledDate_returnsClosed() {
+    public void resolveDisplayStatus_pastScheduledDate_returnsFinished() {
         Event event = new Event();
         Timestamp past = new Timestamp(new Date(System.currentTimeMillis() - 86400000L * 7));
         event.setScheduledDateTime(past);
-        assertEquals("closed", EventAdapter.resolveDisplayStatus(event));
+        assertEquals("finished", EventAdapter.resolveDisplayStatus(event));
     }
 
     // US 03.04.01: Event with no date fields should default to "closed"

@@ -250,4 +250,16 @@
     <string name="status_selected">Selected</string>
     <string name="status_confirmed">Confirmed</string>
     <string name="status_declined">Declined</string>
+
+    <!-- Organizer Dashboard Strings -->
+    <string name="search_filters_label">Search &amp; Filters</string>
+    <string name="search_events_hint">Search events by title...</string>
+    <string name="action_required_title">Action Required</string>
+    <string name="pending_draws_message">You have %1$d events pending lottery draws.</string>
+    <string name="filter_active_label">(Active Events)</string>
+    <string name="filter_pending_label">(Pending Draws)</string>
+    <string name="filter_finished_label">(Finished)</string>
+    <string name="filter_all_label">(Showing All)</string>
+    <string name="finished_label">Finished</string>
+    <string name="all_events_label">All Events</string>
 </resources>

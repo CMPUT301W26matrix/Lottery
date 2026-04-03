@@ -69,8 +69,10 @@ public class EntrantMainActivity extends AppCompatActivity {
     private TextInputLayout tilSearch;
     private TextInputEditText etSearch;
     private ChipGroup cgBrowseTabs, cgCategories;
+    private View hsvCategories; // HorizontalScrollView for categories
     private Chip chipSpotsAvailable;
     private MaterialButton btnTimeFilter;
+    private View clMainContent;
 
     private int loadGeneration = 0;
     private String currentBrowseTab = TAB_ALL;
@@ -128,9 +130,11 @@ public class EntrantMainActivity extends AppCompatActivity {
         tilSearch = findViewById(R.id.tilSearch);
         etSearch = findViewById(R.id.etSearch);
         cgBrowseTabs = findViewById(R.id.cgBrowseTabs);
+        hsvCategories = findViewById(R.id.hsvCategories);
         cgCategories = findViewById(R.id.cgCategories);
         chipSpotsAvailable = findViewById(R.id.chipSpotsAvailable);
         btnTimeFilter = findViewById(R.id.btnTimeFilter);
+        clMainContent = findViewById(R.id.clMainContent);
 
         adapter = new EntrantEventAdapter(filteredEventList, this::openEventDetails, userId);
         rvEvents.setLayoutManager(new LinearLayoutManager(this));
@@ -138,27 +142,18 @@ public class EntrantMainActivity extends AppCompatActivity {
     }
 
     private void setupFilters() {
-        // Toggle search field visibility when clicking the search section
-        llSearchToggle.setOnClickListener(v -> {
-            if (tilSearch.getVisibility() == View.GONE) {
-                tilSearch.setVisibility(View.VISIBLE);
-                etSearch.requestFocus();
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                if (imm != null) {
-                    imm.showSoftInput(etSearch, InputMethodManager.SHOW_IMPLICIT);
+        // Toggle search field and interest filters visibility when clicking the search section
+        llSearchToggle.setOnClickListener(v -> toggleSearch());
+
+        // Also hide search if clicking outside when empty
+        if (clMainContent != null) {
+            clMainContent.setOnClickListener(v -> {
+                if (tilSearch.getVisibility() == View.VISIBLE && 
+                    (etSearch.getText() == null || etSearch.getText().length() == 0)) {
+                    hideSearchAndFilters();
                 }
-            } else {
-                tilSearch.setVisibility(View.GONE);
-                etSearch.setText(""); // Clear search when closing
-                currentSearchQuery = "";
-                applyFilters();
-                // Hide keyboard
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                if (imm != null) {
-                    imm.hideSoftInputFromWindow(etSearch.getWindowToken(), 0);
-                }
-            }
-        });
+            });
+        }
 
         // Wire search input changes to filtering
         etSearch.addTextChangedListener(new TextWatcher() {
@@ -213,6 +208,53 @@ public class EntrantMainActivity extends AppCompatActivity {
         });
 
         btnTimeFilter.setOnClickListener(v -> showTimeFilterDialog());
+    }
+
+    private void toggleSearch() {
+        if (tilSearch.getVisibility() == View.GONE) {
+            tilSearch.setVisibility(View.VISIBLE);
+            cgBrowseTabs.setVisibility(View.VISIBLE);
+            hsvCategories.setVisibility(View.VISIBLE);
+            
+            etSearch.requestFocus();
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.showSoftInput(etSearch, InputMethodManager.SHOW_IMPLICIT);
+            }
+        } else {
+            // If there's text in search field, just clear focus/hide keyboard but don't hide search UI
+            if (etSearch.getText() != null && etSearch.getText().length() > 0) {
+                etSearch.clearFocus();
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null) {
+                    imm.hideSoftInputFromWindow(etSearch.getWindowToken(), 0);
+                }
+            } else {
+                hideSearchAndFilters();
+            }
+        }
+    }
+
+    private void hideSearchAndFilters() {
+        tilSearch.setVisibility(View.GONE);
+        cgBrowseTabs.setVisibility(View.GONE);
+        hsvCategories.setVisibility(View.GONE);
+        
+        etSearch.setText(""); // Clear search when closing
+        currentSearchQuery = "";
+        
+        // Reset filters to "All" when closing search
+        cgBrowseTabs.check(R.id.chipBrowseAll);
+        cgCategories.clearCheck();
+        currentBrowseTab = TAB_ALL;
+        currentCategory = TAB_ALL;
+
+        applyFilters();
+        // Hide keyboard
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(etSearch.getWindowToken(), 0);
+        }
     }
 
     private void showTimeFilterDialog() {

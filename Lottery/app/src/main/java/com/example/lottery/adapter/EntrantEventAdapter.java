@@ -4,6 +4,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -15,7 +16,7 @@ import com.example.lottery.entrant.EntrantMainActivity;
 import com.example.lottery.R;
 import com.example.lottery.model.Event;
 import com.example.lottery.util.FirestorePaths;
-import com.example.lottery.util.InvitationFlowUtil;
+import com.example.lottery.util.PosterImageLoader;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
@@ -75,6 +76,9 @@ public class EntrantEventAdapter extends RecyclerView.Adapter<EntrantEventAdapte
         } else {
             holder.tvEventDescription.setVisibility(View.GONE);
         }
+
+        // Load Event Poster
+        PosterImageLoader.load(holder.ivEventPoster, event.getPosterBase64(), R.drawable.event_placeholder);
 
         // Handle Quick Action Button (Waitlist Join/Leave and Status display)
         updateWaitlistButton(holder, event);
@@ -144,6 +148,7 @@ public class EntrantEventAdapter extends RecyclerView.Adapter<EntrantEventAdapte
         private final TextView tvEventDescription;
         private final Button btnViewDetail;
         private final Button btnWaitlistAction;
+        private final ImageView ivEventPoster;
 
         EntrantEventViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -152,6 +157,7 @@ public class EntrantEventAdapter extends RecyclerView.Adapter<EntrantEventAdapte
             tvEventDescription = itemView.findViewById(R.id.tvEventDescription);
             btnViewDetail = itemView.findViewById(R.id.btnViewDetail);
             btnWaitlistAction = itemView.findViewById(R.id.btnWaitlistAction);
+            ivEventPoster = itemView.findViewById(R.id.ivEventPoster);
         }
     }
 }
