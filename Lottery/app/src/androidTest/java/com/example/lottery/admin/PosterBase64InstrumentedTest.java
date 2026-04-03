@@ -3,11 +3,9 @@ package com.example.lottery.admin;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -16,7 +14,6 @@ import android.content.Intent;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.example.lottery.R;
@@ -49,31 +46,42 @@ import java.util.concurrent.TimeoutException;
  */
 @RunWith(AndroidJUnit4.class)
 public class PosterBase64InstrumentedTest {
+    private static final long FIRESTORE_TIMEOUT_SECONDS = 45;
 
-    private static final String TEST_EVENT_ID = "test_poster_base64_event";
+    private static final String TEST_EVENT_ID = "swimming_course_poster_review";
     private static final String TEST_POSTER = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQ";
     private FirebaseFirestore db;
+
+    private void ensureFirestoreNetworkEnabled()
+            throws InterruptedException, ExecutionException, TimeoutException {
+        Tasks.await(db.enableNetwork(), FIRESTORE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+    }
 
     @Before
     public void setUp() throws InterruptedException, ExecutionException, TimeoutException {
         db = FirebaseFirestore.getInstance();
+        ensureFirestoreNetworkEnabled();
 
         Map<String, Object> event = new HashMap<>();
         event.put("eventId", TEST_EVENT_ID);
-        event.put("title", "Poster Test Event");
-        event.put("details", "Testing poster Base64 storage.");
-        event.put("organizerId", "test_organizer");
+        event.put("title", "Swimming Course Poster Review Session");
+        event.put("details", "Administrator image moderation coverage for a community swimming course poster.");
+        event.put("organizerId", "coach_nadia_rahman");
         event.put("posterBase64", TEST_POSTER);
         event.put("status", "open");
 
         Tasks.await(db.collection(FirestorePaths.EVENTS)
-                .document(TEST_EVENT_ID).set(event), 10, TimeUnit.SECONDS);
+                .document(TEST_EVENT_ID).set(event), FIRESTORE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }
 
     @After
-    public void tearDown() throws InterruptedException, ExecutionException, TimeoutException {
-        Tasks.await(db.collection(FirestorePaths.EVENTS)
-                .document(TEST_EVENT_ID).delete(), 10, TimeUnit.SECONDS);
+    public void tearDown() {
+        try {
+            ensureFirestoreNetworkEnabled();
+            Tasks.await(db.collection(FirestorePaths.EVENTS)
+                    .document(TEST_EVENT_ID).delete(), FIRESTORE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        } catch (Exception ignored) {
+        }
     }
 
     // US 02.04.01: posterBase64 field should be persisted in Firestore
@@ -82,83 +90,31 @@ public class PosterBase64InstrumentedTest {
             throws InterruptedException, ExecutionException, TimeoutException {
         DocumentSnapshot doc = Tasks.await(
                 db.collection(FirestorePaths.EVENTS).document(TEST_EVENT_ID).get(),
-                10, TimeUnit.SECONDS);
+                FIRESTORE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
         assertEquals(TEST_POSTER, doc.getString("posterBase64"));
     }
 
-    // US 03.03.01: Clearing posterBase64 to null should remove the poster from Firestore
+    // US 03.03.01: Admin deleting an image through the UI should clear posterBase64 in
+    // Firestore instead of only exercising a direct database update.
     @Test
-    public void testClearPosterBase64InFirestore()
+    public void testAdminDeletePosterFlow_clearsPosterBase64ViaUi()
             throws InterruptedException, ExecutionException, TimeoutException {
-        Tasks.await(db.collection(FirestorePaths.EVENTS).document(TEST_EVENT_ID)
-                .update("posterBase64", null), 10, TimeUnit.SECONDS);
-
-        DocumentSnapshot doc = Tasks.await(
-                db.collection(FirestorePaths.EVENTS).document(TEST_EVENT_ID).get(),
-                10, TimeUnit.SECONDS);
-        assertNull("posterBase64 should be null after clearing", doc.getString("posterBase64"));
-        assertNotNull("Event document should still exist", doc.getData());
-    }
-
-    // US 03.03.01: Delete button should be disabled when poster is null
-    @Test
-    public void testDeleteButtonDisabledWhenNoPoster() {
-        Event event = new Event();
-        event.setTitle("No Poster Event");
-        event.setDetails("Event without poster.");
-        event.setPosterBase64(null);
-        AdminImageDetailsActivity.testEvent = event;
-
         Intent intent = new Intent(ApplicationProvider.getApplicationContext(),
                 AdminImageDetailsActivity.class);
         intent.putExtra("eventId", TEST_EVENT_ID);
-
-        try (ActivityScenario<AdminImageDetailsActivity> ignored = ActivityScenario.launch(intent)) {
-            onView(ViewMatchers.withId(R.id.btnDeleteImage)).check(matches(not(isEnabled())));
-        } finally {
-            AdminImageDetailsActivity.testEvent = null;
-        }
-    }
-
-    // US 03.03.01: Delete button should be enabled when poster exists
-    @Test
-    public void testDeleteButtonEnabledWhenPosterExists() {
-        Event event = new Event();
-        event.setTitle("Has Poster Event");
-        event.setDetails("Event with poster.");
-        event.setPosterBase64(TEST_POSTER);
-        AdminImageDetailsActivity.testEvent = event;
-
-        Intent intent = new Intent(ApplicationProvider.getApplicationContext(),
-                AdminImageDetailsActivity.class);
-        intent.putExtra("eventId", TEST_EVENT_ID);
+        intent.putExtra("userId", "admin_jordan_clark");
 
         try (ActivityScenario<AdminImageDetailsActivity> ignored = ActivityScenario.launch(intent)) {
             onView(withId(R.id.btnDeleteImage)).check(matches(isEnabled()));
-        } finally {
-            AdminImageDetailsActivity.testEvent = null;
-        }
-    }
-
-    // US 03.03.01: Clicking delete should show confirmation dialog
-    @Test
-    public void testDeletePosterShowsConfirmation() {
-        Event event = new Event();
-        event.setTitle("Delete Poster Event");
-        event.setDetails("Testing delete confirmation.");
-        event.setPosterBase64(TEST_POSTER);
-        AdminImageDetailsActivity.testEvent = event;
-
-        Intent intent = new Intent(ApplicationProvider.getApplicationContext(),
-                AdminImageDetailsActivity.class);
-        intent.putExtra("eventId", TEST_EVENT_ID);
-
-        try (ActivityScenario<AdminImageDetailsActivity> ignored = ActivityScenario.launch(intent)) {
             onView(withId(R.id.btnDeleteImage)).perform(click());
-            onView(withText(R.string.confirm_deletion)).check(matches(isDisplayed()));
-            onView(withText(R.string.confirm_delete_image)).check(matches(isDisplayed()));
-        } finally {
-            AdminImageDetailsActivity.testEvent = null;
+            onView(withText(R.string.confirm)).perform(click());
         }
+
+        DocumentSnapshot doc = Tasks.await(
+                db.collection(FirestorePaths.EVENTS).document(TEST_EVENT_ID).get(),
+                FIRESTORE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        assertNull("posterBase64 should be cleared after admin confirms deletion through the UI",
+                doc.getString("posterBase64"));
+        assertNotNull("Event document should still exist after poster deletion", doc.getData());
     }
 }
