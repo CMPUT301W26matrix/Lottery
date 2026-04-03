@@ -52,14 +52,14 @@ public class AdminBrowseImagesActivityTest {
     // US 03.06.01: Admin should see image browser title
     @Test
     public void testBrowseImagesScreenIsDisplayed() {
-        onView(ViewMatchers.withId(R.id.tvAppTitle)).perform(scrollTo()).check(matches(isDisplayed()));
+        onView(ViewMatchers.withId(R.id.tvAppTitle)).check(matches(isDisplayed()));
         onView(withId(R.id.tvAppTitle)).check(matches(withText(R.string.admin_image_browser_title)));
     }
 
     // US 03.06.01: Admin should see image browser subtitle
     @Test
     public void testSubtitleIsDisplayed() {
-        onView(withId(R.id.tvSubtitle)).perform(scrollTo()).check(matches(isDisplayed()));
+        onView(withId(R.id.tvSubtitle)).check(matches(isDisplayed()));
         onView(withId(R.id.tvSubtitle)).check(matches(withText(R.string.admin_image_browser_subtitle)));
     }
 

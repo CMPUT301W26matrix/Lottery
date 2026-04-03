@@ -48,14 +48,14 @@ public class AdminBrowseLogsActivityTest {
     // US 03.08.01: Admin should see notification logs page title
     @Test
     public void testPageTitleIsDisplayed() {
-        onView(ViewMatchers.withId(R.id.tvPageTitle)).perform(scrollTo()).check(matches(isDisplayed()));
+        onView(ViewMatchers.withId(R.id.tvPageTitle)).check(matches(isDisplayed()));
         onView(withId(R.id.tvPageTitle)).check(matches(withText(R.string.admin_logs_title)));
     }
 
     // US 03.08.01: Admin should see notification logs subtitle
     @Test
     public void testPageSubtitleIsDisplayed() {
-        onView(withId(R.id.tvPageSubtitle)).perform(scrollTo()).check(matches(isDisplayed()));
+        onView(withId(R.id.tvPageSubtitle)).check(matches(isDisplayed()));
         onView(withId(R.id.tvPageSubtitle)).check(matches(withText(R.string.admin_logs_subtitle)));
     }
 

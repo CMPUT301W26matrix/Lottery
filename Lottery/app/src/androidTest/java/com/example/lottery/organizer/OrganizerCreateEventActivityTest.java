@@ -63,7 +63,7 @@ public class OrganizerCreateEventActivityTest {
 
     // OrganizerCreateEventActivity requires a userId to be present in Intent or SharedPreferences,
     // otherwise it calls finish() immediately.
-    private static final String TEST_USER_ID = "test_user_123";
+    private static final String TEST_USER_ID = "mill_woods_music_organizer";
     private static final SimpleDateFormat DATE_FORMAT =
             new SimpleDateFormat("MM/dd/yyyy HH:mm", Locale.getDefault());
 
@@ -193,13 +193,13 @@ public class OrganizerCreateEventActivityTest {
 
         Map<String, Object> event = new HashMap<>();
         event.put("eventId", eventId);
-        event.put("title", "Seeded Event");
-        event.put("details", "Existing details");
-        event.put("place", "Old Place");
+        event.put("title", "Interpretive Dance Safety Basics");
+        event.put("details", "Weekly dance safety lessons before the winter showcase");
+        event.put("place", "Downtown Community Hall");
         event.put("organizerId", TEST_USER_ID);
         event.put("capacity", 50);
         event.put("waitingListLimit", waitingListLimit);
-        event.put("qrCodeContent", "seeded_qr_content");
+        event.put("qrCodeContent", "interpretive_dance_seed_qr");
         event.put("scheduledDateTime", new Timestamp(start));
         event.put("eventEndDateTime", new Timestamp(end));
         event.put("registrationStart", new Timestamp(regStart));
@@ -223,8 +223,8 @@ public class OrganizerCreateEventActivityTest {
     private void seedWaitlistEntrant(String eventId, String userId) throws Exception {
         Map<String, Object> entrant = new HashMap<>();
         entrant.put("userId", userId);
-        entrant.put("userName", "Entrant " + userId);
-        entrant.put("email", userId + "@test.com");
+        entrant.put("userName", "Registration Family " + userId.substring(Math.max(0, userId.length() - 4)));
+        entrant.put("email", userId + "@gmail.com");
         entrant.put("status", "waitlisted");
         entrant.put("registeredAt", Timestamp.now());
         entrant.put("waitlistedAt", Timestamp.now());
@@ -461,6 +461,56 @@ public class OrganizerCreateEventActivityTest {
     }
 
     /**
+     * US 02.01.02: Creating a private event persists the private flag, keeps the
+     * event hidden from public promotion, and does not store a promotional QR code.
+     */
+    @Test
+    public void testCreatePrivateEvent_persistsPrivateFlagWithoutQrCode() throws Exception {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(2030, Calendar.JULY, 3, 9, 0, 0);
+        Date regStart = calendar.getTime();
+        calendar.set(2030, Calendar.JULY, 7, 18, 0, 0);
+        Date regEnd = calendar.getTime();
+        calendar.set(2030, Calendar.JULY, 12, 19, 0, 0);
+        Date eventStart = calendar.getTime();
+        calendar.set(2030, Calendar.JULY, 12, 21, 0, 0);
+        Date eventEnd = calendar.getTime();
+        calendar.set(2030, Calendar.JULY, 8, 12, 0, 0);
+        Date drawDate = calendar.getTime();
+
+        String uniqueTitle = "Private Piano Lessons " + System.currentTimeMillis();
+
+        try (ActivityScenario<OrganizerCreateEventActivity> scenario =
+                     ActivityScenario.launch(createLaunchIntent())) {
+            String eventId = readEventId(scenario);
+            trackEvent(eventId);
+
+            setDateField(scenario, "regStartDate", R.id.etRegStart, regStart);
+            setDateField(scenario, "regEndDate", R.id.etRegEnd, regEnd);
+            setDateField(scenario, "eventStartDate", R.id.etEventStart, eventStart);
+            setDateField(scenario, "eventEndDate", R.id.etEventEnd, eventEnd);
+            setDateField(scenario, "drawDate", R.id.etDrawDate, drawDate);
+
+            onView(withId(R.id.etEventTitle)).perform(scrollTo(), replaceText(uniqueTitle), closeSoftKeyboard());
+            onView(withId(R.id.etMaxCapacity)).perform(scrollTo(), replaceText("10"), closeSoftKeyboard());
+            onView(withId(R.id.etEventDetails)).perform(scrollTo(), replaceText("Beginner piano lessons shared by invitation before spring recital season"), closeSoftKeyboard());
+            onView(withId(R.id.etPlace)).perform(scrollTo(), replaceText("Mill Woods Community Centre"), closeSoftKeyboard());
+            onView(withId(R.id.swIsPrivate)).perform(scrollTo(), click());
+            onView(withId(R.id.btnCreateEvent)).perform(scrollTo(), click());
+
+            DocumentSnapshot snapshot = waitForEventDocument(eventId);
+            Assert.assertEquals(uniqueTitle, snapshot.getString("title"));
+            Assert.assertEquals(Boolean.TRUE, snapshot.getBoolean("private"));
+
+            String qrCodeContent = snapshot.getString("qrCodeContent");
+            Assert.assertTrue(
+                    "Private event should not persist a promotional QR code",
+                    qrCodeContent == null || qrCodeContent.trim().isEmpty()
+            );
+        }
+    }
+
+    /**
      * US 02.04.01: Selecting a poster while creating a new event persists the
      * chosen poster image to Firestore with the rest of the created event.
      */
@@ -478,7 +528,7 @@ public class OrganizerCreateEventActivityTest {
         calendar.set(2030, Calendar.JUNE, 6, 12, 0, 0);
         Date drawDate = calendar.getTime();
 
-        String uniqueTitle = "Poster Event " + System.currentTimeMillis();
+        String uniqueTitle = "Interpretive Dance Class Poster " + System.currentTimeMillis();
         String posterBase64 = "data:image/jpeg;base64,CREATED_POSTER_DATA";
 
         try (ActivityScenario<OrganizerCreateEventActivity> scenario =
@@ -517,11 +567,11 @@ public class OrganizerCreateEventActivityTest {
      */
     @Test
     public void testEditEvent_rejectsWaitingListLimitSmallerThanExistingEntrants() throws Exception {
-        String eventId = "limit_guard_" + System.currentTimeMillis();
+        String eventId = "dance_waitlist_limit_" + System.currentTimeMillis();
         Timestamp originalUpdatedAt = Timestamp.now();
         seedExistingEvent(eventId, 3, "", originalUpdatedAt);
-        seedWaitlistEntrant(eventId, "wait_user_1");
-        seedWaitlistEntrant(eventId, "wait_user_2");
+        seedWaitlistEntrant(eventId, "dance_family_1");
+        seedWaitlistEntrant(eventId, "dance_family_2");
 
         try (ActivityScenario<OrganizerCreateEventActivity> scenario =
                      ActivityScenario.launch(editLaunchIntent(eventId))) {
@@ -552,7 +602,7 @@ public class OrganizerCreateEventActivityTest {
      */
     @Test
     public void testEditEvent_updatesPosterInFirestore() throws Exception {
-        String eventId = "poster_update_" + System.currentTimeMillis();
+        String eventId = "swim_poster_refresh_" + System.currentTimeMillis();
         seedExistingEvent(eventId, 5, "data:image/jpeg;base64,OLD_POSTER", Timestamp.now());
         String newPoster = "data:image/jpeg;base64,NEW_POSTER_DATA";
 

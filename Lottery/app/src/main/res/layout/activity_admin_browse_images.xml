@@ -19,6 +19,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
+            android:id="@+id/tvAppTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/admin_image_browser_title"
@@ -39,6 +40,7 @@
         app:layout_constraintTop_toBottomOf="@id/layout_header_bar">
 
         <TextView
+            android:id="@+id/tvSubtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/admin_image_browser_subtitle"

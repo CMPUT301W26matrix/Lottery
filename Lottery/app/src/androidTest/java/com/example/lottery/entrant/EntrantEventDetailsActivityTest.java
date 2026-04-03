@@ -75,11 +75,11 @@ public class EntrantEventDetailsActivityTest {
         );
         intent.putExtra(
                 EntrantEventDetailsActivity.EXTRA_EVENT_ID,
-                "test_event_id_" + UUID.randomUUID()
+                "community_swim_lesson_" + UUID.randomUUID()
         );
         intent.putExtra(
                 EntrantEventDetailsActivity.EXTRA_USER_ID,
-                "test_user_id"
+                "avery_chen_device"
         );
         return intent;
     }
@@ -125,14 +125,24 @@ public class EntrantEventDetailsActivityTest {
     }
 
     private void seedEvent(String eventId) throws Exception {
+        seedEvent(eventId, "A one-week registration window for beginner swimming lessons", null, 100L);
+    }
+
+    private void seedEvent(String eventId, String details, String posterBase64) throws Exception {
+        seedEvent(eventId, details, posterBase64, 100L);
+    }
+
+    private void seedEvent(String eventId, String details, String posterBase64, long waitingListLimit)
+            throws Exception {
         seededEventIds.add(eventId);
 
         Timestamp now = Timestamp.now();
         Map<String, Object> event = new HashMap<>();
         event.put("eventId", eventId);
-        event.put("title", "Test Event");
-        event.put("details", "Entrant details test event");
-        event.put("place", "Community Hall");
+        event.put("title", "Beginner Swimming Lessons");
+        event.put("details", details);
+        event.put("place", "Kinsmen Recreation Centre");
+        event.put("capacity", 10L);
         event.put("scheduledDateTime", now);
         event.put("eventEndDateTime", now);
         event.put("registrationStart", now);
@@ -141,7 +151,8 @@ public class EntrantEventDetailsActivityTest {
         ));
         event.put("drawDate", now);
         event.put("requireLocation", false);
-        event.put("waitingListLimit", 100L);
+        event.put("waitingListLimit", waitingListLimit);
+        event.put("posterBase64", posterBase64);
 
         Tasks.await(
                 db.collection(FirestorePaths.EVENTS).document(eventId).set(event),
@@ -156,10 +167,10 @@ public class EntrantEventDetailsActivityTest {
         Map<String, Object> user = new HashMap<>();
         Timestamp now = Timestamp.now();
         user.put("userId", userId);
-        user.put("username", "Test Entrant");
-        user.put("email", "entrant@example.com");
+        user.put("username", "Avery Chen");
+        user.put("email", "avery.chen@gmail.com");
         user.put("role", "ENTRANT");
-        user.put("deviceId", "test-device");
+        user.put("deviceId", "pixel7_avery");
         user.put("notificationsEnabled", true);
         user.put("geolocationEnabled", false);
         user.put("createdAt", now);
@@ -176,8 +187,8 @@ public class EntrantEventDetailsActivityTest {
         Timestamp now = Timestamp.now();
         Map<String, Object> record = new HashMap<>();
         record.put("userId", userId);
-        record.put("userName", "Test Entrant");
-        record.put("email", "entrant@example.com");
+        record.put("userName", "Avery Chen");
+        record.put("email", "avery.chen@gmail.com");
         record.put("status", status);
         record.put("registeredAt", now);
 
@@ -207,9 +218,9 @@ public class EntrantEventDetailsActivityTest {
         Timestamp now = Timestamp.now();
         Map<String, Object> event = new HashMap<>();
         event.put("eventId", eventId);
-        event.put("title", "Private Test Event");
-        event.put("details", "Private event for invite testing");
-        event.put("place", "Private Venue");
+        event.put("title", "Private Piano Lessons");
+        event.put("details", "Private invitation-only piano lessons before the spring recital");
+        event.put("place", "Mill Woods Community Centre");
         event.put("scheduledDateTime", now);
         event.put("eventEndDateTime", now);
         event.put("registrationStart", now);
@@ -232,8 +243,8 @@ public class EntrantEventDetailsActivityTest {
         Timestamp now = Timestamp.now();
         Map<String, Object> record = new HashMap<>();
         record.put("userId", userId);
-        record.put("userName", "Test Entrant");
-        record.put("email", "entrant@example.com");
+        record.put("userName", "Avery Chen");
+        record.put("email", "avery.chen@gmail.com");
         record.put("status", InvitationFlowUtil.STATUS_INVITED);
         record.put("invitedAt", now);
         // No waitlistedAt — entrant was directly invited to a private event
@@ -250,11 +261,11 @@ public class EntrantEventDetailsActivityTest {
         Timestamp now = Timestamp.now();
 
         for (int i = 0; i < count; i++) {
-            String userId = "waitlisted_user_" + eventId + "_" + i;
+            String userId = "swim_family_" + eventId + "_" + i;
             Map<String, Object> record = new HashMap<>();
             record.put("userId", userId);
-            record.put("userName", "Waitlisted " + i);
-            record.put("email", "waitlisted" + i + "@example.com");
+            record.put("userName", "Swim Family " + i);
+            record.put("email", "swim.family" + i + "@gmail.com");
             record.put("status", InvitationFlowUtil.STATUS_WAITLISTED);
             record.put("registeredAt", now);
             record.put("waitlistedAt", now);
@@ -286,6 +297,27 @@ public class EntrantEventDetailsActivityTest {
         throw lastError;
     }
 
+    private void waitForEntrantStatus(String eventId, String userId, String expectedStatus) throws Exception {
+        AssertionError lastError = null;
+        for (int attempt = 0; attempt < 30; attempt++) {
+            com.google.firebase.firestore.DocumentSnapshot snapshot = Tasks.await(
+                    db.collection(FirestorePaths.eventWaitingList(eventId)).document(userId).get(),
+                    10,
+                    TimeUnit.SECONDS
+            );
+            String normalized = InvitationFlowUtil.normalizeEntrantStatus(snapshot.getString("status"));
+            if (expectedStatus.equals(normalized)) {
+                return;
+            }
+
+            lastError = new AssertionError(
+                    "Timed out waiting for " + userId + " in event " + eventId + " to reach " + expectedStatus
+            );
+            Thread.sleep(250);
+        }
+        throw lastError;
+    }
+
     /**
      * Verifies that the title and back button are displayed on launch.
      */
@@ -298,6 +330,36 @@ public class EntrantEventDetailsActivityTest {
         onView(ViewMatchers.withId(R.id.tvEventDetailsTitle)).check(matches(isDisplayed()));
         onView(withId(R.id.tvEventDetailsTitle)).check(matches(withText("Event Details")));
         onView(withId(R.id.btnBack)).check(matches(isDisplayed()));
+    }
+
+    /**
+     * US 02.01.01: Opening a QR-linked event details screen loads the persisted
+     * event description and poster for the linked public event.
+     */
+    @Test
+    public void testQrLinkedDetails_loadsDescriptionAndPoster() throws Exception {
+        String eventId = "beginner_swim_lessons_" + UUID.randomUUID();
+        String userId = "avery_chen_" + UUID.randomUUID();
+        seedEvent(
+                eventId,
+                "A one-week registration window for beginner swimming lessons before canoe season",
+                "data:image/jpeg;base64,SWIM_LESSONS_POSTER"
+        );
+        seedUser(userId);
+
+        try (ActivityScenario<EntrantEventDetailsActivity> scenario =
+                     ActivityScenario.launch(createIntent(eventId, userId))) {
+            waitForCondition(scenario, activity -> {
+                TextView description = activity.findViewById(R.id.tvEventDescription);
+                ImageView poster = activity.findViewById(R.id.ivEventPoster);
+                return "A one-week registration window for beginner swimming lessons before canoe season".contentEquals(description.getText())
+                        && poster.getDrawable() != null;
+            });
+
+            onView(withId(R.id.cvEventDescription)).check(matches(isDisplayed()));
+            onView(withId(R.id.tvEventDescription))
+                    .check(matches(withText("A one-week registration window for beginner swimming lessons before canoe season")));
+        }
     }
 
     /**
@@ -373,8 +435,8 @@ public class EntrantEventDetailsActivityTest {
                 ApplicationProvider.getApplicationContext(),
                 EntrantEventDetailsActivity.class
         );
-        intent.putExtra(EntrantEventDetailsActivity.EXTRA_EVENT_ID, "test_event_" + UUID.randomUUID());
-        intent.putExtra(EntrantEventDetailsActivity.EXTRA_USER_ID, "test_user_id");
+        intent.putExtra(EntrantEventDetailsActivity.EXTRA_EVENT_ID, "swim_lessons_explore_" + UUID.randomUUID());
+        intent.putExtra(EntrantEventDetailsActivity.EXTRA_USER_ID, "avery_chen_device");
 
         try (ActivityScenario<EntrantEventDetailsActivity> scenario = ActivityScenario.launch(intent)) {
             scenario.onActivity(activity -> {
@@ -399,8 +461,8 @@ public class EntrantEventDetailsActivityTest {
                 ApplicationProvider.getApplicationContext(),
                 EntrantEventDetailsActivity.class
         );
-        intent.putExtra(EntrantEventDetailsActivity.EXTRA_EVENT_ID, "test_event_" + UUID.randomUUID());
-        intent.putExtra(EntrantEventDetailsActivity.EXTRA_USER_ID, "test_user_id");
+        intent.putExtra(EntrantEventDetailsActivity.EXTRA_EVENT_ID, "swim_lessons_history_" + UUID.randomUUID());
+        intent.putExtra(EntrantEventDetailsActivity.EXTRA_USER_ID, "avery_chen_device");
         intent.putExtra(EntrantEventDetailsActivity.EXTRA_SOURCE_TAB, "MY_EVENTS");
 
         try (ActivityScenario<EntrantEventDetailsActivity> scenario = ActivityScenario.launch(intent)) {
@@ -426,8 +488,8 @@ public class EntrantEventDetailsActivityTest {
                 ApplicationProvider.getApplicationContext(),
                 EntrantEventDetailsActivity.class
         );
-        intent.putExtra(EntrantEventDetailsActivity.EXTRA_EVENT_ID, "test_event_" + UUID.randomUUID());
-        intent.putExtra(EntrantEventDetailsActivity.EXTRA_USER_ID, "test_user_id");
+        intent.putExtra(EntrantEventDetailsActivity.EXTRA_EVENT_ID, "swim_lessons_fallback_" + UUID.randomUUID());
+        intent.putExtra(EntrantEventDetailsActivity.EXTRA_USER_ID, "avery_chen_device");
         intent.putExtra(EntrantEventDetailsActivity.EXTRA_SOURCE_TAB, "INVALID_TAB");
 
         try (ActivityScenario<EntrantEventDetailsActivity> scenario = ActivityScenario.launch(intent)) {
@@ -445,8 +507,8 @@ public class EntrantEventDetailsActivityTest {
      */
     @Test
     public void testLeaveWaitlistButtonTextWhenInWaitlist() throws Exception {
-        String eventId = "waitlist_event_" + UUID.randomUUID();
-        String userId = "waitlist_user_" + UUID.randomUUID();
+        String eventId = "community_swim_waitlist_" + UUID.randomUUID();
+        String userId = "avery_waitlist_" + UUID.randomUUID();
         seedEvent(eventId);
         seedUser(userId);
         seedEntrantStatus(eventId, userId, InvitationFlowUtil.STATUS_WAITLISTED);
@@ -469,8 +531,8 @@ public class EntrantEventDetailsActivityTest {
      */
     @Test
     public void testInvitedState_showsInvitationButtons_hidesWaitlistButton() throws Exception {
-        String eventId = "invited_event_" + UUID.randomUUID();
-        String userId = "invited_user_" + UUID.randomUUID();
+        String eventId = "community_swim_invitation_" + UUID.randomUUID();
+        String userId = "avery_invited_" + UUID.randomUUID();
         seedEvent(eventId);
         seedUser(userId);
         seedEntrantStatus(eventId, userId, InvitationFlowUtil.STATUS_INVITED);
@@ -492,8 +554,8 @@ public class EntrantEventDetailsActivityTest {
      */
     @Test
     public void testAcceptedState_showsCancelMembershipAndTicketButton() throws Exception {
-        String eventId = "accepted_event_" + UUID.randomUUID();
-        String userId = "accepted_user_" + UUID.randomUUID();
+        String eventId = "community_swim_signup_" + UUID.randomUUID();
+        String userId = "avery_signed_up_" + UUID.randomUUID();
         seedEvent(eventId);
         seedUser(userId);
         seedEntrantStatus(eventId, userId, InvitationFlowUtil.STATUS_ACCEPTED);
@@ -518,8 +580,8 @@ public class EntrantEventDetailsActivityTest {
      */
     @Test
     public void testCancelledState_showsCannotRejoinMessage() throws Exception {
-        String eventId = "cancelled_event_" + UUID.randomUUID();
-        String userId = "cancelled_user_" + UUID.randomUUID();
+        String eventId = "community_swim_cancelled_" + UUID.randomUUID();
+        String userId = "avery_cancelled_" + UUID.randomUUID();
         seedEvent(eventId);
         seedUser(userId);
         seedEntrantStatus(eventId, userId, InvitationFlowUtil.STATUS_CANCELLED);
@@ -540,8 +602,8 @@ public class EntrantEventDetailsActivityTest {
      */
     @Test
     public void testWaitlistCount_displaysFormattedCount() throws Exception {
-        String eventId = "count_event_" + UUID.randomUUID();
-        String userId = "count_user_" + UUID.randomUUID();
+        String eventId = "community_swim_count_" + UUID.randomUUID();
+        String userId = "avery_count_" + UUID.randomUUID();
         seedEvent(eventId);
         seedUser(userId);
         seedWaitlistCount(eventId, 42);
@@ -561,8 +623,8 @@ public class EntrantEventDetailsActivityTest {
      */
     @Test
     public void testPrivateInvite_showsAcceptDeclineButtons() throws Exception {
-        String eventId = "priv_invite_" + UUID.randomUUID();
-        String userId = "priv_user_" + UUID.randomUUID();
+        String eventId = "private_piano_invitation_" + UUID.randomUUID();
+        String userId = "avery_piano_invite_" + UUID.randomUUID();
         seedPrivateEvent(eventId, false);
         seedUser(userId);
         seedPrivateInviteStatus(eventId, userId);
@@ -585,8 +647,8 @@ public class EntrantEventDetailsActivityTest {
      */
     @Test
     public void testPrivateInviteAccept_noLocation_joinsWaitlistAndHidesInviteButtons() throws Exception {
-        String eventId = "priv_accept_" + UUID.randomUUID();
-        String userId = "priv_accept_user_" + UUID.randomUUID();
+        String eventId = "private_piano_acceptance_" + UUID.randomUUID();
+        String userId = "avery_piano_accept_" + UUID.randomUUID();
         seedPrivateEvent(eventId, false);
         seedUser(userId);
         seedPrivateInviteStatus(eventId, userId);
@@ -619,17 +681,17 @@ public class EntrantEventDetailsActivityTest {
      */
     @Test
     public void testPrivateInviteAccept_withLocation_showsLocationDialog() throws Exception {
-        String eventId = "priv_loc_" + UUID.randomUUID();
-        String userId = "priv_loc_user_" + UUID.randomUUID();
+        String eventId = "private_piano_location_" + UUID.randomUUID();
+        String userId = "avery_piano_location_" + UUID.randomUUID();
         seedPrivateEvent(eventId, true);
         // Seed user with geolocation enabled so the geo-disabled dialog is not shown
         seededUserIds.add(userId);
         Map<String, Object> user = new HashMap<>();
         user.put("userId", userId);
         user.put("username", "GeoUser");
-        user.put("email", "geo@test.com");
+        user.put("email", "avery.location@gmail.com");
         user.put("role", "ENTRANT");
-        user.put("deviceId", "test-device");
+        user.put("deviceId", "pixel7_avery_location");
         user.put("notificationsEnabled", true);
         user.put("geolocationEnabled", true);
         user.put("createdAt", Timestamp.now());
@@ -650,5 +712,83 @@ public class EntrantEventDetailsActivityTest {
             // Verify the location consent dialog appears
             onView(withText("Location Required")).check(matches(isDisplayed()));
         }
+    }
+
+    /**
+     * US 02.05.03: When a previously invited entrant declines, the system promotes
+     * one replacement applicant from the remaining pool and delivers a promotion
+     * notification to the promoted entrant's inbox.
+     */
+    @Test
+    public void testDeclinedInvitation_promotesReplacementApplicant() throws Exception {
+        String eventId = "beginner_swim_promotion_" + UUID.randomUUID();
+        String invitedUserId = "declining_family_" + UUID.randomUUID();
+        String waitlistedUserId = "waitlisted_family_" + UUID.randomUUID();
+        String notSelectedUserId = "backup_family_" + UUID.randomUUID();
+
+        seedEvent(eventId, "Weekly swimming lessons for beginners at the local rec centre", null, 10L);
+        seedUser(invitedUserId);
+        seedUser(waitlistedUserId);
+        seedUser(notSelectedUserId);
+        seedEntrantStatus(eventId, invitedUserId, InvitationFlowUtil.STATUS_INVITED);
+        seedEntrantStatus(eventId, waitlistedUserId, InvitationFlowUtil.STATUS_WAITLISTED);
+        seedEntrantStatus(eventId, notSelectedUserId, InvitationFlowUtil.STATUS_NOT_SELECTED);
+
+        try (ActivityScenario<EntrantEventDetailsActivity> scenario =
+                     ActivityScenario.launch(createIntent(eventId, invitedUserId))) {
+            waitForCondition(scenario, activity -> activity.findViewById(R.id.invitationButtonsContainer)
+                    .getVisibility() == android.view.View.VISIBLE);
+
+            onView(withId(R.id.btnDeclineInvite)).perform(androidx.test.espresso.action.ViewActions.click());
+        }
+
+        waitForEntrantStatus(eventId, invitedUserId, InvitationFlowUtil.STATUS_CANCELLED);
+
+        // Poll for promotion — the async WaitlistPromotionUtil transaction runs after the decline
+        String promotedUserId = null;
+        String[] candidateIds = new String[]{waitlistedUserId, notSelectedUserId};
+        for (int attempt = 0; attempt < 30; attempt++) {
+            for (String candidateId : candidateIds) {
+                com.google.firebase.firestore.DocumentSnapshot snapshot = Tasks.await(
+                        db.collection(FirestorePaths.eventWaitingList(eventId)).document(candidateId).get(),
+                        10,
+                        TimeUnit.SECONDS
+                );
+                String normalized = InvitationFlowUtil.normalizeEntrantStatus(snapshot.getString("status"));
+                if (InvitationFlowUtil.STATUS_INVITED.equals(normalized)) {
+                    promotedUserId = candidateId;
+                    break;
+                }
+            }
+            if (promotedUserId != null) break;
+            Thread.sleep(250);
+        }
+
+        org.junit.Assert.assertNotNull(
+                "One replacement applicant should be promoted to invited after the decline",
+                promotedUserId
+        );
+
+        // Poll for inbox notification — written in the same or subsequent transaction
+        boolean inboxPromotionFound = false;
+        for (int attempt = 0; attempt < 30; attempt++) {
+            for (QueryDocumentSnapshot inbox : Tasks.await(
+                    db.collection(FirestorePaths.userInbox(promotedUserId)).get(),
+                    10,
+                    TimeUnit.SECONDS
+            )) {
+                if ("waitlist_promoted".equals(inbox.getString("type"))) {
+                    inboxPromotionFound = true;
+                    break;
+                }
+            }
+            if (inboxPromotionFound) break;
+            Thread.sleep(250);
+        }
+
+        org.junit.Assert.assertTrue(
+                "Promoted replacement applicant should receive a waitlist promotion notification",
+                inboxPromotionFound
+        );
     }
 }
