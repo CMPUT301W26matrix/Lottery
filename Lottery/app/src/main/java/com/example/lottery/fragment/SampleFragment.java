@@ -25,6 +25,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
  * </p>
  */
 public class SampleFragment extends DialogFragment {
+    static final String ARG_DEFAULT_SIZE = "defaultSize";
     private SamplingListener listener;
 
     /**
@@ -34,6 +35,20 @@ public class SampleFragment extends DialogFragment {
      */
     public static SampleFragment newInstance() {
         return new SampleFragment();
+    }
+
+    /**
+     * Creates a new fragment with a pre-filled default sample size.
+     *
+     * @param defaultSize the maximum number of entrants that can be sampled
+     * @return configured SampleFragment
+     */
+    public static SampleFragment newInstance(long defaultSize) {
+        SampleFragment fragment = new SampleFragment();
+        Bundle args = new Bundle();
+        args.putLong(ARG_DEFAULT_SIZE, defaultSize);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     /**
@@ -64,6 +79,12 @@ public class SampleFragment extends DialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         View view = getLayoutInflater().inflate(R.layout.sample_fragment, null);
         EditText input = view.findViewById(R.id.input_sampling_size);
+
+        if (getArguments() != null && getArguments().containsKey(ARG_DEFAULT_SIZE)) {
+            long defaultSize = getArguments().getLong(ARG_DEFAULT_SIZE);
+            input.setText(String.valueOf(defaultSize));
+            input.selectAll();
+        }
 
         return new MaterialAlertDialogBuilder(requireContext())
                 .setView(view)

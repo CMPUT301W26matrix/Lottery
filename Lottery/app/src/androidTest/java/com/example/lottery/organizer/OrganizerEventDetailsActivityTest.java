@@ -10,8 +10,8 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.intent.Intents.intended;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
@@ -255,6 +255,24 @@ public class OrganizerEventDetailsActivityTest {
             // Verify that the poster container and image are displayed
             onView(withId(R.id.cvPoster)).check(matches(isDisplayed()));
             onView(withId(R.id.ivEventPoster)).check(matches(isDisplayed()));
+        }
+    }
+
+    /**
+     * US 02.05.02: The organizer event details page displays the event capacity
+     * so the organizer knows the maximum number of attendees before sampling.
+     */
+    @Test
+    public void testEventCapacityIsDisplayed() throws InterruptedException {
+        Context context = ApplicationProvider.getApplicationContext();
+        Intent intent = new Intent(context, OrganizerEventDetailsActivity.class);
+        intent.putExtra("eventId", TEST_PRIVATE_EVENT_ID);
+        intent.putExtra("userId", TEST_USER_ID);
+
+        try (ActivityScenario<OrganizerEventDetailsActivity> scenario = ActivityScenario.launch(intent)) {
+            // Wait for Firestore to load the seeded event (capacity=10)
+            Thread.sleep(3000);
+            onView(withId(R.id.tvEventCapacity)).check(matches(withText("10")));
         }
     }
 

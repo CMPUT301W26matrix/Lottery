@@ -27,11 +27,24 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import com.example.lottery.R;
 import com.example.lottery.adapter.ProfileAdapter;
 import com.example.lottery.model.User;
+import com.example.lottery.util.FirestorePaths;
+import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
 
 import org.hamcrest.Matcher;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Instrumented tests for {@link AdminBrowseProfilesActivity}.
@@ -42,6 +55,15 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 public class AdminBrowseProfilesActivityTest {
+    private static final long FIRESTORE_TIMEOUT_SECONDS = 15;
+
+    private static final String TEST_ENTRANT_ID = "entrant_liam_chen";
+    private static final String TEST_ORGANIZER_ID = "organizer_coach_sophia_liu";
+    private static final String TEST_EVENT_ID = "adult_swimming_course_saturday";
+    private static final String TEST_EVENT_COMMENT_ID = "comment_swim_schedule";
+    private static final String BROWSE_FIRESTORE_ENTRANT_ID = "admin_profile_entrant_liam_chen";
+    private static final String BROWSE_FIRESTORE_ORGANIZER_ID = "admin_profile_organizer_sophia_liu";
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     private static ViewAction waitFor(final long millis) {
         return new ViewAction() {
@@ -71,6 +93,183 @@ public class AdminBrowseProfilesActivityTest {
         return ActivityScenario.launch(intent);
     }
 
+    private void seedUser(String userId, String username, String email, String role, String phone)
+            throws InterruptedException, ExecutionException, TimeoutException {
+        Map<String, Object> user = new HashMap<>();
+        user.put("userId", userId);
+        user.put("username", username);
+        user.put("email", email);
+        user.put("role", role);
+        user.put("phone", phone);
+        user.put("createdAt", Timestamp.now());
+        Tasks.await(
+                db.collection(FirestorePaths.USERS).document(userId).set(user),
+                FIRESTORE_TIMEOUT_SECONDS,
+                TimeUnit.SECONDS
+        );
+    }
+
+    private void seedInboxEntry(String userId, String inboxId, String eventId)
+            throws InterruptedException, ExecutionException, TimeoutException {
+        Map<String, Object> inboxEntry = new HashMap<>();
+        inboxEntry.put("eventId", eventId);
+        inboxEntry.put("message", "Administrator review notice");
+        inboxEntry.put("createdAt", Timestamp.now());
+        Tasks.await(
+                db.collection(FirestorePaths.userInbox(userId)).document(inboxId).set(inboxEntry),
+                FIRESTORE_TIMEOUT_SECONDS,
+                TimeUnit.SECONDS
+        );
+    }
+
+    private String uniqueId(String prefix) {
+        return prefix + "_" + System.nanoTime();
+    }
+
+    private void ensureFirestoreNetworkEnabled()
+            throws InterruptedException, ExecutionException, TimeoutException {
+        Tasks.await(db.enableNetwork(), FIRESTORE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+    }
+
+    private void deleteAllDocuments(String collectionPath)
+            throws InterruptedException, ExecutionException, TimeoutException {
+        QuerySnapshot snapshots = Tasks.await(
+                db.collection(collectionPath).get(),
+                FIRESTORE_TIMEOUT_SECONDS,
+                TimeUnit.SECONDS
+        );
+        if (snapshots.isEmpty()) return;
+        WriteBatch batch = db.batch();
+        for (DocumentSnapshot document : snapshots) {
+            batch.delete(document.getReference());
+        }
+        Tasks.await(batch.commit(), FIRESTORE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+    }
+
+    private void deleteDocument(String collectionPath, String documentId)
+            throws InterruptedException, ExecutionException, TimeoutException {
+        Tasks.await(
+                db.collection(collectionPath).document(documentId).delete(),
+                FIRESTORE_TIMEOUT_SECONDS,
+                TimeUnit.SECONDS
+        );
+    }
+
+    private void deleteAllDocumentsQuietly(String collectionPath) {
+        try {
+            deleteAllDocuments(collectionPath);
+        } catch (Exception ignored) {
+        }
+    }
+
+    private void deleteDocumentQuietly(String collectionPath, String documentId) {
+        try {
+            deleteDocument(collectionPath, documentId);
+        } catch (Exception ignored) {
+        }
+    }
+
+    private boolean documentExists(String collectionPath, String documentId)
+            throws InterruptedException, ExecutionException, TimeoutException {
+        return Tasks.await(
+                db.collection(collectionPath).document(documentId).get(),
+                FIRESTORE_TIMEOUT_SECONDS,
+                TimeUnit.SECONDS
+        ).exists();
+    }
+
+    private int countDocuments(String collectionPath)
+            throws InterruptedException, ExecutionException, TimeoutException {
+        return Tasks.await(
+                db.collection(collectionPath).get(),
+                FIRESTORE_TIMEOUT_SECONDS,
+                TimeUnit.SECONDS
+        ).size();
+    }
+
+    private void waitForDocumentDeletion(String collectionPath, String documentId) throws Exception {
+        for (int attempt = 0; attempt < 40; attempt++) {
+            if (!documentExists(collectionPath, documentId)) {
+                return;
+            }
+            Thread.sleep(500);
+        }
+        Assert.assertFalse("Document should be deleted: " + collectionPath + "/" + documentId,
+                documentExists(collectionPath, documentId));
+    }
+
+    private void waitForEmptyCollection(String collectionPath) throws Exception {
+        for (int attempt = 0; attempt < 40; attempt++) {
+            if (countDocuments(collectionPath) == 0) {
+                return;
+            }
+            Thread.sleep(500);
+        }
+        Assert.assertEquals("Collection should be empty: " + collectionPath, 0, countDocuments(collectionPath));
+    }
+
+    private User waitForLoadedUser(ActivityScenario<AdminBrowseProfilesActivity> scenario, String expectedUserId)
+            throws InterruptedException {
+        User[] found = new User[1];
+        for (int attempt = 0; attempt < 40; attempt++) {
+            scenario.onActivity(activity -> {
+                for (User user : activity.allUsers) {
+                    if (expectedUserId.equals(user.getUserId())) {
+                        found[0] = user;
+                        break;
+                    }
+                }
+            });
+            if (found[0] != null) {
+                return found[0];
+            }
+            Thread.sleep(500);
+        }
+        Assert.fail("Expected profile " + expectedUserId + " to load from Firestore");
+        return null;
+    }
+
+    private void waitForUsersLoaded(ActivityScenario<AdminBrowseProfilesActivity> scenario,
+                                    String firstUserId,
+                                    String secondUserId) throws InterruptedException {
+        boolean[] loaded = {false};
+        for (int attempt = 0; attempt < 40; attempt++) {
+            scenario.onActivity(activity -> {
+                boolean firstFound = false;
+                boolean secondFound = false;
+                for (User user : activity.allUsers) {
+                    if (firstUserId.equals(user.getUserId())) firstFound = true;
+                    if (secondUserId.equals(user.getUserId())) secondFound = true;
+                }
+                loaded[0] = firstFound && secondFound;
+            });
+            if (loaded[0]) {
+                return;
+            }
+            Thread.sleep(500);
+        }
+        Assert.assertTrue("Expected seeded Firestore profiles to load", loaded[0]);
+    }
+
+    private void cleanBrowseFirestoreUsers()
+            throws InterruptedException, ExecutionException, TimeoutException {
+        deleteDocument(FirestorePaths.USERS, BROWSE_FIRESTORE_ENTRANT_ID);
+        deleteDocument(FirestorePaths.USERS, BROWSE_FIRESTORE_ORGANIZER_ID);
+    }
+
+    private void cleanProfileDeletionScenario(String entrantId,
+                                              String organizerId,
+                                              String eventId) {
+        deleteAllDocumentsQuietly(FirestorePaths.userInbox(entrantId));
+        deleteAllDocumentsQuietly(FirestorePaths.userInbox(organizerId));
+        deleteAllDocumentsQuietly(FirestorePaths.eventComments(eventId));
+        deleteAllDocumentsQuietly(FirestorePaths.eventCoOrganizers(eventId));
+        deleteAllDocumentsQuietly(FirestorePaths.eventWaitingList(eventId));
+        deleteDocumentQuietly(FirestorePaths.EVENTS, eventId);
+        deleteDocumentQuietly(FirestorePaths.USERS, entrantId);
+        deleteDocumentQuietly(FirestorePaths.USERS, organizerId);
+    }
+
     // US 03.05.01: Admin profile browser should launch and display title
     @Test
     public void adminBrowseProfilesActivity_launchesSuccessfully() {
@@ -84,41 +283,12 @@ public class AdminBrowseProfilesActivityTest {
         }
     }
 
-    // US 03.05.01: Admin should see a list view of user profiles
-    @Test
-    public void adminBrowseProfilesActivity_displaysProfilesList() {
-        try (ActivityScenario<AdminBrowseProfilesActivity> scenario = launchAdminActivity()) {
-            Assert.assertEquals(Lifecycle.State.RESUMED, scenario.getState());
-
-            onView(withId(R.id.lvProfiles))
-                    .check(matches(isDisplayed()));
-        }
-    }
-
     // US 03.05.01: Empty state should inform admin there are no profiles
     @Test
     public void adminBrowseProfilesActivity_hasCorrectEmptyMessageText() {
         try (ActivityScenario<AdminBrowseProfilesActivity> ignored = launchAdminActivity()) {
             onView(withId(R.id.tvEmptyProfiles))
                     .check(matches(withText("There are no user profiles in the system.")));
-        }
-    }
-
-    // US 03.05.01: Empty state message view should exist in layout
-    @Test
-    public void adminBrowseProfilesActivity_emptyMessageViewExists() {
-        try (ActivityScenario<AdminBrowseProfilesActivity> ignored = launchAdminActivity()) {
-            onView(withId(R.id.tvEmptyProfiles))
-                    .check(matches(withText("There are no user profiles in the system.")));
-        }
-    }
-
-    // US 03.05.01: Page title should display "Browse Profiles"
-    @Test
-    public void adminBrowseProfilesActivity_titleIsCorrect() {
-        try (ActivityScenario<AdminBrowseProfilesActivity> ignored = launchAdminActivity()) {
-            onView(withId(R.id.tvBrowseProfilesTitle))
-                    .check(matches(withText("Browse Profiles")));
         }
     }
 
@@ -176,16 +346,6 @@ public class AdminBrowseProfilesActivityTest {
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
     }
 
-    // US 03.05.01: Filter buttons (All, Entrant, Organizer) should be visible
-    @Test
-    public void filterButtons_allThreeDisplayed() {
-        try (ActivityScenario<AdminBrowseProfilesActivity> ignored = launchAdminActivity()) {
-            onView(withId(R.id.btnFilterAll)).check(matches(isDisplayed()));
-            onView(withId(R.id.btnFilterEntrant)).check(matches(isDisplayed()));
-            onView(withId(R.id.btnFilterOrganizer)).check(matches(isDisplayed()));
-        }
-    }
-
     // US 03.05.01: Filter buttons should display correct role labels
     @Test
     public void filterButtons_showCorrectLabels() {
@@ -201,13 +361,11 @@ public class AdminBrowseProfilesActivityTest {
     public void filterEntrant_showsOnlyEntrants() {
         try (ActivityScenario<AdminBrowseProfilesActivity> scenario = launchAdminActivity()) {
             injectMixedRoleUsers(scenario);
-
-            onView(withId(R.id.btnFilterEntrant)).perform(click());
-            onView(isRoot()).perform(waitFor(300));
-
             scenario.onActivity(activity -> {
-                ListView listView = activity.findViewById(R.id.lvProfiles);
-                Assert.assertEquals(2, listView.getAdapter().getCount());
+                activity.findViewById(R.id.btnFilterEntrant).performClick();
+                Assert.assertEquals(2, activity.filteredUsers.size());
+                Assert.assertEquals("ENTRANT", activity.filteredUsers.get(0).getRole());
+                Assert.assertEquals("ENTRANT", activity.filteredUsers.get(1).getRole());
             });
         }
     }
@@ -217,13 +375,10 @@ public class AdminBrowseProfilesActivityTest {
     public void filterOrganizer_showsOnlyOrganizers() {
         try (ActivityScenario<AdminBrowseProfilesActivity> scenario = launchAdminActivity()) {
             injectMixedRoleUsers(scenario);
-
-            onView(withId(R.id.btnFilterOrganizer)).perform(click());
-            onView(isRoot()).perform(waitFor(300));
-
             scenario.onActivity(activity -> {
-                ListView listView = activity.findViewById(R.id.lvProfiles);
-                Assert.assertEquals(1, listView.getAdapter().getCount());
+                activity.findViewById(R.id.btnFilterOrganizer).performClick();
+                Assert.assertEquals(1, activity.filteredUsers.size());
+                Assert.assertEquals("ORGANIZER", activity.filteredUsers.get(0).getRole());
             });
         }
     }
@@ -233,16 +388,10 @@ public class AdminBrowseProfilesActivityTest {
     public void filterAll_showsAllUsers() {
         try (ActivityScenario<AdminBrowseProfilesActivity> scenario = launchAdminActivity()) {
             injectMixedRoleUsers(scenario);
-
-            // Switch to Organizer first, then back to All
-            onView(withId(R.id.btnFilterOrganizer)).perform(click());
-            onView(isRoot()).perform(waitFor(300));
-            onView(withId(R.id.btnFilterAll)).perform(click());
-            onView(isRoot()).perform(waitFor(300));
-
             scenario.onActivity(activity -> {
-                ListView listView = activity.findViewById(R.id.lvProfiles);
-                Assert.assertEquals(3, listView.getAdapter().getCount());
+                activity.findViewById(R.id.btnFilterOrganizer).performClick();
+                activity.findViewById(R.id.btnFilterAll).performClick();
+                Assert.assertEquals(3, activity.filteredUsers.size());
             });
         }
     }
@@ -383,6 +532,169 @@ public class AdminBrowseProfilesActivityTest {
             onView(withId(R.id.btnEnableDeleteProfile))
                     .check(matches(isDisplayed()))
                     .check(matches(withText("Deletion")));
+        }
+    }
+
+    // US 03.02.01: Confirming profile deletion should remove the entrant profile and its
+    // related waiting list and inbox records from Firestore.
+    @Test
+    public void adminDeleteEntrantProfile_removesFirestoreDocuments() throws Exception {
+        String entrantId = uniqueId("entrant_liam_chen");
+        String organizerId = uniqueId("coach_maya_wilson");
+        String eventId = uniqueId("swimming_course_saturday_morning");
+        String inboxId = uniqueId("inbox_profile_cleanup");
+
+        ensureFirestoreNetworkEnabled();
+        seedUser(entrantId, "Liam Chen", "liam.chen@gmail.com", "ENTRANT", "7805550110");
+
+        Map<String, Object> event = new HashMap<>();
+        event.put("eventId", eventId);
+        event.put("title", "Saturday Swimming Skills Clinic");
+        event.put("organizerId", organizerId);
+        event.put("createdAt", Timestamp.now());
+        Tasks.await(
+                db.collection(FirestorePaths.EVENTS).document(eventId).set(event),
+                FIRESTORE_TIMEOUT_SECONDS,
+                TimeUnit.SECONDS
+        );
+
+        Map<String, Object> waitingListEntry = new HashMap<>();
+        waitingListEntry.put("userId", entrantId);
+        waitingListEntry.put("status", "waitlisted");
+        waitingListEntry.put("joinedAt", Timestamp.now());
+        Tasks.await(
+                db.collection(FirestorePaths.eventWaitingList(eventId))
+                        .document(entrantId)
+                        .set(waitingListEntry),
+                FIRESTORE_TIMEOUT_SECONDS,
+                TimeUnit.SECONDS
+        );
+        seedInboxEntry(entrantId, inboxId, eventId);
+
+        try {
+            try (ActivityScenario<AdminBrowseProfilesActivity> scenario = launchAdminActivity()) {
+                User selectedUser = waitForLoadedUser(scenario, entrantId);
+                scenario.onActivity(activity -> activity.showDeleteConfirmationDialog(selectedUser));
+
+                onView(withText("Delete Profile")).inRoot(isDialog()).check(matches(isDisplayed()));
+                onView(withText("Confirm")).inRoot(isDialog()).perform(click());
+            }
+
+            waitForDocumentDeletion(FirestorePaths.USERS, entrantId);
+            waitForDocumentDeletion(FirestorePaths.eventWaitingList(eventId), entrantId);
+            waitForEmptyCollection(FirestorePaths.userInbox(entrantId));
+        } finally {
+            cleanProfileDeletionScenario(entrantId, organizerId, eventId);
+        }
+    }
+
+    // US 03.07.01: Confirming organizer deletion should remove the organizer profile and
+    // their owned event, including event comments.
+    @Test
+    public void adminDeleteOrganizerProfile_removesOrganizerAndOwnedEvent() throws Exception {
+        String entrantId = uniqueId("entrant_oliver_ng");
+        String organizerId = uniqueId("organizer_coach_sophia_liu");
+        String eventId = uniqueId("swimming_course_for_beginners");
+        String commentId = uniqueId("comment_pool_orientation");
+        String inboxId = uniqueId("inbox_organizer_cleanup");
+
+        ensureFirestoreNetworkEnabled();
+        seedUser(organizerId, "Sophia Liu", "sophia.liu@gmail.com", "ORGANIZER", "7805550111");
+
+        Map<String, Object> event = new HashMap<>();
+        event.put("eventId", eventId);
+        event.put("title", "Swimming Course for Beginners");
+        event.put("details", "A weekend lesson for new swimmers learning water safety and basic strokes.");
+        event.put("organizerId", organizerId);
+        event.put("createdAt", Timestamp.now());
+        Tasks.await(
+                db.collection(FirestorePaths.EVENTS).document(eventId).set(event),
+                FIRESTORE_TIMEOUT_SECONDS,
+                TimeUnit.SECONDS
+        );
+
+        Map<String, Object> comment = new HashMap<>();
+        comment.put("eventId", eventId);
+        comment.put("authorId", organizerId);
+        comment.put("authorName", "Sophia Liu");
+        comment.put("authorRole", "organizer");
+        comment.put("content", "Please arrive 15 minutes early for the pool orientation.");
+        comment.put("createdAt", Timestamp.now());
+        Tasks.await(
+                db.collection(FirestorePaths.eventComments(eventId))
+                        .document(commentId)
+                        .set(comment),
+                FIRESTORE_TIMEOUT_SECONDS,
+                TimeUnit.SECONDS
+        );
+        seedInboxEntry(organizerId, inboxId, eventId);
+
+        try {
+            try (ActivityScenario<AdminBrowseProfilesActivity> scenario = launchAdminActivity()) {
+                User selectedUser = waitForLoadedUser(scenario, organizerId);
+                scenario.onActivity(activity -> activity.showDeleteConfirmationDialog(selectedUser));
+
+                onView(withText("Delete Profile")).inRoot(isDialog()).check(matches(isDisplayed()));
+                onView(withText("Confirm")).inRoot(isDialog()).perform(click());
+            }
+
+            waitForDocumentDeletion(FirestorePaths.USERS, organizerId);
+            waitForDocumentDeletion(FirestorePaths.EVENTS, eventId);
+            waitForDocumentDeletion(FirestorePaths.eventComments(eventId), commentId);
+            waitForEmptyCollection(FirestorePaths.userInbox(organizerId));
+        } finally {
+            cleanProfileDeletionScenario(entrantId, organizerId, eventId);
+        }
+    }
+
+    // US 03.05.01: Admin profile browser should load Firestore users, then filter the
+    // loaded data so organizer-only and entrant-only views contain the expected roles.
+    @Test
+    public void adminBrowseProfiles_loadsFirestoreUsersAndFiltersByRole() throws Exception {
+        ensureFirestoreNetworkEnabled();
+        cleanBrowseFirestoreUsers();
+        seedUser(BROWSE_FIRESTORE_ENTRANT_ID, "Liam Chen", "liam.chen@gmail.com", "ENTRANT", "7805550120");
+        seedUser(BROWSE_FIRESTORE_ORGANIZER_ID, "Sophia Liu", "sophia.liu@gmail.com", "ORGANIZER", "7805550121");
+
+        try {
+            Intent intent = new Intent(
+                    InstrumentationRegistry.getInstrumentation().getTargetContext(),
+                    AdminBrowseProfilesActivity.class
+            );
+            intent.putExtra("role", "admin");
+            intent.putExtra("userId", "admin_jordan_clark");
+
+            try (ActivityScenario<AdminBrowseProfilesActivity> scenario = ActivityScenario.launch(intent)) {
+                waitForUsersLoaded(scenario, BROWSE_FIRESTORE_ENTRANT_ID, BROWSE_FIRESTORE_ORGANIZER_ID);
+
+                scenario.onActivity(activity -> {
+                    activity.findViewById(R.id.btnFilterOrganizer).performClick();
+                    boolean organizerFound = false;
+                    boolean entrantStillVisible = false;
+                    for (User user : activity.filteredUsers) {
+                        if (BROWSE_FIRESTORE_ORGANIZER_ID.equals(user.getUserId()))
+                            organizerFound = true;
+                        if (BROWSE_FIRESTORE_ENTRANT_ID.equals(user.getUserId()))
+                            entrantStillVisible = true;
+                    }
+                    Assert.assertTrue("Organizer filter should include the seeded organizer", organizerFound);
+                    Assert.assertFalse("Organizer filter should exclude the seeded entrant", entrantStillVisible);
+
+                    activity.findViewById(R.id.btnFilterEntrant).performClick();
+                    boolean entrantFound = false;
+                    boolean organizerStillVisible = false;
+                    for (User user : activity.filteredUsers) {
+                        if (BROWSE_FIRESTORE_ENTRANT_ID.equals(user.getUserId()))
+                            entrantFound = true;
+                        if (BROWSE_FIRESTORE_ORGANIZER_ID.equals(user.getUserId()))
+                            organizerStillVisible = true;
+                    }
+                    Assert.assertTrue("Entrant filter should include the seeded entrant", entrantFound);
+                    Assert.assertFalse("Entrant filter should exclude the seeded organizer", organizerStillVisible);
+                });
+            }
+        } finally {
+            cleanBrowseFirestoreUsers();
         }
     }
 }

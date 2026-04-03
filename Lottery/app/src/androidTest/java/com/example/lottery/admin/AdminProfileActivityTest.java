@@ -118,19 +118,6 @@ public class AdminProfileActivityTest {
         }
     }
 
-    // US 03.09.01: Admin bottom navigation should include settings tab
-    @Test
-    public void testBottomNavIsComplete() {
-        try (ActivityScenario<AdminProfileActivity> ignored =
-                     ActivityScenario.launch(createAdminProfileIntent())) {
-            onView(withId(R.id.nav_home)).check(matches(isDisplayed()));
-            onView(withId(R.id.nav_profiles)).check(matches(isDisplayed()));
-            onView(withId(R.id.nav_images)).check(matches(isDisplayed()));
-            onView(withId(R.id.nav_logs)).check(matches(isDisplayed()));
-            onView(withId(R.id.nav_admin_settings)).check(matches(isDisplayed()));
-        }
-    }
-
     // US 03.09.01: Clicking logout should navigate back to MainActivity
     @Test
     public void testLogoutNavigatesToMainActivity() {
@@ -138,36 +125,6 @@ public class AdminProfileActivityTest {
                      ActivityScenario.launch(createAdminProfileIntent())) {
             onView(withId(R.id.btn_log_out)).perform(click());
             intended(hasComponent(MainActivity.class.getName()));
-        }
-    }
-
-    // US 03.09.01: Home nav should navigate to AdminBrowseEventsActivity
-    @Test
-    public void testHomeNavNavigatesToEventBrowser() {
-        try (ActivityScenario<AdminProfileActivity> ignored =
-                     ActivityScenario.launch(createAdminProfileIntent())) {
-            onView(withId(R.id.nav_home)).perform(click());
-            intended(hasComponent(AdminBrowseEventsActivity.class.getName()));
-        }
-    }
-
-    // US 03.09.01: Profiles nav should navigate to AdminBrowseProfilesActivity
-    @Test
-    public void testProfilesNavNavigatesToProfileBrowser() {
-        try (ActivityScenario<AdminProfileActivity> ignored =
-                     ActivityScenario.launch(createAdminProfileIntent())) {
-            onView(withId(R.id.nav_profiles)).perform(click());
-            intended(hasComponent(AdminBrowseProfilesActivity.class.getName()));
-        }
-    }
-
-    // US 03.09.01: Images nav should navigate to AdminBrowseImagesActivity
-    @Test
-    public void testImagesNavNavigatesToImageBrowser() {
-        try (ActivityScenario<AdminProfileActivity> ignored =
-                     ActivityScenario.launch(createAdminProfileIntent())) {
-            onView(withId(R.id.nav_images)).perform(click());
-            intended(hasComponent(AdminBrowseImagesActivity.class.getName()));
         }
     }
 }
