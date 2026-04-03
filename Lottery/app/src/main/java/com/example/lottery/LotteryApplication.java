@@ -36,6 +36,9 @@ public class LotteryApplication extends Application {
                 if (apiKey != null && !apiKey.isEmpty()) {
                     // MUST use initializeWithNewPlacesApiEnabled to avoid legacy errors
                     Places.initializeWithNewPlacesApiEnabled(getApplicationContext(), apiKey);
+                    // Explicitly create a client to "warm up" the underlying gRPC channel 
+                    // and keep it alive for the duration of the Application's lifecycle.
+                    Places.createClient(this);
                     Log.d(TAG, "Places SDK initialized with New API enabled.");
                 } else {
                     Log.e(TAG, "Places SDK failed to initialize: API Key is missing in Manifest.");

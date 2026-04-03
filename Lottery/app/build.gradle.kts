@@ -8,7 +8,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        manifestPlaceholders += mapOf("mapsApiKey" to "AIzaSyBQ7iqhDezLQYBFeZf6nwlaqifkHkrrvGA")
+        manifestPlaceholders += mapOf("mapsApiKey" to "AIzaSyArUmxWLTIVjeR9VwuWkzm5AWRORjkCA6Q")
         applicationId = "com.example.lottery"
         minSdk = 24
         targetSdk = 36

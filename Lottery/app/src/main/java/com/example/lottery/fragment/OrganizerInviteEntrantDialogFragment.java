@@ -1,6 +1,8 @@
 package com.example.lottery.fragment;
 
 import android.app.Dialog;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -9,12 +11,14 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -58,11 +62,6 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
 
     /**
      * Creates a new instance of this dialog.
-     *
-     * @param eventId    the event to invite entrants to
-     * @param eventTitle the event title (used in the notification message)
-     * @param senderId   the current organizer's user ID
-     * @return a configured dialog fragment
      */
     public static OrganizerInviteEntrantDialogFragment newInstance(String eventId, String eventTitle, String senderId) {
         OrganizerInviteEntrantDialogFragment fragment = new OrganizerInviteEntrantDialogFragment();
@@ -88,7 +87,27 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.dialog_user_search, container, false);
+        if (getDialog() != null && getDialog().getWindow() != null) {
+            getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+        }
+        return inflater.inflate(R.layout.dialog_user_search, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        TextView tvTitle = view.findViewById(R.id.tvTitle);
+        TextView tvSearchLabel = view.findViewById(R.id.tvSearchLabel);
+        View coOrganizerSection = view.findViewById(R.id.layout_co_organizer_section);
+        
+        // Customize for Invite Entrant mode
+        tvTitle.setText("Invite Entrants");
+        tvSearchLabel.setText("Search for Entrants");
+        if (coOrganizerSection != null) {
+            coOrganizerSection.setVisibility(View.GONE);
+        }
 
         etSearch = view.findViewById(R.id.etSearch);
         rvResults = view.findViewById(R.id.rvResults);
@@ -100,10 +119,7 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
         rvResults.setAdapter(adapter);
 
         etSearch.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (pendingSearch != null) searchHandler.removeCallbacks(pendingSearch);
@@ -111,20 +127,15 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
                 pendingSearch = () -> searchUsers(query);
                 searchHandler.postDelayed(pendingSearch, 300);
             }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
+            @Override public void afterTextChanged(Editable s) {}
         });
-
-        return view;
     }
 
     @Override
     public void onStart() {
         super.onStart();
         Dialog dialog = getDialog();
-        if (dialog != null) {
+        if (dialog != null && dialog.getWindow() != null) {
             dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         }
     }
@@ -141,7 +152,6 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
         progressBar.setVisibility(View.VISIBLE);
         tvNoResults.setVisibility(View.GONE);
 
-        // Search by username, email, or phone (simplified: searching by username start)
         db.collection(FirestorePaths.USERS)
                 .whereEqualTo("role", "ENTRANT")
                 .get()
@@ -153,15 +163,11 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
                         User user = doc.toObject(User.class);
                         user.setUserId(doc.getId());
 
-                        boolean match = user.getUsername() != null && user.getUsername().toLowerCase().contains(lowerQuery);
-                        if (user.getEmail() != null && user.getEmail().toLowerCase().contains(lowerQuery))
-                            match = true;
-                        if (user.getPhone() != null && user.getPhone().contains(query))
-                            match = true;
+                        boolean match = (user.getUsername() != null && user.getUsername().toLowerCase().contains(lowerQuery))
+                                || (user.getEmail() != null && user.getEmail().toLowerCase().contains(lowerQuery))
+                                || (user.getPhone() != null && user.getPhone().contains(query));
 
-                        if (match) {
-                            userList.add(user);
-                        }
+                        if (match) userList.add(user);
                     }
 
                     progressBar.setVisibility(View.GONE);
@@ -185,7 +191,6 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
     }
 
     private void inviteUser(User user) {
-        // 1. Add to event's waiting_list with status "invited"
         Map<String, Object> waitlistData = new HashMap<>();
         waitlistData.put("userId", user.getUserId());
         waitlistData.put("username", user.getUsername());
@@ -195,21 +200,15 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
         db.collection(FirestorePaths.EVENTS).document(eventId)
                 .collection(FirestorePaths.WAITING_LIST).document(user.getUserId())
                 .set(waitlistData)
-                .addOnSuccessListener(aVoid -> {
-                    // 2. Send notification to user's inbox
-                    sendNotification(user);
-                })
+                .addOnSuccessListener(aVoid -> sendNotification(user))
                 .addOnFailureListener(e -> {
-                    if (!isAdded()) return;
-                    Toast.makeText(requireContext(), "Failed to invite user", Toast.LENGTH_SHORT).show();
+                    if (isAdded()) Toast.makeText(requireContext(), "Failed to invite user", Toast.LENGTH_SHORT).show();
                 });
     }
 
     private void sendNotification(User targetUser) {
-        // US 01.04.03: Respect notification preference
         if (!targetUser.isNotificationsEnabled()) {
-            if (isAdded())
-                Toast.makeText(requireContext(), "Invitation successful (notifications opted out)", Toast.LENGTH_SHORT).show();
+            if (isAdded()) Toast.makeText(requireContext(), "Invitation successful (notifications opted out)", Toast.LENGTH_SHORT).show();
             dismiss();
             return;
         }
@@ -232,17 +231,14 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
                 .collection(FirestorePaths.INBOX).document(notificationId)
                 .set(notification)
                 .addOnSuccessListener(aVoid -> {
-                    if (isAdded())
-                        Toast.makeText(requireContext(), "Invitation sent!", Toast.LENGTH_SHORT).show();
+                    if (isAdded()) Toast.makeText(requireContext(), "Invitation sent!", Toast.LENGTH_SHORT).show();
                     dismiss();
                 })
                 .addOnFailureListener(e -> {
-                    if (isAdded())
-                        Toast.makeText(requireContext(), "Failed to send notification", Toast.LENGTH_SHORT).show();
+                    if (isAdded()) Toast.makeText(requireContext(), "Failed to send notification", Toast.LENGTH_SHORT).show();
                 });
     }
 
-    // Simple Adapter for search results
     private static class UserSearchAdapter extends RecyclerView.Adapter<UserSearchAdapter.ViewHolder> {
         private final List<User> users;
         private final OnUserClickListener listener;
@@ -263,22 +259,18 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             User user = users.get(position);
             holder.text1.setText(user.getUsername());
+            holder.text1.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.primary_blue));
             holder.text2.setText(user.getEmail() != null ? user.getEmail() : user.getPhone());
             holder.itemView.setOnClickListener(v -> listener.onUserClick(user));
         }
 
         @Override
-        public int getItemCount() {
-            return users.size();
-        }
+        public int getItemCount() { return users.size(); }
 
-        interface OnUserClickListener {
-            void onUserClick(User user);
-        }
+        interface OnUserClickListener { void onUserClick(User user); }
 
         static class ViewHolder extends RecyclerView.ViewHolder {
             TextView text1, text2;
-
             ViewHolder(View v) {
                 super(v);
                 text1 = v.findViewById(android.R.id.text1);

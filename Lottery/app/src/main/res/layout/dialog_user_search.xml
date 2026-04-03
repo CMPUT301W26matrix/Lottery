@@ -16,36 +16,45 @@
         android:textSize="20sp"
         android:textStyle="bold" />
 
-    <!-- Section for Current Co-Organizers -->
-    <TextView
-        android:id="@+id/tvCurrentLabel"
+    <!-- Section for Current Co-Organizers (Only visible in Co-Organizer mode) -->
+    <LinearLayout
+        android:id="@+id/layout_co_organizer_section"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Current Co-Organizers"
-        android:textColor="@color/text_gray"
-        android:textSize="14sp"
-        android:textStyle="bold" />
+        android:orientation="vertical"
+        android:visibility="visible">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvCurrentCoOrganizers"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:maxHeight="150dp" />
+        <TextView
+            android:id="@+id/tvCurrentLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Current Co-Organizers"
+            android:textColor="@color/text_gray"
+            android:textSize="14sp"
+            android:textStyle="bold" />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="16dp"
-        android:background="@color/divider_gray" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvCurrentCoOrganizers"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:maxHeight="150dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="16dp"
+            android:background="@color/divider_gray" />
+    </LinearLayout>
 
     <!-- Section for Searching and Adding -->
     <TextView
+        android:id="@+id/tvSearchLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Add New Co-Organizer"
+        android:text="Add New"
         android:textColor="@color/text_gray"
         android:textSize="14sp"
         android:textStyle="bold" />
@@ -58,7 +67,10 @@
         android:layout_marginTop="8dp"
         android:hint="Search by name or email"
         app:endIconMode="clear_text"
-        app:startIconDrawable="@android:drawable/ic_menu_search">
+        app:boxStrokeColor="@color/primary_blue"
+        app:hintTextColor="@color/primary_blue"
+        app:startIconDrawable="@android:drawable/ic_menu_search"
+        app:startIconTint="@color/primary_blue">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etSearch"
