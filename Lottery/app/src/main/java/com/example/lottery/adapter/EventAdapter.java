@@ -25,14 +25,6 @@ import java.util.Map;
 
 /**
  * Adapter for displaying a list of events in the Organizer Dashboard.
- *
- * <p>Key Responsibilities:
- * <ul>
- *   <li>Binds event metadata to RecyclerView items.</li>
- *   <li>Fetches and caches waitingList counts per event (one query per eventId).</li>
- *   <li>Visualizes event status (OPEN/CLOSED/PENDING) derived from event dates.</li>
- * </ul>
- * </p>
  */
 public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHolder> {
 
@@ -42,48 +34,34 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final Map<String, int[]> countsCache = new HashMap<>();
 
-    /**
-     * Creates a new EventAdapter.
-     *
-     * @param eventList list of events to display
-     * @param listener  click listener for event interactions
-     */
     public EventAdapter(List<Event> eventList, OnEventClickListener listener) {
         this.eventList = eventList;
         this.listener = listener;
     }
 
-    /**
-     * Derives display status from event dates per the project spec.
-     */
     public static String resolveDisplayStatus(Event event) {
         if (event == null) return "closed";
-
-        // Honour the explicit status stored in Firestore when it is "closed"
-        if ("closed".equalsIgnoreCase(event.getStatus())) {
-            return "closed";
-        }
+        if (event.isPrivate()) return "private";
+        if ("closed".equalsIgnoreCase(event.getStatus())) return "closed";
 
         Date now = new Date();
-
-        if (event.getRegistrationDeadline() != null
-                && event.getDrawDate() != null
-                && event.getRegistrationDeadline().toDate().before(now)
-                && event.getDrawDate().toDate().after(now)) {
-            return "pending";
+        if (event.getRegistrationDeadline() != null && event.getDrawDate() != null) {
+            if (event.getRegistrationDeadline().toDate().before(now) && event.getDrawDate().toDate().after(now)) {
+                return "pending_draw";
+            }
         }
 
-        if (event.getScheduledDateTime() != null
-                && event.getScheduledDateTime().toDate().after(now)) {
+        if (event.getScheduledDateTime() != null) {
+            if (event.getScheduledDateTime().toDate().before(now)) return "finished";
+            if (event.getRegistrationDeadline() != null && event.getRegistrationDeadline().toDate().before(now)) {
+                return "ongoing";
+            }
             return "open";
         }
 
         return "closed";
     }
 
-    /**
-     * Clears the cached waitingList counts so the next bind triggers a fresh fetch.
-     */
     public void clearCountsCache() {
         countsCache.clear();
     }
@@ -106,15 +84,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         return eventList.size();
     }
 
-    /**
-     * Callback interface invoked when an event item in the list is clicked.
-     */
     public interface OnEventClickListener {
-        /**
-         * Called when an event item is clicked.
-         *
-         * @param event the clicked event
-         */
         void onEventClick(Event event);
     }
 
@@ -140,7 +110,6 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
             tvDate.setText(event.getScheduledDateTime() != null ? dateFormat.format(event.getScheduledDateTime().toDate()) : "Date TBD");
             tvCapacity.setText(event.getCapacity() != null ? String.valueOf(event.getCapacity()) : "-");
 
-            // Bind counts from cache or fetch once
             if (countsCache.containsKey(eventId)) {
                 bindCounts(event, countsCache.get(eventId));
             } else {
@@ -163,7 +132,6 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
                     .addOnSuccessListener(queryDocumentSnapshots -> {
                         int waitlisted = 0;
                         int selected = 0;
-
                         for (com.google.firebase.firestore.DocumentSnapshot doc : queryDocumentSnapshots) {
                             String status = InvitationFlowUtil.normalizeEntrantStatus(doc.getString("status"));
                             if (InvitationFlowUtil.STATUS_WAITLISTED.equals(status)) {
@@ -173,11 +141,8 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
                                 selected++;
                             }
                         }
-
                         int[] counts = {waitlisted, selected};
                         countsCache.put(eventId, counts);
-
-                        // Only write UI if this holder still shows the same event
                         if (eventId.equals(boundEventId)) {
                             bindCounts(event, counts);
                         }
@@ -193,10 +158,8 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         private void bindCounts(Event event, int[] counts) {
             int waitlisted = counts[0];
             int selected = counts[1];
-
             if (event.getWaitingListLimit() != null) {
-                tvWaiting.setText(String.format(Locale.getDefault(), "%d / %d",
-                        waitlisted, event.getWaitingListLimit()));
+                tvWaiting.setText(String.format(Locale.getDefault(), "%d / %d", waitlisted, event.getWaitingListLimit()));
             } else {
                 tvWaiting.setText(String.valueOf(waitlisted));
             }
@@ -204,30 +167,48 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         }
 
         private void updateStatusUI(String status) {
-            if (status == null) status = "closed";
+            tvStatus.setVisibility(View.VISIBLE);
+            int color;
+            int bgColor;
+            String text;
 
             switch (status) {
-                case "open":
-                    tvStatus.setText("OPEN");
-                    tvStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.primary_blue));
-                    tvStatus.setBackgroundTintList(ColorStateList.valueOf(
-                            ContextCompat.getColor(itemView.getContext(), R.color.primary_light_blue)));
+                case "private":
+                    text = "PRIVATE";
+                    color = ContextCompat.getColor(itemView.getContext(), R.color.text_secondary);
+                    bgColor = ContextCompat.getColor(itemView.getContext(), R.color.divider_gray);
                     break;
-                case "pending":
-                    tvStatus.setText("PENDING");
-                    tvStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), android.R.color.holo_orange_dark));
-                    tvStatus.setBackgroundTintList(ColorStateList.valueOf(0xFFFFF3E0));
+                case "open":
+                    text = "OPEN";
+                    color = ContextCompat.getColor(itemView.getContext(), R.color.primary_blue);
+                    bgColor = ContextCompat.getColor(itemView.getContext(), R.color.primary_light_blue);
+                    break;
+                case "pending_draw":
+                    text = "PENDING DRAW";
+                    color = 0xFFE65100; // Deep Orange
+                    bgColor = 0xFFFFF3E0;
+                    break;
+                case "ongoing":
+                    text = "ONGOING";
+                    color = 0xFF2E7D32; // Green
+                    bgColor = 0xFFE8F5E9;
+                    break;
+                case "finished":
+                    text = "FINISHED";
+                    color = ContextCompat.getColor(itemView.getContext(), R.color.text_gray);
+                    bgColor = ContextCompat.getColor(itemView.getContext(), R.color.page_background);
                     break;
                 case "closed":
-                    tvStatus.setText("CLOSED");
-                    tvStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.text_secondary));
-                    tvStatus.setBackgroundTintList(ColorStateList.valueOf(
-                            ContextCompat.getColor(itemView.getContext(), R.color.divider_gray)));
-                    break;
                 default:
-                    tvStatus.setText(status.toUpperCase());
+                    text = "CLOSED";
+                    color = ContextCompat.getColor(itemView.getContext(), R.color.text_secondary);
+                    bgColor = ContextCompat.getColor(itemView.getContext(), R.color.divider_gray);
                     break;
             }
+
+            tvStatus.setText(text);
+            tvStatus.setTextColor(color);
+            tvStatus.setBackgroundTintList(ColorStateList.valueOf(bgColor));
         }
     }
 }

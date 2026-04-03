@@ -1,5 +1,6 @@
 package com.example.lottery.organizer;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
@@ -18,6 +19,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
@@ -31,6 +34,11 @@ import com.example.lottery.util.EventValidationUtils;
 import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.PosterImageLoader;
 import com.example.lottery.util.QRCodeUtils;
+import com.google.android.gms.common.api.Status;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteActivity;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -44,9 +52,11 @@ import com.google.firebase.firestore.SetOptions;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
@@ -107,6 +117,24 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
      */
     private FirebaseFirestore db;
     private String userId;
+
+    // Activity Result Launcher for Google Places Autocomplete
+    private final ActivityResultLauncher<Intent> startAutocomplete = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                    Place place = Autocomplete.getPlaceFromIntent(result.getData());
+                    if (etPlace != null) {
+                        // In SDK 5.1.1+, use getFormattedAddress() and getDisplayName()
+                        etPlace.setText(place.getFormattedAddress());
+                    }
+                    Log.d(TAG, "Place selected: " + place.getDisplayName() + ", " + place.getFormattedAddress());
+                } else if (result.getResultCode() == AutocompleteActivity.RESULT_ERROR && result.getData() != null) {
+                    Status status = Autocomplete.getStatusFromIntent(result.getData());
+                    Log.e(TAG, "Autocomplete error: " + status.getStatusMessage());
+                    Toast.makeText(this, "Error selecting location", Toast.LENGTH_SHORT).show();
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -227,6 +255,22 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         etMaxCapacity = findViewById(R.id.etMaxCapacity);
         etEventDetails = findViewById(R.id.etEventDetails);
         etPlace = findViewById(R.id.etPlace);
+
+        // Setup Google Places Autocomplete on etPlace click
+        if (etPlace != null) {
+            etPlace.setOnClickListener(v -> {
+                // Request ID, DISPLAY_NAME, FORMATTED_ADDRESS, and LOCATION fields for the selected place
+                // These are the new field names for SDK 5.0.0+
+                List<Place.Field> fields = Arrays.asList(
+                        Place.Field.ID, 
+                        Place.Field.DISPLAY_NAME, 
+                        Place.Field.FORMATTED_ADDRESS, 
+                        Place.Field.LOCATION);
+                Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
+                        .build(this);
+                startAutocomplete.launch(intent);
+            });
+        }
 
         etEventStart = findViewById(R.id.etEventStart);
         etEventEnd = findViewById(R.id.etEventEnd);

@@ -10,6 +10,7 @@ constraintlayout = "2.2.1"
 
 googleServices = "4.4.2"
 playServicesMaps = "20.0.0"
+playServicesPlaces = "5.1.1"
 mockito = "5.11.0"
 robolectric = "4.12.1"
 androidxTestCore = "1.7.0"
@@ -24,6 +25,7 @@ activity = { group = "androidx.activity", name = "activity", version.ref = "acti
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 
 play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
+play-services-places = { group = "com.google.android.libraries.places", name = "places", version.ref = "playServicesPlaces" }
 mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockito" }
 mockito-android = { group = "org.mockito", name = "mockito-android", version.ref = "mockito" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
