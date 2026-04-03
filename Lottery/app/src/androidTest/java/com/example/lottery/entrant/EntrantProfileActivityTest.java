@@ -11,8 +11,10 @@ import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import android.content.Intent;
 
@@ -28,6 +30,7 @@ import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import org.junit.After;
 import org.junit.Before;
@@ -35,7 +38,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -52,6 +58,7 @@ public class EntrantProfileActivityTest {
     private static final String ORIGINAL_PHONE = "7805550101";
 
     private FirebaseFirestore db;
+    private final Set<String> seededEventIds = new HashSet<>();
 
     @Before
     public void setUp() throws Exception {
@@ -62,11 +69,39 @@ public class EntrantProfileActivityTest {
 
     @After
     public void tearDown() throws Exception {
-        Tasks.await(
-                db.collection(FirestorePaths.USERS).document(TEST_USER_ID).delete(),
-                10,
-                TimeUnit.SECONDS
-        );
+        // Re-authenticate so cleanup Firestore calls succeed even after signOut tests
+        try {
+            Tasks.await(
+                    com.google.firebase.auth.FirebaseAuth.getInstance().signInAnonymously(),
+                    10, TimeUnit.SECONDS);
+        } catch (Exception ignored) {
+        }
+
+        // Clean up any seeded event data
+        for (String eventId : seededEventIds) {
+            try {
+                for (QueryDocumentSnapshot doc : Tasks.await(
+                        db.collection(FirestorePaths.eventWaitingList(eventId)).get(),
+                        10, TimeUnit.SECONDS)) {
+                    Tasks.await(doc.getReference().delete(), 10, TimeUnit.SECONDS);
+                }
+                Tasks.await(db.collection(FirestorePaths.EVENTS).document(eventId).delete(),
+                        10, TimeUnit.SECONDS);
+            } catch (Exception ignored) {
+            }
+        }
+        seededEventIds.clear();
+
+        // Delete user document (may already be gone from delete profile test)
+        try {
+            Tasks.await(
+                    db.collection(FirestorePaths.USERS).document(TEST_USER_ID).delete(),
+                    10,
+                    TimeUnit.SECONDS
+            );
+        } catch (Exception ignored) {
+        }
+
         Intents.release();
     }
 
@@ -263,6 +298,85 @@ public class EntrantProfileActivityTest {
             onView(withId(R.id.btn_lottery_guidelines)).perform(scrollTo(), click());
 
             intended(hasComponent(EntrantLotteryGuidelinesActivity.class.getName()));
+        }
+    }
+
+    /**
+     * US 01.02.04: Confirming profile deletion removes the user document from Firestore
+     * and cleans up all associated waitingList records across events.
+     */
+    @Test
+    public void testDeleteProfile_confirmedRemovesFirestoreDocument() throws Exception {
+        // Seed an event with a waitingList entry for this user
+        String eventId = "delete_test_event_" + UUID.randomUUID();
+        seededEventIds.add(eventId);
+
+        Map<String, Object> event = new HashMap<>();
+        event.put("eventId", eventId);
+        event.put("title", "Test Event");
+        event.put("capacity", 10L);
+        event.put("createdAt", Timestamp.now());
+        Tasks.await(db.collection(FirestorePaths.EVENTS).document(eventId).set(event),
+                10, TimeUnit.SECONDS);
+
+        Map<String, Object> waitlistEntry = new HashMap<>();
+        waitlistEntry.put("userId", TEST_USER_ID);
+        waitlistEntry.put("userName", ORIGINAL_NAME);
+        waitlistEntry.put("status", "waitlisted");
+        waitlistEntry.put("registeredAt", Timestamp.now());
+        Tasks.await(db.collection(FirestorePaths.eventWaitingList(eventId))
+                .document(TEST_USER_ID).set(waitlistEntry), 10, TimeUnit.SECONDS);
+
+        try (ActivityScenario<EntrantProfileActivity> scenario = ActivityScenario.launch(createIntent())) {
+            waitForActivityCondition(scenario, activity -> ORIGINAL_NAME.contentEquals(
+                    ((android.widget.TextView) activity.findViewById(R.id.tv_profile_name)).getText()
+            ));
+
+            onView(withId(R.id.btn_delete_profile)).perform(scrollTo(), click());
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+
+            // Click the positive "Delete Profile" button in the dialog
+            onView(withId(android.R.id.button1)).perform(click());
+
+            // Verify Firestore: user document deleted
+            for (int attempt = 0; attempt < 30; attempt++) {
+                DocumentSnapshot doc = Tasks.await(
+                        db.collection(FirestorePaths.USERS).document(TEST_USER_ID).get(),
+                        10, TimeUnit.SECONDS);
+                if (!doc.exists()) {
+                    // Also verify waitlist entry was cleaned up
+                    DocumentSnapshot wlDoc = Tasks.await(
+                            db.collection(FirestorePaths.eventWaitingList(eventId))
+                                    .document(TEST_USER_ID).get(),
+                            10, TimeUnit.SECONDS);
+                    assertFalse("WaitingList entry should be deleted after profile deletion",
+                            wlDoc.exists());
+                    return;
+                }
+                Thread.sleep(500);
+            }
+            throw new AssertionError("User document should be deleted from Firestore");
+        }
+    }
+
+    /**
+     * US 01.05.05: The lottery guidelines activity displays the actual selection
+     * criteria content including "How It Works" and "Random Selection" sections,
+     * so entrants can understand the lottery process.
+     */
+    @Test
+    public void testLotteryGuidelines_displaysSelectionContent() {
+        Intent guidelinesIntent = new Intent(ApplicationProvider.getApplicationContext(),
+                EntrantLotteryGuidelinesActivity.class);
+        try (ActivityScenario<EntrantLotteryGuidelinesActivity> scenario =
+                     ActivityScenario.launch(guidelinesIntent)) {
+            onView(withId(R.id.tv_guidelines_content)).check(matches(isDisplayed()));
+            onView(withId(R.id.tv_guidelines_content))
+                    .check(matches(withText(containsString("How It Works"))));
+            onView(withId(R.id.tv_guidelines_content))
+                    .check(matches(withText(containsString("Random Selection"))));
+            onView(withId(R.id.tv_guidelines_content))
+                    .check(matches(withText(containsString("Notifications"))));
         }
     }
 }
