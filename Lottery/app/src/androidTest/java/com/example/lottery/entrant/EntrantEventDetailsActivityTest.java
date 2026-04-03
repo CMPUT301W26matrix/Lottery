@@ -715,7 +715,7 @@ public class EntrantEventDetailsActivityTest {
     }
 
     /**
-     * US 02.05.03: When a previously invited entrant declines, the system promotes
+     * US 01.05.01 / US 02.05.03: When a previously invited entrant declines, the system promotes
      * one replacement applicant from the remaining pool and delivers a promotion
      * notification to the promoted entrant's inbox.
      */

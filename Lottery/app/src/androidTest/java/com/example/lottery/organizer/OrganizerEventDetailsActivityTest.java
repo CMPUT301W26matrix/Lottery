@@ -259,6 +259,24 @@ public class OrganizerEventDetailsActivityTest {
     }
 
     /**
+     * US 02.05.02: The organizer event details page displays the event capacity
+     * so the organizer knows the maximum number of attendees before sampling.
+     */
+    @Test
+    public void testEventCapacityIsDisplayed() throws InterruptedException {
+        Context context = ApplicationProvider.getApplicationContext();
+        Intent intent = new Intent(context, OrganizerEventDetailsActivity.class);
+        intent.putExtra("eventId", TEST_PRIVATE_EVENT_ID);
+        intent.putExtra("userId", TEST_USER_ID);
+
+        try (ActivityScenario<OrganizerEventDetailsActivity> scenario = ActivityScenario.launch(intent)) {
+            // Wait for Firestore to load the seeded event (capacity=10)
+            Thread.sleep(3000);
+            onView(withId(R.id.tvEventCapacity)).check(matches(withText("10")));
+        }
+    }
+
+    /**
      * US 02.04.02: Editing an event poster starts from the organizer details page
      * and forwards the selected eventId into the edit flow.
      */
