@@ -93,7 +93,7 @@ public class EntrantsListActivity extends AppCompatActivity implements
     private String eventId;
     private String userId;
     private String eventTitle = "Event";
-    private long capacity, maxSampleSize;
+    private long capacity;
     private boolean requireLocation = false;
     private ListenerRegistration entrantsReg;
     private ActivityResultLauncher<String> createCsvLauncher;
@@ -172,7 +172,8 @@ public class EntrantsListActivity extends AppCompatActivity implements
         });
 
         btnSampleWinners.setOnClickListener(view -> {
-            SampleFragment sampleFragment = new SampleFragment();
+            long defaultSize = Math.max(0, Math.min(getRemainingSlots(), entrantWaitedListArrayList.size()));
+            SampleFragment sampleFragment = SampleFragment.newInstance(defaultSize);
             sampleFragment.show(getSupportFragmentManager(), "Sample Winners");
         });
 
@@ -242,6 +243,10 @@ public class EntrantsListActivity extends AppCompatActivity implements
     private String csvEscape(String value) {
         if (value == null) return "\"\"";
         return "\"" + value.replace("\"", "\"\"") + "\"";
+    }
+
+    private long getRemainingSlots() {
+        return capacity - entrantSignedUpArrayList.size() - entrantInvitedArrayList.size();
     }
 
     public boolean isRequireLocation() {
@@ -352,10 +357,10 @@ public class EntrantsListActivity extends AppCompatActivity implements
 
                     Collections.shuffle(waitlistedDocs);
 
-                    maxSampleSize = min(
-                            capacity - entrantSignedUpArrayList.size() - entrantInvitedArrayList.size(),
+                    long maxSampleSize = Math.max(0, min(
+                            getRemainingSlots(),
                             waitlistedDocs.size()
-                    );
+                    ));
 
                     if (maxSampleSize < sampleSize || sampleSize <= 0) {
                         String errorMessage = String.format(

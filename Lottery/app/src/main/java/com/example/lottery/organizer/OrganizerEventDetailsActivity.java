@@ -53,7 +53,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
 
     private ImageView ivEventPoster;
     private TextView tvEventTitle, tvPlace, tvScheduledDate, tvEventEndDate, tvRegistrationStart, tvRegistrationDeadline, tvDrawDate, tvEventDetails, tvLocationRequirement;
-    private TextView tvWaitingListCapacity, tvEntrantCounts;
+    private TextView tvEventCapacity, tvWaitingListCapacity, tvEntrantCounts;
     private TextView btnShowMore;
     private Chip chipCategory, chipPrivate;
     private Button btnInviteEntrant;
@@ -86,6 +86,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         tvDrawDate = findViewById(R.id.tvDrawDate);
         tvEventDetails = findViewById(R.id.tvEventDetails);
         tvLocationRequirement = findViewById(R.id.tvLocationRequirement);
+        tvEventCapacity = findViewById(R.id.tvEventCapacity);
         tvWaitingListCapacity = findViewById(R.id.tvWaitingListCapacity);
         tvEntrantCounts = findViewById(R.id.tvEntrantCounts);
         btnShowMore = findViewById(R.id.btnShowMore);
@@ -310,6 +311,12 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
             tvRegistrationDeadline.setText(dateFormat.format(event.getRegistrationDeadline().toDate()));
         if (event.getDrawDate() != null)
             tvDrawDate.setText(dateFormat.format(event.getDrawDate().toDate()));
+
+        if (tvEventCapacity != null) {
+            tvEventCapacity.setText(event.getCapacity() != null && event.getCapacity() > 0
+                    ? String.valueOf(event.getCapacity())
+                    : "Not set");
+        }
 
         if (tvWaitingListCapacity != null) {
             String capacityLabel = (event.getWaitingListLimit() == null)

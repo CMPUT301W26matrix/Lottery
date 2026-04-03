@@ -3,6 +3,7 @@ package com.example.lottery.organizer;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
+import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -156,6 +157,58 @@ public class EntrantsListSamplingTest {
     }
 
     /**
+     * US 02.05.02 – Opening the sample dialog pre-fills the input with the
+     * maximum drawable size (min of remaining capacity and waitlisted count).
+     * With capacity=10, 0 invited, 0 accepted, and 3 waitlisted, the default should be 3.
+     */
+    @Test
+    public void testSampleDialog_prefillsDefaultMaxSampleSize() throws Exception {
+        try (ActivityScenario<EntrantsListActivity> scenario = ActivityScenario.launch(createLaunchIntent())) {
+            Thread.sleep(3000);
+
+            onView(withId(R.id.entrants_list_sample_btn)).perform(click());
+            onView(withText("Sample Winners")).check(matches(isDisplayed()));
+
+            // Default should be min(10 - 0 - 0, 3) = 3
+            onView(withId(R.id.input_sampling_size)).check(matches(withText("3")));
+        }
+    }
+
+    /**
+     * US 02.05.02 – After some entrants are already invited, the pre-filled
+     * default decreases to reflect only the remaining available slots.
+     * Seed 1 invited + 3 waitlisted with capacity=10 → default should be min(10-1, 3) = 3.
+     * Then seed 8 invited + 3 waitlisted with capacity=10 → default should be min(10-8, 3) = 2.
+     */
+    @Test
+    public void testSampleDialog_prefillAccountsForAlreadyInvited() throws Exception {
+        // Seed 8 additional invited entrants to consume slots (total invited = 8)
+        for (int i = 4; i <= 11; i++) {
+            String userId = "test_sample_entrant_invited_" + i;
+            seededEntrantIds.add(userId);
+            Map<String, Object> record = new HashMap<>();
+            record.put("userId", userId);
+            record.put("userName", "Invited " + i);
+            record.put("email", "invited" + i + "@test.com");
+            record.put("status", InvitationFlowUtil.STATUS_INVITED);
+            record.put("registeredAt", Timestamp.now());
+            record.put("invitedAt", Timestamp.now());
+            Tasks.await(db.collection(FirestorePaths.eventWaitingList(TEST_EVENT_ID))
+                    .document(userId).set(record), 10, TimeUnit.SECONDS);
+        }
+
+        try (ActivityScenario<EntrantsListActivity> scenario = ActivityScenario.launch(createLaunchIntent())) {
+            Thread.sleep(3000);
+
+            onView(withId(R.id.entrants_list_sample_btn)).perform(click());
+            onView(withText("Sample Winners")).check(matches(isDisplayed()));
+
+            // Default should be min(10 - 8 - 0, 3) = 2
+            onView(withId(R.id.input_sampling_size)).check(matches(withText("2")));
+        }
+    }
+
+    /**
      * US 02.05.02 – Organizer samples 2 out of 3 waitlisted entrants.
      * Verifies that exactly 2 are set to "invited" and 1 to "not_selected" in Firestore.
      */
@@ -171,7 +224,7 @@ public class EntrantsListSamplingTest {
 
             // Enter sample size = 2
             onView(withId(R.id.input_sampling_size))
-                    .perform(typeText("2"), closeSoftKeyboard());
+                    .perform(replaceText("2"), closeSoftKeyboard());
             onView(withText("Ok")).perform(click());
 
             // Wait for Firestore batch commit
@@ -203,7 +256,7 @@ public class EntrantsListSamplingTest {
 
             onView(withId(R.id.entrants_list_sample_btn)).perform(click());
             onView(withId(R.id.input_sampling_size))
-                    .perform(typeText("2"), closeSoftKeyboard());
+                    .perform(replaceText("2"), closeSoftKeyboard());
             onView(withText("Ok")).perform(click());
 
             Thread.sleep(3000);
@@ -234,7 +287,7 @@ public class EntrantsListSamplingTest {
 
             onView(withId(R.id.entrants_list_sample_btn)).perform(click());
             onView(withId(R.id.input_sampling_size))
-                    .perform(typeText("2"), closeSoftKeyboard());
+                    .perform(replaceText("2"), closeSoftKeyboard());
             onView(withText("Ok")).perform(click());
 
             Thread.sleep(3000);
@@ -263,7 +316,7 @@ public class EntrantsListSamplingTest {
 
             onView(withId(R.id.entrants_list_sample_btn)).perform(click());
             onView(withId(R.id.input_sampling_size))
-                    .perform(typeText("2"), closeSoftKeyboard());
+                    .perform(replaceText("2"), closeSoftKeyboard());
             onView(withText("Ok")).perform(click());
 
             Thread.sleep(3000);
@@ -303,7 +356,7 @@ public class EntrantsListSamplingTest {
 
             // Enter sample size larger than capacity (3 entrants but ask for 20)
             onView(withId(R.id.input_sampling_size))
-                    .perform(typeText("20"), closeSoftKeyboard());
+                    .perform(replaceText("20"), closeSoftKeyboard());
             onView(withText("Ok")).perform(click());
 
             Thread.sleep(2000);
