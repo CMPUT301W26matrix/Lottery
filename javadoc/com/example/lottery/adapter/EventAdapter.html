@@ -93,15 +93,7 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">EventAdapter</span>
 <span class="extends-implements">extends androidx.recyclerview.widget.RecyclerView.Adapter&lt;com.example.lottery.adapter.EventAdapter.EventViewHolder&gt;</span></div>
-<div class="block">Adapter for displaying a list of events in the Organizer Dashboard.
-
- <p>Key Responsibilities:
- <ul>
-   <li>Binds event metadata to RecyclerView items.</li>
-   <li>Fetches and caches waitingList counts per event (one query per eventId).</li>
-   <li>Visualizes event status (OPEN/CLOSED/PENDING) derived from event dates.</li>
- </ul>
- </p></div>
+<div class="block">Adapter for displaying a list of events in the Organizer Dashboard.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -116,9 +108,7 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code>static interface&nbsp;</code></div>
 <div class="col-second even-row-color"><code><a href="EventAdapter.OnEventClickListener.html" class="type-name-link" title="interface in com.example.lottery.adapter">EventAdapter.OnEventClickListener</a></code></div>
-<div class="col-last even-row-color">
-<div class="block">Callback interface invoked when an event item in the list is clicked.</div>
-</div>
+<div class="col-last even-row-color">&nbsp;</div>
 </div>
 <div class="inherited-list">
 <h2 id="nested-classes-inherited-from-class-androidx.recyclerview.widget.RecyclerView.Adapter">Nested classes/interfaces inherited from class&nbsp;androidx.recyclerview.widget.RecyclerView.Adapter</h2>
@@ -135,9 +125,7 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(java.util.List,com.example.lottery.adapter.EventAdapter.OnEventClickListener)" class="member-name-link">EventAdapter</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../model/Event.html" title="class in com.example.lottery.model">Event</a>&gt;&nbsp;eventList,
  <a href="EventAdapter.OnEventClickListener.html" title="interface in com.example.lottery.adapter">EventAdapter.OnEventClickListener</a>&nbsp;listener)</code></div>
-<div class="col-last even-row-color">
-<div class="block">Creates a new EventAdapter.</div>
-</div>
+<div class="col-last even-row-color">&nbsp;</div>
 </div>
 </section>
 </li>
@@ -154,9 +142,7 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#clearCountsCache()" class="member-name-link">clearCountsCache</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Clears the cached waitingList counts so the next bind triggers a fresh fetch.</div>
-</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getItemCount()" class="member-name-link">getItemCount</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
@@ -170,9 +156,7 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#resolveDisplayStatus(com.example.lottery.model.Event)" class="member-name-link">resolveDisplayStatus</a><wbr>(<a href="../model/Event.html" title="class in com.example.lottery.model">Event</a>&nbsp;event)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Derives display status from event dates per the project spec.</div>
-</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
@@ -198,12 +182,6 @@ loadScripts(document, 'script');</script>
 <h3>EventAdapter</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">EventAdapter</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../model/Event.html" title="class in com.example.lottery.model">Event</a>&gt;&nbsp;eventList,
  <a href="EventAdapter.OnEventClickListener.html" title="interface in com.example.lottery.adapter">EventAdapter.OnEventClickListener</a>&nbsp;listener)</span></div>
-<div class="block">Creates a new EventAdapter.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>eventList</code> - list of events to display</dd>
-<dd><code>listener</code> - click listener for event interactions</dd>
-</dl>
 </section>
 </li>
 </ul>
@@ -218,14 +196,12 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="resolveDisplayStatus(com.example.lottery.model.Event)">
 <h3>resolveDisplayStatus</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">resolveDisplayStatus</span><wbr><span class="parameters">(<a href="../model/Event.html" title="class in com.example.lottery.model">Event</a>&nbsp;event)</span></div>
-<div class="block">Derives display status from event dates per the project spec.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="clearCountsCache()">
 <h3>clearCountsCache</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">clearCountsCache</span>()</div>
-<div class="block">Clears the cached waitingList counts so the next bind triggers a fresh fetch.</div>
 </section>
 </li>
 <li>
