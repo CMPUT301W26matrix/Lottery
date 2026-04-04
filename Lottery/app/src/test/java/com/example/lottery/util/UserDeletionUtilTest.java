@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -52,6 +53,11 @@ public class UserDeletionUtilTest {
         when(mockDb.collectionGroup(anyString())).thenReturn(mockQuery);
         when(mockQuery.whereEqualTo(anyString(), any())).thenReturn(mockQuery);
         when(mockDb.batch()).thenReturn(mockBatch);
+
+        // Stub db.collection() for inbox cleanup step
+        CollectionReference mockCollectionRef = mock(CollectionReference.class);
+        when(mockDb.collection(anyString())).thenReturn(mockCollectionRef);
+        when(mockCollectionRef.get()).thenReturn(mockQueryTask);
 
         // Stub query task to avoid NPE when listeners are added
         when(mockQuery.get()).thenReturn(mockQueryTask);
@@ -103,6 +109,15 @@ public class UserDeletionUtilTest {
         List<OnSuccessListener<QuerySnapshot>> allListeners = secondQueryCaptor.getAllValues();
         allListeners.get(allListeners.size() - 1).onSuccess(mockSnapshot2);
 
+        // Trigger third query success (inbox - empty)
+        ArgumentCaptor<OnSuccessListener<QuerySnapshot>> thirdQueryCaptor =
+                ArgumentCaptor.forClass(OnSuccessListener.class);
+        verify(mockQueryTask, atLeastOnce()).addOnSuccessListener(thirdQueryCaptor.capture());
+        QuerySnapshot emptyInboxSnapshot = mock(QuerySnapshot.class);
+        when(emptyInboxSnapshot.iterator()).thenReturn(Collections.emptyIterator());
+        List<OnSuccessListener<QuerySnapshot>> inboxListeners = thirdQueryCaptor.getAllValues();
+        inboxListeners.get(inboxListeners.size() - 1).onSuccess(emptyInboxSnapshot);
+
         // Verify batch operations
         verify(mockBatch).delete(ref1);
         verify(mockBatch).delete(ref2);
@@ -137,6 +152,13 @@ public class UserDeletionUtilTest {
         verify(mockQueryTask, atLeastOnce()).addOnSuccessListener(secondQueryCaptor.capture());
         List<OnSuccessListener<QuerySnapshot>> listeners = secondQueryCaptor.getAllValues();
         listeners.get(listeners.size() - 1).onSuccess(emptySnapshot);
+
+        // Trigger third query success (inbox - empty)
+        ArgumentCaptor<OnSuccessListener<QuerySnapshot>> thirdQueryCaptor =
+                ArgumentCaptor.forClass(OnSuccessListener.class);
+        verify(mockQueryTask, atLeastOnce()).addOnSuccessListener(thirdQueryCaptor.capture());
+        List<OnSuccessListener<QuerySnapshot>> inboxListeners = thirdQueryCaptor.getAllValues();
+        inboxListeners.get(inboxListeners.size() - 1).onSuccess(emptySnapshot);
 
         // Commit and finish
         ArgumentCaptor<OnSuccessListener<Void>> commitSuccessCaptor =
