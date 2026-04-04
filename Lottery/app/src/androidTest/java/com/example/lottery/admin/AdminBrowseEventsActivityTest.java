@@ -2,6 +2,7 @@ package com.example.lottery.admin;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.intent.Intents.intended;
 import static androidx.test.espresso.intent.Intents.intending;
@@ -224,7 +225,7 @@ public class AdminBrowseEventsActivityTest {
     @Test
     public void adminBrowseEvents_clickingEventLaunchesDetails() throws Exception {
         String eventId = uniqueId("admin_click_test");
-        String eventTitle = "Temporary Event for Click Test";
+        String eventTitle = "Temp Click Test " + System.nanoTime();
 
         seedEvent(eventId, eventTitle, "test_organizer", "open");
 
@@ -235,15 +236,17 @@ public class AdminBrowseEventsActivityTest {
             try (ActivityScenario<AdminBrowseEventsActivity> scenario = ActivityScenario.launch(intent)) {
                 waitForEventsLoaded(scenario, 1);
 
-                // Ensure visibility and scroll to it
-                onView(withId(R.id.rvEvents))
-                        .perform(RecyclerViewActions.scrollTo(hasDescendant(withText(eventTitle))));
+                // Ensure the view is in the viewport of the NestedScrollView
+                onView(withText(eventTitle)).perform(scrollTo());
+                
+                // Wait a bit for the scroll to finish
+                Thread.sleep(1000);
 
-                // Use the view hierarchy to perform a robust click
+                // Click specifically on the text which should bubble up to the item click listener
                 onView(withText(eventTitle)).perform(click());
 
-                // Give it more time for intent to be recorded and activity to start
-                Thread.sleep(2000);
+                // Increase wait time for intent processing
+                Thread.sleep(2500);
 
                 intended(allOf(
                         hasComponent(AdminEventDetailsActivity.class.getName()),
