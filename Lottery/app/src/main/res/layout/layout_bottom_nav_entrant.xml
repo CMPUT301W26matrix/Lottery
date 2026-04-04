@@ -133,7 +133,7 @@
                     android:id="@+id/iv_nav_profile"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@android:drawable/ic_menu_view"
+                    android:src="@drawable/ic_person"
                     app:tint="@color/text_gray" />
 
                 <TextView
