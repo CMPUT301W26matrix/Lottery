@@ -99,15 +99,7 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">EntrantDetailsFragment</span>
 <span class="extends-implements">extends androidx.fragment.app.DialogFragment</span></div>
-<div class="block">fragment for showing details of an entrant in an event
-
- <p>Responsibilities:
- <ul>
-   <li>display each attribute of entrant</li>
-   <li>implement US 02.06.01 Be able to view all chosen entrants</li>
-   <li>implement US 02.06.04 Be able to cancel entrants that did not sign up</li>
- </ul>
- </p></div>
+<div class="block">fragment for showing details of an entrant in an event</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -165,18 +157,30 @@ loadScripts(document, 'script');</script>
  boolean&nbsp;requireLocation,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>android.app.Dialog</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onCreateDialog(android.os.Bundle)" class="member-name-link">onCreateDialog</a><wbr>(android.os.Bundle&nbsp;savedInstanceState)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onCreate(android.os.Bundle)" class="member-name-link">onCreate</a><wbr>(android.os.Bundle&nbsp;savedInstanceState)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>android.view.View</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onCreateView(android.view.LayoutInflater,android.view.ViewGroup,android.os.Bundle)" class="member-name-link">onCreateView</a><wbr>(android.view.LayoutInflater&nbsp;inflater,
+ android.view.ViewGroup&nbsp;container,
+ android.os.Bundle&nbsp;savedInstanceState)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onStart()" class="member-name-link">onStart</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onViewCreated(android.view.View,android.os.Bundle)" class="member-name-link">onViewCreated</a><wbr>(android.view.View&nbsp;view,
+ android.os.Bundle&nbsp;savedInstanceState)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-androidx.fragment.app.DialogFragment">Methods inherited from class&nbsp;androidx.fragment.app.DialogFragment</h3>
-<code>dismiss, dismissAllowingStateLoss, dismissNow, getDialog, getShowsDialog, getTheme, isCancelable, onActivityCreated, onAttach, onCancel, onCreate, onDestroyView, onDetach, onDismiss, onGetLayoutInflater, onSaveInstanceState, onStart, onStop, onViewStateRestored, requireDialog, setCancelable, setShowsDialog, setStyle, setupDialog, show, show, showNow</code></div>
+<code>dismiss, dismissAllowingStateLoss, dismissNow, getDialog, getShowsDialog, getTheme, isCancelable, onActivityCreated, onAttach, onCancel, onCreateDialog, onDestroyView, onDetach, onDismiss, onGetLayoutInflater, onSaveInstanceState, onStop, onViewStateRestored, requireDialog, setCancelable, setShowsDialog, setStyle, setupDialog, show, show, showNow</code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-androidx.fragment.app.Fragment">Methods inherited from class&nbsp;androidx.fragment.app.Fragment</h3>
-<code>dump, equals, getActivity, getAllowEnterTransitionOverlap, getAllowReturnTransitionOverlap, getArguments, getChildFragmentManager, getContext, getDefaultViewModelCreationExtras, getDefaultViewModelProviderFactory, getEnterTransition, getExitTransition, getFragmentManager, getHost, getId, getLayoutInflater, getLayoutInflater, getLifecycle, getLoaderManager, getParentFragment, getParentFragmentManager, getReenterTransition, getResources, getRetainInstance, getReturnTransition, getSavedStateRegistry, getSharedElementEnterTransition, getSharedElementReturnTransition, getString, getString, getTag, getTargetFragment, getTargetRequestCode, getText, getUserVisibleHint, getView, getViewLifecycleOwner, getViewLifecycleOwnerLiveData, getViewModelStore, hashCode, hasOptionsMenu, instantiate, instantiate, isAdded, isDetached, isHidden, isInLayout, isMenuVisible, isRemoving, isResumed, isStateSaved, isVisible, onActivityResult, onAttach, onAttachFragment, onConfigurationChanged, onContextItemSelected, onCreateAnimation, onCreateAnimator, onCreateContextMenu, onCreateOptionsMenu, onCreateView, onDestroy, onDestroyOptionsMenu, onHiddenChanged, onInflate, onInflate, onLowMemory, onMultiWindowModeChanged, onOptionsItemSelected, onOptionsMenuClosed, onPause, onPictureInPictureModeChanged, onPrepareOptionsMenu, onPrimaryNavigationFragmentChanged, onRequestPermissionsResult, onResume, onViewCreated, postponeEnterTransition, postponeEnterTransition, registerForActivityResult, registerForActivityResult, registerForContextMenu, requestPermissions, requireActivity, requireArguments, requireContext, requireFragmentManager, requireHost, requireParentFragment, requireView, setAllowEnterTransitionOverlap, setAllowReturnTransitionOverlap, setArguments, setEnterSharedElementCallback, setEnterTransition, setExitSharedElementCallback, setExitTransition, setHasOptionsMenu, setInitialSavedState, setMenuVisibility, setReenterTransition, setRetainInstance, setReturnTransition, setSharedElementEnterTransition, setSharedElementReturnTransition, setTargetFragment, setUserVisibleHint, shouldShowRequestPermissionRationale, startActivity, startActivity, startActivityForResult, startActivityForResult, startIntentSenderForResult, startPostponedEnterTransition, toString, unregisterForContextMenu</code></div>
+<code>dump, equals, getActivity, getAllowEnterTransitionOverlap, getAllowReturnTransitionOverlap, getArguments, getChildFragmentManager, getContext, getDefaultViewModelCreationExtras, getDefaultViewModelProviderFactory, getEnterTransition, getExitTransition, getFragmentManager, getHost, getId, getLayoutInflater, getLayoutInflater, getLifecycle, getLoaderManager, getParentFragment, getParentFragmentManager, getReenterTransition, getResources, getRetainInstance, getReturnTransition, getSavedStateRegistry, getSharedElementEnterTransition, getSharedElementReturnTransition, getString, getString, getTag, getTargetFragment, getTargetRequestCode, getText, getUserVisibleHint, getView, getViewLifecycleOwner, getViewLifecycleOwnerLiveData, getViewModelStore, hashCode, hasOptionsMenu, instantiate, instantiate, isAdded, isDetached, isHidden, isInLayout, isMenuVisible, isRemoving, isResumed, isStateSaved, isVisible, onActivityResult, onAttach, onAttachFragment, onConfigurationChanged, onContextItemSelected, onCreateAnimation, onCreateAnimator, onCreateContextMenu, onCreateOptionsMenu, onDestroy, onDestroyOptionsMenu, onHiddenChanged, onInflate, onInflate, onLowMemory, onMultiWindowModeChanged, onOptionsItemSelected, onOptionsMenuClosed, onPause, onPictureInPictureModeChanged, onPrepareOptionsMenu, onPrimaryNavigationFragmentChanged, onRequestPermissionsResult, onResume, postponeEnterTransition, postponeEnterTransition, registerForActivityResult, registerForActivityResult, registerForContextMenu, requestPermissions, requireActivity, requireArguments, requireContext, requireFragmentManager, requireHost, requireParentFragment, requireView, setAllowEnterTransitionOverlap, setAllowReturnTransitionOverlap, setArguments, setEnterSharedElementCallback, setEnterTransition, setExitSharedElementCallback, setExitTransition, setHasOptionsMenu, setInitialSavedState, setMenuVisibility, setReenterTransition, setRetainInstance, setReturnTransition, setSharedElementEnterTransition, setSharedElementReturnTransition, setTargetFragment, setUserVisibleHint, shouldShowRequestPermissionRationale, startActivity, startActivity, startActivityForResult, startActivityForResult, startIntentSenderForResult, startPostponedEnterTransition, toString, unregisterForContextMenu</code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
@@ -210,13 +214,6 @@ loadScripts(document, 'script');</script>
 <h3>newInstance</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="EntrantDetailsFragment.html" title="class in com.example.lottery.fragment">EntrantDetailsFragment</a></span>&nbsp;<span class="element-name">newInstance</span><wbr><span class="parameters">(<a href="../model/EntrantEvent.html" title="class in com.example.lottery.model">EntrantEvent</a>&nbsp;entrant,
  boolean&nbsp;requireLocation)</span></div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>entrant</code> - the entrant we will display</dd>
-<dd><code>requireLocation</code> - whether the event requires location</dd>
-<dt>Returns:</dt>
-<dd>initialized fragment</dd>
-</dl>
 </section>
 </li>
 <li>
@@ -228,13 +225,52 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="onCreateDialog(android.os.Bundle)">
-<h3>onCreateDialog</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">android.app.Dialog</span>&nbsp;<span class="element-name">onCreateDialog</span><wbr><span class="parameters">(@Nullable
+<section class="detail" id="onCreate(android.os.Bundle)">
+<h3>onCreate</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onCreate</span><wbr><span class="parameters">(@Nullable
  android.os.Bundle&nbsp;savedInstanceState)</span></div>
 <dl class="notes">
 <dt>Overrides:</dt>
-<dd><code>onCreateDialog</code>&nbsp;in class&nbsp;<code>androidx.fragment.app.DialogFragment</code></dd>
+<dd><code>onCreate</code>&nbsp;in class&nbsp;<code>androidx.fragment.app.DialogFragment</code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="onCreateView(android.view.LayoutInflater,android.view.ViewGroup,android.os.Bundle)">
+<h3>onCreateView</h3>
+<div class="member-signature"><span class="annotations">@Nullable
+</span><span class="modifiers">public</span>&nbsp;<span class="return-type">android.view.View</span>&nbsp;<span class="element-name">onCreateView</span><wbr><span class="parameters">(@NonNull
+ android.view.LayoutInflater&nbsp;inflater,
+ @Nullable
+ android.view.ViewGroup&nbsp;container,
+ @Nullable
+ android.os.Bundle&nbsp;savedInstanceState)</span></div>
+<dl class="notes">
+<dt>Overrides:</dt>
+<dd><code>onCreateView</code>&nbsp;in class&nbsp;<code>androidx.fragment.app.Fragment</code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="onViewCreated(android.view.View,android.os.Bundle)">
+<h3>onViewCreated</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onViewCreated</span><wbr><span class="parameters">(@NonNull
+ android.view.View&nbsp;view,
+ @Nullable
+ android.os.Bundle&nbsp;savedInstanceState)</span></div>
+<dl class="notes">
+<dt>Overrides:</dt>
+<dd><code>onViewCreated</code>&nbsp;in class&nbsp;<code>androidx.fragment.app.Fragment</code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="onStart()">
+<h3>onStart</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onStart</span>()</div>
+<dl class="notes">
+<dt>Overrides:</dt>
+<dd><code>onStart</code>&nbsp;in class&nbsp;<code>androidx.fragment.app.DialogFragment</code></dd>
 </dl>
 </section>
 </li>

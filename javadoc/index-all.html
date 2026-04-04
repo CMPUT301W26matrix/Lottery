@@ -193,13 +193,12 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/example/lottery/util/UserDeletionUtil.html#cleanUpCoOrganizerRecords(com.google.firebase.firestore.FirebaseFirestore,java.lang.String,java.lang.Runnable)" class="member-name-link">cleanUpCoOrganizerRecords(FirebaseFirestore, String, Runnable)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/UserDeletionUtil.html" title="class in com.example.lottery.util">UserDeletionUtil</a></dt>
 <dd>
-<div class="block">Batch-deletes only co-organizer records for the given user across every event,
- then invokes onDone.</div>
+<div class="block">Batch-deletes only co-organizer records for the given user across every event.</div>
 </dd>
 <dt><a href="com/example/lottery/util/UserDeletionUtil.html#cleanUpUserRecords(com.google.firebase.firestore.FirebaseFirestore,java.lang.String,java.lang.Runnable)" class="member-name-link">cleanUpUserRecords(FirebaseFirestore, String, Runnable)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/UserDeletionUtil.html" title="class in com.example.lottery.util">UserDeletionUtil</a></dt>
 <dd>
 <div class="block">Batch-deletes all records for the given user across every event (co-organizers and waitlists),
- then invokes onDone.</div>
+ and also clears their local sub-collections (like inbox), then invokes onDone.</div>
 </dd>
 <dt><a href="com/example/lottery/util/AdminRoleManager.html#clearAdminRoleSession(android.content.Context)" class="member-name-link">clearAdminRoleSession(Context)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/AdminRoleManager.html" title="class in com.example.lottery.util">AdminRoleManager</a></dt>
 <dd>
@@ -1014,6 +1013,8 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/fragment/CommentBottomSheet.html#onCreate(android.os.Bundle)" class="member-name-link">onCreate(Bundle)</a> - Method in class com.example.lottery.fragment.<a href="com/example/lottery/fragment/CommentBottomSheet.html" title="class in com.example.lottery.fragment">CommentBottomSheet</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/fragment/EntrantDetailsFragment.html#onCreate(android.os.Bundle)" class="member-name-link">onCreate(Bundle)</a> - Method in class com.example.lottery.fragment.<a href="com/example/lottery/fragment/EntrantDetailsFragment.html" title="class in com.example.lottery.fragment">EntrantDetailsFragment</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/fragment/OrganizerInviteCoOrganizerDialogFragment.html#onCreate(android.os.Bundle)" class="member-name-link">onCreate(Bundle)</a> - Method in class com.example.lottery.fragment.<a href="com/example/lottery/fragment/OrganizerInviteCoOrganizerDialogFragment.html" title="class in com.example.lottery.fragment">OrganizerInviteCoOrganizerDialogFragment</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/fragment/OrganizerInviteEntrantDialogFragment.html#onCreate(android.os.Bundle)" class="member-name-link">onCreate(Bundle)</a> - Method in class com.example.lottery.fragment.<a href="com/example/lottery/fragment/OrganizerInviteEntrantDialogFragment.html" title="class in com.example.lottery.fragment">OrganizerInviteEntrantDialogFragment</a></dt>
@@ -1055,8 +1056,6 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/example/lottery/organizer/WaitingListActivity.html#onCreate(android.os.Bundle)" class="member-name-link">onCreate(Bundle)</a> - Method in class com.example.lottery.organizer.<a href="com/example/lottery/organizer/WaitingListActivity.html" title="class in com.example.lottery.organizer">WaitingListActivity</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/example/lottery/fragment/EntrantDetailsFragment.html#onCreateDialog(android.os.Bundle)" class="member-name-link">onCreateDialog(Bundle)</a> - Method in class com.example.lottery.fragment.<a href="com/example/lottery/fragment/EntrantDetailsFragment.html" title="class in com.example.lottery.fragment">EntrantDetailsFragment</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/fragment/NotificationFragment.html#onCreateDialog(android.os.Bundle)" class="member-name-link">onCreateDialog(Bundle)</a> - Method in class com.example.lottery.fragment.<a href="com/example/lottery/fragment/NotificationFragment.html" title="class in com.example.lottery.fragment">NotificationFragment</a></dt>
 <dd>
 <div class="block">Creates and returns the notification composition dialog.</div>
@@ -1070,6 +1069,8 @@ loadScripts(document, 'script');</script>
 <div class="block">assemble the fragment</div>
 </dd>
 <dt><a href="com/example/lottery/fragment/CommentBottomSheet.html#onCreateView(android.view.LayoutInflater,android.view.ViewGroup,android.os.Bundle)" class="member-name-link">onCreateView(LayoutInflater, ViewGroup, Bundle)</a> - Method in class com.example.lottery.fragment.<a href="com/example/lottery/fragment/CommentBottomSheet.html" title="class in com.example.lottery.fragment">CommentBottomSheet</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/fragment/EntrantDetailsFragment.html#onCreateView(android.view.LayoutInflater,android.view.ViewGroup,android.os.Bundle)" class="member-name-link">onCreateView(LayoutInflater, ViewGroup, Bundle)</a> - Method in class com.example.lottery.fragment.<a href="com/example/lottery/fragment/EntrantDetailsFragment.html" title="class in com.example.lottery.fragment">EntrantDetailsFragment</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/fragment/OrganizerInviteCoOrganizerDialogFragment.html#onCreateView(android.view.LayoutInflater,android.view.ViewGroup,android.os.Bundle)" class="member-name-link">onCreateView(LayoutInflater, ViewGroup, Bundle)</a> - Method in class com.example.lottery.fragment.<a href="com/example/lottery/fragment/OrganizerInviteCoOrganizerDialogFragment.html" title="class in com.example.lottery.fragment">OrganizerInviteCoOrganizerDialogFragment</a></dt>
 <dd>&nbsp;</dd>
@@ -1209,6 +1210,8 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/entrant/EntrantMapActivity.html#onStart()" class="member-name-link">onStart()</a> - Method in class com.example.lottery.entrant.<a href="com/example/lottery/entrant/EntrantMapActivity.html" title="class in com.example.lottery.entrant">EntrantMapActivity</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/fragment/EntrantDetailsFragment.html#onStart()" class="member-name-link">onStart()</a> - Method in class com.example.lottery.fragment.<a href="com/example/lottery/fragment/EntrantDetailsFragment.html" title="class in com.example.lottery.fragment">EntrantDetailsFragment</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/fragment/OrganizerInviteCoOrganizerDialogFragment.html#onStart()" class="member-name-link">onStart()</a> - Method in class com.example.lottery.fragment.<a href="com/example/lottery/fragment/OrganizerInviteCoOrganizerDialogFragment.html" title="class in com.example.lottery.fragment">OrganizerInviteCoOrganizerDialogFragment</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/fragment/OrganizerInviteEntrantDialogFragment.html#onStart()" class="member-name-link">onStart()</a> - Method in class com.example.lottery.fragment.<a href="com/example/lottery/fragment/OrganizerInviteEntrantDialogFragment.html" title="class in com.example.lottery.fragment">OrganizerInviteEntrantDialogFragment</a></dt>
@@ -1220,6 +1223,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/example/lottery/entrant/EntrantMapActivity.html#onStop()" class="member-name-link">onStop()</a> - Method in class com.example.lottery.entrant.<a href="com/example/lottery/entrant/EntrantMapActivity.html" title="class in com.example.lottery.entrant">EntrantMapActivity</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/fragment/OrganizerInviteCoOrganizerDialogFragment.UserSearchAdapter.OnUserClickListener.html#onUserClick(com.example.lottery.model.User)" class="member-name-link">onUserClick(User)</a> - Method in interface com.example.lottery.fragment.<a href="com/example/lottery/fragment/OrganizerInviteCoOrganizerDialogFragment.UserSearchAdapter.OnUserClickListener.html" title="interface in com.example.lottery.fragment">OrganizerInviteCoOrganizerDialogFragment.UserSearchAdapter.OnUserClickListener</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/fragment/EntrantDetailsFragment.html#onViewCreated(android.view.View,android.os.Bundle)" class="member-name-link">onViewCreated(View, Bundle)</a> - Method in class com.example.lottery.fragment.<a href="com/example/lottery/fragment/EntrantDetailsFragment.html" title="class in com.example.lottery.fragment">EntrantDetailsFragment</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/fragment/OrganizerInviteEntrantDialogFragment.html#onViewCreated(android.view.View,android.os.Bundle)" class="member-name-link">onViewCreated(View, Bundle)</a> - Method in class com.example.lottery.fragment.<a href="com/example/lottery/fragment/OrganizerInviteEntrantDialogFragment.html" title="class in com.example.lottery.fragment">OrganizerInviteEntrantDialogFragment</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/util/ProfileImageHelper.html#openImagePicker(androidx.activity.result.ActivityResultLauncher)" class="member-name-link">openImagePicker(ActivityResultLauncher&lt;Intent&gt;)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/ProfileImageHelper.html" title="class in com.example.lottery.util">ProfileImageHelper</a></dt>
 <dd>

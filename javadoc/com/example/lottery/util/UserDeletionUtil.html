@@ -111,8 +111,7 @@ loadScripts(document, 'script');</script>
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;onDone)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Batch-deletes only co-organizer records for the given user across every event,
- then invokes onDone.</div>
+<div class="block">Batch-deletes only co-organizer records for the given user across every event.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#cleanUpUserRecords(com.google.firebase.firestore.FirebaseFirestore,java.lang.String,java.lang.Runnable)" class="member-name-link">cleanUpUserRecords</a><wbr>(com.google.firebase.firestore.FirebaseFirestore&nbsp;db,
@@ -120,7 +119,7 @@ loadScripts(document, 'script');</script>
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;onDone)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Batch-deletes all records for the given user across every event (co-organizers and waitlists),
- then invokes onDone.</div>
+ and also clears their local sub-collections (like inbox), then invokes onDone.</div>
 </div>
 </div>
 </div>
@@ -146,8 +145,7 @@ loadScripts(document, 'script');</script>
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;onDone)</span></div>
 <div class="block">Batch-deletes all records for the given user across every event (co-organizers and waitlists),
- then invokes onDone. The callback is always invoked regardless of
- success or failure so that user deletion is never blocked.</div>
+ and also clears their local sub-collections (like inbox), then invokes onDone.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>db</code> - Firestore instance</dd>
@@ -162,15 +160,7 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">cleanUpCoOrganizerRecords</span><wbr><span class="parameters">(com.google.firebase.firestore.FirebaseFirestore&nbsp;db,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;onDone)</span></div>
-<div class="block">Batch-deletes only co-organizer records for the given user across every event,
- then invokes onDone. The callback is always invoked regardless of
- success or failure so that user deletion is never blocked.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>db</code> - Firestore instance</dd>
-<dd><code>userId</code> - the user whose co-organizer documents should be removed</dd>
-<dd><code>onDone</code> - callback invoked after cleanup completes or fails</dd>
-</dl>
+<div class="block">Batch-deletes only co-organizer records for the given user across every event.</div>
 </section>
 </li>
 </ul>
