@@ -26,6 +26,14 @@ import java.util.Locale;
 /**
  * Adapter for displaying events in the Organizer Notifications screen.
  * Each item allows the organizer to send notifications to different groups of entrants.
+ *
+ * <p>Key Responsibilities:
+ * <ul>
+ *   <li>Binds event data to the list items in the notification screen.</li>
+ *   <li>Delegates button clicks to a listener to handle notification composition.</li>
+ *   <li>Provides navigation to the entrants management list.</li>
+ * </ul>
+ * </p>
  */
 public class OrganizerNotificationEventAdapter extends RecyclerView.Adapter<OrganizerNotificationEventAdapter.ViewHolder> {
 
@@ -34,6 +42,12 @@ public class OrganizerNotificationEventAdapter extends RecyclerView.Adapter<Orga
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+    /**
+     * Constructs a new OrganizerNotificationEventAdapter.
+     *
+     * @param eventList The list of events to display.
+     * @param listener  The listener to handle group click events.
+     */
     public OrganizerNotificationEventAdapter(List<Event> eventList, OnNotificationGroupClickListener listener) {
         this.eventList = eventList;
         this.listener = listener;
@@ -117,10 +131,22 @@ public class OrganizerNotificationEventAdapter extends RecyclerView.Adapter<Orga
         return eventList.size();
     }
 
+    /**
+     * Listener interface for handling clicks on notification group buttons.
+     */
     public interface OnNotificationGroupClickListener {
+        /**
+         * Called when a specific group (Waitlist, Invited, Accepted, or Cancelled) is clicked for an event.
+         *
+         * @param event The event associated with the notification.
+         * @param group The group identifier (e.g., "waitlisted", "invited", "accepted", "cancelled").
+         */
         void onGroupClick(Event event, String group);
     }
 
+    /**
+     * ViewHolder class for caching UI component references in each list item.
+     */
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvEventTitle, tvEventDate, tvEventCounts;
         Button btnNotifyWaiting, btnNotifyMore, btnViewList;
