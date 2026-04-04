@@ -138,7 +138,6 @@ public class EntrantLotteryGuidelinesActivityTest {
             try {
                 scenario.onActivity(activity -> destroyed.set(activity.isFinishing()));
             } catch (Exception e) {
-                // Activity already destroyed
                 destroyed.set(true);
             }
             assertTrue("Activity should be finishing after back button click",
