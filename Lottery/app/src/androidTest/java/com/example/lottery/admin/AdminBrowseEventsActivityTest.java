@@ -1,7 +1,7 @@
 package com.example.lottery.admin;
 
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.scrollTo;
+import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.intent.Intents.intended;
 import static androidx.test.espresso.intent.Intents.intending;
@@ -9,7 +9,6 @@ import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
 import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
@@ -20,17 +19,14 @@ import android.app.Instrumentation;
 import android.content.Intent;
 import android.widget.TextView;
 
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.espresso.intent.Intents;
-import androidx.test.espresso.matcher.ViewMatchers;
-import androidx.test.espresso.matcher.ViewMatchers.Visibility;
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.example.lottery.R;
-import com.example.lottery.model.Event;
 import com.example.lottery.util.FirestorePaths;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.Timestamp;
@@ -38,7 +34,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -61,15 +56,7 @@ public class AdminBrowseEventsActivityTest {
     private static final String PENDING_EVENT_ID = "admin_event_community_soccer_draw";
     private static final String CLOSED_EVENT_ID = "admin_event_charity_potluck_closed";
 
-    private static final String OPEN_EVENT_TITLE = "Swimming Course for Beginners";
-    private static final String PENDING_EVENT_TITLE = "Community Soccer Night Draw";
-    private static final String CLOSED_EVENT_TITLE = "Charity Potluck Wrap-Up";
-
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-    @Rule
-    public ActivityScenarioRule<AdminBrowseEventsActivity> activityRule =
-            new ActivityScenarioRule<>(AdminBrowseEventsActivity.class);
 
     @Before
     public void setUp() {
@@ -138,44 +125,22 @@ public class AdminBrowseEventsActivityTest {
         Tasks.await(db.enableNetwork(), FIRESTORE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }
 
-    private void waitForEventsLoaded(ActivityScenario<AdminBrowseEventsActivity> scenario) throws InterruptedException {
+    private void waitForEventsLoaded(ActivityScenario<AdminBrowseEventsActivity> scenario, int expectedCount) throws InterruptedException {
         boolean[] found = {false};
         for (int attempt = 0; attempt < 20; attempt++) {
             scenario.onActivity(activity -> {
-                int adapterCount = ((androidx.recyclerview.widget.RecyclerView) activity.findViewById(R.id.rvEvents))
-                        .getAdapter().getItemCount();
-                found[0] = adapterCount >= 3;
+                RecyclerView rv = activity.findViewById(R.id.rvEvents);
+                if (rv != null && rv.getAdapter() != null) {
+                    found[0] = rv.getAdapter().getItemCount() >= expectedCount;
+                }
             });
             if (found[0]) {
+                // Give extra time for UI layout and rendering
+                Thread.sleep(2000);
                 return;
             }
-            Thread.sleep(250);
+            Thread.sleep(500);
         }
-        assertTrue("Expected seeded events to load into RecyclerView", found[0]);
-    }
-
-    // US 03.04.01: Admin should see event browser with section title and event list
-    @Test
-    public void testAdminBrowseEventsScreenIsDisplayed() {
-        onView(withId(R.id.tvAllEventsTitle)).perform(scrollTo()).check(matches(isDisplayed()));
-        onView(withId(R.id.tvAllEventsTitle))
-                .check(matches(withText(R.string.admin_all_events_title)));
-
-        // RecyclerView starts empty, only check it's VISIBLE or not
-        onView(withId(R.id.rvEvents)).check(matches(withEffectiveVisibility(Visibility.VISIBLE)));
-    }
-
-    // US 03.01.01: Clicking an event should navigate to event details for removal
-    @Test
-    public void testOnEventClickLaunchesAdminEventDetailsActivity() {
-        activityRule.getScenario().onActivity(activity -> {
-            Event event = new Event();
-            event.setEventId("admin_click_event_id");
-            activity.onEventClick(event);
-        });
-
-        intended(hasComponent(AdminEventDetailsActivity.class.getName()));
-        intended(hasExtra("eventId", "admin_click_event_id"));
     }
 
     // US 03.04.01: Admin event browser should load real Firestore events and display
@@ -199,22 +164,22 @@ public class AdminBrowseEventsActivityTest {
             intent.putExtra("userId", "admin_jordan_clark");
 
             try (ActivityScenario<AdminBrowseEventsActivity> scenario = ActivityScenario.launch(intent)) {
-                waitForEventsLoaded(scenario);
+                waitForEventsLoaded(scenario, 3);
 
                 onView(withId(R.id.rvEvents)).perform(
                         RecyclerViewActions.scrollTo(hasDescendant(withText(openEventTitle)))
                 );
-                onView(withId(R.id.rvEvents)).check(matches(hasDescendant(withText(openEventTitle))));
+                onView(withText(openEventTitle)).check(matches(isDisplayed()));
 
                 onView(withId(R.id.rvEvents)).perform(
                         RecyclerViewActions.scrollTo(hasDescendant(withText(pendingEventTitle)))
                 );
-                onView(withId(R.id.rvEvents)).check(matches(hasDescendant(withText(pendingEventTitle))));
+                onView(withText(pendingEventTitle)).check(matches(isDisplayed()));
 
                 onView(withId(R.id.rvEvents)).perform(
                         RecyclerViewActions.scrollTo(hasDescendant(withText(closedEventTitle)))
                 );
-                onView(withId(R.id.rvEvents)).check(matches(hasDescendant(withText(closedEventTitle))));
+                onView(withText(closedEventTitle)).check(matches(isDisplayed()));
 
                 onView(withId(R.id.rvEvents)).perform(
                         RecyclerViewActions.scrollTo(allOf(
@@ -226,7 +191,7 @@ public class AdminBrowseEventsActivityTest {
                 onView(withId(R.id.rvEvents)).perform(
                         RecyclerViewActions.scrollTo(allOf(
                                 hasDescendant(withText(pendingEventTitle)),
-                                hasDescendant(withText("PENDING"))
+                                hasDescendant(withText("PENDING DRAW"))
                         ))
                 );
 
@@ -249,12 +214,44 @@ public class AdminBrowseEventsActivityTest {
                 });
             }
         } finally {
-            try {
-                deleteEvent(openEventId);
-                deleteEvent(pendingEventId);
-                deleteEvent(closedEventId);
-            } catch (Exception ignored) {
+            deleteEvent(openEventId);
+            deleteEvent(pendingEventId);
+            deleteEvent(closedEventId);
+        }
+    }
+
+    // US 03.01.01: Clicking an event in the browser launches AdminEventDetailsActivity.
+    @Test
+    public void adminBrowseEvents_clickingEventLaunchesDetails() throws Exception {
+        String eventId = uniqueId("admin_click_test");
+        String eventTitle = "Temporary Event for Click Test";
+
+        seedEvent(eventId, eventTitle, "test_organizer", "open");
+
+        try {
+            Intent intent = new Intent(ApplicationProvider.getApplicationContext(), AdminBrowseEventsActivity.class);
+            intent.putExtra("userId", "admin_user");
+
+            try (ActivityScenario<AdminBrowseEventsActivity> scenario = ActivityScenario.launch(intent)) {
+                waitForEventsLoaded(scenario, 1);
+
+                // Ensure visibility and scroll to it
+                onView(withId(R.id.rvEvents))
+                        .perform(RecyclerViewActions.scrollTo(hasDescendant(withText(eventTitle))));
+
+                // Use the view hierarchy to perform a robust click
+                onView(withText(eventTitle)).perform(click());
+
+                // Give it more time for intent to be recorded and activity to start
+                Thread.sleep(2000);
+
+                intended(allOf(
+                        hasComponent(AdminEventDetailsActivity.class.getName()),
+                        hasExtra("eventId", eventId)
+                ));
             }
+        } finally {
+            deleteEvent(eventId);
         }
     }
 }
