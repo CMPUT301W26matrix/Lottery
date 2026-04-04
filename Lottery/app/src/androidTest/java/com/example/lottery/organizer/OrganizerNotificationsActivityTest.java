@@ -486,7 +486,8 @@ public class OrganizerNotificationsActivityTest {
         try (ActivityScenario<OrganizerNotificationsActivity> scenario = ActivityScenario.launch(createLaunchIntent())) {
             injectMockEvent(scenario);
 
-            onView(withId(R.id.btnNotifySelected)).perform(click());
+            onView(withId(R.id.btnNotifyMore)).perform(click());
+            onView(withText("Notify Invited")).perform(click());
             onView(withText("Notify Invited Entrants")).inRoot(isDialog()).check(matches(isDisplayed()));
 
             onView(withId(R.id.etNotificationContent)).inRoot(isDialog())
@@ -507,7 +508,8 @@ public class OrganizerNotificationsActivityTest {
         try (ActivityScenario<OrganizerNotificationsActivity> scenario = ActivityScenario.launch(createLaunchIntent())) {
             injectMockEvent(scenario);
 
-            onView(withId(R.id.btnNotifySelected)).perform(click());
+            onView(withId(R.id.btnNotifyMore)).perform(click());
+            onView(withText("Notify Invited")).perform(click());
             onView(withText("Notify Invited Entrants")).inRoot(isDialog()).check(matches(isDisplayed()));
             onView(withId(R.id.etNotificationContent)).inRoot(isDialog())
                     .perform(typeText("Invited delivery check"), closeSoftKeyboard());
@@ -526,7 +528,8 @@ public class OrganizerNotificationsActivityTest {
         try (ActivityScenario<OrganizerNotificationsActivity> scenario = ActivityScenario.launch(createLaunchIntent())) {
             injectMockEvent(scenario);
 
-            onView(withId(R.id.btnNotifyAccepted)).perform(click());
+            onView(withId(R.id.btnNotifyMore)).perform(click());
+            onView(withText("Notify Accepted")).perform(click());
             onView(withText("Notify Accepted Entrants")).inRoot(isDialog()).check(matches(isDisplayed()));
 
             onView(withId(R.id.etNotificationContent)).inRoot(isDialog())
@@ -546,7 +549,8 @@ public class OrganizerNotificationsActivityTest {
         try (ActivityScenario<OrganizerNotificationsActivity> scenario = ActivityScenario.launch(createLaunchIntent())) {
             injectMockEvent(scenario);
 
-            onView(withId(R.id.btnNotifyCancelled)).perform(click());
+            onView(withId(R.id.btnNotifyMore)).perform(click());
+            onView(withText("Notify Cancelled")).perform(click());
             onView(withText("Notify Cancelled Entrants")).inRoot(isDialog()).check(matches(isDisplayed()));
 
             onView(withId(R.id.etNotificationContent)).inRoot(isDialog())
@@ -567,7 +571,8 @@ public class OrganizerNotificationsActivityTest {
         try (ActivityScenario<OrganizerNotificationsActivity> scenario = ActivityScenario.launch(createLaunchIntent())) {
             injectMockEvent(scenario);
 
-            onView(withId(R.id.btnNotifyCancelled)).perform(click());
+            onView(withId(R.id.btnNotifyMore)).perform(click());
+            onView(withText("Notify Cancelled")).perform(click());
             onView(withText("Notify Cancelled Entrants")).inRoot(isDialog()).check(matches(isDisplayed()));
             onView(withId(R.id.etNotificationContent)).inRoot(isDialog())
                     .perform(typeText("Cancelled delivery check"), closeSoftKeyboard());
