@@ -134,7 +134,7 @@ public class AdminBrowseProfilesActivity extends AppCompatActivity {
     private void setupFilterToggles() {
         toggleFilterGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
             if (!isChecked) return;
-            
+
             if (checkedId == R.id.btnFilterAll) {
                 currentFilter = "ALL";
             } else if (checkedId == R.id.btnFilterEntrant) {

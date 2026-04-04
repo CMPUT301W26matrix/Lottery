@@ -544,19 +544,6 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * Requests location permissions and continues the current action if permission is granted.
-     */
-    private final ActivityResultLauncher<String[]> locationPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
-                if (result.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false)
-                        || result.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)) {
-                    startLocationCollection();
-                } else {
-                    Toast.makeText(this, "Location is required to proceed", Toast.LENGTH_LONG).show();
-                }
-            });
-
-    /**
      * Finalizes the current action once optional location collection is complete.
      *
      * @param location The collected location, or null if unavailable.
@@ -589,6 +576,19 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> checkUserEventStatus());
     }
+
+    /**
+     * Requests location permissions and continues the current action if permission is granted.
+     */
+    private final ActivityResultLauncher<String[]> locationPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
+                if (result.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false)
+                        || result.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)) {
+                    startLocationCollection();
+                } else {
+                    Toast.makeText(this, "Location is required to proceed", Toast.LENGTH_LONG).show();
+                }
+            });
 
     /**
      * Checks the user's specific participation record for this event in Firestore.
@@ -791,20 +791,6 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * Permission callback for private invite location collection.
-     * Re-attempts location collection if permission is granted.
-     */
-    private final ActivityResultLauncher<String[]> privateInviteLocationPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
-                if (result.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false)
-                        || result.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)) {
-                    startPrivateInviteLocationCollection();
-                } else {
-                    Toast.makeText(this, "Location permission is required to accept this invite", Toast.LENGTH_LONG).show();
-                }
-            });
-
-    /**
      * Accepts a private event invite by updating the existing Firestore record.
      * Uses merge to preserve the invitedAt timestamp. Skips deadline and waitlist
      * limit checks because the organizer explicitly invited this entrant.
@@ -910,6 +896,20 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                     Toast.makeText(this, R.string.joined_waitlist, Toast.LENGTH_SHORT).show();
                 });
     }
+
+    /**
+     * Permission callback for private invite location collection.
+     * Re-attempts location collection if permission is granted.
+     */
+    private final ActivityResultLauncher<String[]> privateInviteLocationPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
+                if (result.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false)
+                        || result.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)) {
+                    startPrivateInviteLocationCollection();
+                } else {
+                    Toast.makeText(this, "Location permission is required to accept this invite", Toast.LENGTH_LONG).show();
+                }
+            });
 
     /**
      * Declines the current invitation and triggers replacement promotion if needed.

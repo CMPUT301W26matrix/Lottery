@@ -17,8 +17,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.example.lottery.fragment.CommentBottomSheet;
 import com.example.lottery.R;
+import com.example.lottery.fragment.CommentBottomSheet;
 import com.example.lottery.fragment.OrganizerInviteCoOrganizerDialogFragment;
 import com.example.lottery.fragment.OrganizerInviteEntrantDialogFragment;
 import com.example.lottery.model.Event;

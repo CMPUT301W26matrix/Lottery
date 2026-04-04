@@ -49,17 +49,15 @@ import java.util.List;
 public class OrganizerBrowseEventsActivity extends AppCompatActivity implements EventAdapter.OnEventClickListener {
 
     private static final String TAG = "OrganizerBrowseEvents";
-
-    private RecyclerView rvEvents;
-    private EventAdapter adapter;
     private final List<Event> masterEventList = new ArrayList<>();
     private final List<Event> filteredEventList = new ArrayList<>();
-    
+    private RecyclerView rvEvents;
+    private EventAdapter adapter;
     private TextView tvNoEvents, tvCurrentFilter;
     private TextView tvActiveCount, tvClosedCount, tvPendingCount, tvTotalCount;
     private MaterialCardView cardActive, cardPending, cardClosed, cardAll, cvActionRequired;
     private TextView tvActionMessage;
-    
+
     private View llSearchToggle;
     private TextInputLayout tilSearch;
     private TextInputEditText etSearch;
@@ -68,7 +66,7 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
     private String userId;
     private boolean isAdminRole = false;
     private String adminUserId;
-    
+
     private String currentStatusFilter = "all"; // all, active, pending, finished
     private String currentSearchQuery = "";
 
@@ -104,7 +102,7 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
 
         initViews();
         setupInteractions();
-        
+
         OrganizerNavigationHelper.setup(this, OrganizerNavigationHelper.OrganizerTab.HOME, userId);
         loadOrganizerEvents();
     }
@@ -113,20 +111,20 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
         rvEvents = findViewById(R.id.rvEvents);
         tvNoEvents = findViewById(R.id.tvNoEvents);
         tvCurrentFilter = findViewById(R.id.tvCurrentFilter);
-        
+
         tvActiveCount = findViewById(R.id.tvActiveCount);
         tvClosedCount = findViewById(R.id.tvClosedCount);
         tvPendingCount = findViewById(R.id.tvPendingCount);
         tvTotalCount = findViewById(R.id.tvTotalCount);
-        
+
         cardActive = findViewById(R.id.cardActive);
         cardPending = findViewById(R.id.cardPending);
         cardClosed = findViewById(R.id.cardClosed);
         cardAll = findViewById(R.id.cardAll);
-        
+
         cvActionRequired = findViewById(R.id.cvActionRequired);
         tvActionMessage = findViewById(R.id.tvActionMessage);
-        
+
         llSearchToggle = findViewById(R.id.llSearchToggle);
         tilSearch = findViewById(R.id.tilSearch);
         etSearch = findViewById(R.id.etSearch);
@@ -154,12 +152,19 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
         });
 
         etSearch.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
                 currentSearchQuery = s.toString().toLowerCase().trim();
                 applyFilters();
             }
-            @Override public void afterTextChanged(Editable s) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
         });
 
         cardActive.setOnClickListener(v -> setFilter("active", getString(R.string.filter_active_label)));
@@ -178,7 +183,7 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
         filteredEventList.clear();
         for (Event event : masterEventList) {
             String displayStatus = EventAdapter.resolveDisplayStatus(event);
-            
+
             if (!currentStatusFilter.equals("all")) {
                 boolean match = false;
                 if (currentStatusFilter.equals("active")) {
@@ -190,12 +195,12 @@ public class OrganizerBrowseEventsActivity extends AppCompatActivity implements 
                 }
                 if (!match) continue;
             }
-            
+
             if (!currentSearchQuery.isEmpty()) {
                 String title = event.getTitle() != null ? event.getTitle().toLowerCase() : "";
                 if (!title.contains(currentSearchQuery)) continue;
             }
-            
+
             filteredEventList.add(event);
         }
         adapter.notifyDataSetChanged();

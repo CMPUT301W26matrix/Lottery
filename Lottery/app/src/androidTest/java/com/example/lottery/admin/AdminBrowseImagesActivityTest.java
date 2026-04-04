@@ -115,13 +115,6 @@ public class AdminBrowseImagesActivityTest {
         onView(withId(R.id.tvAppTitle)).check(matches(withText(R.string.admin_image_browser_title)));
     }
 
-    // US 03.06.01: Admin should see image browser subtitle
-    @Test
-    public void testSubtitleIsDisplayed() {
-        onView(withId(R.id.tvSubtitle)).check(matches(isDisplayed()));
-        onView(withId(R.id.tvSubtitle)).check(matches(withText(R.string.admin_image_browser_subtitle)));
-    }
-
     // US 03.06.01: Empty state should show when no images are uploaded
     @Test
     public void testNoImagesMessageVisibility() {

@@ -101,7 +101,7 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
         TextView tvTitle = view.findViewById(R.id.tvTitle);
         TextView tvSearchLabel = view.findViewById(R.id.tvSearchLabel);
         View coOrganizerSection = view.findViewById(R.id.layout_co_organizer_section);
-        
+
         // Customize for Invite Entrant mode
         tvTitle.setText("Invite Entrants");
         tvSearchLabel.setText("Search for Entrants");
@@ -119,7 +119,10 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
         rvResults.setAdapter(adapter);
 
         etSearch.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (pendingSearch != null) searchHandler.removeCallbacks(pendingSearch);
@@ -127,7 +130,10 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
                 pendingSearch = () -> searchUsers(query);
                 searchHandler.postDelayed(pendingSearch, 300);
             }
-            @Override public void afterTextChanged(Editable s) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
         });
     }
 
@@ -202,13 +208,15 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
                 .set(waitlistData)
                 .addOnSuccessListener(aVoid -> sendNotification(user))
                 .addOnFailureListener(e -> {
-                    if (isAdded()) Toast.makeText(requireContext(), "Failed to invite user", Toast.LENGTH_SHORT).show();
+                    if (isAdded())
+                        Toast.makeText(requireContext(), "Failed to invite user", Toast.LENGTH_SHORT).show();
                 });
     }
 
     private void sendNotification(User targetUser) {
         if (!targetUser.isNotificationsEnabled()) {
-            if (isAdded()) Toast.makeText(requireContext(), "Invitation successful (notifications opted out)", Toast.LENGTH_SHORT).show();
+            if (isAdded())
+                Toast.makeText(requireContext(), "Invitation successful (notifications opted out)", Toast.LENGTH_SHORT).show();
             dismiss();
             return;
         }
@@ -231,11 +239,13 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
                 .collection(FirestorePaths.INBOX).document(notificationId)
                 .set(notification)
                 .addOnSuccessListener(aVoid -> {
-                    if (isAdded()) Toast.makeText(requireContext(), "Invitation sent!", Toast.LENGTH_SHORT).show();
+                    if (isAdded())
+                        Toast.makeText(requireContext(), "Invitation sent!", Toast.LENGTH_SHORT).show();
                     dismiss();
                 })
                 .addOnFailureListener(e -> {
-                    if (isAdded()) Toast.makeText(requireContext(), "Failed to send notification", Toast.LENGTH_SHORT).show();
+                    if (isAdded())
+                        Toast.makeText(requireContext(), "Failed to send notification", Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -265,12 +275,17 @@ public class OrganizerInviteEntrantDialogFragment extends DialogFragment {
         }
 
         @Override
-        public int getItemCount() { return users.size(); }
+        public int getItemCount() {
+            return users.size();
+        }
 
-        interface OnUserClickListener { void onUserClick(User user); }
+        interface OnUserClickListener {
+            void onUserClick(User user);
+        }
 
         static class ViewHolder extends RecyclerView.ViewHolder {
             TextView text1, text2;
+
             ViewHolder(View v) {
                 super(v);
                 text1 = v.findViewById(android.R.id.text1);

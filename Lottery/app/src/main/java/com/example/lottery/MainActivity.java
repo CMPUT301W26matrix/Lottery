@@ -104,26 +104,24 @@ public class MainActivity extends AppCompatActivity {
                 if (document != null && document.exists()) {
                     loginUser(document, role, androidId);
                 } else {
-                    // Document missing (might have been deleted manually)
                     Log.w(TAG, "Account document missing for ID: " + userId);
-                    handleAccountNotFound();
+                    // Only clear stale session if one exists (i.e. account was deleted)
+                    String savedUserId = sharedPreferences.getString(KEY_USER_ID, "");
+                    if (!savedUserId.isEmpty()) {
+                        Log.i(TAG, "Cleaning up stale session for deleted account");
+                        clearSession();
+                        Toast.makeText(this, "Account no longer exists. Creating a new profile.", Toast.LENGTH_SHORT).show();
+                    }
                     createNewUser(userId, role, androidId);
                 }
             } else {
                 Exception ex = userTask.getException();
-                String errorMsg = (ex != null) ? ex.getMessage() : "Unknown";
+                String errorMsg = (ex != null) ? ex.getMessage() : null;
                 Log.e(TAG, "Login check failed: " + errorMsg, ex);
 
-                // If PERMISSION_DENIED happens, it usually means the document was deleted 
-                // and security rules are blocking the read, or session is invalid.
-                if (errorMsg != null && errorMsg.contains("PERMISSION_DENIED")) {
-                    Log.w(TAG, "Permission denied for stale/deleted account, recreating profile");
-                    clearSession();
-                    Toast.makeText(this, "Old account was removed. Creating a new profile.", Toast.LENGTH_LONG).show();
-                    createNewUser(userId, role, androidId);
-                } else {
-                    Toast.makeText(this, "Login failed: " + errorMsg, Toast.LENGTH_SHORT).show();
-                }
+                Toast.makeText(this,
+                        "Login failed: " + (errorMsg != null ? errorMsg : "Unknown error"),
+                        Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -137,18 +135,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Helper to handle cases where the account is verified as missing from Firestore.
-     */
-    private void handleAccountNotFound() {
-        String savedUserId = sharedPreferences.getString(KEY_USER_ID, "");
-        if (!savedUserId.isEmpty()) {
-            Log.i(TAG, "Cleaning up stale session for deleted account");
-            clearSession();
-            Toast.makeText(this, "Account no longer exists. Creating a new profile.", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    /**
      * Creates a new user document in Firestore with role isolation.
      */
     private void createNewUser(String userId, String role, String androidId) {
@@ -158,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
         userData.put("userId", userId);
         userData.put("role", role);
         userData.put("deviceId", androidId);
-        userData.put("username", ""); 
+        userData.put("username", "");
         userData.put("email", "");
         userData.put("phone", "");
         userData.put("createdAt", now);
@@ -179,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void loginUser(DocumentSnapshot document, String role, String androidId) {
         String userId = document.getId();
-        String username = document.getString("username"); 
+        String username = document.getString("username");
         String email = document.getString("email");
 
         db.collection(FirestorePaths.USERS).document(userId)

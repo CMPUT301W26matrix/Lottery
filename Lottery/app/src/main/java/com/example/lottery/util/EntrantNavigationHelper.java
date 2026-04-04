@@ -9,11 +9,11 @@ import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
 
+import com.example.lottery.R;
 import com.example.lottery.entrant.EntrantEventHistoryActivity;
 import com.example.lottery.entrant.EntrantMainActivity;
 import com.example.lottery.entrant.EntrantProfileActivity;
 import com.example.lottery.entrant.EntrantQrScanActivity;
-import com.example.lottery.R;
 
 /**
  * Centralised helper that wires up the entrant bottom-navigation bar

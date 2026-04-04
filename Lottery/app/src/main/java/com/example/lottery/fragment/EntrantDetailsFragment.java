@@ -2,14 +2,12 @@ package com.example.lottery.fragment;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -46,13 +44,18 @@ public class EntrantDetailsFragment extends DialogFragment {
         return fragment;
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setStyle(STYLE_NO_TITLE, 0);
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         // Ensure the dialog window itself is transparent so our layout's rounded corners are visible
         if (getDialog() != null && getDialog().getWindow() != null) {
             getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         }
         return inflater.inflate(R.layout.entrant_details_fragment, container, false);
     }
@@ -84,11 +87,16 @@ public class EntrantDetailsFragment extends DialogFragment {
                     .document(entrant.getUserId())
                     .get()
                     .addOnSuccessListener(documentSnapshot -> {
-                        if (isAdded() && documentSnapshot.exists()) {
+                        if (!isAdded()) return;
+                        if (documentSnapshot.exists()) {
                             String email = documentSnapshot.getString("email");
                             tvEmail.setText(email != null ? email : "N/A");
+                        } else {
+                            tvEmail.setText("N/A");
                         }
                     });
+        } else {
+            tvEmail.setText("N/A");
         }
 
         // Location Logic
@@ -120,6 +128,7 @@ public class EntrantDetailsFragment extends DialogFragment {
     }
 
     private void showCancelConfirmation(String eventId, EntrantEvent entrant) {
+        if (!isAdded()) return;
         new AlertDialog.Builder(requireContext())
                 .setTitle("Cancel Entrant")
                 .setMessage("Are you sure you want to cancel this entrant? This action cannot be undone.")
@@ -137,6 +146,11 @@ public class EntrantDetailsFragment extends DialogFragment {
                     if (isAdded()) {
                         Toast.makeText(requireContext(), "Entrant cancelled successfully", Toast.LENGTH_SHORT).show();
                         dismiss();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    if (isAdded()) {
+                        Toast.makeText(requireContext(), "Failed to cancel entrant", Toast.LENGTH_SHORT).show();
                     }
                 });
     }

@@ -12,8 +12,8 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.lottery.entrant.EntrantMainActivity;
 import com.example.lottery.R;
+import com.example.lottery.entrant.EntrantMainActivity;
 import com.example.lottery.model.Event;
 import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.PosterImageLoader;

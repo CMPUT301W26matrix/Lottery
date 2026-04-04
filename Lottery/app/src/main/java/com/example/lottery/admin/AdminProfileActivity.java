@@ -22,12 +22,12 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.lottery.MainActivity;
+import com.example.lottery.R;
 import com.example.lottery.entrant.EntrantMainActivity;
 import com.example.lottery.entrant.EntrantProfileActivity;
-import com.example.lottery.MainActivity;
 import com.example.lottery.organizer.OrganizerBrowseEventsActivity;
 import com.example.lottery.organizer.OrganizerProfileActivity;
-import com.example.lottery.R;
 import com.example.lottery.util.AdminNavigationHelper;
 import com.example.lottery.util.AdminRoleManager;
 import com.example.lottery.util.FirestorePaths;

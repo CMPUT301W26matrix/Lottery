@@ -148,8 +148,8 @@ public class EntrantMainActivity extends AppCompatActivity {
         // Also hide search if clicking outside when empty
         if (clMainContent != null) {
             clMainContent.setOnClickListener(v -> {
-                if (tilSearch.getVisibility() == View.VISIBLE && 
-                    (etSearch.getText() == null || etSearch.getText().length() == 0)) {
+                if (tilSearch.getVisibility() == View.VISIBLE &&
+                        (etSearch.getText() == null || etSearch.getText().length() == 0)) {
                     hideSearchAndFilters();
                 }
             });
@@ -215,7 +215,7 @@ public class EntrantMainActivity extends AppCompatActivity {
             tilSearch.setVisibility(View.VISIBLE);
             cgBrowseTabs.setVisibility(View.VISIBLE);
             hsvCategories.setVisibility(View.VISIBLE);
-            
+
             etSearch.requestFocus();
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             if (imm != null) {
@@ -239,10 +239,10 @@ public class EntrantMainActivity extends AppCompatActivity {
         tilSearch.setVisibility(View.GONE);
         cgBrowseTabs.setVisibility(View.GONE);
         hsvCategories.setVisibility(View.GONE);
-        
+
         etSearch.setText(""); // Clear search when closing
         currentSearchQuery = "";
-        
+
         // Reset filters to "All" when closing search
         cgBrowseTabs.check(R.id.chipBrowseAll);
         cgCategories.clearCheck();
