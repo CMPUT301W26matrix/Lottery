@@ -67,9 +67,13 @@ public class EntrantMainActivityTest {
     @Before
     public void seedTestData() throws Exception {
         Timestamp now = Timestamp.now();
-        // +3 hours: still today
-        Timestamp todayLater = new Timestamp(
-                new java.util.Date(System.currentTimeMillis() + TimeUnit.HOURS.toMillis(3)));
+        // Fixed to today 23:59:59 — always within "today" regardless of run time
+        java.util.Calendar todayCal = java.util.Calendar.getInstance();
+        todayCal.set(java.util.Calendar.HOUR_OF_DAY, 23);
+        todayCal.set(java.util.Calendar.MINUTE, 59);
+        todayCal.set(java.util.Calendar.SECOND, 59);
+        todayCal.set(java.util.Calendar.MILLISECOND, 0);
+        Timestamp todayLater = new Timestamp(todayCal.getTime());
         // +30 days: far future, outside "This Week"
         Timestamp farFuture = new Timestamp(
                 new java.util.Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(30)));

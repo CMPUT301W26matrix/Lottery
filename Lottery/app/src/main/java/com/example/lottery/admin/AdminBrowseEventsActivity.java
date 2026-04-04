@@ -142,7 +142,6 @@ public class AdminBrowseEventsActivity extends AppCompatActivity implements Even
                                 case "open":
                                     active++;
                                     break;
-                                case "pending":
                                 case "pending_draw":
                                     pending++;
                                     break;
