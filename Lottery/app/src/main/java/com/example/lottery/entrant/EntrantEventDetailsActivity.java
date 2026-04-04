@@ -106,7 +106,6 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     private TextView tvNotificationBadge;
     private TextView tvEventDescription;
     private TextView tvCoOrganizerStatus;
-    private TextView tvWaitlistCount;
     private TextView btnShowMore;
 
     private TextView tvRegistrationEndedTitle;
@@ -264,7 +263,6 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         tvRegistrationDeadline = findViewById(R.id.tvRegistrationDeadline);
         tvDrawDate = findViewById(R.id.tvDrawDate);
         tvCoOrganizerStatus = findViewById(R.id.tvCoOrganizerStatus);
-        tvWaitlistCount = findViewById(R.id.tvWaitlistCount);
         btnShowMore = findViewById(R.id.btnShowMore);
 
         tvRegistrationEndedTitle = findViewById(R.id.tvRegistrationEndedTitle);
@@ -832,9 +830,6 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                         return;
                     }
                     waitlistCount = queryDocumentSnapshots.size();
-                    if (tvWaitlistCount != null) {
-                        tvWaitlistCount.setText(getString(R.string.people_in_waitlist_template, waitlistCount));
-                    }
                 });
     }
 
