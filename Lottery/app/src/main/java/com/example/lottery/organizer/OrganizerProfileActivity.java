@@ -28,6 +28,9 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.lottery.MainActivity;
 import com.example.lottery.R;
 import com.example.lottery.admin.AdminProfileActivity;
+import com.example.lottery.admin.AdminSignInActivity;
+import com.example.lottery.entrant.EntrantMainActivity;
+import com.example.lottery.entrant.EntrantProfileActivity;
 import com.example.lottery.util.AdminRoleManager;
 import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.OrganizerNavigationHelper;
@@ -150,6 +153,11 @@ public class OrganizerProfileActivity extends AppCompatActivity {
         btnLotteryGuidelines.setOnClickListener(v -> {
             Intent intent = new Intent(this, OrganizerLotteryGuidelinesActivity.class);
             startActivity(intent);
+        });
+
+        findViewById(R.id.btn_switch_to_entrant).setOnClickListener(v -> switchToRole("ENTRANT"));
+        findViewById(R.id.btn_switch_to_admin).setOnClickListener(v -> {
+            startActivity(new Intent(this, AdminSignInActivity.class));
         });
 
         cvEditProfileImage.setOnClickListener(v -> showAvatarOptions());
@@ -412,6 +420,40 @@ public class OrganizerProfileActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         }
+    }
+
+    private void switchToRole(String role) {
+        String androidId = android.provider.Settings.Secure.getString(
+                getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
+        if (androidId == null || androidId.isEmpty()) {
+            Toast.makeText(this, "Failed to get device ID", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String roleUserId = role.toLowerCase() + "_" + androidId;
+        db.collection(FirestorePaths.USERS).document(roleUserId).get()
+                .addOnSuccessListener(doc -> {
+                    Intent intent;
+                    if (doc.exists()) {
+                        String username = doc.getString("username");
+                        String email = doc.getString("email");
+                        if (username != null && !username.trim().isEmpty()
+                                && email != null && !email.trim().isEmpty()) {
+                            intent = new Intent(this, EntrantMainActivity.class);
+                        } else {
+                            intent = new Intent(this, EntrantProfileActivity.class);
+                            intent.putExtra("forceEdit", true);
+                        }
+                    } else {
+                        intent = new Intent(this, EntrantProfileActivity.class);
+                        intent.putExtra("forceEdit", true);
+                    }
+                    intent.putExtra("userId", roleUserId);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Failed to switch role", Toast.LENGTH_SHORT).show());
     }
 
     private void navigateToMain() {
