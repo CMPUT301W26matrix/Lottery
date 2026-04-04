@@ -3,21 +3,16 @@ package com.example.lottery.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lottery.R;
 import com.example.lottery.entrant.EntrantMainActivity;
 import com.example.lottery.model.Event;
-import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.PosterImageLoader;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -32,21 +27,18 @@ public class EntrantEventAdapter extends RecyclerView.Adapter<EntrantEventAdapte
     private final List<Event> eventList;
     private final OnEventClickListener listener;
     private final SimpleDateFormat dateFormat =
-            new SimpleDateFormat("MM/dd/yyyy HH:mm", Locale.getDefault());
-    private final String userId;
-    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+            new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault());
 
     /**
      * Constructs an EntrantEventAdapter.
      *
      * @param eventList list of events to display
      * @param listener  listener that handles event selection
-     * @param userId    current user ID to check waitlist status
+     * @param userId    current user ID (unused, kept for API compatibility)
      */
     public EntrantEventAdapter(List<Event> eventList, OnEventClickListener listener, String userId) {
         this.eventList = eventList;
         this.listener = listener;
-        this.userId = userId;
     }
 
     @NonNull
@@ -69,65 +61,14 @@ public class EntrantEventAdapter extends RecyclerView.Adapter<EntrantEventAdapte
             holder.tvEventDate.setText("Date TBD");
         }
 
-        String details = event.getDetails();
-        if (details != null && !details.trim().isEmpty()) {
-            holder.tvEventDescription.setVisibility(View.VISIBLE);
-            holder.tvEventDescription.setText(details);
-        } else {
-            holder.tvEventDescription.setVisibility(View.GONE);
-        }
-
         // Load Event Poster
         PosterImageLoader.load(holder.ivEventPoster, event.getPosterBase64(), R.drawable.event_placeholder);
 
-        // Handle Quick Action Button (Waitlist Join/Leave and Status display)
-        updateWaitlistButton(holder, event);
-
-        View.OnClickListener detailClickListener = v -> {
+        holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onEventClick(event);
             }
-        };
-
-        holder.itemView.setOnClickListener(detailClickListener);
-        holder.btnViewDetail.setOnClickListener(detailClickListener);
-    }
-
-    private void updateWaitlistButton(EntrantEventViewHolder holder, Event event) {
-        if (userId == null) {
-            holder.btnWaitlistAction.setVisibility(View.GONE);
-            return;
-        }
-
-        holder.btnWaitlistAction.setVisibility(View.GONE);
-
-        db.collection(FirestorePaths.eventWaitingList(event.getEventId()))
-                .document(userId)
-                .get()
-                .addOnSuccessListener(doc -> {
-                    if (doc.exists()) {
-                        // User already participated — hide the card's action button
-                        holder.btnWaitlistAction.setVisibility(View.GONE);
-                    } else if (isRegistrationOpen(event)) {
-                        holder.btnWaitlistAction.setText(R.string.join_waitlist);
-                        holder.btnWaitlistAction.setVisibility(View.VISIBLE);
-                        holder.btnWaitlistAction.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.primary_blue));
-                        holder.btnWaitlistAction.setOnClickListener(v -> joinWaitlist(event, holder));
-                    }
-                })
-                .addOnFailureListener(e -> holder.btnWaitlistAction.setVisibility(View.GONE));
-    }
-
-    private boolean isRegistrationOpen(Event event) {
-        if (event.getRegistrationDeadline() == null) return true;
-        return event.getRegistrationDeadline().toDate().after(new java.util.Date());
-    }
-
-    private void joinWaitlist(Event event, EntrantEventViewHolder holder) {
-        if (listener != null) {
-            Toast.makeText(holder.itemView.getContext(), R.string.opening_details_to_join, Toast.LENGTH_SHORT).show();
-            listener.onEventClick(event);
-        }
+        });
     }
 
     @Override
@@ -145,18 +86,12 @@ public class EntrantEventAdapter extends RecyclerView.Adapter<EntrantEventAdapte
     static class EntrantEventViewHolder extends RecyclerView.ViewHolder {
         private final TextView tvEventTitle;
         private final TextView tvEventDate;
-        private final TextView tvEventDescription;
-        private final Button btnViewDetail;
-        private final Button btnWaitlistAction;
         private final ImageView ivEventPoster;
 
         EntrantEventViewHolder(@NonNull View itemView) {
             super(itemView);
             tvEventTitle = itemView.findViewById(R.id.tvEventTitle);
             tvEventDate = itemView.findViewById(R.id.tvEventDate);
-            tvEventDescription = itemView.findViewById(R.id.tvEventDescription);
-            btnViewDetail = itemView.findViewById(R.id.btnViewDetail);
-            btnWaitlistAction = itemView.findViewById(R.id.btnWaitlistAction);
             ivEventPoster = itemView.findViewById(R.id.ivEventPoster);
         }
     }

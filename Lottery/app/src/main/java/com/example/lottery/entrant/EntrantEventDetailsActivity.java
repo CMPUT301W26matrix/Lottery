@@ -97,13 +97,12 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
 
     private TextView tvEventTitle;
     private TextView tvPlace;
-    private TextView tvRegistrationPeriod;
+    private TextView tvOrganizer;
     private TextView tvScheduledDate;
     private TextView tvEventEndDate;
     private TextView tvRegistrationStart;
     private TextView tvRegistrationDeadline;
     private TextView tvDrawDate;
-    private TextView tvWaitlistCount;
     private TextView tvNotificationBadge;
     private TextView tvEventDescription;
     private TextView tvCoOrganizerStatus;
@@ -255,8 +254,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     private void initializeViews() {
         tvEventTitle = findViewById(R.id.tvEventTitle);
         tvPlace = findViewById(R.id.tvPlace);
-        tvRegistrationPeriod = findViewById(R.id.tvRegistrationPeriod);
-        tvWaitlistCount = findViewById(R.id.tvWaitlistCount);
+        tvOrganizer = findViewById(R.id.tvOrganizer);
         tvNotificationBadge = findViewById(R.id.tvNotificationBadge);
         tvEventDescription = findViewById(R.id.tvEventDescription);
         tvScheduledDate = findViewById(R.id.tvScheduledDate);
@@ -402,10 +400,12 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                         tvRegistrationStart.setText(dateFormat.format(regStart.toDate()));
                     Timestamp end = documentSnapshot.getTimestamp("registrationDeadline");
                     if (end != null) {
-                        tvRegistrationPeriod.setText(
-                                String.format("Deadline: %s", dateFormat.format(end.toDate()))
-                        );
                         tvRegistrationDeadline.setText(dateFormat.format(end.toDate()));
+                    }
+
+                    String organizerId = documentSnapshot.getString("organizerId");
+                    if (organizerId != null) {
+                        loadOrganizerName(organizerId);
                     }
                     Timestamp draw = documentSnapshot.getTimestamp("drawDate");
                     if (draw != null)
@@ -830,7 +830,20 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                         return;
                     }
                     waitlistCount = queryDocumentSnapshots.size();
-                    tvWaitlistCount.setText(getString(R.string.people_in_waitlist, waitlistCount));
+                });
+    }
+
+    /**
+     * Fetches the organizer's username and displays it.
+     */
+    private void loadOrganizerName(String organizerId) {
+        db.collection(FirestorePaths.USERS).document(organizerId).get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        String name = doc.getString("username");
+                        tvOrganizer.setText(String.format("Organized by %s",
+                                name != null && !name.isEmpty() ? name : "Unknown"));
+                    }
                 });
     }
 
