@@ -621,7 +621,7 @@ public class EntrantEventDetailsActivityTest {
     }
 
     /**
-     * US 02.01.03: A privately-invited entrant (no prior waitlist history)
+     * US 02.01.03 / US 01.05.07: A privately-invited entrant (no prior waitlist history)
      * sees Accept/Decline buttons and the waitlist action is hidden.
      */
     @Test
@@ -644,7 +644,7 @@ public class EntrantEventDetailsActivityTest {
     }
 
     /**
-     * US 02.01.03: After a privately-invited entrant accepts (no requireLocation),
+     * US 02.01.03 / US 01.05.07: After a privately-invited entrant accepts (no requireLocation),
      * they join the waitlist, the invitation buttons are hidden, and
      * "Leave Wait List" is shown.
      */
@@ -679,7 +679,7 @@ public class EntrantEventDetailsActivityTest {
     }
 
     /**
-     * US 02.01.03: After a privately-invited entrant accepts an event that
+     * US 02.01.03 / US 01.05.07: After a privately-invited entrant accepts an event that
      * requires location, the location consent dialog is shown.
      */
     @Test
@@ -715,6 +715,43 @@ public class EntrantEventDetailsActivityTest {
             // Verify the location consent dialog appears
             onView(withText("Location Required")).check(matches(isDisplayed()));
         }
+    }
+
+    /**
+     * US 01.05.07: A privately-invited entrant who declines the invitation has their
+     * status persisted as cancelled in Firestore, and no other entrant is promoted
+     * since a private invite has no backing waitlist pool.
+     */
+    @Test
+    public void testPrivateInviteDecline_persistsCancelledStatusWithoutPromotion() throws Exception {
+        String eventId = "private_piano_decline_" + UUID.randomUUID();
+        String userId = "avery_piano_decline_" + UUID.randomUUID();
+        seedPrivateEvent(eventId, false);
+        seedUser(userId);
+        seedPrivateInviteStatus(eventId, userId);
+
+        try (ActivityScenario<EntrantEventDetailsActivity> scenario =
+                     ActivityScenario.launch(createIntent(eventId, userId))) {
+            waitForCondition(scenario, activity -> activity.findViewById(R.id.invitationButtonsContainer)
+                    .getVisibility() == android.view.View.VISIBLE);
+
+            onView(withId(R.id.btnDeclineInvite)).perform(androidx.test.espresso.action.ViewActions.click());
+        }
+
+        waitForEntrantStatus(eventId, userId, InvitationFlowUtil.STATUS_CANCELLED);
+
+        // No other entrant should have been promoted — verify the waitingList contains
+        // only the one cancelled record for this private invite.
+        com.google.firebase.firestore.QuerySnapshot waitlist = Tasks.await(
+                db.collection(FirestorePaths.eventWaitingList(eventId)).get(),
+                10,
+                TimeUnit.SECONDS
+        );
+        assertEquals("Private invite decline should not create any additional waitlist entries",
+                1, waitlist.size());
+        String status = InvitationFlowUtil.normalizeEntrantStatus(
+                waitlist.getDocuments().get(0).getString("status"));
+        assertEquals(InvitationFlowUtil.STATUS_CANCELLED, status);
     }
 
     /**

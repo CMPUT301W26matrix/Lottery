@@ -54,7 +54,7 @@ import java.util.Map;
  * EntrantProfileActivity displays and manages the personal profile of an entrant user.
  * US 01.02.04: Implements profile deletion and session management.
  * US 01.04.03: Implements notification opt-out settings.
- * US 02.02.02: Implements geolocation opt-in/out settings.
+ * US 02.02.03: Implements geolocation opt-in/out settings.
  */
 public class EntrantProfileActivity extends AppCompatActivity {
 

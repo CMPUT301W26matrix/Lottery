@@ -18,7 +18,7 @@ import com.google.firebase.Timestamp;
  * US 02.01.04: Registration deadline management.
  * US 02.04.01: Event poster support.
  * US 02.02.03: Geolocation requirement toggle.
- * US 02.02.02: Waiting List Limit.
+ * US 02.03.01: Waiting List Limit.
  * </p>
  */
 public class Event {
