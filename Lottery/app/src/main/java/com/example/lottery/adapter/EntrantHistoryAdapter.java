@@ -65,7 +65,7 @@ public class EntrantHistoryAdapter extends RecyclerView.Adapter<EntrantHistoryAd
         // Show Organizer Name if available
         if (item.organizerName != null && !item.organizerName.isEmpty()) {
             holder.tvOrganizer.setVisibility(View.VISIBLE);
-            holder.tvOrganizer.setText("By: " + item.organizerName);
+            holder.tvOrganizer.setText("Organizer: " + item.organizerName);
         } else {
             holder.tvOrganizer.setVisibility(View.GONE);
         }
