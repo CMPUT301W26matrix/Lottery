@@ -19,7 +19,6 @@ import android.widget.Button;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.matcher.ViewMatchers;
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.example.lottery.R;
@@ -34,7 +33,6 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -69,11 +67,6 @@ public class OrganizerCreateEventActivityTest {
 
     private FirebaseFirestore db;
     private final Set<String> seededEventIds = new HashSet<>();
-
-    @Rule
-    public ActivityScenarioRule<OrganizerCreateEventActivity> activityRule =
-            new ActivityScenarioRule<>(new Intent(ApplicationProvider.getApplicationContext(), OrganizerCreateEventActivity.class)
-                    .putExtra("userId", TEST_USER_ID));
 
     @Before
     public void setUp() {
@@ -237,18 +230,21 @@ public class OrganizerCreateEventActivityTest {
 
     @Test
     public void testUIComponentsDisplayed() {
-        // Check if the header title is displayed
-        onView(ViewMatchers.withId(R.id.tvHeader)).check(matches(isDisplayed()));
-        onView(withId(R.id.tvHeader)).check(matches(withText("Create New Event")));
+        try (ActivityScenario<OrganizerCreateEventActivity> ignored =
+                     ActivityScenario.launch(createLaunchIntent())) {
+            // Check if the header title is displayed
+            onView(ViewMatchers.withId(R.id.tvHeader)).check(matches(isDisplayed()));
+            onView(withId(R.id.tvHeader)).check(matches(withText("Create New Event")));
 
-        // Check if the Event Title input field is displayed
-        onView(withId(R.id.etEventTitle)).check(matches(isDisplayed()));
+            // Check if the Event Title input field is displayed
+            onView(withId(R.id.etEventTitle)).check(matches(isDisplayed()));
 
-        // Max Capacity input field
-        onView(withId(R.id.etMaxCapacity)).perform(scrollTo()).check(matches(isDisplayed()));
+            // Max Capacity input field
+            onView(withId(R.id.etMaxCapacity)).perform(scrollTo()).check(matches(isDisplayed()));
 
-        // Launch Event button
-        onView(withId(R.id.btnCreateEvent)).perform(scrollTo()).check(matches(isDisplayed()));
+            // Launch Event button
+            onView(withId(R.id.btnCreateEvent)).perform(scrollTo()).check(matches(isDisplayed()));
+        }
     }
 
     /**
@@ -256,7 +252,10 @@ public class OrganizerCreateEventActivityTest {
      */
     @Test
     public void testPlaceFieldDisplayed() {
-        onView(withId(R.id.etPlace)).perform(scrollTo()).check(matches(isDisplayed()));
+        try (ActivityScenario<OrganizerCreateEventActivity> ignored =
+                     ActivityScenario.launch(createLaunchIntent())) {
+            onView(withId(R.id.etPlace)).perform(scrollTo()).check(matches(isDisplayed()));
+        }
     }
 
     /**
@@ -265,20 +264,23 @@ public class OrganizerCreateEventActivityTest {
      */
     @Test
     public void testWaitingListLimitToggleBehavior() {
-        // Initially, the input field (TextInputLayout) should be GONE (not displayed)
-        onView(withId(R.id.tilWaitingListLimit)).check(matches(not(isDisplayed())));
+        try (ActivityScenario<OrganizerCreateEventActivity> ignored =
+                     ActivityScenario.launch(createLaunchIntent())) {
+            // Initially, the input field (TextInputLayout) should be GONE (not displayed)
+            onView(withId(R.id.tilWaitingListLimit)).check(matches(not(isDisplayed())));
 
-        // Click the switch to enable limit
-        onView(withId(R.id.swLimitWaitingList)).perform(scrollTo(), click());
+            // Click the switch to enable limit
+            onView(withId(R.id.swLimitWaitingList)).perform(scrollTo(), click());
 
-        // Now the input field should be VISIBLE
-        onView(withId(R.id.tilWaitingListLimit)).perform(scrollTo()).check(matches(isDisplayed()));
+            // Now the input field should be VISIBLE
+            onView(withId(R.id.tilWaitingListLimit)).perform(scrollTo()).check(matches(isDisplayed()));
 
-        // Click again to disable
-        onView(withId(R.id.swLimitWaitingList)).perform(scrollTo(), click());
+            // Click again to disable
+            onView(withId(R.id.swLimitWaitingList)).perform(scrollTo(), click());
 
-        // Should be hidden again
-        onView(withId(R.id.tilWaitingListLimit)).check(matches(not(isDisplayed())));
+            // Should be hidden again
+            onView(withId(R.id.tilWaitingListLimit)).check(matches(not(isDisplayed())));
+        }
     }
 
     /**
@@ -286,16 +288,19 @@ public class OrganizerCreateEventActivityTest {
      */
     @Test
     public void testSwitchClearsInput() {
-        // Toggle ON and type something
-        onView(withId(R.id.swLimitWaitingList)).perform(scrollTo(), click());
-        onView(withId(R.id.etWaitingListLimit)).perform(scrollTo(), typeText("50"), closeSoftKeyboard());
+        try (ActivityScenario<OrganizerCreateEventActivity> ignored =
+                     ActivityScenario.launch(createLaunchIntent())) {
+            // Toggle ON and type something
+            onView(withId(R.id.swLimitWaitingList)).perform(scrollTo(), click());
+            onView(withId(R.id.etWaitingListLimit)).perform(scrollTo(), typeText("50"), closeSoftKeyboard());
 
-        // Toggle OFF
-        onView(withId(R.id.swLimitWaitingList)).perform(scrollTo(), click());
+            // Toggle OFF
+            onView(withId(R.id.swLimitWaitingList)).perform(scrollTo(), click());
 
-        // Toggle ON again - field should be empty
-        onView(withId(R.id.swLimitWaitingList)).perform(scrollTo(), click());
-        onView(withId(R.id.etWaitingListLimit)).perform(scrollTo()).check(matches(withText("")));
+            // Toggle ON again - field should be empty
+            onView(withId(R.id.swLimitWaitingList)).perform(scrollTo(), click());
+            onView(withId(R.id.etWaitingListLimit)).perform(scrollTo()).check(matches(withText("")));
+        }
     }
 
     /**
@@ -320,80 +325,89 @@ public class OrganizerCreateEventActivityTest {
     // US 02.01.02: Toggling the private event switch hides the QR code card.
     @Test
     public void testPrivateEventSwitchHidesQrCard() {
-        // QR code card should be visible initially
-        onView(withId(R.id.cardQRCode)).perform(scrollTo())
-                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+        try (ActivityScenario<OrganizerCreateEventActivity> ignored =
+                     ActivityScenario.launch(createLaunchIntent())) {
+            // QR code card should be visible initially
+            onView(withId(R.id.cardQRCode)).perform(scrollTo())
+                    .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
 
-        // Toggle private event ON
-        onView(withId(R.id.swIsPrivate)).perform(scrollTo(), click());
+            // Toggle private event ON
+            onView(withId(R.id.swIsPrivate)).perform(scrollTo(), click());
 
-        // QR code card should now be GONE (not just off-screen)
-        onView(withId(R.id.cardQRCode))
-                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+            // QR code card should now be GONE (not just off-screen)
+            onView(withId(R.id.cardQRCode))
+                    .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        }
     }
 
     // US 02.01.02: Toggling private event switch back OFF restores the QR code card.
     @Test
     public void testPrivateEventSwitchRestoresQrCard() {
-        // Toggle ON
-        onView(withId(R.id.swIsPrivate)).perform(scrollTo(), click());
-        onView(withId(R.id.cardQRCode))
-                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        try (ActivityScenario<OrganizerCreateEventActivity> ignored =
+                     ActivityScenario.launch(createLaunchIntent())) {
+            // Toggle ON
+            onView(withId(R.id.swIsPrivate)).perform(scrollTo(), click());
+            onView(withId(R.id.cardQRCode))
+                    .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
 
-        // Toggle OFF
-        onView(withId(R.id.swIsPrivate)).perform(scrollTo(), click());
+            // Toggle OFF
+            onView(withId(R.id.swIsPrivate)).perform(scrollTo(), click());
 
-        // QR code card should be VISIBLE again
-        onView(withId(R.id.cardQRCode)).perform(scrollTo())
-                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+            // QR code card should be VISIBLE again
+            onView(withId(R.id.cardQRCode)).perform(scrollTo())
+                    .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+        }
     }
 
     // US 02.01.02: Private event switch state is correctly readable from the Activity.
     @Test
     public void testPrivateEventSwitchState() {
-        onView(withId(R.id.swIsPrivate)).perform(scrollTo(), click());
-
-        activityRule.getScenario().onActivity(activity -> {
-            com.google.android.material.switchmaterial.SwitchMaterial sw =
-                    activity.findViewById(R.id.swIsPrivate);
-            Assert.assertTrue("Private event switch should be ON after click", sw.isChecked());
-        });
-
-        onView(withId(R.id.swIsPrivate)).perform(scrollTo(), click());
-
-        activityRule.getScenario().onActivity(activity -> {
-            com.google.android.material.switchmaterial.SwitchMaterial sw =
-                    activity.findViewById(R.id.swIsPrivate);
-            Assert.assertFalse("Private event switch should be OFF after second click", sw.isChecked());
-        });
+        try (ActivityScenario<OrganizerCreateEventActivity> scenario =
+                     ActivityScenario.launch(createLaunchIntent())) {
+            onView(withId(R.id.swIsPrivate)).perform(scrollTo(), click());
+            scenario.onActivity(activity -> {
+                com.google.android.material.switchmaterial.SwitchMaterial sw =
+                        activity.findViewById(R.id.swIsPrivate);
+                Assert.assertTrue("Private event switch should be ON after click", sw.isChecked());
+            });
+            onView(withId(R.id.swIsPrivate)).perform(scrollTo(), click());
+            scenario.onActivity(activity -> {
+                com.google.android.material.switchmaterial.SwitchMaterial sw =
+                        activity.findViewById(R.id.swIsPrivate);
+                Assert.assertFalse("Private event switch should be OFF after second click", sw.isChecked());
+            });
+        }
     }
 
     // US 02.02.03: Geolocation toggle switch should be visible on the create event screen.
     @Test
     public void testGeolocationSwitchExists() {
-        onView(withId(R.id.swRequireLocation))
-                .perform(scrollTo())
-                .check(matches(isDisplayed()));
+        try (ActivityScenario<OrganizerCreateEventActivity> ignored =
+                     ActivityScenario.launch(createLaunchIntent())) {
+            onView(withId(R.id.swRequireLocation))
+                    .perform(scrollTo())
+                    .check(matches(isDisplayed()));
+        }
     }
 
     // US 02.02.03: Organizer can toggle geolocation switch on and off.
     @Test
     public void testGeolocationSwitchToggles() {
-        onView(withId(R.id.swRequireLocation)).perform(scrollTo(), click());
-
-        activityRule.getScenario().onActivity(activity -> {
-            com.google.android.material.switchmaterial.SwitchMaterial sw =
-                    activity.findViewById(R.id.swRequireLocation);
-            Assert.assertTrue("Geolocation switch should be ON after click", sw.isChecked());
-        });
-
-        onView(withId(R.id.swRequireLocation)).perform(scrollTo(), click());
-
-        activityRule.getScenario().onActivity(activity -> {
-            com.google.android.material.switchmaterial.SwitchMaterial sw =
-                    activity.findViewById(R.id.swRequireLocation);
-            Assert.assertFalse("Geolocation switch should be OFF after second click", sw.isChecked());
-        });
+        try (ActivityScenario<OrganizerCreateEventActivity> scenario =
+                     ActivityScenario.launch(createLaunchIntent())) {
+            onView(withId(R.id.swRequireLocation)).perform(scrollTo(), click());
+            scenario.onActivity(activity -> {
+                com.google.android.material.switchmaterial.SwitchMaterial sw =
+                        activity.findViewById(R.id.swRequireLocation);
+                Assert.assertTrue("Geolocation switch should be ON after click", sw.isChecked());
+            });
+            onView(withId(R.id.swRequireLocation)).perform(scrollTo(), click());
+            scenario.onActivity(activity -> {
+                com.google.android.material.switchmaterial.SwitchMaterial sw =
+                        activity.findViewById(R.id.swRequireLocation);
+                Assert.assertFalse("Geolocation switch should be OFF after second click", sw.isChecked());
+            });
+        }
     }
 
     /**

@@ -19,7 +19,6 @@ import androidx.core.content.ContextCompat;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.matcher.ViewMatchers;
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.example.lottery.R;
@@ -32,7 +31,6 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
 import org.junit.After;
-import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -57,18 +55,9 @@ public class EntrantEventDetailsActivityTest {
     private final Set<String> seededUserIds = new HashSet<>();
 
     /**
-     * Launch rule for the activity under test.
+     * Creates a default intent for simple UI-only tests.
      */
-    @Rule
-    public ActivityScenarioRule<EntrantEventDetailsActivity> activityRule =
-            new ActivityScenarioRule<>(createIntent());
-
-    /**
-     * Creates a fresh intent for launching the activity with required extras.
-     *
-     * @return intent containing event and user extras
-     */
-    private static Intent createIntent() {
+    private ActivityScenario<EntrantEventDetailsActivity> launchDefault() {
         Intent intent = new Intent(
                 ApplicationProvider.getApplicationContext(),
                 EntrantEventDetailsActivity.class
@@ -81,7 +70,7 @@ public class EntrantEventDetailsActivityTest {
                 EntrantEventDetailsActivity.EXTRA_USER_ID,
                 "avery_chen_device"
         );
-        return intent;
+        return ActivityScenario.launch(intent);
     }
 
     @After
@@ -327,9 +316,11 @@ public class EntrantEventDetailsActivityTest {
      */
     @Test
     public void testInitialUIState() {
-        onView(ViewMatchers.withId(R.id.tvEventDetailsTitle)).check(matches(isDisplayed()));
-        onView(withId(R.id.tvEventDetailsTitle)).check(matches(withText("Event Details")));
-        onView(withId(R.id.btnBack)).check(matches(isDisplayed()));
+        try (ActivityScenario<EntrantEventDetailsActivity> ignored = launchDefault()) {
+            onView(ViewMatchers.withId(R.id.tvEventDetailsTitle)).check(matches(isDisplayed()));
+            onView(withId(R.id.tvEventDetailsTitle)).check(matches(withText("Event Details")));
+            onView(withId(R.id.btnBack)).check(matches(isDisplayed()));
+        }
     }
 
     /**
@@ -368,8 +359,10 @@ public class EntrantEventDetailsActivityTest {
      */
     @Test
     public void testBottomNavigationIsDisplayed() {
-        onView(withId(R.id.bottomNav)).check(matches(isDisplayed()));
-        onView(withId(R.id.nav_explore)).check(matches(isDisplayed()));
+        try (ActivityScenario<EntrantEventDetailsActivity> ignored = launchDefault()) {
+            onView(withId(R.id.bottomNav)).check(matches(isDisplayed()));
+            onView(withId(R.id.nav_explore)).check(matches(isDisplayed()));
+        }
     }
 
     /**
@@ -378,12 +371,14 @@ public class EntrantEventDetailsActivityTest {
      */
     @Test
     public void testInvitationUiElementsExist() {
-        onView(withId(R.id.btnAcceptInvite)).check(matches(withText(R.string.accept_invite)));
-        onView(withId(R.id.btnDeclineInvite)).check(matches(withText(R.string.decline_invite)));
-        onView(withId(R.id.invitationButtonsContainer))
-                .check(matches(withEffectiveVisibility(GONE)));
-        onView(withId(R.id.registrationEndedContainer))
-                .check(matches(withEffectiveVisibility(GONE)));
+        try (ActivityScenario<EntrantEventDetailsActivity> ignored = launchDefault()) {
+            onView(withId(R.id.btnAcceptInvite)).check(matches(withText(R.string.accept_invite)));
+            onView(withId(R.id.btnDeclineInvite)).check(matches(withText(R.string.decline_invite)));
+            onView(withId(R.id.invitationButtonsContainer))
+                    .check(matches(withEffectiveVisibility(GONE)));
+            onView(withId(R.id.registrationEndedContainer))
+                    .check(matches(withEffectiveVisibility(GONE)));
+        }
     }
 
     /**
@@ -392,8 +387,10 @@ public class EntrantEventDetailsActivityTest {
      */
     @Test
     public void testWaitlistActionButtonIsVisibleByDefault() {
-        onView(withId(R.id.btnWaitlistAction)).check(matches(isDisplayed()));
-        onView(withId(R.id.btnWaitlistAction)).check(matches(withText(R.string.join_wait_list)));
+        try (ActivityScenario<EntrantEventDetailsActivity> ignored = launchDefault()) {
+            onView(withId(R.id.btnWaitlistAction)).check(matches(isDisplayed()));
+            onView(withId(R.id.btnWaitlistAction)).check(matches(withText(R.string.join_wait_list)));
+        }
     }
 
     /**
@@ -402,8 +399,10 @@ public class EntrantEventDetailsActivityTest {
      */
     @Test
     public void testDownloadTicketButtonExistsAndIsHiddenByDefault() {
-        onView(withId(R.id.btnDownloadTicket))
-                .check(matches(withEffectiveVisibility(GONE)));
+        try (ActivityScenario<EntrantEventDetailsActivity> ignored = launchDefault()) {
+            onView(withId(R.id.btnDownloadTicket))
+                    .check(matches(withEffectiveVisibility(GONE)));
+        }
     }
 
     /**
@@ -412,8 +411,10 @@ public class EntrantEventDetailsActivityTest {
      */
     @Test
     public void testDownloadTicketButtonHasCorrectText() {
-        onView(withId(R.id.btnDownloadTicket))
-                .check(matches(withText(R.string.download_confirmation_ticket)));
+        try (ActivityScenario<EntrantEventDetailsActivity> ignored = launchDefault()) {
+            onView(withId(R.id.btnDownloadTicket))
+                    .check(matches(withText(R.string.download_confirmation_ticket)));
+        }
     }
 
     /**
@@ -422,7 +423,9 @@ public class EntrantEventDetailsActivityTest {
      */
     @Test
     public void testEntrantScreenDoesNotExposeOrganizerEditButton() {
-        onView(withId(R.id.btnEditEvent)).check(doesNotExist());
+        try (ActivityScenario<EntrantEventDetailsActivity> ignored = launchDefault()) {
+            onView(withId(R.id.btnEditEvent)).check(doesNotExist());
+        }
     }
 
     /**

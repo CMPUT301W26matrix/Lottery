@@ -239,10 +239,18 @@ public class EntrantEventDetailsWaitlistTest {
                 return title.getText().toString().contains("Swimming");
             });
 
-            // Wait for waitlist count to load (should show "1")
+            // Wait for the snapshot listener in loadWaitlistCount() to populate
+            // the private waitlistCount field. No UI reflects this value, so we
+            // read it via reflection to avoid a flaky fixed sleep.
             waitForCondition(scenario, activity -> {
-                TextView count = activity.findViewById(R.id.tvWaitlistCount);
-                return count.getText().toString().contains("1");
+                try {
+                    java.lang.reflect.Field field =
+                            EntrantEventDetailsActivity.class.getDeclaredField("waitlistCount");
+                    field.setAccessible(true);
+                    return ((int) field.get(activity)) >= 1;
+                } catch (Exception e) {
+                    return false;
+                }
             });
 
             onView(withId(R.id.btnWaitlistAction)).perform(click());
