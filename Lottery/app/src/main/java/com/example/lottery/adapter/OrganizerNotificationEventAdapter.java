@@ -11,9 +11,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.lottery.organizer.EntrantsListActivity;
 import com.example.lottery.R;
 import com.example.lottery.model.Event;
+import com.example.lottery.organizer.EntrantsListActivity;
 
 import java.text.SimpleDateFormat;
 import java.util.List;

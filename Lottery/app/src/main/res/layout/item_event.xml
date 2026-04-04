@@ -25,6 +25,11 @@
                 android:id="@+id/tvEventTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_toStartOf="@+id/tvEventStatus"
+                android:layout_marginEnd="8dp"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:text="@string/event_title"
                 android:textColor="@color/primary_blue"
                 android:textSize="18sp"
@@ -40,7 +45,7 @@
                 android:paddingVertical="4dp"
                 android:text="@string/active"
                 android:textColor="@color/primary_blue"
-                android:textSize="12sp"
+                android:textSize="11sp"
                 android:textStyle="bold" />
         </RelativeLayout>
 

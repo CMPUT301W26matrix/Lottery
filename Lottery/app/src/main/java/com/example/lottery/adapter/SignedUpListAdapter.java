@@ -11,10 +11,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.lottery.fragment.EntrantDetailsFragment;
-import com.example.lottery.organizer.EntrantsListActivity;
 import com.example.lottery.R;
+import com.example.lottery.fragment.EntrantDetailsFragment;
 import com.example.lottery.model.EntrantEvent;
+import com.example.lottery.organizer.EntrantsListActivity;
 
 import java.util.List;
 

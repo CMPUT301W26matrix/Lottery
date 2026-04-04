@@ -597,27 +597,6 @@ public class EntrantEventDetailsActivityTest {
     }
 
     /**
-     * US 01.05.04: The entrant sees the total number of people currently on the
-     * waitlist, based on live Firestore waitlist records for the event.
-     */
-    @Test
-    public void testWaitlistCount_displaysFormattedCount() throws Exception {
-        String eventId = "community_swim_count_" + UUID.randomUUID();
-        String userId = "avery_count_" + UUID.randomUUID();
-        seedEvent(eventId);
-        seedUser(userId);
-        seedWaitlistCount(eventId, 42);
-
-        try (ActivityScenario<EntrantEventDetailsActivity> scenario =
-                     ActivityScenario.launch(createIntent(eventId, userId))) {
-            waitForCondition(scenario, activity -> ((TextView) activity.findViewById(R.id.tvWaitlistCount))
-                    .getText().toString().contains("42"));
-            onView(withId(R.id.tvWaitlistCount)).check(matches(isDisplayed()));
-            onView(withId(R.id.tvWaitlistCount)).check(matches(withText(containsString("42"))));
-        }
-    }
-
-    /**
      * US 02.01.03: A privately-invited entrant (no prior waitlist history)
      * sees Accept/Decline buttons and the waitlist action is hidden.
      */

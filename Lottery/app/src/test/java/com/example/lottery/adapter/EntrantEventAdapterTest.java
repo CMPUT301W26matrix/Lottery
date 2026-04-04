@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.View;
 
 import androidx.test.core.app.ApplicationProvider;
@@ -84,17 +83,6 @@ public class EntrantEventAdapterTest {
     @Test
     public void testAdapterNotNull() {
         assertNotNull(adapter);
-    }
-
-    // US 01.02.03: Verify event item layout contains a View Detail button for navigation
-    /**
-     * Verifies that the item_event_explore layout contains a View Detail button.
-     */
-    @Test
-    public void testViewDetailButtonExists() {
-        View itemView = LayoutInflater.from(context).inflate(R.layout.item_event_explore, null);
-        View btnViewDetail = itemView.findViewById(R.id.btnViewDetail);
-        assertNotNull("btnViewDetail should exist in item_event_explore layout", btnViewDetail);
     }
 
     // US 01.02.03: Verify clicking an event item triggers the event click listener

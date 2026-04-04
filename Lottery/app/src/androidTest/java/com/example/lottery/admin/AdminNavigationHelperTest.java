@@ -71,7 +71,11 @@ public class AdminNavigationHelperTest {
     public void tearDown() throws Exception {
         AdminImageDetailsActivity.testEvent = null;
         Intents.release();
-        Tasks.await(db.collection(FirestorePaths.EVENTS).document(TEST_EVENT_ID).delete(), 10, TimeUnit.SECONDS);
+        try {
+            Tasks.await(db.collection(FirestorePaths.EVENTS).document(TEST_EVENT_ID).delete(), 10, TimeUnit.SECONDS);
+        } catch (Exception ignored) {
+            // Cleanup failure should not fail the test
+        }
     }
 
     /**

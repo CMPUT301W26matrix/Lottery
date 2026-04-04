@@ -33,6 +33,7 @@ public class ProfileAdapterTest {
     @Before
     public void setUp() {
         context = ApplicationProvider.getApplicationContext();
+        context.setTheme(R.style.Theme_Lottery);
         users = new ArrayList<>();
         users.add(new User("u-1", "John Doe", "john@example.com", "1234567890"));
         users.add(new User("u-2", "Jane Smith", "jane@example.com", ""));

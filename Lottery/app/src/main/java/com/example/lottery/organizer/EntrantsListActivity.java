@@ -24,13 +24,13 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.lottery.entrant.EntrantMapActivity;
 import com.example.lottery.R;
 import com.example.lottery.adapter.CancelledListAdapter;
 import com.example.lottery.adapter.InvitedListAdapter;
 import com.example.lottery.adapter.NotSelectedListAdapter;
 import com.example.lottery.adapter.SignedUpListAdapter;
 import com.example.lottery.adapter.WaitedListedListAdapter;
+import com.example.lottery.entrant.EntrantMapActivity;
 import com.example.lottery.fragment.SampleFragment;
 import com.example.lottery.model.EntrantEvent;
 import com.example.lottery.model.NotificationItem;

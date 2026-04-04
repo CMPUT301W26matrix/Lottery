@@ -8,7 +8,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        manifestPlaceholders += mapOf("mapsApiKey" to "AIzaSyBQ7iqhDezLQYBFeZf6nwlaqifkHkrrvGA")
+        manifestPlaceholders += mapOf("mapsApiKey" to "AIzaSyArUmxWLTIVjeR9VwuWkzm5AWRORjkCA6Q")
         applicationId = "com.example.lottery"
         minSdk = 24
         targetSdk = 36
@@ -51,6 +51,7 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(libs.play.services.maps)
+    implementation(libs.play.services.places)
     implementation("com.google.android.gms:play-services-location:21.0.1")
 
     testImplementation(libs.junit)
@@ -76,6 +77,7 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:34.9.0"))
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-storage")
 
     // ZXing for QR Code generation
