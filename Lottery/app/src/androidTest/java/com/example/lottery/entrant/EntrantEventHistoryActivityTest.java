@@ -38,7 +38,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Instrumented tests for {@link EntrantEventHistoryActivity}.
@@ -130,14 +129,17 @@ public class EntrantEventHistoryActivityTest {
     private void waitForHistoryLoaded(
             ActivityScenario<EntrantEventHistoryActivity> scenario, int expectedCount) throws Exception {
         for (int attempt = 0; attempt < 40; attempt++) {
-            AtomicInteger count = new AtomicInteger(-1);
+            AtomicBoolean ready = new AtomicBoolean(false);
             scenario.onActivity(activity -> {
                 RecyclerView rv = activity.findViewById(R.id.rvEventHistory);
-                if (rv != null && rv.getAdapter() != null) {
-                    count.set(rv.getAdapter().getItemCount());
-                }
+                if (rv == null || rv.getAdapter() == null) return;
+                int count = rv.getAdapter().getItemCount();
+                if (count < expectedCount) return;
+                // Ensure all HistoryItems have a non-null event (not just placeholders)
+                View progress = activity.findViewById(R.id.progressBar);
+                ready.set(progress.getVisibility() == View.GONE);
             });
-            if (count.get() >= expectedCount) return;
+            if (ready.get()) return;
             InstrumentationRegistry.getInstrumentation().waitForIdleSync();
             Thread.sleep(500);
         }

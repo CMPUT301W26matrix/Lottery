@@ -35,6 +35,7 @@ import com.example.lottery.util.ProfileImageHelper;
 import com.google.android.material.card.MaterialCardView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -311,23 +312,44 @@ public class AdminProfileActivity extends AppCompatActivity {
     }
 
     private void createRoleProfile(String roleUserId, String role) {
-        Map<String, Object> userData = new HashMap<>();
-        com.google.firebase.Timestamp now = com.google.firebase.Timestamp.now();
-        userData.put("userId", roleUserId);
-        userData.put("role", role);
-        userData.put("deviceId", adminDeviceId);
-        userData.put("username", "");
-        userData.put("email", "");
-        userData.put("phone", "");
-        userData.put("createdAt", now);
-        userData.put("updatedAt", now);
-        userData.put("notificationsEnabled", true);
-        if ("ENTRANT".equalsIgnoreCase(role)) {
-            userData.put("interests", new java.util.ArrayList<>());
-        }
-        db.collection(FirestorePaths.USERS).document(roleUserId).set(userData)
-                .addOnSuccessListener(aVoid -> navigateToProfileCompletion(role, roleUserId))
-                .addOnFailureListener(e -> Toast.makeText(this, "Failed to create role profile", Toast.LENGTH_SHORT).show());
+        db.runTransaction(transaction -> {
+            DocumentSnapshot existing = transaction.get(
+                    db.collection(FirestorePaths.USERS).document(roleUserId));
+            if (existing.exists()) {
+                return existing;
+            }
+            Map<String, Object> userData = new HashMap<>();
+            com.google.firebase.Timestamp now = com.google.firebase.Timestamp.now();
+            userData.put("userId", roleUserId);
+            userData.put("role", role);
+            userData.put("deviceId", adminDeviceId);
+            userData.put("username", "");
+            userData.put("email", "");
+            userData.put("phone", "");
+            userData.put("createdAt", now);
+            userData.put("updatedAt", now);
+            userData.put("notificationsEnabled", true);
+            if ("ENTRANT".equalsIgnoreCase(role)) {
+                userData.put("interests", new java.util.ArrayList<>());
+            }
+            transaction.set(db.collection(FirestorePaths.USERS).document(roleUserId), userData);
+            return null;
+        }).addOnSuccessListener(result -> {
+            if (result instanceof DocumentSnapshot) {
+                // Document already existed — check profile completeness
+                DocumentSnapshot doc = (DocumentSnapshot) result;
+                String username = doc.getString("username");
+                String email = doc.getString("email");
+                if (username != null && !username.trim().isEmpty() &&
+                        email != null && !email.trim().isEmpty()) {
+                    navigateToRoleMain(role, roleUserId);
+                } else {
+                    navigateToProfileCompletion(role, roleUserId);
+                }
+            } else {
+                navigateToProfileCompletion(role, roleUserId);
+            }
+        }).addOnFailureListener(e -> Toast.makeText(this, "Failed to create role profile", Toast.LENGTH_SHORT).show());
     }
 
     private void navigateToProfileCompletion(String role, String roleUserId) {

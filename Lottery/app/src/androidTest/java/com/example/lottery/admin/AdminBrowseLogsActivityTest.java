@@ -17,7 +17,6 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.espresso.matcher.ViewMatchers;
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.example.lottery.R;
@@ -28,7 +27,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -47,9 +45,9 @@ public class AdminBrowseLogsActivityTest {
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    @Rule
-    public ActivityScenarioRule<AdminBrowseLogsActivity> activityRule =
-            new ActivityScenarioRule<>(AdminBrowseLogsActivity.class);
+    private ActivityScenario<AdminBrowseLogsActivity> launchDefault() {
+        return ActivityScenario.launch(AdminBrowseLogsActivity.class);
+    }
 
     @Before
     public void setUp() {
@@ -119,23 +117,29 @@ public class AdminBrowseLogsActivityTest {
     // US 03.08.01: Admin should see notification logs page title
     @Test
     public void testPageTitleIsDisplayed() {
-        onView(ViewMatchers.withId(R.id.tvPageTitle)).check(matches(isDisplayed()));
-        onView(withId(R.id.tvPageTitle)).check(matches(withText(R.string.admin_logs_title)));
+        try (ActivityScenario<AdminBrowseLogsActivity> ignored = launchDefault()) {
+            onView(ViewMatchers.withId(R.id.tvPageTitle)).check(matches(isDisplayed()));
+            onView(withId(R.id.tvPageTitle)).check(matches(withText(R.string.admin_logs_title)));
+        }
     }
 
     // US 03.08.01: Admin should see log section title
     @Test
     public void testSectionTitleIsDisplayed() {
-        onView(withId(R.id.tvSectionTitle)).perform(scrollTo()).check(matches(isDisplayed()));
-        onView(withId(R.id.tvSectionTitle)).check(matches(withText(R.string.admin_all_logs_title)));
+        try (ActivityScenario<AdminBrowseLogsActivity> ignored = launchDefault()) {
+            onView(withId(R.id.tvSectionTitle)).perform(scrollTo()).check(matches(isDisplayed()));
+            onView(withId(R.id.tvSectionTitle)).check(matches(withText(R.string.admin_all_logs_title)));
+        }
     }
 
     // US 03.08.01: Empty state should show when no notification logs exist
     @Test
     public void testNoLogsMessageVisibility() {
-        activityRule.getScenario().onActivity(activity -> activity.findViewById(R.id.tvNoLogs).setVisibility(View.VISIBLE));
-        onView(withId(R.id.tvNoLogs)).check(matches(isDisplayed()));
-        onView(withId(R.id.tvNoLogs)).check(matches(withText(R.string.admin_no_logs)));
+        try (ActivityScenario<AdminBrowseLogsActivity> scenario = launchDefault()) {
+            scenario.onActivity(activity -> activity.findViewById(R.id.tvNoLogs).setVisibility(View.VISIBLE));
+            onView(withId(R.id.tvNoLogs)).check(matches(isDisplayed()));
+            onView(withId(R.id.tvNoLogs)).check(matches(withText(R.string.admin_no_logs)));
+        }
     }
 
     // US 03.08.01: Admin logs browser should load a real Firestore notification log and
