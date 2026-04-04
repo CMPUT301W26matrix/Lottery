@@ -3,16 +3,14 @@ package com.example.lottery.util;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -24,7 +22,6 @@ import com.google.firebase.firestore.WriteBatch;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.MockedStatic;
 
 import java.util.Collections;
 import java.util.List;
@@ -41,11 +38,8 @@ public class UserDeletionUtilTest {
     private FirebaseFirestore mockDb;
     private Query mockQuery;
     private WriteBatch mockBatch;
-    private Task<QuerySnapshot> mockCoOrgTask;
-    private Task<QuerySnapshot> mockWaitlistTask;
-    private Task<QuerySnapshot> mockInboxTask;
+    private Task<QuerySnapshot> mockQueryTask;
     private Task<Void> mockCommitTask;
-    private Task<List<Task<?>>> mockAllTask;
 
     @SuppressWarnings("unchecked")
     @Before
@@ -53,72 +47,72 @@ public class UserDeletionUtilTest {
         mockDb = mock(FirebaseFirestore.class);
         mockQuery = mock(Query.class);
         mockBatch = mock(WriteBatch.class);
-        mockCoOrgTask = mock(Task.class);
-        mockWaitlistTask = mock(Task.class);
-        mockInboxTask = mock(Task.class);
+        mockQueryTask = mock(Task.class);
         mockCommitTask = mock(Task.class);
-        mockAllTask = mock(Task.class);
 
-        // collectionGroup queries return different tasks per call
         when(mockDb.collectionGroup(anyString())).thenReturn(mockQuery);
         when(mockQuery.whereEqualTo(anyString(), any())).thenReturn(mockQuery);
-        when(mockQuery.get()).thenReturn(mockCoOrgTask, mockWaitlistTask);
-
-        // collection (inbox) query
-        CollectionReference mockCollectionRef = mock(CollectionReference.class);
-        when(mockDb.collection(anyString())).thenReturn(mockCollectionRef);
-        when(mockCollectionRef.get()).thenReturn(mockInboxTask);
-
         when(mockDb.batch()).thenReturn(mockBatch);
 
-        // Stub batch commit
+        // Stub db.collection() for inbox cleanup step
+        CollectionReference mockCollectionRef = mock(CollectionReference.class);
+        when(mockDb.collection(anyString())).thenReturn(mockCollectionRef);
+        when(mockCollectionRef.get()).thenReturn(mockQueryTask);
+
+        // Stub query task to avoid NPE when listeners are added
+        when(mockQuery.get()).thenReturn(mockQueryTask);
+        when(mockQueryTask.addOnSuccessListener(any())).thenReturn(mockQueryTask);
+        when(mockQueryTask.addOnFailureListener(any())).thenReturn(mockQueryTask);
+
+        // Stub batch commit task to avoid NPE when listeners are added
         when(mockBatch.commit()).thenReturn(mockCommitTask);
         when(mockCommitTask.addOnSuccessListener(any())).thenReturn(mockCommitTask);
         when(mockCommitTask.addOnFailureListener(any())).thenReturn(mockCommitTask);
+        when(mockCommitTask.addOnCompleteListener(any())).thenReturn(mockCommitTask);
     }
 
     @SuppressWarnings("unchecked")
     @Test
     public void cleanUp_withDocuments_batchDeletesAndCallsOnDone() {
-        // Set up co-organizer query result
-        QuerySnapshot coOrgSnapshot = mock(QuerySnapshot.class);
+        AtomicBoolean callbackInvoked = new AtomicBoolean(false);
+
+        UserDeletionUtil.cleanUpUserRecords(mockDb, "user123", () -> callbackInvoked.set(true));
+
+        // Capture and trigger first query success (Co-Organizers)
+        ArgumentCaptor<OnSuccessListener<QuerySnapshot>> captor1 =
+                ArgumentCaptor.forClass(OnSuccessListener.class);
+        verify(mockQueryTask, atLeastOnce()).addOnSuccessListener(captor1.capture());
+
+        QuerySnapshot mockSnapshot1 = mock(QuerySnapshot.class);
         QueryDocumentSnapshot doc1 = mock(QueryDocumentSnapshot.class);
         DocumentReference ref1 = mock(DocumentReference.class);
         when(doc1.getReference()).thenReturn(ref1);
-        when(coOrgSnapshot.iterator()).thenReturn(Collections.singletonList(doc1).iterator());
-        when(mockCoOrgTask.isSuccessful()).thenReturn(true);
-        when(mockCoOrgTask.getResult()).thenReturn(coOrgSnapshot);
+        when(mockSnapshot1.iterator()).thenReturn(Collections.singletonList(doc1).iterator());
+        captor1.getAllValues().get(0).onSuccess(mockSnapshot1);
 
-        // Set up waitlist query result
-        QuerySnapshot waitlistSnapshot = mock(QuerySnapshot.class);
+        // Capture and trigger second query success (Waiting List)
+        ArgumentCaptor<OnSuccessListener<QuerySnapshot>> captor2 =
+                ArgumentCaptor.forClass(OnSuccessListener.class);
+        verify(mockQueryTask, atLeastOnce()).addOnSuccessListener(captor2.capture());
+
+        QuerySnapshot mockSnapshot2 = mock(QuerySnapshot.class);
         QueryDocumentSnapshot doc2 = mock(QueryDocumentSnapshot.class);
         DocumentReference ref2 = mock(DocumentReference.class);
         when(doc2.getReference()).thenReturn(ref2);
-        when(waitlistSnapshot.iterator()).thenReturn(Collections.singletonList(doc2).iterator());
-        when(mockWaitlistTask.isSuccessful()).thenReturn(true);
-        when(mockWaitlistTask.getResult()).thenReturn(waitlistSnapshot);
+        when(mockSnapshot2.iterator()).thenReturn(Collections.singletonList(doc2).iterator());
+        List<OnSuccessListener<QuerySnapshot>> listeners2 = captor2.getAllValues();
+        listeners2.get(listeners2.size() - 1).onSuccess(mockSnapshot2);
 
-        // Set up inbox query result (empty)
-        QuerySnapshot inboxSnapshot = mock(QuerySnapshot.class);
-        when(inboxSnapshot.iterator()).thenReturn(Collections.emptyIterator());
-        when(mockInboxTask.isSuccessful()).thenReturn(true);
-        when(mockInboxTask.getResult()).thenReturn(inboxSnapshot);
+        // Capture and trigger third query success (Inbox - empty)
+        ArgumentCaptor<OnSuccessListener<QuerySnapshot>> captor3 =
+                ArgumentCaptor.forClass(OnSuccessListener.class);
+        verify(mockQueryTask, atLeastOnce()).addOnSuccessListener(captor3.capture());
+        QuerySnapshot emptyInbox = mock(QuerySnapshot.class);
+        when(emptyInbox.iterator()).thenReturn(Collections.emptyIterator());
+        List<OnSuccessListener<QuerySnapshot>> listeners3 = captor3.getAllValues();
+        listeners3.get(listeners3.size() - 1).onSuccess(emptyInbox);
 
-        AtomicBoolean callbackInvoked = new AtomicBoolean(false);
-
-        try (MockedStatic<Tasks> mockedTasks = mockStatic(Tasks.class)) {
-            when(mockAllTask.addOnCompleteListener(any())).thenAnswer(invocation -> {
-                OnCompleteListener<List<Task<?>>> listener = invocation.getArgument(0);
-                listener.onComplete(mockAllTask);
-                return mockAllTask;
-            });
-            mockedTasks.when(() -> Tasks.whenAllComplete(any(List.class)))
-                    .thenReturn(mockAllTask);
-
-            UserDeletionUtil.cleanUpUserRecords(mockDb, "user123", () -> callbackInvoked.set(true));
-        }
-
-        // Verify batch delete operations
+        // Verify batch operations
         verify(mockBatch).delete(ref1);
         verify(mockBatch).delete(ref2);
 
@@ -134,30 +128,33 @@ public class UserDeletionUtilTest {
     @SuppressWarnings("unchecked")
     @Test
     public void cleanUp_withNoDocuments_callsOnDone() {
+        AtomicBoolean callbackInvoked = new AtomicBoolean(false);
+        UserDeletionUtil.cleanUpUserRecords(mockDb, "user456", () -> callbackInvoked.set(true));
+
         QuerySnapshot emptySnapshot = mock(QuerySnapshot.class);
         when(emptySnapshot.iterator()).thenReturn(Collections.emptyIterator());
 
-        when(mockCoOrgTask.isSuccessful()).thenReturn(true);
-        when(mockCoOrgTask.getResult()).thenReturn(emptySnapshot);
-        when(mockWaitlistTask.isSuccessful()).thenReturn(true);
-        when(mockWaitlistTask.getResult()).thenReturn(emptySnapshot);
-        when(mockInboxTask.isSuccessful()).thenReturn(true);
-        when(mockInboxTask.getResult()).thenReturn(emptySnapshot);
+        // Trigger first query success (empty)
+        ArgumentCaptor<OnSuccessListener<QuerySnapshot>> captor1 =
+                ArgumentCaptor.forClass(OnSuccessListener.class);
+        verify(mockQueryTask, atLeastOnce()).addOnSuccessListener(captor1.capture());
+        captor1.getAllValues().get(0).onSuccess(emptySnapshot);
 
-        AtomicBoolean callbackInvoked = new AtomicBoolean(false);
+        // Trigger second query success (empty)
+        ArgumentCaptor<OnSuccessListener<QuerySnapshot>> captor2 =
+                ArgumentCaptor.forClass(OnSuccessListener.class);
+        verify(mockQueryTask, atLeastOnce()).addOnSuccessListener(captor2.capture());
+        List<OnSuccessListener<QuerySnapshot>> listeners2 = captor2.getAllValues();
+        listeners2.get(listeners2.size() - 1).onSuccess(emptySnapshot);
 
-        try (MockedStatic<Tasks> mockedTasks = mockStatic(Tasks.class)) {
-            when(mockAllTask.addOnCompleteListener(any())).thenAnswer(invocation -> {
-                OnCompleteListener<List<Task<?>>> listener = invocation.getArgument(0);
-                listener.onComplete(mockAllTask);
-                return mockAllTask;
-            });
-            mockedTasks.when(() -> Tasks.whenAllComplete(any(List.class)))
-                    .thenReturn(mockAllTask);
+        // Trigger third query success (inbox - empty)
+        ArgumentCaptor<OnSuccessListener<QuerySnapshot>> captor3 =
+                ArgumentCaptor.forClass(OnSuccessListener.class);
+        verify(mockQueryTask, atLeastOnce()).addOnSuccessListener(captor3.capture());
+        List<OnSuccessListener<QuerySnapshot>> listeners3 = captor3.getAllValues();
+        listeners3.get(listeners3.size() - 1).onSuccess(emptySnapshot);
 
-            UserDeletionUtil.cleanUpUserRecords(mockDb, "user456", () -> callbackInvoked.set(true));
-        }
-
+        // Trigger commit success
         ArgumentCaptor<OnSuccessListener<Void>> commitCaptor =
                 ArgumentCaptor.forClass(OnSuccessListener.class);
         verify(mockCommitTask).addOnSuccessListener(commitCaptor.capture());
@@ -169,30 +166,14 @@ public class UserDeletionUtilTest {
     @SuppressWarnings("unchecked")
     @Test
     public void cleanUp_queryFails_callsOnDoneAnyway() {
-        when(mockCoOrgTask.isSuccessful()).thenReturn(false);
-        when(mockWaitlistTask.isSuccessful()).thenReturn(false);
-        when(mockInboxTask.isSuccessful()).thenReturn(false);
-
         AtomicBoolean callbackInvoked = new AtomicBoolean(false);
+        UserDeletionUtil.cleanUpUserRecords(mockDb, "user789", () -> callbackInvoked.set(true));
 
-        try (MockedStatic<Tasks> mockedTasks = mockStatic(Tasks.class)) {
-            when(mockAllTask.addOnCompleteListener(any())).thenAnswer(invocation -> {
-                OnCompleteListener<List<Task<?>>> listener = invocation.getArgument(0);
-                listener.onComplete(mockAllTask);
-                return mockAllTask;
-            });
-            mockedTasks.when(() -> Tasks.whenAllComplete(any(List.class)))
-                    .thenReturn(mockAllTask);
+        ArgumentCaptor<OnFailureListener> failureCaptor =
+                ArgumentCaptor.forClass(OnFailureListener.class);
+        verify(mockQueryTask, atLeastOnce()).addOnFailureListener(failureCaptor.capture());
+        failureCaptor.getValue().onFailure(new Exception("Network error"));
 
-            UserDeletionUtil.cleanUpUserRecords(mockDb, "user789", () -> callbackInvoked.set(true));
-        }
-
-        // Even with failed queries, batch commit is still called (empty batch)
-        ArgumentCaptor<OnSuccessListener<Void>> commitCaptor =
-                ArgumentCaptor.forClass(OnSuccessListener.class);
-        verify(mockCommitTask).addOnSuccessListener(commitCaptor.capture());
-        commitCaptor.getValue().onSuccess(null);
-
-        assertTrue("Callback should be invoked even when queries fail", callbackInvoked.get());
+        assertTrue("Callback should be invoked even when query fails", callbackInvoked.get());
     }
 }
