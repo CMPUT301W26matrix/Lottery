@@ -54,6 +54,7 @@ public class EntrantHistoryAdapter extends RecyclerView.Adapter<EntrantHistoryAd
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         HistoryItem item = historyItems.get(position);
         Event event = item.event;
+        if (event == null) return;
 
         holder.tvTitle.setText(event.getTitle());
         if (event.getScheduledDateTime() != null) {
@@ -65,7 +66,7 @@ public class EntrantHistoryAdapter extends RecyclerView.Adapter<EntrantHistoryAd
         // Show Organizer Name if available
         if (item.organizerName != null && !item.organizerName.isEmpty()) {
             holder.tvOrganizer.setVisibility(View.VISIBLE);
-            holder.tvOrganizer.setText("By: " + item.organizerName);
+            holder.tvOrganizer.setText("Organizer: " + item.organizerName);
         } else {
             holder.tvOrganizer.setVisibility(View.GONE);
         }

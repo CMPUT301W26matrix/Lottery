@@ -23,7 +23,6 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.espresso.matcher.ViewMatchers;
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.example.lottery.R;
@@ -35,7 +34,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -56,9 +54,9 @@ public class AdminBrowseImagesActivityTest {
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    @Rule
-    public ActivityScenarioRule<AdminBrowseImagesActivity> activityRule =
-            new ActivityScenarioRule<>(AdminBrowseImagesActivity.class);
+    private ActivityScenario<AdminBrowseImagesActivity> launchDefault() {
+        return ActivityScenario.launch(AdminBrowseImagesActivity.class);
+    }
 
     @Before
     public void setUp() {
@@ -111,33 +109,39 @@ public class AdminBrowseImagesActivityTest {
     // US 03.06.01: Admin should see image browser title
     @Test
     public void testBrowseImagesScreenIsDisplayed() {
-        onView(ViewMatchers.withId(R.id.tvAppTitle)).check(matches(isDisplayed()));
-        onView(withId(R.id.tvAppTitle)).check(matches(withText(R.string.admin_image_browser_title)));
+        try (ActivityScenario<AdminBrowseImagesActivity> ignored = launchDefault()) {
+            onView(ViewMatchers.withId(R.id.tvAppTitle)).check(matches(isDisplayed()));
+            onView(withId(R.id.tvAppTitle)).check(matches(withText(R.string.admin_image_browser_title)));
+        }
     }
 
     // US 03.06.01: Empty state should show when no images are uploaded
     @Test
     public void testNoImagesMessageVisibility() {
-        activityRule.getScenario().onActivity(activity -> {
-            activity.findViewById(R.id.tvNoImages).setVisibility(View.VISIBLE);
-        });
-        onView(withId(R.id.tvNoImages)).check(matches(isDisplayed()));
+        try (ActivityScenario<AdminBrowseImagesActivity> scenario = launchDefault()) {
+            scenario.onActivity(activity ->
+                    activity.findViewById(R.id.tvNoImages).setVisibility(View.VISIBLE)
+            );
+            onView(withId(R.id.tvNoImages)).check(matches(isDisplayed()));
+        }
     }
 
     // US 03.03.01: Clicking an image should navigate to image details for removal
     @Test
     public void testOnImageClickLaunchesAdminImageDetailsActivity() {
-        intending(hasComponent(AdminImageDetailsActivity.class.getName()))
-                .respondWith(new Instrumentation.ActivityResult(Activity.RESULT_OK, null));
+        try (ActivityScenario<AdminBrowseImagesActivity> scenario = launchDefault()) {
+            intending(hasComponent(AdminImageDetailsActivity.class.getName()))
+                    .respondWith(new Instrumentation.ActivityResult(Activity.RESULT_OK, null));
 
-        activityRule.getScenario().onActivity(activity -> {
-            Event event = new Event();
-            event.setEventId("test_image_event_id");
-            activity.onImageClick(event);
-        });
+            scenario.onActivity(activity -> {
+                Event event = new Event();
+                event.setEventId("test_image_event_id");
+                activity.onImageClick(event);
+            });
 
-        intended(hasComponent(AdminImageDetailsActivity.class.getName()));
-        intended(hasExtra("eventId", "test_image_event_id"));
+            intended(hasComponent(AdminImageDetailsActivity.class.getName()));
+            intended(hasExtra("eventId", "test_image_event_id"));
+        }
     }
 
     // US 03.06.01: Admin image browser should load poster-bearing events from Firestore

@@ -26,7 +26,6 @@ import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.espresso.matcher.ViewMatchers.Visibility;
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.example.lottery.R;
@@ -38,7 +37,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -67,9 +65,9 @@ public class AdminBrowseEventsActivityTest {
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    @Rule
-    public ActivityScenarioRule<AdminBrowseEventsActivity> activityRule =
-            new ActivityScenarioRule<>(AdminBrowseEventsActivity.class);
+    private ActivityScenario<AdminBrowseEventsActivity> launchDefault() {
+        return ActivityScenario.launch(AdminBrowseEventsActivity.class);
+    }
 
     @Before
     public void setUp() {
@@ -157,25 +155,26 @@ public class AdminBrowseEventsActivityTest {
     // US 03.04.01: Admin should see event browser with section title and event list
     @Test
     public void testAdminBrowseEventsScreenIsDisplayed() {
-        onView(withId(R.id.tvAllEventsTitle)).perform(scrollTo()).check(matches(isDisplayed()));
-        onView(withId(R.id.tvAllEventsTitle))
-                .check(matches(withText(R.string.admin_all_events_title)));
-
-        // RecyclerView starts empty, only check it's VISIBLE or not
-        onView(withId(R.id.rvEvents)).check(matches(withEffectiveVisibility(Visibility.VISIBLE)));
+        try (ActivityScenario<AdminBrowseEventsActivity> ignored = launchDefault()) {
+            onView(withId(R.id.tvAllEventsTitle)).perform(scrollTo()).check(matches(isDisplayed()));
+            onView(withId(R.id.tvAllEventsTitle))
+                    .check(matches(withText(R.string.admin_all_events_title)));
+            onView(withId(R.id.rvEvents)).check(matches(withEffectiveVisibility(Visibility.VISIBLE)));
+        }
     }
 
     // US 03.01.01: Clicking an event should navigate to event details for removal
     @Test
     public void testOnEventClickLaunchesAdminEventDetailsActivity() {
-        activityRule.getScenario().onActivity(activity -> {
-            Event event = new Event();
-            event.setEventId("admin_click_event_id");
-            activity.onEventClick(event);
-        });
-
-        intended(hasComponent(AdminEventDetailsActivity.class.getName()));
-        intended(hasExtra("eventId", "admin_click_event_id"));
+        try (ActivityScenario<AdminBrowseEventsActivity> scenario = launchDefault()) {
+            scenario.onActivity(activity -> {
+                Event event = new Event();
+                event.setEventId("admin_click_event_id");
+                activity.onEventClick(event);
+            });
+            intended(hasComponent(AdminEventDetailsActivity.class.getName()));
+            intended(hasExtra("eventId", "admin_click_event_id"));
+        }
     }
 
     // US 03.04.01: Admin event browser should load real Firestore events and display

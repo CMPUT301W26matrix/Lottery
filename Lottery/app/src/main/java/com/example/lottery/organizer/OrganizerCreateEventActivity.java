@@ -513,7 +513,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             return;
         }
 
-        // US 02.02.02: Validate waiting list limit
+        // US 02.03.01: Validate waiting list limit
         Integer waitingListLimit = null;
         if (swLimitWaitingList.isChecked()) {
             if (waitingLimitStr.isEmpty()) {
@@ -536,7 +536,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         final Integer finalWaitingListLimit = waitingListLimit;
         Log.d(TAG, "Validation passed, proceeding to persist event");
 
-        // US 02.02.02: AC #3: Check if new limit is smaller than current entrants when editing
+        // US 02.03.01: AC #3: Check if new limit is smaller than current entrants when editing
         if (isEditMode && finalWaitingListLimit != null) {
             db.collection(FirestorePaths.eventWaitingList(eventId)).get()
                     .addOnSuccessListener(snapshots -> {

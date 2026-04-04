@@ -16,6 +16,10 @@
         <!-- Customize the image picker (MediaStore) and other system dialogs -->
         <item name="actionBarTheme">@style/ThemeOverlay.App.ActionBar</item>
         <item name="android:actionBarStyle">@style/Widget.App.ActionBar</item>
+
+        <!-- Correct Material 3 Dialog Theme Mapping -->
+        <item name="materialAlertDialogTheme">@style/App.MaterialAlertDialog</item>
+        <item name="alertDialogTheme">@style/App.MaterialAlertDialog</item>
     </style>
 
     <style name="Theme.Lottery" parent="Base.Theme.Lottery" />
@@ -42,5 +46,29 @@
     <style name="ToolbarTitleAppearance" parent="TextAppearance.Material3.TitleLarge">
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/primary_blue</item>
+    </style>
+
+    <!-- Rounded Corner Material Alert Dialog with Blue/White Style -->
+    <style name="App.MaterialAlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <!-- 1. Round Corners (20dp) -->
+        <item name="shapeAppearanceOverlay">@style/App.ShapeAppearance.Rounded</item>
+
+        <!-- 2. Set primary action color to Blue -->
+        <item name="colorPrimary">@color/primary_blue</item>
+
+        <!-- 3. Make the list items (options) Blue -->
+        <item name="android:textColorPrimary">@color/primary_blue</item>
+
+        <!-- 4. Style the Title to be Blue and Bold -->
+        <item name="materialAlertDialogTitleTextStyle">@style/App.Dialog.Title</item>
+    </style>
+
+    <style name="App.Dialog.Title" parent="MaterialAlertDialog.Material3.Title.Text">
+        <item name="android:textColor">@color/primary_blue</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="App.ShapeAppearance.Rounded" parent="">
+        <item name="cornerSize">20dp</item>
     </style>
 </resources>

@@ -118,7 +118,7 @@
 
     <!-- EntrantEventDetailsActivity -->
     <string name="missing_event_or_user_info">Missing event or user information</string>
-    <string name="people_in_waitlist">People in Waitlist: %1$d</string>
+    <string name="people_in_waitlist">People in Waitlist</string>
     <string name="leave_wait_list">Leave Wait List</string>
     <string name="join_wait_list">Join Wait List</string>
     <string name="joined_waitlist">Joined waitlist</string>

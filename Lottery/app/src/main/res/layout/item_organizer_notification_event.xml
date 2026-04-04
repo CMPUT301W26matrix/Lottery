@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginVertical="6dp"
+    android:layout_marginVertical="3dp"
     app:cardBackgroundColor="@color/card_background"
     app:cardCornerRadius="12dp"
-    app:cardElevation="2dp"
+    app:cardElevation="1dp"
     app:strokeColor="@color/divider_gray"
     app:strokeWidth="1dp">
 
@@ -26,127 +26,105 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:text="Event Title"
                 android:textColor="@color/primary_blue"
-                android:textSize="16sp"
+                android:textSize="17sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/btnViewList"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <ImageButton
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnViewList"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="View Entrants List"
-                android:padding="6dp"
-                android:src="@drawable/ic_description"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="28dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:minWidth="0dp"
+                android:paddingHorizontal="10dp"
+                android:text="Manage"
+                android:textAllCaps="false"
+                android:textColor="@color/primary_blue"
+                android:textSize="11sp"
+                app:cornerRadius="14dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/primary_blue" />
+                app:strokeColor="@color/primary_blue"
+                app:strokeWidth="0.8dp" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <TextView
             android:id="@+id/tvEventDate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
+            android:layout_marginTop="1dp"
             android:text="Date &amp; Time"
-            android:textColor="@color/text_gray"
-            android:textSize="13sp" />
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tvEventCounts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp"
+            android:text="Loading counts..."
+            android:textColor="@color/text_secondary"
+            android:textSize="11sp" />
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginVertical="8dp"
-            android:background="@color/divider_gray" />
+            android:layout_marginVertical="10dp"
+            android:background="@color/divider_gray"
+            android:alpha="0.6" />
 
-        <GridLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:alignmentMode="alignMargins"
-            android:columnCount="2"
-            android:rowCount="2">
+            android:orientation="horizontal">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnNotifyWaiting"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                 android:layout_width="0dp"
-                android:layout_height="34dp"
-                android:layout_columnWeight="1"
-                android:layout_margin="3dp"
+                android:layout_height="32dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="6dp"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
-                android:letterSpacing="0"
                 android:padding="0dp"
-                android:text="Waiting List"
+                android:text="Notify Waiting"
                 android:textAllCaps="false"
-                android:textColor="@color/text_primary"
+                android:textColor="@color/primary_blue"
                 android:textSize="11sp"
                 android:textStyle="bold"
-                app:cornerRadius="8dp"
-                app:strokeColor="@color/divider_gray" />
+                app:backgroundTint="@color/primary_light_blue"
+                app:cornerRadius="16dp"
+                app:rippleColor="@color/blue_light_visible" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnNotifySelected"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:id="@+id/btnNotifyMore"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                 android:layout_width="0dp"
-                android:layout_height="34dp"
-                android:layout_columnWeight="1"
-                android:layout_margin="3dp"
+                android:layout_height="32dp"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
-                android:letterSpacing="0"
                 android:padding="0dp"
-                android:text="Invited"
+                android:text="More"
                 android:textAllCaps="false"
-                android:textColor="@color/text_primary"
+                android:textColor="@color/text_secondary"
                 android:textSize="11sp"
-                android:textStyle="bold"
-                app:cornerRadius="8dp"
-                app:strokeColor="@color/divider_gray" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnNotifyAccepted"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="0dp"
-                android:layout_height="34dp"
-                android:layout_columnWeight="1"
-                android:layout_margin="3dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:letterSpacing="0"
-                android:padding="0dp"
-                android:text="Accepted"
-                android:textAllCaps="false"
-                android:textColor="@color/text_primary"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                app:cornerRadius="8dp"
-                app:strokeColor="@color/divider_gray" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnNotifyCancelled"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="0dp"
-                android:layout_height="34dp"
-                android:layout_columnWeight="1"
-                android:layout_margin="3dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:letterSpacing="0"
-                android:padding="0dp"
-                android:text="Cancelled"
-                android:textAllCaps="false"
-                android:textColor="@color/text_primary"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                app:cornerRadius="8dp"
-                app:strokeColor="@color/divider_gray" />
-        </GridLayout>
+                app:backgroundTint="@color/page_background"
+                app:cornerRadius="16dp"
+                app:rippleColor="@color/divider_gray" />
+        </LinearLayout>
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

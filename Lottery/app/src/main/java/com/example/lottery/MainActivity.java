@@ -73,16 +73,29 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        ensureAuthenticated();
+        ensureAuthenticated(entrantButton, organizerButton, adminButton);
     }
 
     /**
      * Ensures the user is authenticated with Firebase Auth.
+     * Disables role-selection buttons until authentication completes to prevent
+     * Firestore queries from running without valid credentials.
+     * The admin button is excluded because it has its own auth flow.
      */
-    private void ensureAuthenticated() {
-        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
-            FirebaseAuth.getInstance().signInAnonymously();
+    private void ensureAuthenticated(Button entrantButton, Button organizerButton, Button adminButton) {
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            return;
         }
+        entrantButton.setEnabled(false);
+        organizerButton.setEnabled(false);
+        FirebaseAuth.getInstance().signInAnonymously()
+                .addOnCompleteListener(task -> {
+                    entrantButton.setEnabled(true);
+                    organizerButton.setEnabled(true);
+                    if (!task.isSuccessful()) {
+                        Log.e(TAG, "Anonymous auth failed", task.getException());
+                    }
+                });
     }
 
     /**
@@ -105,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
                     loginUser(document, role, androidId);
                 } else {
                     Log.w(TAG, "Account document missing for ID: " + userId);
-                    // Only clear stale session if one exists (i.e. account was deleted)
+                    // Only clear stale session if one exists
                     String savedUserId = sharedPreferences.getString(KEY_USER_ID, "");
                     if (!savedUserId.isEmpty()) {
                         Log.i(TAG, "Cleaning up stale session for deleted account");
@@ -136,25 +149,38 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Creates a new user document in Firestore with role isolation.
+     * Uses a Firestore transaction to avoid overwriting an existing document
+     * that may have been missed due to a transient auth/network issue.
      */
     private void createNewUser(String userId, String role, String androidId) {
-        Map<String, Object> userData = new HashMap<>();
-        Timestamp now = Timestamp.now();
-
-        userData.put("userId", userId);
-        userData.put("role", role);
-        userData.put("deviceId", androidId);
-        userData.put("username", "");
-        userData.put("email", "");
-        userData.put("phone", "");
-        userData.put("createdAt", now);
-        userData.put("updatedAt", now);
-        userData.put("notificationsEnabled", true);
-        userData.put("geolocationEnabled", false);
-
-        db.collection(FirestorePaths.USERS).document(userId).set(userData).addOnSuccessListener(aVoid -> {
-            saveSessionLocally(userId, role, androidId, "");
-            navigateToProfileCompletion(role, userId);
+        db.runTransaction(transaction -> {
+            DocumentSnapshot existing = transaction.get(
+                    db.collection(FirestorePaths.USERS).document(userId));
+            if (existing.exists()) {
+                return existing;
+            }
+            Map<String, Object> userData = new HashMap<>();
+            Timestamp now = Timestamp.now();
+            userData.put("userId", userId);
+            userData.put("role", role);
+            userData.put("deviceId", androidId);
+            userData.put("username", "");
+            userData.put("email", "");
+            userData.put("phone", "");
+            userData.put("createdAt", now);
+            userData.put("updatedAt", now);
+            userData.put("notificationsEnabled", true);
+            userData.put("geolocationEnabled", false);
+            transaction.set(db.collection(FirestorePaths.USERS).document(userId), userData);
+            return null;
+        }).addOnSuccessListener(result -> {
+            if (result instanceof DocumentSnapshot) {
+                // Document already existed — treat as login instead of new account
+                loginUser((DocumentSnapshot) result, role, androidId);
+            } else {
+                saveSessionLocally(userId, role, androidId, "");
+                navigateToProfileCompletion(role, userId);
+            }
         }).addOnFailureListener(e -> {
             Toast.makeText(this, "Failed to create account: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         });

@@ -3,14 +3,17 @@ package com.example.lottery.admin;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.RootMatchers.isDialog;
 import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import android.content.Intent;
+import android.widget.TextView;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
@@ -49,6 +52,7 @@ public class PosterBase64InstrumentedTest {
     private static final long FIRESTORE_TIMEOUT_SECONDS = 45;
 
     private static final String TEST_EVENT_ID = "swimming_course_poster_review";
+    private static final String TEST_EVENT_TITLE = "Swimming Course Poster Review Session";
     private static final String TEST_POSTER = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQ";
     private FirebaseFirestore db;
 
@@ -64,7 +68,7 @@ public class PosterBase64InstrumentedTest {
 
         Map<String, Object> event = new HashMap<>();
         event.put("eventId", TEST_EVENT_ID);
-        event.put("title", "Swimming Course Poster Review Session");
+        event.put("title", TEST_EVENT_TITLE);
         event.put("details", "Administrator image moderation coverage for a community swimming course poster.");
         event.put("organizerId", "coach_nadia_rahman");
         event.put("posterBase64", TEST_POSTER);
@@ -97,17 +101,29 @@ public class PosterBase64InstrumentedTest {
     // US 03.03.01: Admin deleting an image through the UI should clear posterBase64 in
     // Firestore instead of only exercising a direct database update.
     @Test
-    public void testAdminDeletePosterFlow_clearsPosterBase64ViaUi()
-            throws InterruptedException, ExecutionException, TimeoutException {
+    public void testAdminDeletePosterFlow_clearsPosterBase64ViaUi() throws Exception {
         Intent intent = new Intent(ApplicationProvider.getApplicationContext(),
                 AdminImageDetailsActivity.class);
         intent.putExtra("eventId", TEST_EVENT_ID);
         intent.putExtra("userId", "admin_jordan_clark");
 
-        try (ActivityScenario<AdminImageDetailsActivity> ignored = ActivityScenario.launch(intent)) {
+        try (ActivityScenario<AdminImageDetailsActivity> scenario = ActivityScenario.launch(intent)) {
+            // Wait for Firestore data to load before interacting
+            boolean[] loaded = {false};
+            for (int attempt = 0; attempt < 20; attempt++) {
+                loaded[0] = false;
+                scenario.onActivity(activity -> {
+                    TextView title = activity.findViewById(R.id.tvEventTitle);
+                    loaded[0] = TEST_EVENT_TITLE.contentEquals(title.getText());
+                });
+                if (loaded[0]) break;
+                Thread.sleep(250);
+            }
+            assertTrue("Event title never loaded from Firestore", loaded[0]);
+
             onView(withId(R.id.btnDeleteImage)).check(matches(isEnabled()));
             onView(withId(R.id.btnDeleteImage)).perform(click());
-            onView(withText(R.string.confirm)).perform(click());
+            onView(withText(R.string.confirm)).inRoot(isDialog()).perform(click());
         }
 
         DocumentSnapshot doc = Tasks.await(

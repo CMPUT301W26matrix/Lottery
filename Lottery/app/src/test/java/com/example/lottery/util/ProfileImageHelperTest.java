@@ -38,6 +38,13 @@ import java.io.IOException;
 
 /**
  * Tests for {@link ProfileImageHelper}.
+ *
+ * <p>{@code ProfileImageHelper} is shared profile-image infrastructure used by
+ * {@code AdminProfileActivity}, {@code EntrantProfileActivity} and
+ * {@code OrganizerProfileActivity}. It is not tied to a specific live User Story —
+ * the original profile-picture stories (US 01.03.01 / 01.03.02 / 01.03.03) were
+ * retired from {@code project_problem_descr.md} but the shared helper remains in
+ * use, so these tests cover it as infrastructure rather than as a tagged US.
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
@@ -51,49 +58,49 @@ public class ProfileImageHelperTest {
         context.setTheme(R.style.Theme_Lottery);
     }
 
-    // US 01.03.01: Verify hasCustomImage returns true when selected image is non-empty
+    // Verify hasCustomImage returns true when selected image is non-empty
     @Test
     public void hasCustomImage_selectedNonEmpty_savedNull_returnsTrue() {
         assertTrue(ProfileImageHelper.hasCustomImage("base64data", null));
     }
 
-    // US 01.03.01: Verify hasCustomImage returns true when both selected and saved are non-empty
+    // Verify hasCustomImage returns true when both selected and saved are non-empty
     @Test
     public void hasCustomImage_selectedNonEmpty_savedNonEmpty_returnsTrue() {
         assertTrue(ProfileImageHelper.hasCustomImage("newImage", "savedImage"));
     }
 
-    // US 01.03.01: Verify hasCustomImage returns true when saved image is non-empty
+    // Verify hasCustomImage returns true when saved image is non-empty
     @Test
     public void hasCustomImage_selectedNull_savedNonEmpty_returnsTrue() {
         assertTrue(ProfileImageHelper.hasCustomImage(null, "savedImage"));
     }
 
-    // US 01.03.01: Verify hasCustomImage returns false when both are null
+    // Verify hasCustomImage returns false when both are null
     @Test
     public void hasCustomImage_bothNull_returnsFalse() {
         assertFalse(ProfileImageHelper.hasCustomImage(null, null));
     }
 
-    // US 01.03.01: Verify hasCustomImage returns false when saved is empty
+    // Verify hasCustomImage returns false when saved is empty
     @Test
     public void hasCustomImage_selectedNull_savedEmpty_returnsFalse() {
         assertFalse(ProfileImageHelper.hasCustomImage(null, ""));
     }
 
-    // US 01.03.01: Verify hasCustomImage returns false when selected is empty
+    // Verify hasCustomImage returns false when selected is empty
     @Test
     public void hasCustomImage_selectedEmpty_savedNonEmpty_returnsFalse() {
         assertFalse(ProfileImageHelper.hasCustomImage("", "savedImage"));
     }
 
-    // US 01.03.01: Verify hasCustomImage returns false when selected is empty and saved is null
+    // Verify hasCustomImage returns false when selected is empty and saved is null
     @Test
     public void hasCustomImage_selectedEmpty_savedNull_returnsFalse() {
         assertFalse(ProfileImageHelper.hasCustomImage("", null));
     }
 
-    // US 01.03.01: Verify displayProfileImage shows decoded image and hides placeholder
+    // Verify displayProfileImage shows decoded image and hides placeholder
     @Test
     public void displayProfileImage_validBase64_showsImageHidesPlaceholder() {
         ImageView imageView = new ImageView(context);
@@ -111,7 +118,7 @@ public class ProfileImageHelperTest {
         assertEquals(View.GONE, placeholder.getVisibility());
     }
 
-    // US 01.03.01: Verify displayProfileImage shows default avatar when Base64 is null
+    // Verify displayProfileImage shows default avatar when Base64 is null
     @Test
     public void displayProfileImage_nullBase64_showsDefaultAvatar() {
         ImageView imageView = new ImageView(context);
@@ -124,7 +131,7 @@ public class ProfileImageHelperTest {
         assertNotNull(imageView.getDrawable());
     }
 
-    // US 01.03.01: Verify displayProfileImage shows default avatar when Base64 is empty
+    // Verify displayProfileImage shows default avatar when Base64 is empty
     @Test
     public void displayProfileImage_emptyBase64_showsDefaultAvatar() {
         ImageView imageView = new ImageView(context);
@@ -136,7 +143,7 @@ public class ProfileImageHelperTest {
         assertEquals(View.GONE, placeholder.getVisibility());
     }
 
-    // US 01.03.01: Verify displayProfileImage does not crash on invalid Base64
+    // Verify displayProfileImage does not crash on invalid Base64
     @Test
     public void displayProfileImage_invalidBase64_doesNotCrash() {
         ImageView imageView = new ImageView(context);
@@ -147,7 +154,7 @@ public class ProfileImageHelperTest {
         assertEquals(View.VISIBLE, imageView.getVisibility());
     }
 
-    // US 01.03.01: Verify displayProfileImage does not crash when placeholder is null
+    // Verify displayProfileImage does not crash when placeholder is null
     @Test
     public void displayProfileImage_nullPlaceholder_doesNotCrash() {
         ImageView imageView = new ImageView(context);
@@ -157,7 +164,7 @@ public class ProfileImageHelperTest {
         assertEquals(View.VISIBLE, imageView.getVisibility());
     }
 
-    // US 01.03.01: Verify showDefaultAvatar sets correct visibility on views
+    // Verify showDefaultAvatar sets correct visibility on views
     @Test
     public void showDefaultAvatar_setsCorrectVisibility() {
         ImageView imageView = new ImageView(context);
@@ -172,7 +179,7 @@ public class ProfileImageHelperTest {
         assertNotNull(imageView.getDrawable());
     }
 
-    // US 01.03.01: Verify showDefaultAvatar does not crash when seed is null
+    // Verify showDefaultAvatar does not crash when seed is null
     @Test
     public void showDefaultAvatar_nullSeed_doesNotCrash() {
         ImageView imageView = new ImageView(context);
@@ -183,7 +190,7 @@ public class ProfileImageHelperTest {
         assertNotNull(imageView.getDrawable());
     }
 
-    // US 01.03.01: Verify showDefaultAvatar produces deterministic result for same seed
+    // Verify showDefaultAvatar produces deterministic result for same seed
     @Test
     public void showDefaultAvatar_sameSeed_deterministic() {
         ImageView iv1 = new ImageView(context);
@@ -198,7 +205,7 @@ public class ProfileImageHelperTest {
         assertNotNull(iv2.getDrawable());
     }
 
-    // US 01.03.01: Verify processSelectedImage returns null when input stream is null
+    // Verify processSelectedImage returns null when input stream is null
     @Test
     public void processSelectedImage_nullStream_returnsNull() throws IOException {
         ContentResolver mockResolver = mock(ContentResolver.class);
@@ -211,7 +218,7 @@ public class ProfileImageHelperTest {
         assertNull(result);
     }
 
-    // US 01.03.01: Verify processSelectedImage propagates FileNotFoundException
+    // Verify processSelectedImage propagates FileNotFoundException
     @Test(expected = java.io.FileNotFoundException.class)
     public void processSelectedImage_fileNotFound_propagates() throws IOException {
         ContentResolver mockResolver = mock(ContentResolver.class);
@@ -222,7 +229,7 @@ public class ProfileImageHelperTest {
         ProfileImageHelper.processSelectedImage(mockResolver, testUri);
     }
 
-    // US 01.03.01: Verify processSelectedImage does not crash on invalid image bytes
+    // Verify processSelectedImage does not crash on invalid image bytes
     @Test
     public void processSelectedImage_invalidImageBytes_doesNotCrash() throws IOException {
         ContentResolver mockResolver = mock(ContentResolver.class);
@@ -233,7 +240,7 @@ public class ProfileImageHelperTest {
         ProfileImageHelper.processSelectedImage(mockResolver, testUri);
     }
 
-    // US 01.03.01: Verify processSelectedImage returns valid ProcessedImage for valid input
+    // Verify processSelectedImage returns valid ProcessedImage for valid input
     @Test
     public void processSelectedImage_validImage_returnsProcessedImage() throws IOException {
         Bitmap sourceBitmap = Bitmap.createBitmap(50, 50, Bitmap.Config.ARGB_8888);
@@ -254,7 +261,7 @@ public class ProfileImageHelperTest {
         assertNotNull(result.bitmap);
     }
 
-    // US 01.03.01: Verify processSelectedImage closes the input stream after processing
+    // Verify processSelectedImage closes the input stream after processing
     @Test
     public void processSelectedImage_closesInputStream() throws IOException {
         Bitmap sourceBitmap = Bitmap.createBitmap(50, 50, Bitmap.Config.ARGB_8888);
@@ -271,7 +278,7 @@ public class ProfileImageHelperTest {
         verify(spyStream).close();
     }
 
-    // US 01.03.01: Verify processSelectedImage closes the stream even on decode failure
+    // Verify processSelectedImage closes the stream even on decode failure
     @Test
     public void processSelectedImage_closesStreamOnDecodeFailure() throws IOException {
         ContentResolver mockResolver = mock(ContentResolver.class);
@@ -284,7 +291,7 @@ public class ProfileImageHelperTest {
         verify(spyStream).close();
     }
 
-    // US 01.03.01: Verify openImagePicker launches a gallery pick intent
+    // Verify openImagePicker launches a gallery pick intent
     @SuppressWarnings("unchecked")
     @Test
     public void openImagePicker_launchesGalleryIntent() {
@@ -297,7 +304,7 @@ public class ProfileImageHelperTest {
         assertEquals(Intent.ACTION_PICK, captor.getValue().getAction());
     }
 
-    // US 01.03.01: Verify ProcessedImage stores base64 and bitmap fields correctly
+    // Verify ProcessedImage stores base64 and bitmap fields correctly
     @Test
     public void processedImage_storesFieldsCorrectly() {
         Bitmap bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888);

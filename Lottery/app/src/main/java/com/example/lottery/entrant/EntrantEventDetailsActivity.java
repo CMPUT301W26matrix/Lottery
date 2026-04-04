@@ -106,6 +106,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     private TextView tvNotificationBadge;
     private TextView tvEventDescription;
     private TextView tvCoOrganizerStatus;
+    private TextView tvWaitlistCount;
     private TextView btnShowMore;
 
     private TextView tvRegistrationEndedTitle;
@@ -263,6 +264,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
         tvRegistrationDeadline = findViewById(R.id.tvRegistrationDeadline);
         tvDrawDate = findViewById(R.id.tvDrawDate);
         tvCoOrganizerStatus = findViewById(R.id.tvCoOrganizerStatus);
+        tvWaitlistCount = findViewById(R.id.tvWaitlistCount);
         btnShowMore = findViewById(R.id.btnShowMore);
 
         tvRegistrationEndedTitle = findViewById(R.id.tvRegistrationEndedTitle);
@@ -735,7 +737,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     /**
      * Location check flow specifically for private event invites.
      * Routes to {@link #acceptPrivateInvite(Location)} instead of joinWaitlist,
-     * so that deadline, waitlist-limit, and other public waitlist gates are skipped.
+     * so that deadline, waitlist-limit, and other public waitlist gating are skipped.
      */
     private void handlePrivateInviteLocationCheck() {
         if (!eventDetailsLoaded) {
@@ -830,6 +832,9 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                         return;
                     }
                     waitlistCount = queryDocumentSnapshots.size();
+                    if (tvWaitlistCount != null) {
+                        tvWaitlistCount.setText(String.valueOf(waitlistCount));
+                    }
                 });
     }
 
@@ -841,8 +846,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
                 .addOnSuccessListener(doc -> {
                     if (doc.exists()) {
                         String name = doc.getString("username");
-                        tvOrganizer.setText(String.format("Organized by %s",
-                                name != null && !name.isEmpty() ? name : "Unknown"));
+                        tvOrganizer.setText(name != null && !name.isEmpty() ? name : "Unknown");
                     }
                 });
     }
