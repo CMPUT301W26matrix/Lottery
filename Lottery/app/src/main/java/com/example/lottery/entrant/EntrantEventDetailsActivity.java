@@ -737,7 +737,7 @@ public class EntrantEventDetailsActivity extends AppCompatActivity {
     /**
      * Location check flow specifically for private event invites.
      * Routes to {@link #acceptPrivateInvite(Location)} instead of joinWaitlist,
-     * so that deadline, waitlist-limit, and other public waitlist gates are skipped.
+     * so that deadline, waitlist-limit, and other public waitlist gating are skipped.
      */
     private void handlePrivateInviteLocationCheck() {
         if (!eventDetailsLoaded) {
