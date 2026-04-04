@@ -538,7 +538,7 @@ public class EntrantsListActivityTest {
         );
 
         onView(withText("Already Signed Up")).inRoot(isDialog()).check(matches(isDisplayed()));
-        onView(withText("Cancel Entrant")).check(doesNotExist());
+        onView(withId(R.id.btn_cancel_entrant)).check(matches(not(isDisplayed())));
     }
 
     /**

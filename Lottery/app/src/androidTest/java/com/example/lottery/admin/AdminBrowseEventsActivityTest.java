@@ -226,7 +226,7 @@ public class AdminBrowseEventsActivityTest {
                 onView(withId(R.id.rvEvents)).perform(
                         RecyclerViewActions.scrollTo(allOf(
                                 hasDescendant(withText(pendingEventTitle)),
-                                hasDescendant(withText("PENDING"))
+                                hasDescendant(withText("PENDING DRAW"))
                         ))
                 );
 
