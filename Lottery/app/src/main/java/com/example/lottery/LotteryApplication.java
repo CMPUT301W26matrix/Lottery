@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.firebase.FirebaseApp;
 
 /**
@@ -18,6 +19,7 @@ public class LotteryApplication extends Application {
 
     private static final String TAG = "LotteryApplication";
     public static final String PREFS_NAME = "AppPrefs";
+    private PlacesClient placesClient;
 
     @Override
     public void onCreate() {
@@ -26,28 +28,24 @@ public class LotteryApplication extends Application {
         FirebaseApp.initializeApp(this);
 
         // Initialize Google Places SDK with the New Places API enabled
-        if (!Places.isInitialized()) {
-            try {
-                // Fetch the API key from Manifest metadata to ensure consistency
+        try {
+            if (!Places.isInitialized()) {
                 ApplicationInfo ai = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
                 Bundle bundle = ai.metaData;
                 String apiKey = bundle.getString("com.google.android.geo.API_KEY");
 
                 if (apiKey != null && !apiKey.isEmpty()) {
-                    // MUST use initializeWithNewPlacesApiEnabled to avoid legacy errors
                     Places.initializeWithNewPlacesApiEnabled(getApplicationContext(), apiKey);
-                    // Explicitly create a client to "warm up" the underlying gRPC channel 
-                    // and keep it alive for the duration of the Application's lifecycle.
-                    Places.createClient(this);
+                    placesClient = Places.createClient(this);
                     Log.d(TAG, "Places SDK initialized with New API enabled.");
                 } else {
                     Log.e(TAG, "Places SDK failed to initialize: API Key is missing in Manifest.");
                 }
-            } catch (PackageManager.NameNotFoundException e) {
-                Log.e(TAG, "Failed to load meta-data, NameNotFound: " + e.getMessage());
-            } catch (NullPointerException e) {
-                Log.e(TAG, "Failed to load meta-data, NullPointer: " + e.getMessage());
             }
+        } catch (Exception e) {
+            Log.e(TAG, "Places SDK init failed: " + e.getMessage());
+        } catch (NoClassDefFoundError e) {
+            Log.e(TAG, "Places SDK not available: " + e.getMessage());
         }
     }
 }
