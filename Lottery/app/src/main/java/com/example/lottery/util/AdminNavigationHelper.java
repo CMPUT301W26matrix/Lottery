@@ -9,12 +9,12 @@ import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
 
+import com.example.lottery.R;
 import com.example.lottery.admin.AdminBrowseEventsActivity;
 import com.example.lottery.admin.AdminBrowseImagesActivity;
 import com.example.lottery.admin.AdminBrowseLogsActivity;
 import com.example.lottery.admin.AdminBrowseProfilesActivity;
 import com.example.lottery.admin.AdminProfileActivity;
-import com.example.lottery.R;
 
 /**
  * Centralised helper that wires up the admin bottom-navigation bar

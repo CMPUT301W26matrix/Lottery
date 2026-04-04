@@ -3,7 +3,6 @@ package com.example.lottery.admin;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -26,9 +25,6 @@ import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.PosterImageLoader;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * AdminImageDetailsActivity displays details of a specific event's poster image
@@ -250,7 +246,7 @@ public class AdminImageDetailsActivity extends AppCompatActivity {
         tvEventDetails.setText(event.getDetails());
         currentPosterBase64 = event.getPosterBase64();
         PosterImageLoader.load(ivEventPoster, currentPosterBase64, R.drawable.event_placeholder);
-        
+
         // Anti-zero protection: disable button if image is already empty
         btnDeleteImage.setEnabled(currentPosterBase64 != null && !currentPosterBase64.trim().isEmpty());
 

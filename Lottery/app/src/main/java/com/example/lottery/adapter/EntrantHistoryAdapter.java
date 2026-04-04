@@ -9,8 +9,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.lottery.entrant.NotificationsActivity;
 import com.example.lottery.R;
+import com.example.lottery.entrant.NotificationsActivity;
 import com.example.lottery.model.Event;
 import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.InvitationFlowUtil;

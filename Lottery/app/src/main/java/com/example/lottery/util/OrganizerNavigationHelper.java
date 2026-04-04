@@ -9,12 +9,12 @@ import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
 
+import com.example.lottery.R;
 import com.example.lottery.organizer.OrganizerBrowseEventsActivity;
 import com.example.lottery.organizer.OrganizerCreateEventActivity;
 import com.example.lottery.organizer.OrganizerNotificationsActivity;
 import com.example.lottery.organizer.OrganizerProfileActivity;
 import com.example.lottery.organizer.OrganizerQrEventListActivity;
-import com.example.lottery.R;
 
 /**
  * Centralised helper that wires up the organizer bottom-navigation bar

@@ -77,8 +77,23 @@ import java.util.UUID;
 public class OrganizerCreateEventActivity extends AppCompatActivity {
 
     private static final String TAG = "OrganizerCreateEvent";
-
     private TextInputEditText etEventTitle, etMaxCapacity, etEventDetails, etPlace, etWaitingListLimit;
+    // Activity Result Launcher for Google Places Autocomplete
+    private final ActivityResultLauncher<Intent> startAutocomplete = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                    Place place = Autocomplete.getPlaceFromIntent(result.getData());
+                    if (etPlace != null) {
+                        etPlace.setText(place.getFormattedAddress());
+                    }
+                    Log.d(TAG, "Place selected: " + place.getDisplayName() + ", " + place.getFormattedAddress());
+                } else if (result.getResultCode() == AutocompleteActivity.RESULT_ERROR && result.getData() != null) {
+                    Status status = Autocomplete.getStatusFromIntent(result.getData());
+                    Log.e(TAG, "Autocomplete error: " + status.getStatusMessage());
+                    Toast.makeText(this, "Error selecting location", Toast.LENGTH_SHORT).show();
+                }
+            });
     private TextInputEditText etEventStart, etEventEnd, etRegStart, etRegEnd, etDrawDate;
     private TextInputLayout tilWaitingListLimit;
     private Button btnOpenUploadDialog, btnGenerateQRCode, btnCreateEvent;
@@ -87,9 +102,9 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
     private TextView tvQRCodeLabel, tvPosterStatus, tvHeader;
     private MaterialCardView cvQRCode, cardQRCode;
     private SwitchMaterial swRequireLocation, swLimitWaitingList, swIsPrivate;
-    private ChipGroup cgCategories;
 
     // Core data variables
+    private ChipGroup cgCategories;
     /**
      * Unique identifier for the event.
      */
@@ -106,35 +121,15 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
      * Flag indicating whether the activity is in edit mode for an existing event.
      */
     private boolean isEditMode = false;
-
     /**
      * URI of the selected poster image (can be a local Uri or a Base64 string parsed as Uri).
      */
     private Uri selectedPosterSource = null;
-
     /**
      * Firebase Firestore instance for database operations.
      */
     private FirebaseFirestore db;
     private String userId;
-
-    // Activity Result Launcher for Google Places Autocomplete
-    private final ActivityResultLauncher<Intent> startAutocomplete = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                    Place place = Autocomplete.getPlaceFromIntent(result.getData());
-                    if (etPlace != null) {
-                        // In SDK 5.1.1+, use getFormattedAddress() and getDisplayName()
-                        etPlace.setText(place.getFormattedAddress());
-                    }
-                    Log.d(TAG, "Place selected: " + place.getDisplayName() + ", " + place.getFormattedAddress());
-                } else if (result.getResultCode() == AutocompleteActivity.RESULT_ERROR && result.getData() != null) {
-                    Status status = Autocomplete.getStatusFromIntent(result.getData());
-                    Log.e(TAG, "Autocomplete error: " + status.getStatusMessage());
-                    Toast.makeText(this, "Error selecting location", Toast.LENGTH_SHORT).show();
-                }
-            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -262,9 +257,9 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                 // Request ID, DISPLAY_NAME, FORMATTED_ADDRESS, and LOCATION fields for the selected place
                 // These are the new field names for SDK 5.0.0+
                 List<Place.Field> fields = Arrays.asList(
-                        Place.Field.ID, 
-                        Place.Field.DISPLAY_NAME, 
-                        Place.Field.FORMATTED_ADDRESS, 
+                        Place.Field.ID,
+                        Place.Field.DISPLAY_NAME,
+                        Place.Field.FORMATTED_ADDRESS,
                         Place.Field.LOCATION);
                 Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
                         .build(this);

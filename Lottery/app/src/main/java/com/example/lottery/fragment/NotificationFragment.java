@@ -15,9 +15,9 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
+import com.example.lottery.R;
 import com.example.lottery.organizer.EntrantsListActivity;
 import com.example.lottery.organizer.OrganizerNotificationsActivity;
-import com.example.lottery.R;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 /**

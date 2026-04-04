@@ -16,8 +16,8 @@ import com.google.firebase.FirebaseApp;
  */
 public class LotteryApplication extends Application {
 
-    private static final String TAG = "LotteryApplication";
     public static final String PREFS_NAME = "AppPrefs";
+    private static final String TAG = "LotteryApplication";
 
     @Override
     public void onCreate() {
