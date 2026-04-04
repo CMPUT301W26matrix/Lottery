@@ -54,6 +54,7 @@ public class EntrantHistoryAdapter extends RecyclerView.Adapter<EntrantHistoryAd
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         HistoryItem item = historyItems.get(position);
         Event event = item.event;
+        if (event == null) return;
 
         holder.tvTitle.setText(event.getTitle());
         if (event.getScheduledDateTime() != null) {
