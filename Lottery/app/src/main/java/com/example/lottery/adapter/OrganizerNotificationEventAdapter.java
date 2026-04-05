@@ -92,9 +92,15 @@ public class OrganizerNotificationEventAdapter extends RecyclerView.Adapter<Orga
                     .setItems(options, (dialog, which) -> {
                         if (listener != null) {
                             switch (which) {
-                                case 0: listener.onGroupClick(event, "invited"); break;
-                                case 1: listener.onGroupClick(event, "accepted"); break;
-                                case 2: listener.onGroupClick(event, "cancelled"); break;
+                                case 0:
+                                    listener.onGroupClick(event, "invited");
+                                    break;
+                                case 1:
+                                    listener.onGroupClick(event, "accepted");
+                                    break;
+                                case 2:
+                                    listener.onGroupClick(event, "cancelled");
+                                    break;
                             }
                         }
                     })
@@ -104,7 +110,7 @@ public class OrganizerNotificationEventAdapter extends RecyclerView.Adapter<Orga
 
     private void loadEntrantCounts(String eventId, TextView tvCounts) {
         if (eventId == null) return;
-        
+
         db.collection(FirestorePaths.eventWaitingList(eventId))
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -112,10 +118,18 @@ public class OrganizerNotificationEventAdapter extends RecyclerView.Adapter<Orga
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                         String status = InvitationFlowUtil.normalizeEntrantStatus(doc.getString("status"));
                         switch (status) {
-                            case InvitationFlowUtil.STATUS_WAITLISTED: waiting++; break;
-                            case InvitationFlowUtil.STATUS_INVITED: invited++; break;
-                            case InvitationFlowUtil.STATUS_ACCEPTED: accepted++; break;
-                            case InvitationFlowUtil.STATUS_CANCELLED: cancelled++; break;
+                            case InvitationFlowUtil.STATUS_WAITLISTED:
+                                waiting++;
+                                break;
+                            case InvitationFlowUtil.STATUS_INVITED:
+                                invited++;
+                                break;
+                            case InvitationFlowUtil.STATUS_ACCEPTED:
+                                accepted++;
+                                break;
+                            case InvitationFlowUtil.STATUS_CANCELLED:
+                                cancelled++;
+                                break;
                         }
                     }
                     String summary = String.format(Locale.getDefault(),

@@ -176,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
         }).addOnSuccessListener(result -> {
             if (result instanceof DocumentSnapshot) {
                 // Document already existed — treat as login instead of new account
-                loginUser((DocumentSnapshot) result, role, androidId);
+                loginUser(result, role, androidId);
             } else {
                 saveSessionLocally(userId, role, androidId, "");
                 navigateToProfileCompletion(role, userId);

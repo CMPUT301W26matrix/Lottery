@@ -536,7 +536,7 @@ public class EntrantProfileActivity extends AppCompatActivity {
         }).addOnSuccessListener(result -> {
             if (result instanceof DocumentSnapshot) {
                 // Raced with another writer — honor whatever the existing doc says
-                DocumentSnapshot doc = (DocumentSnapshot) result;
+                DocumentSnapshot doc = result;
                 routeToOrganizerByProfileCompleteness(
                         organizerUserId,
                         doc.getString("username"),
