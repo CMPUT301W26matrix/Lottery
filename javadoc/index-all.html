@@ -152,6 +152,12 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/example/lottery/util/ProfileImageHelper.ProcessedImage.html#bitmap" class="member-name-link">bitmap</a> - Variable in class com.example.lottery.util.<a href="com/example/lottery/util/ProfileImageHelper.ProcessedImage.html" title="class in com.example.lottery.util">ProfileImageHelper.ProcessedImage</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/util/EntrantEventFilterUtils.html#BROWSE_ALL" class="member-name-link">BROWSE_ALL</a> - Static variable in class com.example.lottery.util.<a href="com/example/lottery/util/EntrantEventFilterUtils.html" title="class in com.example.lottery.util">EntrantEventFilterUtils</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/util/EntrantEventFilterUtils.html#BROWSE_NEW" class="member-name-link">BROWSE_NEW</a> - Static variable in class com.example.lottery.util.<a href="com/example/lottery/util/EntrantEventFilterUtils.html" title="class in com.example.lottery.util">EntrantEventFilterUtils</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/util/EntrantEventFilterUtils.html#BROWSE_RECOMMENDED" class="member-name-link">BROWSE_RECOMMENDED</a> - Static variable in class com.example.lottery.util.<a href="com/example/lottery/util/EntrantEventFilterUtils.html" title="class in com.example.lottery.util">EntrantEventFilterUtils</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/util/InvitationFlowUtil.html#buildCancelledEntrantUpdate()" class="member-name-link">buildCancelledEntrantUpdate()</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/InvitationFlowUtil.html" title="class in com.example.lottery.util">InvitationFlowUtil</a></dt>
 <dd>
 <div class="block">Builds a Firestore update payload for cancelling an entrant's participation.</div>
@@ -191,6 +197,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">stores and recycles views as they are scrolled off screen</div>
 </dd>
+<dt><a href="com/example/lottery/util/EntrantEventFilterUtils.html#CATEGORY_ALL" class="member-name-link">CATEGORY_ALL</a> - Static variable in class com.example.lottery.util.<a href="com/example/lottery/util/EntrantEventFilterUtils.html" title="class in com.example.lottery.util">EntrantEventFilterUtils</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/util/UserDeletionUtil.html#cleanUpCoOrganizerRecords(com.google.firebase.firestore.FirebaseFirestore,java.lang.String,java.lang.Runnable)" class="member-name-link">cleanUpCoOrganizerRecords(FirebaseFirestore, String, Runnable)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/UserDeletionUtil.html" title="class in com.example.lottery.util">UserDeletionUtil</a></dt>
 <dd>
 <div class="block">Batch-deletes only co-organizer records for the given user across every event.</div>
@@ -319,6 +327,10 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/example/lottery/entrant/EntrantEventDetailsActivity.html#%3Cinit%3E()" class="member-name-link">EntrantEventDetailsActivity()</a> - Constructor for class com.example.lottery.entrant.<a href="com/example/lottery/entrant/EntrantEventDetailsActivity.html" title="class in com.example.lottery.entrant">EntrantEventDetailsActivity</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/util/EntrantEventFilterUtils.html" class="type-name-link" title="class in com.example.lottery.util">EntrantEventFilterUtils</a> - Class in <a href="com/example/lottery/util/package-summary.html">com.example.lottery.util</a></dt>
+<dd>
+<div class="block">Pure filter predicates for the entrant Explore event list.</div>
+</dd>
 <dt><a href="com/example/lottery/entrant/EntrantEventHistoryActivity.html" class="type-name-link" title="class in com.example.lottery.entrant">EntrantEventHistoryActivity</a> - Class in <a href="com/example/lottery/entrant/package-summary.html">com.example.lottery.entrant</a></dt>
 <dd>
 <div class="block">Activity that displays the history of events an entrant has registered for.</div>
@@ -409,7 +421,9 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/example/lottery/adapter/EventAdapter.html#%3Cinit%3E(java.util.List,com.example.lottery.adapter.EventAdapter.OnEventClickListener)" class="member-name-link">EventAdapter(List&lt;Event&gt;, EventAdapter.OnEventClickListener)</a> - Constructor for class com.example.lottery.adapter.<a href="com/example/lottery/adapter/EventAdapter.html" title="class in com.example.lottery.adapter">EventAdapter</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/adapter/EventAdapter.OnEventClickListener.html" class="type-name-link" title="interface in com.example.lottery.adapter">EventAdapter.OnEventClickListener</a> - Interface in <a href="com/example/lottery/adapter/package-summary.html">com.example.lottery.adapter</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Listener interface for handling clicks on an event item in the list.</div>
+</dd>
 <dt><a href="com/example/lottery/util/FirestorePaths.html#eventComments(java.lang.String)" class="member-name-link">eventComments(String)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/FirestorePaths.html" title="class in com.example.lottery.util">FirestorePaths</a></dt>
 <dd>
 <div class="block">Path: events/{eventId}/comments</div>
@@ -489,12 +503,6 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:G">G</h2>
 <dl class="index">
-<dt><a href="com/example/lottery/GeneralSignInActivity.html" class="type-name-link" title="class in com.example.lottery">GeneralSignInActivity</a> - Class in <a href="com/example/lottery/package-summary.html">com.example.lottery</a></dt>
-<dd>
-<div class="block">GeneralSignInActivity is now deprecated in favor of device-based login in MainActivity.</div>
-</dd>
-<dt><a href="com/example/lottery/GeneralSignInActivity.html#%3Cinit%3E()" class="member-name-link">GeneralSignInActivity()</a> - Constructor for class com.example.lottery.<a href="com/example/lottery/GeneralSignInActivity.html" title="class in com.example.lottery">GeneralSignInActivity</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/util/AvatarUtils.html#generateDefaultAvatar(java.lang.String,int)" class="member-name-link">generateDefaultAvatar(String, int)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/AvatarUtils.html" title="class in com.example.lottery.util">AvatarUtils</a></dt>
 <dd>
 <div class="block">Generates a default avatar bitmap with the user's initial.</div>
@@ -676,6 +684,10 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:H">H</h2>
 <dl class="index">
+<dt><a href="com/example/lottery/util/EntrantEventFilterUtils.html#hasAvailableSpots(com.example.lottery.model.Event,java.util.Map,java.util.Date)" class="member-name-link">hasAvailableSpots(Event, Map&lt;String, Integer&gt;, Date)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/EntrantEventFilterUtils.html" title="class in com.example.lottery.util">EntrantEventFilterUtils</a></dt>
+<dd>
+<div class="block">True if the event has room on its waiting list and registration is still open.</div>
+</dd>
 <dt><a href="com/example/lottery/util/ProfileImageHelper.html#hasCustomImage(java.lang.String,java.lang.String)" class="member-name-link">hasCustomImage(String, String)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/ProfileImageHelper.html" title="class in com.example.lottery.util">ProfileImageHelper</a></dt>
 <dd>
 <div class="block">Determines whether a custom profile image currently exists,
@@ -736,6 +748,10 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/EntrantEvent.html#isInvited()" class="member-name-link">isInvited()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/EntrantEvent.html" title="class in com.example.lottery.model">EntrantEvent</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/util/EntrantEventFilterUtils.html#isNewEvent(com.example.lottery.model.Event,java.util.Date)" class="member-name-link">isNewEvent(Event, Date)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/EntrantEventFilterUtils.html" title="class in com.example.lottery.util">EntrantEventFilterUtils</a></dt>
+<dd>
+<div class="block">True if the event was created within the last seven days.</div>
+</dd>
 <dt><a href="com/example/lottery/model/User.html#isNotificationsEnabled()" class="member-name-link">isNotificationsEnabled()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/User.html" title="class in com.example.lottery.model">User</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/User.html#isOrganizer()" class="member-name-link">isOrganizer()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/User.html" title="class in com.example.lottery.model">User</a></dt>
@@ -744,6 +760,10 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/NotificationItem.html#isRead()" class="member-name-link">isRead()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/NotificationItem.html" title="class in com.example.lottery.model">NotificationItem</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/util/EntrantEventFilterUtils.html#isRecommendedEvent(com.example.lottery.model.Event,java.util.List)" class="member-name-link">isRecommendedEvent(Event, List&lt;String&gt;)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/EntrantEventFilterUtils.html" title="class in com.example.lottery.util">EntrantEventFilterUtils</a></dt>
+<dd>
+<div class="block">True if the event's category matches any stored user interest.</div>
+</dd>
 <dt><a href="com/example/lottery/util/EventValidationUtils.html#isRegistrationDeadlineValid(java.util.Date,java.util.Date)" class="member-name-link">isRegistrationDeadlineValid(Date, Date)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/EventValidationUtils.html" title="class in com.example.lottery.util">EventValidationUtils</a></dt>
 <dd>
 <div class="block">Validates if the registration deadline occurs before the event start time.</div>
@@ -786,6 +806,22 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/example/lottery/MainActivity.html#%3Cinit%3E()" class="member-name-link">MainActivity()</a> - Constructor for class com.example.lottery.<a href="com/example/lottery/MainActivity.html" title="class in com.example.lottery">MainActivity</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/util/EntrantEventFilterUtils.html#matchesBrowseTab(com.example.lottery.model.Event,java.lang.String,java.util.Date,java.util.List)" class="member-name-link">matchesBrowseTab(Event, String, Date, List&lt;String&gt;)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/EntrantEventFilterUtils.html" title="class in com.example.lottery.util">EntrantEventFilterUtils</a></dt>
+<dd>
+<div class="block">Dispatches to the predicate for the selected browse tab.</div>
+</dd>
+<dt><a href="com/example/lottery/util/EntrantEventFilterUtils.html#matchesCategory(com.example.lottery.model.Event,java.lang.String)" class="member-name-link">matchesCategory(Event, String)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/EntrantEventFilterUtils.html" title="class in com.example.lottery.util">EntrantEventFilterUtils</a></dt>
+<dd>
+<div class="block">True if the event category matches the selected filter.</div>
+</dd>
+<dt><a href="com/example/lottery/util/EntrantEventFilterUtils.html#matchesSearchQuery(com.example.lottery.model.Event,java.lang.String)" class="member-name-link">matchesSearchQuery(Event, String)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/EntrantEventFilterUtils.html" title="class in com.example.lottery.util">EntrantEventFilterUtils</a></dt>
+<dd>
+<div class="block">Case-insensitive substring match of the event title against the query.</div>
+</dd>
+<dt><a href="com/example/lottery/util/EntrantEventFilterUtils.html#matchesTimeFilter(com.example.lottery.model.Event,java.lang.String,java.util.Date)" class="member-name-link">matchesTimeFilter(Event, String, Date)</a> - Static method in class com.example.lottery.util.<a href="com/example/lottery/util/EntrantEventFilterUtils.html" title="class in com.example.lottery.util">EntrantEventFilterUtils</a></dt>
+<dd>
+<div class="block">True if the event's scheduled time falls within the selected time window.</div>
+</dd>
 <dt><a href="com/example/lottery/util/EntrantNavigationHelper.EntrantTab.html#MY_EVENTS" class="member-name-link">MY_EVENTS</a> - Enum constant in enum class com.example.lottery.util.<a href="com/example/lottery/util/EntrantNavigationHelper.EntrantTab.html" title="enum class in com.example.lottery.util">EntrantNavigationHelper.EntrantTab</a></dt>
 <dd>&nbsp;</dd>
 </dl>
@@ -1023,8 +1059,6 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Initializes the ActivityResultLauncher for picking images from the device storage.</div>
 </dd>
-<dt><a href="com/example/lottery/GeneralSignInActivity.html#onCreate(android.os.Bundle)" class="member-name-link">onCreate(Bundle)</a> - Method in class com.example.lottery.<a href="com/example/lottery/GeneralSignInActivity.html" title="class in com.example.lottery">GeneralSignInActivity</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/MainActivity.html#onCreate(android.os.Bundle)" class="member-name-link">onCreate(Bundle)</a> - Method in class com.example.lottery.<a href="com/example/lottery/MainActivity.html" title="class in com.example.lottery">MainActivity</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/organizer/EntrantsListActivity.html#onCreate(android.os.Bundle)" class="member-name-link">onCreate(Bundle)</a> - Method in class com.example.lottery.organizer.<a href="com/example/lottery/organizer/EntrantsListActivity.html" title="class in com.example.lottery.organizer">EntrantsListActivity</a></dt>
@@ -1258,11 +1292,17 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/example/lottery/fragment/OrganizerInviteCoOrganizerDialogFragment.html#%3Cinit%3E()" class="member-name-link">OrganizerInviteCoOrganizerDialogFragment()</a> - Constructor for class com.example.lottery.fragment.<a href="com/example/lottery/fragment/OrganizerInviteCoOrganizerDialogFragment.html" title="class in com.example.lottery.fragment">OrganizerInviteCoOrganizerDialogFragment</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/fragment/OrganizerInviteCoOrganizerDialogFragment.UserSearchAdapter.html" class="type-name-link" title="class in com.example.lottery.fragment">OrganizerInviteCoOrganizerDialogFragment.UserSearchAdapter</a> - Class in <a href="com/example/lottery/fragment/package-summary.html">com.example.lottery.fragment</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">RecyclerView adapter backing the co-organizer search results list.</div>
+</dd>
 <dt><a href="com/example/lottery/fragment/OrganizerInviteCoOrganizerDialogFragment.UserSearchAdapter.OnUserClickListener.html" class="type-name-link" title="interface in com.example.lottery.fragment">OrganizerInviteCoOrganizerDialogFragment.UserSearchAdapter.OnUserClickListener</a> - Interface in <a href="com/example/lottery/fragment/package-summary.html">com.example.lottery.fragment</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Listener interface for handling selection of a user from the search results.</div>
+</dd>
 <dt><a href="com/example/lottery/fragment/OrganizerInviteCoOrganizerDialogFragment.UserSearchAdapter.ViewHolder.html" class="type-name-link" title="class in com.example.lottery.fragment">OrganizerInviteCoOrganizerDialogFragment.UserSearchAdapter.ViewHolder</a> - Class in <a href="com/example/lottery/fragment/package-summary.html">com.example.lottery.fragment</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">ViewHolder that caches the two text fields used to render a user search result row.</div>
+</dd>
 <dt><a href="com/example/lottery/fragment/OrganizerInviteEntrantDialogFragment.html" class="type-name-link" title="class in com.example.lottery.fragment">OrganizerInviteEntrantDialogFragment</a> - Class in <a href="com/example/lottery/fragment/package-summary.html">com.example.lottery.fragment</a></dt>
 <dd>
 <div class="block">DialogFragment that lets an organizer search for entrants by name, email, or phone
@@ -1662,6 +1702,12 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Inject a test Event to bypass Firestore while still exercising updateUi().</div>
 </dd>
+<dt><a href="com/example/lottery/util/EntrantEventFilterUtils.html#TIME_ALL_DATES" class="member-name-link">TIME_ALL_DATES</a> - Static variable in class com.example.lottery.util.<a href="com/example/lottery/util/EntrantEventFilterUtils.html" title="class in com.example.lottery.util">EntrantEventFilterUtils</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/util/EntrantEventFilterUtils.html#TIME_THIS_WEEK" class="member-name-link">TIME_THIS_WEEK</a> - Static variable in class com.example.lottery.util.<a href="com/example/lottery/util/EntrantEventFilterUtils.html" title="class in com.example.lottery.util">EntrantEventFilterUtils</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/example/lottery/util/EntrantEventFilterUtils.html#TIME_TODAY" class="member-name-link">TIME_TODAY</a> - Static variable in class com.example.lottery.util.<a href="com/example/lottery/util/EntrantEventFilterUtils.html" title="class in com.example.lottery.util">EntrantEventFilterUtils</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/example/lottery/model/EntrantEvent.html#toBundle()" class="member-name-link">toBundle()</a> - Method in class com.example.lottery.model.<a href="com/example/lottery/model/EntrantEvent.html" title="class in com.example.lottery.model">EntrantEvent</a></dt>
 <dd>
 <div class="block">Packs this object into a Bundle for safe Fragment argument passing.</div>

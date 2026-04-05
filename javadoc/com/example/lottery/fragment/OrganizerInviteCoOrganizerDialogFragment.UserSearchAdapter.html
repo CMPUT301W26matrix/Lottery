@@ -98,6 +98,10 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="annotations">@VisibleForTesting
 </span><span class="modifiers">public static class </span><span class="element-name type-name-label">OrganizerInviteCoOrganizerDialogFragment.UserSearchAdapter</span>
 <span class="extends-implements">extends androidx.recyclerview.widget.RecyclerView.Adapter&lt;<a href="OrganizerInviteCoOrganizerDialogFragment.UserSearchAdapter.ViewHolder.html" title="class in com.example.lottery.fragment">OrganizerInviteCoOrganizerDialogFragment.UserSearchAdapter.ViewHolder</a>&gt;</span></div>
+<div class="block">RecyclerView adapter backing the co-organizer search results list.
+
+ <p>Displays matching users, disables rows for entries already assigned as
+ co-organizers, and forwards selections through <a href="OrganizerInviteCoOrganizerDialogFragment.UserSearchAdapter.OnUserClickListener.html" title="interface in com.example.lottery.fragment"><code>OrganizerInviteCoOrganizerDialogFragment.UserSearchAdapter.OnUserClickListener</code></a>.</p></div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -112,10 +116,14 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code>static interface&nbsp;</code></div>
 <div class="col-second even-row-color"><code><a href="OrganizerInviteCoOrganizerDialogFragment.UserSearchAdapter.OnUserClickListener.html" class="type-name-link" title="interface in com.example.lottery.fragment">OrganizerInviteCoOrganizerDialogFragment.UserSearchAdapter.OnUserClickListener</a></code></div>
-<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-last even-row-color">
+<div class="block">Listener interface for handling selection of a user from the search results.</div>
+</div>
 <div class="col-first odd-row-color"><code>static class&nbsp;</code></div>
 <div class="col-second odd-row-color"><code><a href="OrganizerInviteCoOrganizerDialogFragment.UserSearchAdapter.ViewHolder.html" class="type-name-link" title="class in com.example.lottery.fragment">OrganizerInviteCoOrganizerDialogFragment.UserSearchAdapter.ViewHolder</a></code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-last odd-row-color">
+<div class="block">ViewHolder that caches the two text fields used to render a user search result row.</div>
+</div>
 </div>
 <div class="inherited-list">
 <h2 id="nested-classes-inherited-from-class-androidx.recyclerview.widget.RecyclerView.Adapter">Nested classes/interfaces inherited from class&nbsp;androidx.recyclerview.widget.RecyclerView.Adapter</h2>
