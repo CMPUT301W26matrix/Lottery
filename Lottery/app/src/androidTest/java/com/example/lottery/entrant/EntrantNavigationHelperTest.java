@@ -265,7 +265,6 @@ public class EntrantNavigationHelperTest {
 
     // ================================================================
     // Current-tab no-op — clicking the active tab fires no new intent
-    // (US 01.01.01 – entrant navigation)
     // ================================================================
 
     /**
@@ -342,7 +341,6 @@ public class EntrantNavigationHelperTest {
     // finish() behaviour — EXPLORE never finishes itself;
     // non-EXPLORE tabs finish when navigating away; detail screens
     // finish only when going to EXPLORE
-    // (US 01.01.01 – entrant navigation)
     // ================================================================
 
     /**

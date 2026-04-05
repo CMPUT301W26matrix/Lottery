@@ -158,7 +158,7 @@ public class EntrantQrScanActivityTest {
     }
 
     /**
-     * US 02.01.01: Scanning a valid promotional QR code launches the event-details
+     * US 01.06.01: Scanning a valid promotional QR code launches the event-details
      * screen with the decoded eventId so the linked event description and poster can
      * be displayed in-app.
      */

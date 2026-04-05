@@ -337,7 +337,7 @@ public class AdminProfileActivity extends AppCompatActivity {
         }).addOnSuccessListener(result -> {
             if (result instanceof DocumentSnapshot) {
                 // Document already existed — check profile completeness
-                DocumentSnapshot doc = (DocumentSnapshot) result;
+                DocumentSnapshot doc = result;
                 String username = doc.getString("username");
                 String email = doc.getString("email");
                 if (username != null && !username.trim().isEmpty() &&

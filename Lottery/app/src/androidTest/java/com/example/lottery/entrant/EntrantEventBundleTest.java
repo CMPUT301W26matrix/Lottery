@@ -24,7 +24,7 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class EntrantEventBundleTest {
 
-    // US 02.06.01: toBundle packs all string fields
+    // toBundle packs all string fields
     @Test
     public void toBundle_packsStringFields() {
         EntrantEvent ee = new EntrantEvent();
@@ -40,7 +40,7 @@ public class EntrantEventBundleTest {
         assertEquals("invited", b.getString("status"));
     }
 
-    // US 02.06.01: toBundle packs timestamp fields as longs
+    // toBundle packs timestamp fields as longs
     @Test
     public void toBundle_packsTimestamps() {
         EntrantEvent ee = new EntrantEvent();
@@ -59,7 +59,7 @@ public class EntrantEventBundleTest {
         assertEquals(now.toDate().getTime(), b.getLong("cancelledAt"));
     }
 
-    // US 02.02.02: toBundle packs GeoPoint location
+    // toBundle packs GeoPoint location
     @Test
     public void toBundle_packsLocation() {
         EntrantEvent ee = new EntrantEvent();
@@ -72,7 +72,7 @@ public class EntrantEventBundleTest {
         assertEquals(-113.4938, b.getDouble("lng"), 0.0001);
     }
 
-    // US 02.06.01: toBundle omits null timestamps and location
+    // toBundle omits null timestamps and location
     @Test
     public void toBundle_omitsNullFields() {
         EntrantEvent ee = new EntrantEvent();
@@ -84,7 +84,7 @@ public class EntrantEventBundleTest {
         assertFalse(b.containsKey("hasLocation"));
     }
 
-    // US 02.06.01: fromBundle reconstructs string fields
+    // fromBundle reconstructs string fields
     @Test
     public void fromBundle_reconstructsStringFields() {
         Bundle b = new Bundle();
@@ -100,7 +100,7 @@ public class EntrantEventBundleTest {
         assertEquals("accepted", ee.getStatus());
     }
 
-    // US 02.06.01: fromBundle reconstructs timestamps from longs
+    // fromBundle reconstructs timestamps from longs
     @Test
     public void fromBundle_reconstructsTimestamps() {
         Timestamp now = Timestamp.now();
@@ -116,7 +116,7 @@ public class EntrantEventBundleTest {
         assertEquals(millis, ee.getRegisteredAt().toDate().getTime());
     }
 
-    // US 02.02.02: fromBundle reconstructs GeoPoint location
+    // fromBundle reconstructs GeoPoint location
     @Test
     public void fromBundle_reconstructsLocation() {
         Bundle b = new Bundle();
@@ -130,7 +130,7 @@ public class EntrantEventBundleTest {
         assertEquals(-114.07, ee.getLocation().getLongitude(), 0.0001);
     }
 
-    // US 02.06.01: fromBundle with null returns empty EntrantEvent
+    // fromBundle with null returns empty EntrantEvent
     @Test
     public void fromBundle_nullReturnsEmptyObject() {
         EntrantEvent ee = EntrantEvent.fromBundle(null);
@@ -139,7 +139,7 @@ public class EntrantEventBundleTest {
         assertNull(ee.getStatus());
     }
 
-    // US 02.06.01: round-trip toBundle → fromBundle preserves all data
+    // round-trip toBundle → fromBundle preserves all data
     @Test
     public void roundTrip_preservesAllFields() {
         Timestamp now = Timestamp.now();
