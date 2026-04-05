@@ -22,6 +22,7 @@ import com.example.lottery.adapter.EntrantEventAdapter;
 import com.example.lottery.model.Event;
 import com.example.lottery.model.User;
 import com.example.lottery.util.AdminRoleManager;
+import com.example.lottery.util.EntrantEventFilterUtils;
 import com.example.lottery.util.EntrantNavigationHelper;
 import com.example.lottery.util.FirestorePaths;
 import com.example.lottery.util.InvitationFlowUtil;
@@ -35,7 +36,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -46,11 +46,6 @@ import java.util.Map;
  * Displays a list of events with filtering and search capabilities.
  */
 public class EntrantMainActivity extends AppCompatActivity {
-
-    // Browse Tab Constants
-    private static final String TAB_ALL = "All";
-    private static final String TAB_NEW = "New";
-    private static final String TAB_RECOMMENDED = "Recommended";
 
     private final List<Event> masterEventList = new ArrayList<>();
     private final List<Event> filteredEventList = new ArrayList<>();
@@ -75,10 +70,10 @@ public class EntrantMainActivity extends AppCompatActivity {
     private View clMainContent;
 
     private int loadGeneration = 0;
-    private String currentBrowseTab = TAB_ALL;
+    private String currentBrowseTab = EntrantEventFilterUtils.BROWSE_ALL;
     private String currentSearchQuery = "";
-    private String currentCategory = TAB_ALL;
-    private String currentTimeFilter = "All Dates";
+    private String currentCategory = EntrantEventFilterUtils.CATEGORY_ALL;
+    private String currentTimeFilter = EntrantEventFilterUtils.TIME_ALL_DATES;
     private boolean filterSpotsAvailable = false;
 
     @Override
@@ -174,15 +169,15 @@ public class EntrantMainActivity extends AppCompatActivity {
 
         cgBrowseTabs.setOnCheckedStateChangeListener((group, checkedIds) -> {
             if (checkedIds.isEmpty()) {
-                currentBrowseTab = TAB_ALL;
+                currentBrowseTab = EntrantEventFilterUtils.BROWSE_ALL;
             } else {
                 int checkedId = checkedIds.get(0);
                 if (checkedId == R.id.chipBrowseAll) {
-                    currentBrowseTab = TAB_ALL;
+                    currentBrowseTab = EntrantEventFilterUtils.BROWSE_ALL;
                 } else if (checkedId == R.id.chipBrowseNew) {
-                    currentBrowseTab = TAB_NEW;
+                    currentBrowseTab = EntrantEventFilterUtils.BROWSE_NEW;
                 } else if (checkedId == R.id.chipBrowseRecommended) {
-                    currentBrowseTab = TAB_RECOMMENDED;
+                    currentBrowseTab = EntrantEventFilterUtils.BROWSE_RECOMMENDED;
                 }
             }
             applyFilters();
@@ -190,10 +185,10 @@ public class EntrantMainActivity extends AppCompatActivity {
 
         cgCategories.setOnCheckedStateChangeListener((group, checkedIds) -> {
             if (checkedIds.isEmpty()) {
-                currentCategory = TAB_ALL;
+                currentCategory = EntrantEventFilterUtils.CATEGORY_ALL;
             } else {
                 Chip chip = findViewById(checkedIds.get(0));
-                currentCategory = chip != null ? chip.getText().toString() : TAB_ALL;
+                currentCategory = chip != null ? chip.getText().toString() : EntrantEventFilterUtils.CATEGORY_ALL;
             }
             applyFilters();
         });
@@ -246,8 +241,8 @@ public class EntrantMainActivity extends AppCompatActivity {
         // Reset filters to "All" when closing search
         cgBrowseTabs.check(R.id.chipBrowseAll);
         cgCategories.clearCheck();
-        currentBrowseTab = TAB_ALL;
-        currentCategory = TAB_ALL;
+        currentBrowseTab = EntrantEventFilterUtils.BROWSE_ALL;
+        currentCategory = EntrantEventFilterUtils.CATEGORY_ALL;
 
         applyFilters();
         // Hide keyboard
@@ -258,7 +253,11 @@ public class EntrantMainActivity extends AppCompatActivity {
     }
 
     private void showTimeFilterDialog() {
-        String[] options = {"All Dates", "Today", "This Week"};
+        String[] options = {
+                EntrantEventFilterUtils.TIME_ALL_DATES,
+                EntrantEventFilterUtils.TIME_TODAY,
+                EntrantEventFilterUtils.TIME_THIS_WEEK
+        };
         new androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle("Select Time Range")
                 .setItems(options, (dialog, which) -> {
@@ -399,7 +398,7 @@ public class EntrantMainActivity extends AppCompatActivity {
                             userInterests.addAll(user.getInterests());
                         }
                     }
-                    if (TAB_RECOMMENDED.equals(currentBrowseTab)) {
+                    if (EntrantEventFilterUtils.BROWSE_RECOMMENDED.equals(currentBrowseTab)) {
                         applyFilters();
                     }
                 });
@@ -408,62 +407,29 @@ public class EntrantMainActivity extends AppCompatActivity {
     /**
      * Applies all active filters (browse tab, search query, category, time range,
      * and spots available) to the master event list and updates the displayed list.
+     * Predicates live in {@link EntrantEventFilterUtils} so they can be unit tested.
      */
     private void applyFilters() {
         filteredEventList.clear();
-
         Date now = new Date();
-        Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.HOUR_OF_DAY, 23);
-        cal.set(Calendar.MINUTE, 59);
-        cal.set(Calendar.SECOND, 59);
-        Date endOfToday = cal.getTime();
-
-        cal.setTime(now);
-        cal.add(Calendar.DAY_OF_YEAR, 7);
-        Date endOfWeek = cal.getTime();
 
         for (Event event : masterEventList) {
-            // 1. Browse Tab Filter (All/New/Recommended)
-            if (TAB_NEW.equals(currentBrowseTab)) {
-                if (!isNewEvent(event)) continue;
-            } else if (TAB_RECOMMENDED.equals(currentBrowseTab)) {
-                if (!isRecommendedEvent(event)) continue;
-            }
-
-            // 2. Search filter (Case-insensitive partial match on title)
-            String title = event.getTitle() != null ? event.getTitle().toLowerCase() : "";
-            if (!currentSearchQuery.isEmpty() && !title.contains(currentSearchQuery)) continue;
-
-            // 3. Category filter
-            if (!TAB_ALL.equalsIgnoreCase(currentCategory)) {
-                if (event.getCategory() == null || !event.getCategory().equalsIgnoreCase(currentCategory))
-                    continue;
-            }
-
-            // 4. Time filter
-            if (event.getScheduledDateTime() != null && event.getScheduledDateTime().toDate().before(now))
+            if (!EntrantEventFilterUtils.matchesBrowseTab(event, currentBrowseTab, now, userInterests)) {
                 continue;
-            if ("Today".equals(currentTimeFilter)) {
-                if (event.getScheduledDateTime() == null || event.getScheduledDateTime().toDate().after(endOfToday))
-                    continue;
-            } else if ("This Week".equals(currentTimeFilter)) {
-                if (event.getScheduledDateTime() == null || event.getScheduledDateTime().toDate().after(endOfWeek))
-                    continue;
             }
-
-            // 5. Spots Available filter: registration open AND waitlist has room
-            if (filterSpotsAvailable) {
-                if (event.getRegistrationDeadline() != null && event.getRegistrationDeadline().toDate().before(now))
-                    continue;
-                Integer waitlistLimit = event.getWaitingListLimit();
-                if (waitlistLimit != null) {
-                    if (!eventWaitlistCounts.containsKey(event.getEventId())) continue;
-                    int currentCount = eventWaitlistCounts.get(event.getEventId());
-                    if (currentCount >= waitlistLimit) continue;
-                }
+            if (!EntrantEventFilterUtils.matchesSearchQuery(event, currentSearchQuery)) {
+                continue;
             }
-
+            if (!EntrantEventFilterUtils.matchesCategory(event, currentCategory)) {
+                continue;
+            }
+            if (!EntrantEventFilterUtils.matchesTimeFilter(event, currentTimeFilter, now)) {
+                continue;
+            }
+            if (filterSpotsAvailable
+                    && !EntrantEventFilterUtils.hasAvailableSpots(event, eventWaitlistCounts, now)) {
+                continue;
+            }
             filteredEventList.add(event);
         }
 
@@ -479,37 +445,6 @@ public class EntrantMainActivity extends AppCompatActivity {
             emptyStateContainer.setVisibility(View.GONE);
             rvEvents.setVisibility(View.VISIBLE);
         }
-    }
-
-    /**
-     * Checks if an event was created within the last 7 days.
-     */
-    private boolean isNewEvent(Event event) {
-        if (event.getCreatedAt() == null) return false;
-
-        long sevenDaysInMillis = 7L * 24 * 60 * 60 * 1000;
-        long currentTime = System.currentTimeMillis();
-        long eventCreatedTime = event.getCreatedAt().toDate().getTime();
-
-        return (currentTime - eventCreatedTime) <= sevenDaysInMillis;
-    }
-
-    /**
-     * Checks if an event is recommended based on user interests.
-     */
-    private boolean isRecommendedEvent(Event event) {
-        if (userInterests == null || userInterests.isEmpty()) return false;
-
-        String category = event.getCategory();
-        if (category == null || category.trim().isEmpty()) return false;
-
-        category = category.trim();
-        for (String interest : userInterests) {
-            if (interest != null && interest.trim().equalsIgnoreCase(category)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private void checkUnreadNotifications() {
