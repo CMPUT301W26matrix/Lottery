@@ -42,6 +42,7 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.switchmaterial.SwitchMaterial;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
@@ -173,7 +174,7 @@ public class EntrantProfileActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        findViewById(R.id.btn_switch_to_organizer).setOnClickListener(v -> switchToRole("ORGANIZER"));
+        findViewById(R.id.btn_switch_to_organizer).setOnClickListener(v -> switchToOrganizer());
         findViewById(R.id.btn_switch_to_admin).setOnClickListener(v -> {
             startActivity(new Intent(this, AdminSignInActivity.class));
         });
@@ -487,38 +488,87 @@ public class EntrantProfileActivity extends AppCompatActivity {
         }
     }
 
-    private void switchToRole(String role) {
-        String androidId = android.provider.Settings.Secure.getString(
-                getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
-        if (androidId == null || androidId.isEmpty()) {
-            Toast.makeText(this, "Failed to get device ID", Toast.LENGTH_SHORT).show();
+    private void switchToOrganizer() {
+        SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
+        String deviceId = prefs.getString("deviceId", null);
+        if (deviceId == null || deviceId.isEmpty()) {
+            Toast.makeText(this, "Device ID not found", Toast.LENGTH_SHORT).show();
             return;
         }
-        String roleUserId = role.toLowerCase() + "_" + androidId;
-        db.collection(FirestorePaths.USERS).document(roleUserId).get()
+        String organizerUserId = "organizer_" + deviceId;
+        db.collection(FirestorePaths.USERS).document(organizerUserId).get()
                 .addOnSuccessListener(doc -> {
-                    Intent intent;
                     if (doc.exists()) {
-                        String username = doc.getString("username");
-                        String email = doc.getString("email");
-                        if (username != null && !username.trim().isEmpty()
-                                && email != null && !email.trim().isEmpty()) {
-                            intent = new Intent(this, OrganizerBrowseEventsActivity.class);
-                        } else {
-                            intent = new Intent(this, OrganizerProfileActivity.class);
-                            intent.putExtra("forceEdit", true);
-                        }
+                        routeToOrganizerByProfileCompleteness(
+                                organizerUserId,
+                                doc.getString("username"),
+                                doc.getString("email"));
                     } else {
-                        intent = new Intent(this, OrganizerProfileActivity.class);
-                        intent.putExtra("forceEdit", true);
+                        createOrganizerRoleProfile(organizerUserId, deviceId);
                     }
-                    intent.putExtra("userId", roleUserId);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                    finish();
                 })
                 .addOnFailureListener(e ->
                         Toast.makeText(this, "Failed to switch role", Toast.LENGTH_SHORT).show());
+    }
+
+    private void createOrganizerRoleProfile(String organizerUserId, String deviceId) {
+        db.runTransaction(transaction -> {
+            DocumentSnapshot existing = transaction.get(
+                    db.collection(FirestorePaths.USERS).document(organizerUserId));
+            if (existing.exists()) {
+                return existing;
+            }
+            Map<String, Object> userData = new HashMap<>();
+            Timestamp now = Timestamp.now();
+            userData.put("userId", organizerUserId);
+            userData.put("role", "ORGANIZER");
+            userData.put("deviceId", deviceId);
+            userData.put("username", "");
+            userData.put("email", "");
+            userData.put("phone", "");
+            userData.put("createdAt", now);
+            userData.put("updatedAt", now);
+            userData.put("notificationsEnabled", true);
+            userData.put("geolocationEnabled", false);
+            transaction.set(
+                    db.collection(FirestorePaths.USERS).document(organizerUserId), userData);
+            return null;
+        }).addOnSuccessListener(result -> {
+            if (result instanceof DocumentSnapshot) {
+                // Raced with another writer — honor whatever the existing doc says
+                DocumentSnapshot doc = (DocumentSnapshot) result;
+                routeToOrganizerByProfileCompleteness(
+                        organizerUserId,
+                        doc.getString("username"),
+                        doc.getString("email"));
+            } else {
+                navigateToOrganizerProfileForceEdit(organizerUserId);
+            }
+        }).addOnFailureListener(e ->
+                Toast.makeText(this, "Failed to switch role", Toast.LENGTH_SHORT).show());
+    }
+
+    private void routeToOrganizerByProfileCompleteness(
+            String organizerUserId, String username, String email) {
+        if (username != null && !username.trim().isEmpty()
+                && email != null && !email.trim().isEmpty()) {
+            Intent intent = new Intent(this, OrganizerBrowseEventsActivity.class);
+            intent.putExtra("userId", organizerUserId);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        } else {
+            navigateToOrganizerProfileForceEdit(organizerUserId);
+        }
+    }
+
+    private void navigateToOrganizerProfileForceEdit(String organizerUserId) {
+        Intent intent = new Intent(this, OrganizerProfileActivity.class);
+        intent.putExtra("userId", organizerUserId);
+        intent.putExtra("forceEdit", true);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 
     private void navigateToMain() {

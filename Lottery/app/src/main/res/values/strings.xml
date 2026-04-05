@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name">Lottery</string>
     <string name="choose_your_role">Choose your role</string>
-    <string name="choose_role_subtitle">Select how you would like to use the app today</string>
     <string name="i_m_an_entrant">I\'m an Entrant</string>
     <string name="i_m_an_organizer">I\'m an Organizer</string>
     <string name="i_m_an_admin">I\'m an Admin</string>
@@ -219,6 +218,10 @@
     <string name="enable_notifications">Enable Notifications</string>
     <string name="receive_notifications_description">Receive organizer and admin notifications</string>
     <string name="actions_header">ACTIONS</string>
+    <string name="switch_role_header">SWITCH ROLE</string>
+    <string name="switch_to_organizer">Switch to Organizer</string>
+    <string name="switch_to_entrant">Switch to Entrant</string>
+    <string name="switch_to_admin">Switch to Admin</string>
     <string name="lottery_guidelines">Lottery Guidelines</string>
     <string name="edit_profile">Edit Profile</string>
     <string name="delete_profile">Delete Profile</string>

@@ -38,12 +38,15 @@ import com.example.lottery.util.ProfileImageHelper;
 import com.example.lottery.util.UserDeletionUtil;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -155,7 +158,7 @@ public class OrganizerProfileActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        findViewById(R.id.btn_switch_to_entrant).setOnClickListener(v -> switchToRole("ENTRANT"));
+        findViewById(R.id.btn_switch_to_entrant).setOnClickListener(v -> switchToEntrant());
         findViewById(R.id.btn_switch_to_admin).setOnClickListener(v -> {
             startActivity(new Intent(this, AdminSignInActivity.class));
         });
@@ -422,38 +425,88 @@ public class OrganizerProfileActivity extends AppCompatActivity {
         }
     }
 
-    private void switchToRole(String role) {
-        String androidId = android.provider.Settings.Secure.getString(
-                getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
-        if (androidId == null || androidId.isEmpty()) {
-            Toast.makeText(this, "Failed to get device ID", Toast.LENGTH_SHORT).show();
+    private void switchToEntrant() {
+        SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
+        String deviceId = prefs.getString("deviceId", null);
+        if (deviceId == null || deviceId.isEmpty()) {
+            Toast.makeText(this, "Device ID not found", Toast.LENGTH_SHORT).show();
             return;
         }
-        String roleUserId = role.toLowerCase() + "_" + androidId;
-        db.collection(FirestorePaths.USERS).document(roleUserId).get()
+        String entrantUserId = "entrant_" + deviceId;
+        db.collection(FirestorePaths.USERS).document(entrantUserId).get()
                 .addOnSuccessListener(doc -> {
-                    Intent intent;
                     if (doc.exists()) {
-                        String username = doc.getString("username");
-                        String email = doc.getString("email");
-                        if (username != null && !username.trim().isEmpty()
-                                && email != null && !email.trim().isEmpty()) {
-                            intent = new Intent(this, EntrantMainActivity.class);
-                        } else {
-                            intent = new Intent(this, EntrantProfileActivity.class);
-                            intent.putExtra("forceEdit", true);
-                        }
+                        routeToEntrantByProfileCompleteness(
+                                entrantUserId,
+                                doc.getString("username"),
+                                doc.getString("email"));
                     } else {
-                        intent = new Intent(this, EntrantProfileActivity.class);
-                        intent.putExtra("forceEdit", true);
+                        createEntrantRoleProfile(entrantUserId, deviceId);
                     }
-                    intent.putExtra("userId", roleUserId);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                    finish();
                 })
                 .addOnFailureListener(e ->
                         Toast.makeText(this, "Failed to switch role", Toast.LENGTH_SHORT).show());
+    }
+
+    private void createEntrantRoleProfile(String entrantUserId, String deviceId) {
+        db.runTransaction(transaction -> {
+            DocumentSnapshot existing = transaction.get(
+                    db.collection(FirestorePaths.USERS).document(entrantUserId));
+            if (existing.exists()) {
+                return existing;
+            }
+            Map<String, Object> userData = new HashMap<>();
+            Timestamp now = Timestamp.now();
+            userData.put("userId", entrantUserId);
+            userData.put("role", "ENTRANT");
+            userData.put("deviceId", deviceId);
+            userData.put("username", "");
+            userData.put("email", "");
+            userData.put("phone", "");
+            userData.put("createdAt", now);
+            userData.put("updatedAt", now);
+            userData.put("notificationsEnabled", true);
+            userData.put("geolocationEnabled", false);
+            userData.put("interests", new ArrayList<>());
+            transaction.set(
+                    db.collection(FirestorePaths.USERS).document(entrantUserId), userData);
+            return null;
+        }).addOnSuccessListener(result -> {
+            if (result instanceof DocumentSnapshot) {
+                // Raced with another writer — honor whatever the existing doc says
+                DocumentSnapshot doc = (DocumentSnapshot) result;
+                routeToEntrantByProfileCompleteness(
+                        entrantUserId,
+                        doc.getString("username"),
+                        doc.getString("email"));
+            } else {
+                navigateToEntrantProfileForceEdit(entrantUserId);
+            }
+        }).addOnFailureListener(e ->
+                Toast.makeText(this, "Failed to switch role", Toast.LENGTH_SHORT).show());
+    }
+
+    private void routeToEntrantByProfileCompleteness(
+            String entrantUserId, String username, String email) {
+        if (username != null && !username.trim().isEmpty()
+                && email != null && !email.trim().isEmpty()) {
+            Intent intent = new Intent(this, EntrantMainActivity.class);
+            intent.putExtra("userId", entrantUserId);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        } else {
+            navigateToEntrantProfileForceEdit(entrantUserId);
+        }
+    }
+
+    private void navigateToEntrantProfileForceEdit(String entrantUserId) {
+        Intent intent = new Intent(this, EntrantProfileActivity.class);
+        intent.putExtra("userId", entrantUserId);
+        intent.putExtra("forceEdit", true);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 
     private void navigateToMain() {
