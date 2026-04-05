@@ -359,6 +359,9 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
             void onRemove(User user);
         }
 
+        /**
+         * ViewHolder that caches references to the current co-organizer row's UI components.
+         */
         public static class ViewHolder extends RecyclerView.ViewHolder {
             TextView tvUsername, tvEmail;
             ImageButton btnRemove;
@@ -372,6 +375,12 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
         }
     }
 
+    /**
+     * RecyclerView adapter backing the co-organizer search results list.
+     *
+     * <p>Displays matching users, disables rows for entries already assigned as
+     * co-organizers, and forwards selections through {@link OnUserClickListener}.</p>
+     */
     @VisibleForTesting
     public static class UserSearchAdapter extends RecyclerView.Adapter<UserSearchAdapter.ViewHolder> {
         private final List<User> users;
@@ -420,10 +429,16 @@ public class OrganizerInviteCoOrganizerDialogFragment extends DialogFragment {
             return users.size();
         }
 
+        /**
+         * Listener interface for handling selection of a user from the search results.
+         */
         public interface OnUserClickListener {
             void onUserClick(User user);
         }
 
+        /**
+         * ViewHolder that caches the two text fields used to render a user search result row.
+         */
         public static class ViewHolder extends RecyclerView.ViewHolder {
             TextView text1, text2;
 

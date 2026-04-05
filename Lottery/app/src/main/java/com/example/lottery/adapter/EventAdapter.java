@@ -84,6 +84,9 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         return eventList.size();
     }
 
+    /**
+     * Listener interface for handling clicks on an event item in the list.
+     */
     public interface OnEventClickListener {
         void onEventClick(Event event);
     }
