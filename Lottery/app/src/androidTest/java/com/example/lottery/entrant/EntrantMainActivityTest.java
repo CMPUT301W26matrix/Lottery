@@ -231,7 +231,7 @@ public class EntrantMainActivityTest {
         }
     }
 
-    // US 01.01.03: Participated (waitlisted) event does not appear in Explore.
+    // US 01.01.03: Participated event does not appear in Explore.
     @Test
     public void browseEvents_excludesParticipatedEvent() throws InterruptedException {
         try (ActivityScenario<EntrantMainActivity> scenario = launchActivity()) {

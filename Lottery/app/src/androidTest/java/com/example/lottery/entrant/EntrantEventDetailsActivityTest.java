@@ -324,7 +324,7 @@ public class EntrantEventDetailsActivityTest {
     }
 
     /**
-     * US 02.01.01: Opening a QR-linked event details screen loads the persisted
+     * US 01.06.01: Opening a QR-linked event details screen loads the persisted
      * event description and poster for the linked public event.
      */
     @Test
@@ -621,7 +621,7 @@ public class EntrantEventDetailsActivityTest {
     }
 
     /**
-     * US 02.01.03 / US 01.05.07: A privately-invited entrant (no prior waitlist history)
+     * US 01.05.07: A privately-invited entrant with no prior waitlist history
      * sees Accept/Decline buttons and the waitlist action is hidden.
      */
     @Test
@@ -644,9 +644,9 @@ public class EntrantEventDetailsActivityTest {
     }
 
     /**
-     * US 02.01.03 / US 01.05.07: After a privately-invited entrant accepts (no requireLocation),
-     * they join the waitlist, the invitation buttons are hidden, and
-     * "Leave Wait List" is shown.
+     * US 01.05.07: After a privately-invited entrant accepts an event that does not
+     * require location, they join the waitlist, the invitation buttons are hidden,
+     * and "Leave Wait List" is shown.
      */
     @Test
     public void testPrivateInviteAccept_noLocation_joinsWaitlistAndHidesInviteButtons() throws Exception {
@@ -679,7 +679,7 @@ public class EntrantEventDetailsActivityTest {
     }
 
     /**
-     * US 02.01.03 / US 01.05.07: After a privately-invited entrant accepts an event that
+     * US 01.05.07: After a privately-invited entrant accepts an event that
      * requires location, the location consent dialog is shown.
      */
     @Test

@@ -147,7 +147,7 @@ public class NotificationsActivityTest {
     }
 
     /**
-     * US 01.04.01: Clicking a win (event_invitation) notification navigates to
+     * US 01.04.01: Clicking a win notification navigates to
      * EntrantEventDetailsActivity with the correct eventId.
      */
     @Test
@@ -194,7 +194,7 @@ public class NotificationsActivityTest {
     }
 
     /**
-     * US 01.04.02: When an entrant is not chosen (loses the lottery), the draw_result
+     * US 01.04.02: When an entrant is not chosen, the draw_result
      * notification is displayed in their inbox.
      */
     @Test
@@ -245,7 +245,7 @@ public class NotificationsActivityTest {
     }
 
     /**
-     * US 01.04.01: Clicking a general (non-invitation) notification opens an
+     * US 01.04.01: Clicking a general notification opens an
      * AlertDialog showing the notification title and message.
      */
     @Test
