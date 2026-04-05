@@ -52,13 +52,27 @@ public class EventValidationUtils {
     }
 
     /**
-     * US 02.03.01: Validates if the waiting list limit is a positive integer.
-     * null is considered valid as it represents an "Unlimited" state.
+     * Validates the draw date against the rest of the event timeline. The draw
+     * date is required: it must happen strictly after registration closes (so
+     * registration is already closed when the draw runs) and on or before the
+     * event start (so the draw does not run after attendees have already shown
+     * up). Events without a draw date also disappear from the pending_draw
+     * workflow in {@link com.example.lottery.adapter.EventAdapter#resolveDisplayStatus},
+     * so null is explicitly rejected here.
      *
-     * @param limit The waiting list limit to validate.
-     * @return true if the limit is null or greater than zero.
+     * @param drawDate   The draw date to validate (required).
+     * @param regEnd     Registration deadline.
+     * @param eventStart Scheduled event start.
+     * @return true only if all three dates are non-null, drawDate is strictly
+     * after regEnd, and drawDate is not after eventStart.
      */
-    public static boolean isWaitingListLimitValid(Integer limit) {
-        return limit == null || limit > 0;
+    public static boolean isDrawDateValid(Date drawDate, Date regEnd, Date eventStart) {
+        if (drawDate == null || regEnd == null || eventStart == null) {
+            return false;
+        }
+        if (!drawDate.after(regEnd)) {
+            return false;
+        }
+        return !drawDate.after(eventStart);
     }
 }
