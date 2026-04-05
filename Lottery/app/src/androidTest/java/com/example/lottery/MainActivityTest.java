@@ -27,6 +27,7 @@ import com.example.lottery.entrant.EntrantMainActivity;
 import com.example.lottery.util.FirestorePaths;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.junit.After;
@@ -53,6 +54,11 @@ public class MainActivityTest {
     private boolean intentsInitialized;
     private boolean seededExistingEntrant;
 
+    // Snapshot of any pre-existing doc for this device, so tearDown can restore
+    // the original state instead of destroying the user's real entrant profile.
+    private boolean originalEntrantExisted;
+    private Map<String, Object> originalEntrantData;
+
     @Before
     public void setUp() {
         Intents.init();
@@ -63,6 +69,25 @@ public class MainActivityTest {
                 Settings.Secure.ANDROID_ID
         );
         seededExistingEntrant = false;
+
+        // Capture existing doc (if any) before any test mutates it. tearDown
+        // uses this to restore state so tests don't wipe real profile data.
+        originalEntrantExisted = false;
+        originalEntrantData = null;
+        if (androidId != null && !androidId.isEmpty()) {
+            try {
+                DocumentSnapshot snapshot = Tasks.await(
+                        db.collection(FirestorePaths.USERS).document("entrant_" + androidId).get(),
+                        10,
+                        TimeUnit.SECONDS
+                );
+                originalEntrantExisted = snapshot.exists();
+                originalEntrantData = originalEntrantExisted ? snapshot.getData() : null;
+            } catch (Exception snapshotError) {
+                Log.w(TAG, "Failed to snapshot entrant_" + androidId + " before test", snapshotError);
+            }
+        }
+
         clearSharedPreferences();
     }
 
@@ -74,13 +99,23 @@ public class MainActivityTest {
                 scenario = null;
             }
 
-            if (seededExistingEntrant && androidId != null && !androidId.isEmpty()) {
+            if (androidId != null && !androidId.isEmpty()) {
                 try {
-                    Tasks.await(
-                            db.collection(FirestorePaths.USERS).document("entrant_" + androidId).delete(),
-                            5,
-                            TimeUnit.SECONDS
-                    );
+                    if (originalEntrantExisted && originalEntrantData != null) {
+                        // Restore the original document exactly as we found it.
+                        Tasks.await(
+                                db.collection(FirestorePaths.USERS).document("entrant_" + androidId).set(originalEntrantData),
+                                5,
+                                TimeUnit.SECONDS
+                        );
+                    } else if (seededExistingEntrant) {
+                        // Nothing pre-existed; remove test residue created by seed.
+                        Tasks.await(
+                                db.collection(FirestorePaths.USERS).document("entrant_" + androidId).delete(),
+                                5,
+                                TimeUnit.SECONDS
+                        );
+                    }
                 } catch (Exception cleanupError) {
                     Log.w(TAG, "Best-effort Firestore cleanup failed for entrant_" + androidId, cleanupError);
                 }

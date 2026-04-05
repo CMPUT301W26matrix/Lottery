@@ -44,6 +44,11 @@ public class DeviceIdentificationTest {
     private String androidId;
     private String expectedUserId;
 
+    // Snapshot of any pre-existing doc for this device, so tearDown can restore
+    // the original state instead of destroying the user's real entrant profile.
+    private boolean originalEntrantExisted;
+    private Map<String, Object> originalEntrantData;
+
     @Before
     public void setUp() throws Exception {
         db = FirebaseFirestore.getInstance();
@@ -51,15 +56,30 @@ public class DeviceIdentificationTest {
         androidId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
 
         expectedUserId = "entrant_" + androidId;
+
+        // Capture existing doc (if any) before any test mutates it. tearDown
+        // uses this to restore state so tests don't wipe real profile data.
+        DocumentSnapshot snapshot = Tasks.await(
+                db.collection(FirestorePaths.USERS).document(expectedUserId).get(),
+                10, TimeUnit.SECONDS);
+        originalEntrantExisted = snapshot.exists();
+        originalEntrantData = originalEntrantExisted ? snapshot.getData() : null;
     }
 
     @After
     public void tearDown() throws Exception {
-        // Clean up the test user document if it was created
         try {
-            Tasks.await(
-                    db.collection(FirestorePaths.USERS).document(expectedUserId).delete(),
-                    10, TimeUnit.SECONDS);
+            if (originalEntrantExisted && originalEntrantData != null) {
+                // Restore the original document exactly as we found it.
+                Tasks.await(
+                        db.collection(FirestorePaths.USERS).document(expectedUserId).set(originalEntrantData),
+                        10, TimeUnit.SECONDS);
+            } else {
+                // No doc existed before the test — remove any residue.
+                Tasks.await(
+                        db.collection(FirestorePaths.USERS).document(expectedUserId).delete(),
+                        10, TimeUnit.SECONDS);
+            }
         } catch (Exception ignored) {
         }
     }

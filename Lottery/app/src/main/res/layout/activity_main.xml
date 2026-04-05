@@ -83,17 +83,6 @@
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
-            <!-- Subtitle -->
-            <TextView
-                android:id="@+id/tvSubtitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:gravity="center"
-                android:text="@string/choose_role_subtitle"
-                android:textColor="@color/text_secondary"
-                android:textSize="14sp" />
-
             <!-- Action Buttons -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/entrant_login_button"

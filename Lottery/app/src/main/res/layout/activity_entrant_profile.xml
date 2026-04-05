@@ -294,13 +294,14 @@
                 <!-- Actions Section -->
                 <TextView
                     android:id="@+id/tv_actions_header"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="24dp"
+                    android:layout_marginStart="20dp"
                     android:layout_marginTop="24dp"
+                    android:layout_marginBottom="8dp"
                     android:text="@string/actions_header"
                     android:textColor="@color/text_light"
-                    android:textSize="12sp"
+                    android:textSize="13sp"
                     android:textStyle="bold" />
 
                 <com.google.android.material.card.MaterialCardView
@@ -355,6 +356,58 @@
                             android:layout_height="56dp"
                             android:text="@string/delete_profile"
                             android:textColor="@color/error_red" />
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Switch Role Card -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="@string/switch_role_header"
+                    android:textColor="@color/text_light"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    app:cardBackgroundColor="@color/card_background"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="2dp"
+                    app:strokeColor="@color/divider_gray"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <Button
+                            android:id="@+id/btn_switch_to_organizer"
+                            style="@style/Widget.Material3.Button.TextButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="56dp"
+                            android:text="@string/switch_to_organizer"
+                            android:textColor="@color/primary_blue" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginHorizontal="16dp"
+                            android:background="@color/divider_gray" />
+
+                        <Button
+                            android:id="@+id/btn_switch_to_admin"
+                            style="@style/Widget.Material3.Button.TextButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="56dp"
+                            android:text="@string/switch_to_admin"
+                            android:textColor="@color/primary_blue" />
 
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
