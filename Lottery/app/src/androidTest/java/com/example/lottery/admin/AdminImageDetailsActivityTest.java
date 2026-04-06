@@ -4,7 +4,6 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.RootMatchers.isDialog;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
@@ -115,24 +114,22 @@ public class AdminImageDetailsActivityTest {
 
     // US 03.03.01: Deleting an image should show confirmation dialog
     @Test
-    public void testDeleteButtonShowsConfirmationDialog() throws InterruptedException {
+    public void testDeleteButtonShowsConfirmationDialog() {
         try (ActivityScenario<AdminImageDetailsActivity> ignored = launchWithEventId()) {
             onView(withId(R.id.btnDeleteImage)).perform(click());
-            Thread.sleep(500);
-            onView(withText("Delete Image")).inRoot(isDialog()).check(matches(isDisplayed()));
-            onView(withText("Do you want to delete this poster image?")).inRoot(isDialog()).check(matches(isDisplayed()));
-            onView(withText("Confirm")).inRoot(isDialog()).check(matches(isDisplayed()));
-            onView(withText("Cancel")).inRoot(isDialog()).check(matches(isDisplayed()));
+            onView(withText("Delete Image")).check(matches(isDisplayed()));
+            onView(withText("Do you want to delete this poster image?")).check(matches(isDisplayed()));
+            onView(withText("Confirm")).check(matches(isDisplayed()));
+            onView(withText("Cancel")).check(matches(isDisplayed()));
         }
     }
 
     // US 03.03.01: Cancelling image deletion should dismiss dialog
     @Test
-    public void testDeleteConfirmationCancelDismissesDialog() throws InterruptedException {
+    public void testDeleteConfirmationCancelDismissesDialog() {
         try (ActivityScenario<AdminImageDetailsActivity> ignored = launchWithEventId()) {
             onView(withId(R.id.btnDeleteImage)).perform(click());
-            Thread.sleep(500);
-            onView(withText("Cancel")).inRoot(isDialog()).perform(click());
+            onView(withText("Cancel")).perform(click());
 
             onView(withText("Do you want to delete this poster image?")).check(doesNotExist());
             onView(withId(R.id.btnDeleteImage)).check(matches(isDisplayed()));
