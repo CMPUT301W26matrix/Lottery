@@ -292,12 +292,13 @@ public class AdminEventDetailsActivityTest {
      * US 03.01.01: Verifies that the admin event details screen displays all essential elements.
      */
     @Test
-    public void testAdminEventDetailsScreenIsDisplayed() {
+    public void testAdminEventDetailsScreenIsDisplayed() throws InterruptedException {
         Context context = ApplicationProvider.getApplicationContext();
         Intent intent = new Intent(context, AdminEventDetailsActivity.class);
         intent.putExtra("eventId", TEST_EVENT_ID);
 
         try (ActivityScenario<AdminEventDetailsActivity> scenario = ActivityScenario.launch(intent)) {
+            Thread.sleep(2000);
             onView(ViewMatchers.withId(R.id.tvPageHeader)).check(matches(isDisplayed()));
             onView(withId(R.id.tvDetailsHeader)).perform(nestedScrollTo()).check(matches(isDisplayed()));
             onView(withId(R.id.btnDeleteEvent)).perform(nestedScrollTo()).check(matches(isDisplayed()));
