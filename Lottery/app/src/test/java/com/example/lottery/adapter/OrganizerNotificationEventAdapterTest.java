@@ -28,9 +28,9 @@ public class OrganizerNotificationEventAdapterTest {
     public void setUp() {
         eventList = new ArrayList<>();
         Event event1 = new Event();
-        event1.setTitle("Event 1");
+        event1.setTitle("Spring Community BBQ");
         Event event2 = new Event();
-        event2.setTitle("Event 2");
+        event2.setTitle("Friday Night Jazz Concert");
         eventList.add(event1);
         eventList.add(event2);
         adapter = new OrganizerNotificationEventAdapter(eventList, (event, group) -> {

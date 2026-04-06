@@ -35,7 +35,7 @@ public class SignedUpListAdapterTest {
         entrantList = new ArrayList<>();
 
         EntrantEvent e = new EntrantEvent();
-        e.setUserName("Confirmed User");
+        e.setUserName("Sarah Thompson");
         entrantList.add(e);
 
         adapter = new SignedUpListAdapter(context, entrantList);

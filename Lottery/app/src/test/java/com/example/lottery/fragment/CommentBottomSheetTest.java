@@ -81,8 +81,8 @@ public class CommentBottomSheetTest {
     // US 01.08.01: Convenience overload delegates to full newInstance with isOrganizer=false
     @Test
     public void testEntrantConvenienceOverloadDefaultsOrganizerFalse() {
-        CommentBottomSheet fromConvenience = CommentBottomSheet.newInstance("e1", "u1", "Name");
-        CommentBottomSheet fromFull = CommentBottomSheet.newInstance("e1", "u1", "Name", false);
+        CommentBottomSheet fromConvenience = CommentBottomSheet.newInstance("e1", "u1", "Olivia Brown");
+        CommentBottomSheet fromFull = CommentBottomSheet.newInstance("e1", "u1", "Olivia Brown", false);
 
         Bundle a = fromConvenience.getArguments();
         Bundle b = fromFull.getArguments();

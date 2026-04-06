@@ -29,37 +29,37 @@ public class UserTest {
     // US 01.02.01: User stores name, email, and phone on construction
     @Test
     public void constructor_storesNameEmailAndPhone() {
-        User user = new User("u-1", "Alice", "alice@test.com", "7801112222");
+        User user = new User("u-1", "Alice Nguyen", "alice.nguyen@gmail.com", "7801112222");
 
-        assertEquals("Alice", user.getUsername());
-        assertEquals("alice@test.com", user.getEmail());
+        assertEquals("Alice Nguyen", user.getUsername());
+        assertEquals("alice.nguyen@gmail.com", user.getEmail());
         assertEquals("7801112222", user.getPhone());
     }
 
     // US 01.02.01: Phone number is optional (empty string is valid)
     @Test
     public void constructor_allowsEmptyPhone() {
-        User user = new User("u-2", "Bob", "bob@test.com", "");
+        User user = new User("u-2", "Bob Martinez", "bob.martinez@gmail.com", "");
 
-        assertEquals("Bob", user.getUsername());
-        assertEquals("bob@test.com", user.getEmail());
+        assertEquals("Bob Martinez", user.getUsername());
+        assertEquals("bob.martinez@gmail.com", user.getEmail());
         assertEquals("", user.getPhone());
     }
 
     // US 01.02.01: Phone number is optional (null is valid)
     @Test
     public void constructor_allowsNullPhone() {
-        User user = new User("u-3", "Carol", "carol@test.com", null);
+        User user = new User("u-3", "Carol Huang", "carol.huang@gmail.com", null);
 
-        assertEquals("Carol", user.getUsername());
-        assertEquals("carol@test.com", user.getEmail());
+        assertEquals("Carol Huang", user.getUsername());
+        assertEquals("carol.huang@gmail.com", user.getEmail());
         assertNull(user.getPhone());
     }
 
     // US 01.02.01: UserId is stored alongside profile fields
     @Test
     public void constructor_storesUserId() {
-        User user = new User("user-abc", "Dan", "dan@test.com", "5551234567");
+        User user = new User("user-abc", "Daniel Park", "daniel.park@gmail.com", "5551234567");
         assertEquals("user-abc", user.getUserId());
     }
 
@@ -70,33 +70,33 @@ public class UserTest {
     // US 01.02.02: Username is mutable via setter
     @Test
     public void setUsername_updatesValue() {
-        User user = new User("u-1", "OldName", "old@test.com", "");
-        user.setUsername("NewName");
-        assertEquals("NewName", user.getUsername());
+        User user = new User("u-1", "Emily Watson", "emily.watson@gmail.com", "");
+        user.setUsername("Emily Chen");
+        assertEquals("Emily Chen", user.getUsername());
     }
 
     // US 01.02.02: Email is mutable via setter
     @Test
     public void setEmail_updatesValue() {
-        User user = new User("u-1", "Name", "old@test.com", "");
-        user.setEmail("new@test.com");
-        assertEquals("new@test.com", user.getEmail());
+        User user = new User("u-1", "Priya Sharma", "priya.sharma@outlook.com", "");
+        user.setEmail("priya.sharma@gmail.com");
+        assertEquals("priya.sharma@gmail.com", user.getEmail());
     }
 
     // US 01.02.02: Phone is mutable via setter
     @Test
     public void setPhone_updatesValue() {
-        User user = new User("u-1", "Name", "e@test.com", "111");
-        user.setPhone("999");
-        assertEquals("999", user.getPhone());
+        User user = new User("u-1", "James Lee", "james.lee@gmail.com", "7801234567");
+        user.setPhone("7809876543");
+        assertEquals("7809876543", user.getPhone());
     }
 
     // US 01.02.02: Profile image base64 can be set and retrieved
     @Test
     public void setProfileImageBase64_updatesValue() {
         User user = new User();
-        user.setProfileImageBase64("base64data");
-        assertEquals("base64data", user.getProfileImageBase64());
+        user.setProfileImageBase64("data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABI");
+        assertEquals("data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABI", user.getProfileImageBase64());
     }
 
     // US 01.02.02: Interests list can be set and retrieved
@@ -122,7 +122,7 @@ public class UserTest {
     // US 01.04.03: notificationsEnabled defaults to true on convenience constructor
     @Test
     public void convenienceConstructor_notificationsEnabledIsTrue() {
-        User user = new User("u-1", "Name", "e@test.com", "");
+        User user = new User("u-1", "Olivia Brown", "olivia.brown@gmail.com", "");
         assertTrue("Notifications should be enabled by default via convenience constructor",
                 user.isNotificationsEnabled());
     }
@@ -171,8 +171,8 @@ public class UserTest {
     @Test
     public void fullConstructor_storesDeviceId() {
         Timestamp now = Timestamp.now();
-        User user = new User("uid", "dev-99", "e@t.com", "555",
-                "Name", "ENTRANT", null, true, now, now, null);
+        User user = new User("uid", "dev-99", "kevin.ross@gmail.com", "7805559012",
+                "Kevin Ross", "ENTRANT", null, true, now, now, null);
         assertEquals("dev-99", user.getDeviceId());
     }
 
@@ -254,7 +254,7 @@ public class UserTest {
     // US 03.05.01: getRole returns the exact value assigned through setRole
     @Test
     public void getRole_returnsAssignedValueAfterSetRole() {
-        User user = new User("u-1", "Test", "t@test.com", "");
+        User user = new User("u-1", "Rachel Kim", "rachel.kim@gmail.com", "");
         user.setRole("ORGANIZER");
         assertEquals("ORGANIZER", user.getRole());
     }
@@ -288,8 +288,8 @@ public class UserTest {
     @Test
     public void fullConstructor_nullRoleDefaultsToEntrant() {
         Timestamp now = Timestamp.now();
-        User user = new User("uid", "dev", "e@t.com", "555",
-                "Name", null, null, true, now, now, null);
+        User user = new User("uid", "dev-a1b2c3", "nora.gill@gmail.com", "7805551234",
+                "Nora Gill", null, null, true, now, now, null);
         assertEquals("ENTRANT", user.getRole());
     }
 
@@ -377,16 +377,16 @@ public class UserTest {
     public void fullConstructor_setsAllFields() {
         Timestamp now = Timestamp.now();
         GeoPoint loc = new GeoPoint(51.05, -114.07);
-        List<String> interests = Arrays.asList("coding", "reading");
+        List<String> interests = Arrays.asList("sports", "music");
 
-        User user = new User("uid-1", "dev-1", "e@t.com", "5551234567",
-                "FullName", "ORGANIZER", loc, false, now, now, interests);
+        User user = new User("uid-1", "dev-1", "lena.patel@gmail.com", "7805559876",
+                "Lena Patel", "ORGANIZER", loc, false, now, now, interests);
 
         assertEquals("uid-1", user.getUserId());
         assertEquals("dev-1", user.getDeviceId());
-        assertEquals("e@t.com", user.getEmail());
-        assertEquals("5551234567", user.getPhone());
-        assertEquals("FullName", user.getUsername());
+        assertEquals("lena.patel@gmail.com", user.getEmail());
+        assertEquals("7805559876", user.getPhone());
+        assertEquals("Lena Patel", user.getUsername());
         assertEquals("ORGANIZER", user.getRole());
         assertEquals(loc, user.getLocation());
         assertFalse(user.isNotificationsEnabled());

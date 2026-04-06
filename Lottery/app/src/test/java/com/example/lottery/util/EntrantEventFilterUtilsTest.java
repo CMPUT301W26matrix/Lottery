@@ -79,21 +79,21 @@ public class EntrantEventFilterUtilsTest {
     @Test
     public void matchesSearchQuery_nullQuery_returnsTrue() {
         assertTrue(EntrantEventFilterUtils.matchesSearchQuery(
-                eventWithTitle("Anything"), null));
+                eventWithTitle("Summer Book Club Meetup"), null));
     }
 
     // US 01.01.05: An empty query passes every event.
     @Test
     public void matchesSearchQuery_emptyQuery_returnsTrue() {
         assertTrue(EntrantEventFilterUtils.matchesSearchQuery(
-                eventWithTitle("Anything"), ""));
+                eventWithTitle("Summer Book Club Meetup"), ""));
     }
 
     // US 01.01.05: A whitespace-only query is treated as empty and passes every event.
     @Test
     public void matchesSearchQuery_whitespaceOnlyQuery_returnsTrue() {
         assertTrue(EntrantEventFilterUtils.matchesSearchQuery(
-                eventWithTitle("Anything"), "   \t\n"));
+                eventWithTitle("Summer Book Club Meetup"), "   \t\n"));
     }
 
     // US 01.01.05: The title match is case-insensitive on the query side.
@@ -343,7 +343,7 @@ public class EntrantEventFilterUtilsTest {
     @Test
     public void matchesBrowseTab_allPassesEveryEvent() {
         assertTrue(EntrantEventFilterUtils.matchesBrowseTab(
-                eventWithTitle("Anything"), BROWSE_ALL, FIXED_NOW, Collections.emptyList()));
+                eventWithTitle("Summer Book Club Meetup"), BROWSE_ALL, FIXED_NOW, Collections.emptyList()));
     }
 
     // US 01.01.03: The "New" browse tab dispatches to the new-event window check.

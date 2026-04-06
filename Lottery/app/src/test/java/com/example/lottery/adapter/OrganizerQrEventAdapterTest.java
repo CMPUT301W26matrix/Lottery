@@ -22,9 +22,15 @@ public class OrganizerQrEventAdapterTest {
     @Test
     public void testItemCount() {
         List<Event> events = new ArrayList<>();
-        events.add(new Event());
-        events.add(new Event());
-        events.add(new Event());
+        Event annual5kRun = new Event();
+        annual5kRun.setTitle("Annual Charity 5K Run");
+        events.add(annual5kRun);
+        Event soccerCamp = new Event();
+        soccerCamp.setTitle("Kids Soccer Camp");
+        events.add(soccerCamp);
+        Event potteryWorkshop = new Event();
+        potteryWorkshop.setTitle("Weekend Pottery Workshop");
+        events.add(potteryWorkshop);
 
         OrganizerQrEventAdapter adapter = new OrganizerQrEventAdapter(events, event -> {
         });

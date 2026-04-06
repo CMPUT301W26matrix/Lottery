@@ -37,7 +37,7 @@ public class ProfileAdapterTest {
         users = new ArrayList<>();
         users.add(new User("u-1", "John Doe", "john@example.com", "1234567890"));
         users.add(new User("u-2", "Jane Smith", "jane@example.com", ""));
-        users.add(new User("u-3", "No Phone", "none@example.com", null));
+        users.add(new User("u-3", "Wei Zhang", "wei.zhang@gmail.com", null));
 
         adapter = new ProfileAdapter(context, users);
     }

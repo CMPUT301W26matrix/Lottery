@@ -31,12 +31,12 @@ public class NotificationItemTest {
     @Test
     public void testParameterizedConstructor() {
         String id = "notif123";
-        String title = "Test Title";
-        String message = "Test Message";
+        String title = "Lottery Draw Result";
+        String message = "Congratulations! You have been selected for the Spring Community BBQ.";
         String type = "EVENT_INVITATION";
-        String eventId = "event456";
-        String eventTitle = "Event Title";
-        String senderId = "sender123";
+        String eventId = "spring_bbq_2025";
+        String eventTitle = "Spring Community BBQ";
+        String senderId = "jennifer.martinez";
         String senderRole = "organizer";
         boolean isRead = false;
         Timestamp createdAt = Timestamp.now();
@@ -65,7 +65,7 @@ public class NotificationItemTest {
         item.setRead(true);
         assertTrue(item.isRead());
 
-        String newTitle = "New Title";
+        String newTitle = "Waitlist Update";
         item.setTitle(newTitle);
         assertEquals(newTitle, item.getTitle());
     }
@@ -82,8 +82,8 @@ public class NotificationItemTest {
     @Test
     public void setMessage_updatesValue() {
         NotificationItem item = new NotificationItem();
-        item.setMessage("You won!");
-        assertEquals("You won!", item.getMessage());
+        item.setMessage("A spot has opened up for the Yoga Class. Please accept your invitation.");
+        assertEquals("A spot has opened up for the Yoga Class. Please accept your invitation.", item.getMessage());
     }
 
     // US 01.04.01: notification's type setter
@@ -98,8 +98,8 @@ public class NotificationItemTest {
     @Test
     public void setEventId_updatesValue() {
         NotificationItem item = new NotificationItem();
-        item.setEventId("ev-55");
-        assertEquals("ev-55", item.getEventId());
+        item.setEventId("yoga_class_fall_2025");
+        assertEquals("yoga_class_fall_2025", item.getEventId());
     }
 
     // US 01.04.01: eventTitle setter
@@ -114,8 +114,8 @@ public class NotificationItemTest {
     @Test
     public void setSenderId_updatesValue() {
         NotificationItem item = new NotificationItem();
-        item.setSenderId("org-1");
-        assertEquals("org-1", item.getSenderId());
+        item.setSenderId("coach.williams");
+        assertEquals("coach.williams", item.getSenderId());
     }
 
     // US 02.07.01: senderRole setter

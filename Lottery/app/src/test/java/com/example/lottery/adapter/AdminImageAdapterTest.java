@@ -49,16 +49,16 @@ public class AdminImageAdapterTest {
         imageList = new ArrayList<>();
 
         Event event1 = new Event();
-        event1.setEventId("event1");
-        event1.setTitle("Concert Poster");
-        event1.setPosterBase64("data:image/jpeg;base64,poster1");
+        event1.setEventId("jazz_festival_2025");
+        event1.setTitle("Annual Jazz Festival");
+        event1.setPosterBase64("data:image/jpeg;base64,/9j/4AAQSkZJRgABAQ==");
         event1.setScheduledDateTime(new Timestamp(new Date(System.currentTimeMillis() + 86400000)));
         imageList.add(event1);
 
         Event event2 = new Event();
-        event2.setEventId("event2");
-        event2.setTitle("Workshop Poster");
-        event2.setPosterBase64("data:image/jpeg;base64,poster2");
+        event2.setEventId("painting_workshop_2025");
+        event2.setTitle("Watercolor Painting Workshop");
+        event2.setPosterBase64("data:image/jpeg;base64,/9j/4AAQSkZJRgABBQ==");
         event2.setScheduledDateTime(null);
         imageList.add(event2);
 
@@ -108,7 +108,7 @@ public class AdminImageAdapterTest {
         adapter.onBindViewHolder(holder, 0);
 
         TextView tvTitle = holder.itemView.findViewById(R.id.tvEventTitle);
-        assertEquals("Concert Poster", tvTitle.getText().toString());
+        assertEquals("Annual Jazz Festival", tvTitle.getText().toString());
     }
 
     /**
@@ -174,7 +174,7 @@ public class AdminImageAdapterTest {
         holder.itemView.performClick();
 
         assertTrue(clicked[0]);
-        assertEquals("event1", clickedEventId[0]);
+        assertEquals("jazz_festival_2025", clickedEventId[0]);
     }
 
     /**
@@ -183,8 +183,8 @@ public class AdminImageAdapterTest {
     @Test
     public void testEventRetainsEventIdAfterSet() {
         Event event = new Event();
-        event.setEventId("firestore_doc_id");
-        assertEquals("firestore_doc_id", event.getEventId());
+        event.setEventId("community_garden_open_day");
+        assertEquals("community_garden_open_day", event.getEventId());
     }
 
     /**
@@ -193,8 +193,8 @@ public class AdminImageAdapterTest {
     @Test
     public void testAdapterHandlesNullEventId() {
         Event event = new Event();
-        event.setTitle("No ID Event");
-        event.setPosterBase64("data:image/jpeg;base64,sample");
+        event.setTitle("Community Garden Open Day");
+        event.setPosterBase64("data:image/jpeg;base64,/9j/4AAQSkZJRgABCQ==");
         List<Event> singleList = new ArrayList<>();
         singleList.add(event);
         AdminImageAdapter singleAdapter = new AdminImageAdapter(singleList, e -> {
@@ -204,7 +204,7 @@ public class AdminImageAdapterTest {
         singleAdapter.onBindViewHolder(holder, 0);
 
         TextView tvTitle = holder.itemView.findViewById(R.id.tvEventTitle);
-        assertEquals("No ID Event", tvTitle.getText().toString());
+        assertEquals("Community Garden Open Day", tvTitle.getText().toString());
     }
 
     /**
@@ -214,7 +214,7 @@ public class AdminImageAdapterTest {
     public void testEventPosterBase64Accessible() {
         Event event = imageList.get(0);
         assertNotNull("Poster Base64 should be set for image deletion", event.getPosterBase64());
-        assertEquals("data:image/jpeg;base64,poster1", event.getPosterBase64());
+        assertEquals("data:image/jpeg;base64,/9j/4AAQSkZJRgABAQ==", event.getPosterBase64());
     }
 
     /**
@@ -223,7 +223,7 @@ public class AdminImageAdapterTest {
     @Test
     public void testClearPosterBase64AfterDeletion() {
         Event event = new Event();
-        event.setPosterBase64("data:image/jpeg;base64,sample");
+        event.setPosterBase64("data:image/jpeg;base64,/9j/4AAQSkZJRgABDQ==");
         assertNotNull(event.getPosterBase64());
         event.setPosterBase64(null);
         assertNull("Poster Base64 should be null after clearing", event.getPosterBase64());

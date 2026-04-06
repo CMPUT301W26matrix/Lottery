@@ -103,7 +103,7 @@ public class EntrantEventDetailsWaitlistTest {
         seededUserIds.add(userId);
         Map<String, Object> user = new HashMap<>();
         user.put("userId", userId);
-        user.put("username", "Test Entrant");
+        user.put("username", "Taylor Singh");
         user.put("email", "test.entrant@example.com");
         user.put("role", "ENTRANT");
         user.put("deviceId", "test_device");
@@ -117,7 +117,7 @@ public class EntrantEventDetailsWaitlistTest {
     private void seedEntrantStatus(String eventId, String userId, String status) throws Exception {
         Map<String, Object> record = new HashMap<>();
         record.put("userId", userId);
-        record.put("userName", "Test Entrant");
+        record.put("userName", "Taylor Singh");
         record.put("email", "test.entrant@example.com");
         record.put("status", status);
         record.put("registeredAt", Timestamp.now());

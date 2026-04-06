@@ -253,7 +253,7 @@ public class AdminRoleSwitchUITest {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         seedRoleProfile(db, entrantUserId, "ENTRANT", deviceId,
-                "Admin As Entrant", "admin.entrant@test.com");
+                "Jordan Kim", "jordan.kim@gmail.com");
 
         SharedPreferences prefs = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
         prefs.edit().putString("deviceId", deviceId).commit();
@@ -305,7 +305,7 @@ public class AdminRoleSwitchUITest {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         seedRoleProfile(db, organizerUserId, "ORGANIZER", deviceId,
-                "Admin As Organizer", "admin.organizer@test.com");
+                "Priya Sharma", "priya.sharma@gmail.com");
 
         SharedPreferences prefs = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
         prefs.edit().putString("deviceId", deviceId).commit();

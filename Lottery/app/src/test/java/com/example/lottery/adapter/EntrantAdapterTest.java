@@ -34,8 +34,8 @@ public class EntrantAdapterTest {
     public void setUp() {
         context = ApplicationProvider.getApplicationContext();
         entrants = new ArrayList<>();
-        entrants.add(new User("e-1", "Alice", "alice@example.com", "1112223333"));
-        entrants.add(new User("e-2", "Bob", "bob@example.com", "4445556666"));
+        entrants.add(new User("e-1", "Alice Nguyen", "alice.nguyen@gmail.com", "7801112233"));
+        entrants.add(new User("e-2", "Bob Martinez", "bob.martinez@gmail.com", "7804445566"));
 
         adapter = new EntrantAdapter(context, entrants);
     }
@@ -54,6 +54,6 @@ public class EntrantAdapterTest {
 
         assertNotNull(view);
         TextView tvName = view.findViewById(R.id.entrantName);
-        assertEquals("Alice", tvName.getText().toString());
+        assertEquals("Alice Nguyen", tvName.getText().toString());
     }
 }

@@ -30,13 +30,13 @@ public class EntrantEventBundleTest {
         EntrantEvent ee = new EntrantEvent();
         ee.setUserId("uid-1");
         ee.setUserName("Alice");
-        ee.setEmail("alice@test.com");
+        ee.setEmail("alice@gmail.com");
         ee.setStatus("invited");
 
         Bundle b = ee.toBundle();
         assertEquals("uid-1", b.getString("userId"));
         assertEquals("Alice", b.getString("userName"));
-        assertEquals("alice@test.com", b.getString("email"));
+        assertEquals("alice@gmail.com", b.getString("email"));
         assertEquals("invited", b.getString("status"));
     }
 
@@ -90,13 +90,13 @@ public class EntrantEventBundleTest {
         Bundle b = new Bundle();
         b.putString("userId", "uid-2");
         b.putString("userName", "Bob");
-        b.putString("email", "bob@test.com");
+        b.putString("email", "bob@gmail.com");
         b.putString("status", "accepted");
 
         EntrantEvent ee = EntrantEvent.fromBundle(b);
         assertEquals("uid-2", ee.getUserId());
         assertEquals("Bob", ee.getUserName());
-        assertEquals("bob@test.com", ee.getEmail());
+        assertEquals("bob@gmail.com", ee.getEmail());
         assertEquals("accepted", ee.getStatus());
     }
 
@@ -146,7 +146,7 @@ public class EntrantEventBundleTest {
         GeoPoint loc = new GeoPoint(53.5, -113.5);
 
         EntrantEvent original = new EntrantEvent(
-                "uid-rt", "RoundTrip", "rt@test.com", "waitlisted",
+                "uid-rt", "Sam Park", "sam.park@gmail.com", "waitlisted",
                 now, now, null, null, null, loc);
 
         Bundle b = original.toBundle();

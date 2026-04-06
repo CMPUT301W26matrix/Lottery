@@ -82,8 +82,11 @@ public class CoOrganizerTest {
     @Test
     public void testCoOrganizerNotificationType() {
         NotificationItem notification = new NotificationItem(
-                "id", "title", "msg", "co_organizer_assignment",
-                "ev1", "Ev Title", "s1", "ORGANIZER", false, Timestamp.now()
+                "notif-co-1", "Co-Organizer Assignment",
+                "You have been assigned as a co-organizer.",
+                "co_organizer_assignment",
+                "charity_5k_run", "Annual Charity 5K Run",
+                "coach.williams", "ORGANIZER", false, Timestamp.now()
         );
 
         assertEquals("co_organizer_assignment", notification.getType());
@@ -93,8 +96,11 @@ public class CoOrganizerTest {
     @Test
     public void testCoOrganizerNotificationSenderRole() {
         NotificationItem notification = new NotificationItem(
-                "id", "Co-Organizer Assignment", "msg", "co_organizer_assignment",
-                "ev1", "Event", "sender1", "ORGANIZER", false, Timestamp.now()
+                "notif-co-2", "Co-Organizer Assignment",
+                "You have been assigned as a co-organizer for the Jazz Festival.",
+                "co_organizer_assignment",
+                "jazz_festival_2025", "Annual Jazz Festival",
+                "jennifer.martinez", "ORGANIZER", false, Timestamp.now()
         );
 
         assertEquals("ORGANIZER", notification.getSenderRole());
@@ -104,9 +110,9 @@ public class CoOrganizerTest {
     @Test
     public void testFilterEntrantsMatchesByUsername() {
         List<User> candidates = new ArrayList<>();
-        candidates.add(new User("u1", "Alice", "alice@test.com", null));
-        candidates.add(new User("u2", "Bob", "bob@test.com", null));
-        candidates.add(new User("u3", "Alicia", "alicia@test.com", null));
+        candidates.add(new User("u1", "Alice Nguyen", "alice.nguyen@gmail.com", null));
+        candidates.add(new User("u2", "Bob Martinez", "bob.martinez@gmail.com", null));
+        candidates.add(new User("u3", "Alicia Park", "alicia.park@gmail.com", null));
 
         List<User> result = OrganizerInviteCoOrganizerDialogFragment.filterEntrants(candidates, "ali");
         assertEquals(2, result.size());
@@ -118,10 +124,10 @@ public class CoOrganizerTest {
     @Test
     public void testFilterEntrantsMatchesByEmail() {
         List<User> candidates = new ArrayList<>();
-        candidates.add(new User("u1", "Alice", "alice@test.com", null));
-        candidates.add(new User("u2", "Bob", "bob@other.com", null));
+        candidates.add(new User("u1", "Alice Nguyen", "alice.nguyen@gmail.com", null));
+        candidates.add(new User("u2", "Bob Martinez", "bob.martinez@outlook.com", null));
 
-        List<User> result = OrganizerInviteCoOrganizerDialogFragment.filterEntrants(candidates, "test.com");
+        List<User> result = OrganizerInviteCoOrganizerDialogFragment.filterEntrants(candidates, "gmail.com");
         assertEquals(1, result.size());
         assertEquals("u1", result.get(0).getUserId());
     }
@@ -130,7 +136,7 @@ public class CoOrganizerTest {
     @Test
     public void testFilterEntrantsCaseInsensitive() {
         List<User> candidates = new ArrayList<>();
-        candidates.add(new User("u1", "Alice", "ALICE@TEST.COM", null));
+        candidates.add(new User("u1", "Alice Nguyen", "ALICE.NGUYEN@GMAIL.COM", null));
 
         List<User> result = OrganizerInviteCoOrganizerDialogFragment.filterEntrants(candidates, "alice");
         assertEquals(1, result.size());
@@ -140,7 +146,7 @@ public class CoOrganizerTest {
     @Test
     public void testFilterEntrantsNoMatch() {
         List<User> candidates = new ArrayList<>();
-        candidates.add(new User("u1", "Alice", "alice@test.com", null));
+        candidates.add(new User("u1", "Alice Nguyen", "alice.nguyen@gmail.com", null));
 
         List<User> result = OrganizerInviteCoOrganizerDialogFragment.filterEntrants(candidates, "zzz");
         assertTrue(result.isEmpty());
@@ -159,7 +165,7 @@ public class CoOrganizerTest {
     @Test
     public void testFilterEntrantsOnlyReturnsCandidates() {
         List<User> candidates = new ArrayList<>();
-        candidates.add(new User("u2", "Bob", "bob@test.com", null));
+        candidates.add(new User("u2", "Bob Martinez", "bob.martinez@gmail.com", null));
 
         List<User> result = OrganizerInviteCoOrganizerDialogFragment.filterEntrants(candidates, "bob");
         assertEquals(1, result.size());
@@ -172,15 +178,15 @@ public class CoOrganizerTest {
     // US 02.09.01: Verify only users with ENTRANT role are eligible for co-organizer assignment
     @Test
     public void testOnlyEntrantRoleIsEligible() {
-        User entrant = new User("u1", "Alice", "alice@test.com", null);
+        User entrant = new User("u1", "Alice Nguyen", "alice.nguyen@gmail.com", null);
         entrant.setRole("ENTRANT");
         assertTrue(entrant.isEntrant());
 
-        User organizer = new User("u2", "Bob", "bob@test.com", null);
+        User organizer = new User("u2", "Bob Martinez", "bob.martinez@gmail.com", null);
         organizer.setRole("ORGANIZER");
         assertFalse(organizer.isEntrant());
 
-        User admin = new User("u3", "Carol", "carol@test.com", null);
+        User admin = new User("u3", "Carol Huang", "carol.huang@gmail.com", null);
         admin.setRole("ADMIN");
         assertFalse(admin.isEntrant());
     }
@@ -220,8 +226,8 @@ public class CoOrganizerTest {
     @Test
     public void testUserSearchAdapterItemCount() throws Exception {
         List<User> users = new ArrayList<>();
-        users.add(new User("u1", "Alice", "alice@test.com", "123"));
-        users.add(new User("u2", "Bob", "bob@test.com", "456"));
+        users.add(new User("u1", "Alice Nguyen", "alice.nguyen@gmail.com", "7801234567"));
+        users.add(new User("u2", "Bob Martinez", "bob.martinez@gmail.com", "7809876543"));
 
         Set<String> existingIds = new HashSet<>();
         Object adapter = createUserSearchAdapter(users, existingIds);
@@ -245,8 +251,8 @@ public class CoOrganizerTest {
     @Test
     public void testUserSearchAdapterDisabledForExistingCoOrganizer() throws Exception {
         List<User> users = new ArrayList<>();
-        users.add(new User("u1", "Alice", "alice@test.com", "123"));
-        users.add(new User("u2", "Bob", "bob@test.com", "456"));
+        users.add(new User("u1", "Alice Nguyen", "alice.nguyen@gmail.com", "7801234567"));
+        users.add(new User("u2", "Bob Martinez", "bob.martinez@gmail.com", "7809876543"));
 
         Set<String> existingIds = new HashSet<>();
         existingIds.add("u1");
@@ -272,7 +278,7 @@ public class CoOrganizerTest {
     @Test
     public void testUserSearchAdapterEnabledForNonCoOrganizer() throws Exception {
         List<User> users = new ArrayList<>();
-        users.add(new User("u1", "Alice", "alice@test.com", "123"));
+        users.add(new User("u1", "Alice Nguyen", "alice.nguyen@gmail.com", "7801234567"));
 
         Set<String> existingIds = new HashSet<>();
         Object adapter = createUserSearchAdapter(users, existingIds);
@@ -296,7 +302,7 @@ public class CoOrganizerTest {
     @Test
     public void testUserSearchAdapterShowsEmail() throws Exception {
         List<User> users = new ArrayList<>();
-        users.add(new User("u1", "Alice", "alice@test.com", "123"));
+        users.add(new User("u1", "Alice Nguyen", "alice.nguyen@gmail.com", "7801234567"));
 
         Set<String> existingIds = new HashSet<>();
         Object adapter = createUserSearchAdapter(users, existingIds);
@@ -310,13 +316,13 @@ public class CoOrganizerTest {
 
         View itemView = ((androidx.recyclerview.widget.RecyclerView.ViewHolder) holder).itemView;
         TextView text2 = itemView.findViewById(android.R.id.text2);
-        assertEquals("alice@test.com", text2.getText().toString());
+        assertEquals("alice.nguyen@gmail.com", text2.getText().toString());
     }
 
     // US 02.09.01: Verify UserSearchAdapter falls back to phone number when email is null
     @Test
     public void testUserSearchAdapterShowsPhoneWhenEmailNull() throws Exception {
-        User user = new User("u1", "Alice", null, "5551234567");
+        User user = new User("u1", "Alice Nguyen", null, "7805551234");
 
         List<User> users = new ArrayList<>();
         users.add(user);
@@ -333,7 +339,7 @@ public class CoOrganizerTest {
 
         View itemView = ((androidx.recyclerview.widget.RecyclerView.ViewHolder) holder).itemView;
         TextView text2 = itemView.findViewById(android.R.id.text2);
-        assertEquals("5551234567", text2.getText().toString());
+        assertEquals("7805551234", text2.getText().toString());
     }
 
     // US 01.09.01: Verify NotificationAdapter formats co-organizer type label correctly
@@ -343,10 +349,10 @@ public class CoOrganizerTest {
         notifications.add(new NotificationItem(
                 "id1",
                 "Co-Organizer Assignment",
-                "You have been assigned as a co-organizer for: Test Event",
+                "You have been assigned as a co-organizer for: Community Yoga Workshop",
                 "co_organizer_assignment",
                 "event1",
-                "Test Event",
+                "Community Yoga Workshop",
                 "sender1",
                 "ORGANIZER",
                 false,
@@ -372,7 +378,7 @@ public class CoOrganizerTest {
                 "You have been assigned",
                 "co_organizer_assignment",
                 "event1",
-                "Test Event",
+                "Community Yoga Workshop",
                 "sender1",
                 "ORGANIZER",
                 false,
@@ -398,7 +404,7 @@ public class CoOrganizerTest {
                 "You have been assigned",
                 "co_organizer_assignment",
                 "event1",
-                "Test Event",
+                "Community Yoga Workshop",
                 "sender1",
                 "ORGANIZER",
                 true,

@@ -80,13 +80,13 @@ public class OrganizerBrowseEventsActivityTest {
         calendar.add(Calendar.DAY_OF_YEAR, -10);
         Date closedEventStart = calendar.getTime();
 
-        seedEvent(OPEN_EVENT_ID, TEST_USER_ID, "Owned Open Event", "open",
+        seedEvent(OPEN_EVENT_ID, TEST_USER_ID, "Saturday Morning Swim Class", "open",
                 openEventStart, null, null);
-        seedEvent(PENDING_EVENT_ID, TEST_USER_ID, "Owned Pending Event", "open",
+        seedEvent(PENDING_EVENT_ID, TEST_USER_ID, "Community Soccer Night", "open",
                 pendingEventStart, pendingRegDeadline, pendingDrawDate);
-        seedEvent(CLOSED_EVENT_ID, TEST_USER_ID, "Owned Closed Event", "closed",
+        seedEvent(CLOSED_EVENT_ID, TEST_USER_ID, "Winter Charity Gala", "closed",
                 closedEventStart, null, null);
-        seedEvent(FOREIGN_EVENT_ID, OTHER_USER_ID, "Foreign Organizer Event", "open",
+        seedEvent(FOREIGN_EVENT_ID, OTHER_USER_ID, "Downtown Jazz Night", "open",
                 openEventStart, null, null);
     }
 
@@ -210,15 +210,15 @@ public class OrganizerBrowseEventsActivityTest {
                     if (vh == null) continue;
                     String title = ((android.widget.TextView) vh.itemView.findViewById(R.id.tvEventTitle))
                             .getText().toString();
-                    if ("Owned Open Event".equals(title)) foundOpen = true;
-                    if ("Owned Pending Event".equals(title)) foundPending = true;
-                    if ("Owned Closed Event".equals(title)) foundClosed = true;
-                    if ("Foreign Organizer Event".equals(title)) foundForeign = true;
+                    if ("Saturday Morning Swim Class".equals(title)) foundOpen = true;
+                    if ("Community Soccer Night".equals(title)) foundPending = true;
+                    if ("Winter Charity Gala".equals(title)) foundClosed = true;
+                    if ("Downtown Jazz Night".equals(title)) foundForeign = true;
                 }
-                assertTrue("Owned Open Event should be present", foundOpen);
-                assertTrue("Owned Pending Event should be present", foundPending);
-                assertTrue("Owned Closed Event should be present", foundClosed);
-                assertFalse("Foreign Organizer Event should not be present", foundForeign);
+                assertTrue("Saturday Morning Swim Class should be present", foundOpen);
+                assertTrue("Community Soccer Night should be present", foundPending);
+                assertTrue("Winter Charity Gala should be present", foundClosed);
+                assertFalse("Downtown Jazz Night should not be present", foundForeign);
 
                 assertEquals("1", ((android.widget.TextView) activity.findViewById(R.id.tvActiveCount))
                         .getText().toString());
@@ -243,7 +243,7 @@ public class OrganizerBrowseEventsActivityTest {
 
             onView(withId(R.id.rvEvents)).perform(
                     RecyclerViewActions.actionOnItem(
-                            hasDescendant(withText("Owned Open Event")),
+                            hasDescendant(withText("Saturday Morning Swim Class")),
                             click()
                     )
             );

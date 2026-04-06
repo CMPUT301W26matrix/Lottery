@@ -147,8 +147,8 @@ public class MainActivityTest {
         user.put("userId", "entrant_" + androidId);
         user.put("role", "ENTRANT");
         user.put("deviceId", androidId);
-        user.put("username", "Existing Entrant");
-        user.put("email", "entrant@example.com");
+        user.put("username", "Avery Chen");
+        user.put("email", "avery.chen@gmail.com");
         user.put("phone", "7805550101");
         user.put("notificationsEnabled", true);
         user.put("geolocationEnabled", false);

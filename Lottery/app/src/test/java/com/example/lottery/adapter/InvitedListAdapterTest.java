@@ -35,10 +35,10 @@ public class InvitedListAdapterTest {
         entrantList = new ArrayList<>();
 
         EntrantEvent e1 = new EntrantEvent();
-        e1.setUserName("Alice");
+        e1.setUserName("Alice Nguyen");
 
         EntrantEvent e2 = new EntrantEvent();
-        e2.setUserName("Bob");
+        e2.setUserName("Bob Martinez");
 
         entrantList.add(e1);
         entrantList.add(e2);

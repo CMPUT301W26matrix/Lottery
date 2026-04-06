@@ -51,6 +51,10 @@ public class EntrantsListSamplingTest {
     private static final String TEST_EVENT_ID = "test_sampling_event";
     private static final String TEST_USER_ID = "test_sampling_organizer";
     private static final int EVENT_CAPACITY = 10;
+    private static final String[] ENTRANT_NAMES = {
+            "Liam Chen", "Emma Wilson", "Noah Kim", "Olivia Brown", "Ethan Patel",
+            "Sophia Liu", "Mason Clark", "Ava Brooks", "Lucas Rivera", "Mia Thompson"
+    };
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final Set<String> seededEntrantIds = new HashSet<>();
@@ -65,7 +69,7 @@ public class EntrantsListSamplingTest {
         // Seed the event document with capacity
         Map<String, Object> event = new HashMap<>();
         event.put("eventId", TEST_EVENT_ID);
-        event.put("title", "Sampling Test Event");
+        event.put("title", "Weekend Pottery Workshop");
         event.put("organizerId", TEST_USER_ID);
         event.put("capacity", EVENT_CAPACITY);
         event.put("status", "open");
@@ -77,7 +81,7 @@ public class EntrantsListSamplingTest {
         // Seed 3 waitlisted entrants
         for (int i = 1; i <= 3; i++) {
             String userId = "test_sample_entrant_" + i;
-            seedWaitlistedEntrant(userId, "Entrant " + i, "entrant" + i + "@test.com");
+            seedWaitlistedEntrant(userId, ENTRANT_NAMES[i], "entrant" + i + "@gmail.com");
             seedUserDocument(userId);
         }
     }
@@ -143,7 +147,7 @@ public class EntrantsListSamplingTest {
         Map<String, Object> user = new HashMap<>();
         user.put("userId", userId);
         user.put("username", userId);
-        user.put("email", userId + "@test.com");
+        user.put("email", userId + "@gmail.com");
         user.put("notificationsEnabled", true);
         Tasks.await(db.collection(FirestorePaths.USERS).document(userId).set(user),
                 10, TimeUnit.SECONDS);
@@ -189,7 +193,7 @@ public class EntrantsListSamplingTest {
             Map<String, Object> record = new HashMap<>();
             record.put("userId", userId);
             record.put("userName", "Invited " + i);
-            record.put("email", "invited" + i + "@test.com");
+            record.put("email", "invited" + i + "@gmail.com");
             record.put("status", InvitationFlowUtil.STATUS_INVITED);
             record.put("registeredAt", Timestamp.now());
             record.put("invitedAt", Timestamp.now());

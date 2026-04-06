@@ -49,7 +49,7 @@ public class CommentAdapterTest {
 
         Comment entrantComment = new Comment();
         entrantComment.setCommentId("c1");
-        entrantComment.setAuthorName("Alice");
+        entrantComment.setAuthorName("Alice Nguyen");
         entrantComment.setAuthorRole("entrant");
         entrantComment.setContent("Great event!");
         entrantComment.setCreatedAt(new Timestamp(new Date()));
@@ -57,7 +57,7 @@ public class CommentAdapterTest {
 
         Comment organizerComment = new Comment();
         organizerComment.setCommentId("c2");
-        organizerComment.setAuthorName("Bob");
+        organizerComment.setAuthorName("Bob Martinez");
         organizerComment.setAuthorRole("organizer");
         organizerComment.setContent("Thanks for joining!");
         organizerComment.setCreatedAt(new Timestamp(new Date()));
@@ -65,7 +65,7 @@ public class CommentAdapterTest {
 
         Comment adminComment = new Comment();
         adminComment.setCommentId("c3");
-        adminComment.setAuthorName("Charlie");
+        adminComment.setAuthorName("Charlie Wu");
         adminComment.setAuthorRole("admin");
         adminComment.setContent("Policy reminder.");
         adminComment.setCreatedAt(new Timestamp(new Date()));
@@ -109,7 +109,7 @@ public class CommentAdapterTest {
         adapter.onBindViewHolder(holder, 0);
 
         TextView tvAuthor = holder.itemView.findViewById(R.id.tvAuthorName);
-        assertEquals("Alice", tvAuthor.getText().toString());
+        assertEquals("Alice Nguyen", tvAuthor.getText().toString());
     }
 
     // US 02.08.01 / US 02.08.02: Organizer comments display "(Organizer)" marker
@@ -122,7 +122,7 @@ public class CommentAdapterTest {
         adapter.onBindViewHolder(holder, 1);
 
         TextView tvAuthor = holder.itemView.findViewById(R.id.tvAuthorName);
-        assertEquals("Bob (Organizer)", tvAuthor.getText().toString());
+        assertEquals("Bob Martinez (Organizer)", tvAuthor.getText().toString());
     }
 
     // US 03.10.01: Admin comments should display "(Admin)" marker
@@ -135,7 +135,7 @@ public class CommentAdapterTest {
         adapter.onBindViewHolder(holder, 2);
 
         TextView tvAuthor = holder.itemView.findViewById(R.id.tvAuthorName);
-        assertEquals("Charlie (Admin)", tvAuthor.getText().toString());
+        assertEquals("Charlie Wu (Admin)", tvAuthor.getText().toString());
     }
 
     // US 01.08.02: Null author name falls back to "Anonymous"
@@ -144,7 +144,7 @@ public class CommentAdapterTest {
         Comment nullNameComment = new Comment();
         nullNameComment.setCommentId("c4");
         nullNameComment.setAuthorRole("entrant");
-        nullNameComment.setContent("Anonymous post");
+        nullNameComment.setContent("Is there parking available at the venue?");
         nullNameComment.setCreatedAt(new Timestamp(new Date()));
 
         List<Comment> list = new ArrayList<>();
@@ -220,9 +220,9 @@ public class CommentAdapterTest {
     public void testTimestampEmptyWhenNull() {
         Comment noTimeComment = new Comment();
         noTimeComment.setCommentId("c5");
-        noTimeComment.setAuthorName("Dave");
+        noTimeComment.setAuthorName("Dave Reilly");
         noTimeComment.setAuthorRole("entrant");
-        noTimeComment.setContent("No time");
+        noTimeComment.setContent("What time does the event start?");
 
         List<Comment> list = new ArrayList<>();
         list.add(noTimeComment);

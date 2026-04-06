@@ -170,7 +170,7 @@ public class EntrantQrScanActivityTest {
         seedPublicQrEvent(
                 eventId,
                 "A one-week registration window for beginner swimming lessons before canoe season",
-                "data:image/jpeg;base64,SWIM_LESSONS_POSTER"
+                "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD"
         );
 
         Intent launchIntent = new Intent(ApplicationProvider.getApplicationContext(), EntrantQrScanActivity.class);

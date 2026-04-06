@@ -38,15 +38,16 @@ public class CommentTest {
     @Test
     public void fullConstructor_setsAllFields() {
         Timestamp now = Timestamp.now();
-        Comment c = new Comment("c1", "e1", "a1", "Alice",
-                "entrant", "Great event!", now, now, false);
+        Comment c = new Comment("c1", "spring_bbq_2025", "alice_nguyen",
+                "Alice Nguyen", "entrant",
+                "Looking forward to the BBQ this weekend!", now, now, false);
 
         assertEquals("c1", c.getCommentId());
-        assertEquals("e1", c.getEventId());
-        assertEquals("a1", c.getAuthorId());
-        assertEquals("Alice", c.getAuthorName());
+        assertEquals("spring_bbq_2025", c.getEventId());
+        assertEquals("alice_nguyen", c.getAuthorId());
+        assertEquals("Alice Nguyen", c.getAuthorName());
         assertEquals("entrant", c.getAuthorRole());
-        assertEquals("Great event!", c.getContent());
+        assertEquals("Looking forward to the BBQ this weekend!", c.getContent());
         assertEquals(now, c.getCreatedAt());
         assertEquals(now, c.getUpdatedAt());
         assertFalse(c.isDeleted());
@@ -56,8 +57,9 @@ public class CommentTest {
     @Test
     public void fullConstructor_deletedTrue() {
         Timestamp now = Timestamp.now();
-        Comment c = new Comment("c2", "e2", "a2", "Bob",
-                "organizer", "Removed", now, now, true);
+        Comment c = new Comment("c2", "yoga_class_fall", "coach_bob",
+                "Bob Martinez", "organizer",
+                "This comment was removed for violating guidelines.", now, now, true);
         assertTrue(c.isDeleted());
     }
 
@@ -105,8 +107,8 @@ public class CommentTest {
     @Test
     public void setContent_and_getContent() {
         Comment c = new Comment();
-        c.setContent("This is a test comment");
-        assertEquals("This is a test comment", c.getContent());
+        c.setContent("Can I bring my kids to this event?");
+        assertEquals("Can I bring my kids to this event?", c.getContent());
     }
 
     // US 01.08.01: createdAt getter/setter

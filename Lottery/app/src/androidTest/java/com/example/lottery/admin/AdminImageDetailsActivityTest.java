@@ -40,8 +40,8 @@ public class AdminImageDetailsActivityTest {
     @Before
     public void setUp() {
         Event event = new Event();
-        event.setTitle("Test Event Title");
-        event.setDetails("Test event description for admin review.");
+        event.setTitle("Outdoor Photography Workshop");
+        event.setDetails("Learn landscape and portrait photography techniques in a hands-on outdoor session.");
         event.setPosterBase64("data:image/jpeg;base64,/9j/4AAQSkZJRg==");
         AdminImageDetailsActivity.testEvent = event;
     }
@@ -72,7 +72,7 @@ public class AdminImageDetailsActivityTest {
     @Test
     public void testEventTitleIsDisplayed() {
         try (ActivityScenario<AdminImageDetailsActivity> ignored = launchWithEventId()) {
-            onView(withId(R.id.tvEventTitle)).check(matches(withText("Test Event Title")));
+            onView(withId(R.id.tvEventTitle)).check(matches(withText("Outdoor Photography Workshop")));
         }
     }
 
@@ -81,7 +81,7 @@ public class AdminImageDetailsActivityTest {
     public void testEventDetailsAreDisplayed() {
         try (ActivityScenario<AdminImageDetailsActivity> ignored = launchWithEventId()) {
             onView(withId(R.id.tvEventDetails))
-                    .check(matches(withText("Test event description for admin review.")));
+                    .check(matches(withText("Learn landscape and portrait photography techniques in a hands-on outdoor session.")));
         }
     }
 
@@ -115,9 +115,10 @@ public class AdminImageDetailsActivityTest {
 
     // US 03.03.01: Deleting an image should show confirmation dialog
     @Test
-    public void testDeleteButtonShowsConfirmationDialog() {
+    public void testDeleteButtonShowsConfirmationDialog() throws InterruptedException {
         try (ActivityScenario<AdminImageDetailsActivity> ignored = launchWithEventId()) {
             onView(withId(R.id.btnDeleteImage)).perform(click());
+            Thread.sleep(500);
             onView(withText("Delete Image")).inRoot(isDialog()).check(matches(isDisplayed()));
             onView(withText("Do you want to delete this poster image?")).inRoot(isDialog()).check(matches(isDisplayed()));
             onView(withText("Confirm")).inRoot(isDialog()).check(matches(isDisplayed()));
@@ -127,9 +128,10 @@ public class AdminImageDetailsActivityTest {
 
     // US 03.03.01: Cancelling image deletion should dismiss dialog
     @Test
-    public void testDeleteConfirmationCancelDismissesDialog() {
+    public void testDeleteConfirmationCancelDismissesDialog() throws InterruptedException {
         try (ActivityScenario<AdminImageDetailsActivity> ignored = launchWithEventId()) {
             onView(withId(R.id.btnDeleteImage)).perform(click());
+            Thread.sleep(500);
             onView(withText("Cancel")).inRoot(isDialog()).perform(click());
 
             onView(withText("Do you want to delete this poster image?")).check(doesNotExist());

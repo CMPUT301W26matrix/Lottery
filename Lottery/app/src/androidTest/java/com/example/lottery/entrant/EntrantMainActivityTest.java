@@ -100,7 +100,7 @@ public class EntrantMainActivityTest {
                 nextWeek, nextWeek, false, 100);
 
         // 5. Today event — for time filter testing
-        seedEvent(TODAY_EVENT_ID, "Todays Morning Yoga", "Sports",
+        seedEvent(TODAY_EVENT_ID, "Today's Morning Yoga", "Sports",
                 todayLater, nextWeek, false, 100);
 
         // 6. Far future event (30 days out) — should be excluded by Today/This Week filters
@@ -142,7 +142,7 @@ public class EntrantMainActivityTest {
         Map<String, Object> event = new HashMap<>();
         event.put("eventId", eventId);
         event.put("title", title);
-        event.put("details", "Test event: " + title);
+        event.put("details", "Community event: " + title);
         event.put("status", "open");
         event.put("private", isPrivate);
         event.put("category", category);
@@ -160,8 +160,8 @@ public class EntrantMainActivityTest {
         Timestamp now = Timestamp.now();
         Map<String, Object> record = new HashMap<>();
         record.put("userId", userId);
-        record.put("userName", "Test Entrant");
-        record.put("email", "entrant@test.com");
+        record.put("userName", "Riley Brooks");
+        record.put("email", "entrant@gmail.com");
         record.put("status", status);
         record.put("registeredAt", now);
         record.put("waitlistedAt", now);
@@ -310,7 +310,7 @@ public class EntrantMainActivityTest {
                 RecyclerView rv = activity.findViewById(R.id.rvEvents);
                 // Today's event should still appear
                 assertTrue("Today's event should appear under Today filter",
-                        recyclerViewContainsTitle(rv, "Todays Morning Yoga"));
+                        recyclerViewContainsTitle(rv, "Today's Morning Yoga"));
                 // Far future event (30 days out) should be excluded
                 assertFalse("Far future event should NOT appear under Today filter",
                         recyclerViewContainsTitle(rv, "Far Future Gala Night"));
@@ -337,7 +337,7 @@ public class EntrantMainActivityTest {
                 RecyclerView rv = activity.findViewById(R.id.rvEvents);
                 // Today's event is within this week
                 assertTrue("Today's event should appear under This Week filter",
-                        recyclerViewContainsTitle(rv, "Todays Morning Yoga"));
+                        recyclerViewContainsTitle(rv, "Today's Morning Yoga"));
                 // 30-day-out event should be excluded
                 assertFalse("Far future event should NOT appear under This Week filter",
                         recyclerViewContainsTitle(rv, "Far Future Gala Night"));
@@ -387,7 +387,7 @@ public class EntrantMainActivityTest {
                 RecyclerView rv = activity.findViewById(R.id.rvEvents);
                 // Today's yoga event survives both filters (today + waitlist has room)
                 assertTrue("Today's event should survive combined time + capacity filter",
-                        recyclerViewContainsTitle(rv, "Todays Morning Yoga"));
+                        recyclerViewContainsTitle(rv, "Today's Morning Yoga"));
                 // Far future and next-week events excluded by time
                 assertFalse("Far future event excluded by time filter",
                         recyclerViewContainsTitle(rv, "Far Future Gala Night"));
@@ -438,7 +438,7 @@ public class EntrantMainActivityTest {
         try (ActivityScenario<EntrantMainActivity> scenario = launchActivity()) {
             Thread.sleep(LOAD_WAIT_MS);
 
-            // Search for "yoga" — matches "Todays Morning Yoga" (today)
+            // Search for "yoga" — matches "Today's Morning Yoga" (today)
             // and "Already Joined Yoga Class" (but excluded by participation filter)
             onView(withId(R.id.llSearchToggle)).perform(click());
             onView(withId(R.id.etSearch))
@@ -454,7 +454,7 @@ public class EntrantMainActivityTest {
                 RecyclerView rv = activity.findViewById(R.id.rvEvents);
                 // Today's yoga event matches both search and time filter
                 assertTrue("Today's yoga event should appear with search + today filter",
-                        recyclerViewContainsTitle(rv, "Todays Morning Yoga"));
+                        recyclerViewContainsTitle(rv, "Today's Morning Yoga"));
                 // Dance event doesn't match search keyword "yoga"
                 assertFalse("Dance event should NOT appear for yoga search",
                         recyclerViewContainsTitle(rv, "Advanced Dance Workshop"));
