@@ -22,6 +22,7 @@ public final class EntrantEventFilterUtils {
     public static final String TIME_ALL_DATES = "All Dates";
     public static final String TIME_TODAY = "Today";
     public static final String TIME_THIS_WEEK = "This Week";
+    public static final String TIME_THIS_MONTH = "Next 30 Days";
 
     public static final String CATEGORY_ALL = "All";
 
@@ -86,6 +87,9 @@ public final class EntrantEventFilterUtils {
         }
         if (TIME_THIS_WEEK.equals(timeFilter)) {
             return !eventDate.after(endOfWindow(now, 7));
+        }
+        if (TIME_THIS_MONTH.equals(timeFilter)) {
+            return !eventDate.after(endOfWindow(now, 30));
         }
         // Unknown filter values default to pass.
         return true;

@@ -256,7 +256,8 @@ public class EntrantMainActivity extends AppCompatActivity {
         String[] options = {
                 EntrantEventFilterUtils.TIME_ALL_DATES,
                 EntrantEventFilterUtils.TIME_TODAY,
-                EntrantEventFilterUtils.TIME_THIS_WEEK
+                EntrantEventFilterUtils.TIME_THIS_WEEK,
+                EntrantEventFilterUtils.TIME_THIS_MONTH
         };
         new androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle("Select Time Range")
