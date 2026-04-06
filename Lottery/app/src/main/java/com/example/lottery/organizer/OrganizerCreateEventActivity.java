@@ -77,6 +77,9 @@ import java.util.UUID;
 public class OrganizerCreateEventActivity extends AppCompatActivity {
 
     private static final String TAG = "OrganizerCreateEvent";
+    // Validated in validateAndSaveEvent() — not via InputFilter to avoid truncating loadEventData().
+    private static final int MAX_TITLE_LENGTH = 100;
+    private static final int MAX_DETAILS_LENGTH = 500;
     private TextInputEditText etEventTitle, etMaxCapacity, etEventDetails, etPlace, etWaitingListLimit;
     // Activity Result Launcher for Google Places Autocomplete
     private final ActivityResultLauncher<Intent> startAutocomplete = registerForActivityResult(
@@ -459,9 +462,11 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
      *
      * <p>Rules enforced:
      * <ul>
-     *   <li>Title, Start Date, and Registration End are required.</li>
+     *   <li>Title, Start Date, Registration End, Draw Date and Capacity are required.</li>
+     *   <li>Title must be at most {@value #MAX_TITLE_LENGTH} characters; details at most {@value #MAX_DETAILS_LENGTH}.</li>
      *   <li>Registration must end before the event starts.</li>
-     *   <li>Waiting list limit must be a positive integer.</li>
+     *   <li>Draw date must be strictly after registration end and on or before event start.</li>
+     *   <li>Capacity and Waiting list limit must be positive integers.</li>
      *   <li>New limit cannot be less than the current number of entrants when editing.</li>
      * </ul>
      * </p>
@@ -474,21 +479,26 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         String place = etPlace.getText() != null ? etPlace.getText().toString().trim() : "";
         String waitingLimitStr = etWaitingListLimit.getText() != null ? etWaitingListLimit.getText().toString().trim() : "";
 
-        // 1.1 Event must have title
         if (title.isEmpty()) {
             Toast.makeText(this, "Event title is required", Toast.LENGTH_SHORT).show();
             Log.w(TAG, "Validation failed: Title is empty");
             return;
         }
-
-        // 1.2 Event must have start date and time
+        if (title.length() > MAX_TITLE_LENGTH) {
+            Toast.makeText(this, "Event title must be at most " + MAX_TITLE_LENGTH + " characters", Toast.LENGTH_SHORT).show();
+            Log.w(TAG, "Validation failed: Title too long");
+            return;
+        }
+        if (details.length() > MAX_DETAILS_LENGTH) {
+            Toast.makeText(this, "Event details must be at most " + MAX_DETAILS_LENGTH + " characters", Toast.LENGTH_SHORT).show();
+            Log.w(TAG, "Validation failed: Details too long");
+            return;
+        }
         if (eventStartDate == null) {
             Toast.makeText(this, "Event date and time are required", Toast.LENGTH_SHORT).show();
             Log.w(TAG, "Validation failed: Event start date is null");
             return;
         }
-
-        // 1.3 Event must have registration deadline
         if (regEndDate == null) {
             Toast.makeText(this, "Registration deadline is required", Toast.LENGTH_SHORT).show();
             Log.w(TAG, "Validation failed: Registration deadline is null");
@@ -513,24 +523,27 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             return;
         }
 
-        // US 02.03.01: Validate waiting list limit
+        if (drawDate == null) {
+            Toast.makeText(this, "Draw date is required", Toast.LENGTH_SHORT).show();
+            Log.w(TAG, "Validation failed: Draw date is null");
+            return;
+        }
+        if (!EventValidationUtils.isDrawDateValid(drawDate, regEndDate, eventStartDate)) {
+            Toast.makeText(this, "Draw date must be after registration end and on or before the event start", Toast.LENGTH_LONG).show();
+            Log.w(TAG, "Validation failed: Invalid draw date");
+            return;
+        }
+
+        // A missing/zero capacity breaks EntrantsListActivity.sampling(): getRemainingSlots()
+        // collapses to 0 so maxSampleSize is 0 and no winners can ever be drawn.
+        Integer parsedCapacity = parseRequiredPositiveInt(capacityStr, "Event Capacity");
+        if (parsedCapacity == null) return;
+
+        // US 02.03.01: waiting list limit is optional — null means "Unlimited"
         Integer waitingListLimit = null;
         if (swLimitWaitingList.isChecked()) {
-            if (waitingLimitStr.isEmpty()) {
-                Toast.makeText(this, "Please enter a waiting list limit", Toast.LENGTH_SHORT).show();
-                Log.w(TAG, "Validation failed: Waiting list limit enabled but empty");
-                return;
-            }
-            try {
-                waitingListLimit = Integer.parseInt(waitingLimitStr);
-                if (!EventValidationUtils.isWaitingListLimitValid(waitingListLimit)) {
-                    Toast.makeText(this, "Limit must be a positive integer (>0)", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-            } catch (NumberFormatException e) {
-                Toast.makeText(this, "Invalid number for waiting list limit", Toast.LENGTH_SHORT).show();
-                return;
-            }
+            waitingListLimit = parseRequiredPositiveInt(waitingLimitStr, "Waiting List Limit");
+            if (waitingListLimit == null) return;
         }
 
         final Integer finalWaitingListLimit = waitingListLimit;
@@ -543,19 +556,43 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
                         if (snapshots.size() > finalWaitingListLimit) {
                             Toast.makeText(this, "New limit cannot be less than current entrants", Toast.LENGTH_LONG).show();
                         } else {
-                            persistEvent(title, capacityStr, details, place, finalWaitingListLimit);
+                            persistEvent(title, parsedCapacity, details, place, finalWaitingListLimit);
                         }
                     })
-                    .addOnFailureListener(e -> persistEvent(title, capacityStr, details, place, finalWaitingListLimit));
+                    .addOnFailureListener(e -> persistEvent(title, parsedCapacity, details, place, finalWaitingListLimit));
         } else {
-            persistEvent(title, capacityStr, details, place, finalWaitingListLimit);
+            persistEvent(title, parsedCapacity, details, place, finalWaitingListLimit);
+        }
+    }
+
+    /**
+     * Parses a required positive integer field from a raw text value, toasting the
+     * appropriate error and logging a warning when validation fails. Returns null on
+     * any failure so callers can early-return; the successful value is always > 0.
+     */
+    private Integer parseRequiredPositiveInt(String raw, String fieldLabel) {
+        if (raw.isEmpty()) {
+            Toast.makeText(this, fieldLabel + " is required", Toast.LENGTH_SHORT).show();
+            Log.w(TAG, "Validation failed: " + fieldLabel + " is empty");
+            return null;
+        }
+        try {
+            int parsed = Integer.parseInt(raw);
+            if (parsed <= 0) {
+                Toast.makeText(this, fieldLabel + " must be a positive integer (>0)", Toast.LENGTH_SHORT).show();
+                return null;
+            }
+            return parsed;
+        } catch (NumberFormatException e) {
+            Toast.makeText(this, "Invalid number for " + fieldLabel.toLowerCase(Locale.US), Toast.LENGTH_SHORT).show();
+            return null;
         }
     }
 
     /**
      * Persists the event to Firestore, handling poster conversion to Base64 if needed.
      */
-    private void persistEvent(String title, String capacityStr, String details, String place, Integer waitingListLimit) {
+    private void persistEvent(String title, int capacity, String details, String place, Integer waitingListLimit) {
         Log.d(TAG, "persistEvent started: Base64 mode");
         btnCreateEvent.setEnabled(false);
 
@@ -576,7 +613,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             }
         }
 
-        saveEventToFirestore(title, capacityStr, details, place, waitingListLimit, posterData);
+        saveEventToFirestore(title, capacity, details, place, waitingListLimit, posterData);
     }
 
     /**
@@ -622,7 +659,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
     /**
      * Final step to save the event object to Firestore.
      */
-    private void saveEventToFirestore(String title, String capacityStr, String details, String place, Integer waitingListLimit, String posterBase64ToSave) {
+    private void saveEventToFirestore(String title, int capacity, String details, String place, Integer waitingListLimit, String posterBase64ToSave) {
         Log.d(TAG, "saveEventToFirestore started");
 
         boolean isPrivate = swIsPrivate.isChecked();
@@ -631,15 +668,6 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             qrCodeContent = ""; // No promotional QR for private events
         } else if (qrCodeContent == null || qrCodeContent.isEmpty()) {
             qrCodeContent = QRCodeUtils.generateUniqueQrContent(eventId);
-        }
-
-        int capacity;
-        try {
-            capacity = capacityStr.isEmpty() ? 0 : Integer.parseInt(capacityStr);
-        } catch (NumberFormatException e) {
-            Toast.makeText(this, "Invalid number for capacity", Toast.LENGTH_SHORT).show();
-            btnCreateEvent.setEnabled(true);
-            return;
         }
 
         String category = "Other";

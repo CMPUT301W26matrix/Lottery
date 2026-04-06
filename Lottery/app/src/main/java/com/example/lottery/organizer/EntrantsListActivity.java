@@ -338,6 +338,15 @@ public class EntrantsListActivity extends AppCompatActivity implements
 
         int sampleSize = Integer.parseInt(size);
 
+        // Legacy events may lack a positive capacity; surface a clear message instead of
+        // the opaque "0 < sample size <= 0" error produced by the maxSampleSize check below.
+        if (capacity <= 0) {
+            Toast.makeText(this,
+                    "Event has no capacity set. Please edit the event to set a capacity before sampling.",
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+
         db.collection(FirestorePaths.eventWaitingList(eventId))
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
