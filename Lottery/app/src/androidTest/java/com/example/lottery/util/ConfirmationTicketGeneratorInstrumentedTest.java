@@ -54,7 +54,7 @@ public class ConfirmationTicketGeneratorInstrumentedTest {
      */
     @Test
     public void generateTicket_createsNonEmptyPdf() throws IOException {
-        File pdf = generate("Test Event", "Test User", "event123");
+        File pdf = generate("Spring Community BBQ", "Alice Nguyen", "spring_bbq_2025");
 
         assertNotNull(pdf);
         assertTrue("PDF file should exist", pdf.exists());

@@ -76,7 +76,7 @@ public class OrganizerEventDetailsActivityTest {
 
         Map<String, Object> event = new HashMap<>();
         event.put("eventId", TEST_PRIVATE_EVENT_ID);
-        event.put("title", "Test Private Event");
+        event.put("title", "Exclusive Members-Only Wine Tasting");
         event.put("organizerId", TEST_USER_ID);
         event.put("private", true);
         event.put("capacity", 10);
@@ -88,7 +88,7 @@ public class OrganizerEventDetailsActivityTest {
         // Seed a public event
         Map<String, Object> publicEvent = new HashMap<>();
         publicEvent.put("eventId", TEST_PUBLIC_EVENT_ID);
-        publicEvent.put("title", "Test Public Event");
+        publicEvent.put("title", "Saturday Morning Farmers Market");
         publicEvent.put("organizerId", TEST_USER_ID);
         publicEvent.put("private", false);
         publicEvent.put("capacity", 20);
@@ -101,7 +101,7 @@ public class OrganizerEventDetailsActivityTest {
         Map<String, Object> organizer = new HashMap<>();
         organizer.put("userId", TEST_USER_ID);
         organizer.put("username", TEST_ORGANIZER_NAME);
-        organizer.put("email", "organizer@test.com");
+        organizer.put("email", "organizer@gmail.com");
         organizer.put("role", "ORGANIZER");
         db.collection(FirestorePaths.USERS).document(TEST_USER_ID).set(organizer)
                 .addOnCompleteListener(t -> latch.countDown());
@@ -109,8 +109,8 @@ public class OrganizerEventDetailsActivityTest {
         // Seed an entrant user that can be invited
         Map<String, Object> user = new HashMap<>();
         user.put("userId", TEST_INVITE_TARGET);
-        user.put("username", "InviteTestUser");
-        user.put("email", "invite@test.com");
+        user.put("username", "Nadia Rahman");
+        user.put("email", "invite@gmail.com");
         user.put("phone", "7809991234");
         user.put("role", "ENTRANT");
         user.put("notificationsEnabled", true);
@@ -120,8 +120,8 @@ public class OrganizerEventDetailsActivityTest {
         // Seed an entrant user that can be assigned as co-organizer
         Map<String, Object> coOrgUser = new HashMap<>();
         coOrgUser.put("userId", TEST_COORG_TARGET);
-        coOrgUser.put("username", "CoOrg Candidate");
-        coOrgUser.put("email", "coorg@test.com");
+        coOrgUser.put("username", "Samuel Turner");
+        coOrgUser.put("email", "coorg@gmail.com");
         coOrgUser.put("phone", "7801112222");
         coOrgUser.put("role", "ENTRANT");
         coOrgUser.put("notificationsEnabled", true);
@@ -427,7 +427,7 @@ public class OrganizerEventDetailsActivityTest {
             onView(withId(R.id.etSearch)).check(matches(isDisplayed()));
 
             // Search for the seeded entrant by name
-            onView(withId(R.id.etSearch)).perform(replaceText("InviteTestUser"), closeSoftKeyboard());
+            onView(withId(R.id.etSearch)).perform(replaceText("Nadia Rahman"), closeSoftKeyboard());
 
             // Wait for debounce (300ms) + Firestore query
             Thread.sleep(3000);
@@ -467,7 +467,7 @@ public class OrganizerEventDetailsActivityTest {
         try (ActivityScenario<OrganizerEventDetailsActivity> scenario = ActivityScenario.launch(intent)) {
             Thread.sleep(3000);
             onView(withId(R.id.btnInviteEntrant)).perform(scrollTo(), click());
-            onView(withId(R.id.etSearch)).perform(replaceText("invite@test"), closeSoftKeyboard());
+            onView(withId(R.id.etSearch)).perform(replaceText("invite@gmail"), closeSoftKeyboard());
             Thread.sleep(3000);
             onView(withId(R.id.rvResults)).perform(
                     androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition(0, click()));
@@ -527,7 +527,7 @@ public class OrganizerEventDetailsActivityTest {
             Thread.sleep(1000);
 
             // Type and post a comment
-            onView(withId(R.id.etComment)).perform(replaceText("Organizer test comment"), closeSoftKeyboard());
+            onView(withId(R.id.etComment)).perform(replaceText("Please arrive 15 minutes early for setup"), closeSoftKeyboard());
             onView(withId(R.id.btnPostComment)).perform(click());
 
             // Wait for Firestore write
@@ -542,7 +542,7 @@ public class OrganizerEventDetailsActivityTest {
         boolean organizerCommentFound = false;
         for (QueryDocumentSnapshot doc : commentsSnap) {
             if ("organizer".equals(doc.getString("authorRole"))
-                    && "Organizer test comment".equals(doc.getString("content"))) {
+                    && "Please arrive 15 minutes early for setup".equals(doc.getString("content"))) {
                 organizerCommentFound = true;
                 break;
             }
@@ -560,7 +560,7 @@ public class OrganizerEventDetailsActivityTest {
         Map<String, Object> comment = new HashMap<>();
         comment.put("eventId", TEST_PRIVATE_EVENT_ID);
         comment.put("authorId", TEST_INVITE_TARGET);
-        comment.put("authorName", "InviteTestUser");
+        comment.put("authorName", "Nadia Rahman");
         comment.put("authorRole", "entrant");
         comment.put("content", "Needs moderation");
         comment.put("createdAt", Timestamp.now());
@@ -603,8 +603,8 @@ public class OrganizerEventDetailsActivityTest {
     public void testAssignCoOrganizer_writesFirestoreAndNotification() throws Exception {
         Map<String, Object> waitlistEntry = new HashMap<>();
         waitlistEntry.put("userId", TEST_COORG_TARGET);
-        waitlistEntry.put("userName", "CoOrg Candidate");
-        waitlistEntry.put("email", "coorg@test.com");
+        waitlistEntry.put("userName", "Samuel Turner");
+        waitlistEntry.put("email", "coorg@gmail.com");
         waitlistEntry.put("status", "waitlisted");
         waitlistEntry.put("waitlistedAt", Timestamp.now());
         waitlistEntry.put("registeredAt", Timestamp.now());
@@ -623,11 +623,11 @@ public class OrganizerEventDetailsActivityTest {
             Thread.sleep(3000);
             onView(withId(R.id.btnCoOrganizers)).perform(scrollTo(), click());
             onView(withId(R.id.etSearch)).check(matches(isDisplayed()));
-            onView(withId(R.id.etSearch)).perform(replaceText("CoOrg"), closeSoftKeyboard());
+            onView(withId(R.id.etSearch)).perform(replaceText("Samuel"), closeSoftKeyboard());
             Thread.sleep(3000);
             onView(withId(R.id.rvResults)).perform(
                     RecyclerViewActions.actionOnItem(
-                            hasDescendant(withText("CoOrg Candidate")), click()));
+                            hasDescendant(withText("Samuel Turner")), click()));
             Thread.sleep(3000);
         }
 

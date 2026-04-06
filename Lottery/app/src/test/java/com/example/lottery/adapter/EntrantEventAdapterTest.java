@@ -52,10 +52,10 @@ public class EntrantEventAdapterTest {
         context.setTheme(R.style.Theme_Lottery);
         eventList = new ArrayList<>();
         Event event1 = new Event();
-        event1.setTitle("Test Event 1");
+        event1.setTitle("Beginner Yoga Class");
 
         Event event2 = new Event();
-        event2.setTitle("Test Event 2");
+        event2.setTitle("Downtown Farmers Market");
 
         eventList.add(event1);
         eventList.add(event2);

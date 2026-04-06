@@ -174,7 +174,7 @@ public class EntrantCommentTest {
 
             // Open comment bottom sheet
             onView(withId(R.id.btnComments)).perform(click());
-            Thread.sleep(1000);
+            Thread.sleep(2000);
 
             // Type and submit comment
             onView(withId(R.id.etComment))
@@ -243,7 +243,7 @@ public class EntrantCommentTest {
         String eventId = "comment_empty_event_" + UUID.randomUUID();
         String userId = "comment_empty_user_" + UUID.randomUUID();
         seedEvent(eventId);
-        seedUser(userId, "Test User");
+        seedUser(userId, "Morgan Taylor");
 
         try (ActivityScenario<EntrantEventDetailsActivity> scenario =
                      ActivityScenario.launch(createIntent(eventId, userId))) {
@@ -254,7 +254,7 @@ public class EntrantCommentTest {
 
             // Open comment bottom sheet
             onView(withId(R.id.btnComments)).perform(click());
-            Thread.sleep(1000);
+            Thread.sleep(2000);
 
             // Click post with empty input
             onView(withId(R.id.btnPostComment)).perform(click());

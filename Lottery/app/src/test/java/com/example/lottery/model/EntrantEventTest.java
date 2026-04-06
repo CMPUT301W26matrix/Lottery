@@ -287,12 +287,12 @@ public class EntrantEventTest {
         GeoPoint loc = new GeoPoint(51.05, -114.07);
 
         EntrantEvent ee = new EntrantEvent(
-                "uid-1", "Alice", "alice@test.com", "waitlisted",
+                "uid-1", "Alice", "alice@gmail.com", "waitlisted",
                 now, now, null, null, null, loc);
 
         assertEquals("uid-1", ee.getUserId());
         assertEquals("Alice", ee.getUserName());
-        assertEquals("alice@test.com", ee.getEmail());
+        assertEquals("alice@gmail.com", ee.getEmail());
         assertEquals("waitlisted", ee.getStatus());
         assertEquals(now, ee.getRegisteredAt());
         assertEquals(now, ee.getWaitlistedAt());

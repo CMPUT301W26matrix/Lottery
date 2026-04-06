@@ -61,7 +61,7 @@ public class ProfileImageHelperTest {
     // Verify hasCustomImage returns true when selected image is non-empty
     @Test
     public void hasCustomImage_selectedNonEmpty_savedNull_returnsTrue() {
-        assertTrue(ProfileImageHelper.hasCustomImage("base64data", null));
+        assertTrue(ProfileImageHelper.hasCustomImage("data:image/jpeg;base64,/9j/4AAQSkZJRg==", null));
     }
 
     // Verify hasCustomImage returns true when both selected and saved are non-empty
@@ -112,7 +112,7 @@ public class ProfileImageHelperTest {
         testBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
         String base64 = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
 
-        ProfileImageHelper.displayProfileImage(base64, imageView, placeholder, "Test");
+        ProfileImageHelper.displayProfileImage(base64, imageView, placeholder, "Lena Patel");
 
         assertEquals(View.VISIBLE, imageView.getVisibility());
         assertEquals(View.GONE, placeholder.getVisibility());
@@ -196,8 +196,8 @@ public class ProfileImageHelperTest {
         ImageView iv1 = new ImageView(context);
         ImageView iv2 = new ImageView(context);
 
-        ProfileImageHelper.showDefaultAvatar(iv1, null, "TestUser");
-        ProfileImageHelper.showDefaultAvatar(iv2, null, "TestUser");
+        ProfileImageHelper.showDefaultAvatar(iv1, null, "Mia Thompson");
+        ProfileImageHelper.showDefaultAvatar(iv2, null, "Mia Thompson");
 
         assertEquals(View.VISIBLE, iv1.getVisibility());
         assertEquals(View.VISIBLE, iv2.getVisibility());

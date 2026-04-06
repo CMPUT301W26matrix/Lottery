@@ -165,7 +165,7 @@ public class ConfirmationTicketGeneratorTest {
     // WOW #8: Verify drawWrappedText produces consistent results for same input
     @Test
     public void drawWrappedText_nullCanvas_consistentResults() throws Exception {
-        String text = "Test text for consistency check";
+        String text = "Please arrive 15 minutes before the event starts";
         int y1 = (int) drawWrappedText.invoke(null,
                 null, text, 50, 200, 300f, paint, 25);
         int y2 = (int) drawWrappedText.invoke(null,

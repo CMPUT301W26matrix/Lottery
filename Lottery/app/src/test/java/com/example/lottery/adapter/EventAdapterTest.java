@@ -152,8 +152,8 @@ public class EventAdapterTest {
     @Test
     public void bind_nullCapacity_displaysDash() {
         Event event = new Event();
-        event.setEventId("evt-null-cap");
-        event.setTitle("No Capacity Event");
+        event.setEventId("open_mic_night_2025");
+        event.setTitle("Friday Open Mic Night");
         event.setCapacity(null);
         event.setScheduledDateTime(new Timestamp(new Date(System.currentTimeMillis() + 86400000L * 7)));
 
@@ -174,8 +174,8 @@ public class EventAdapterTest {
     @Test
     public void bind_nonNullCapacity_displaysNumber() {
         Event event = new Event();
-        event.setEventId("evt-with-cap");
-        event.setTitle("Capacity Event");
+        event.setEventId("painting_workshop_spring");
+        event.setTitle("Watercolor Painting Workshop");
         event.setCapacity(50);
         event.setScheduledDateTime(new Timestamp(new Date(System.currentTimeMillis() + 86400000L * 7)));
 
@@ -200,8 +200,8 @@ public class EventAdapterTest {
     @Test
     public void testItemCount() {
         Event event = new Event();
-        event.setEventId("event1");
-        event.setTitle("Test Event");
+        event.setEventId("holiday_craft_fair_2025");
+        event.setTitle("Holiday Craft Fair");
         event.setCapacity(100);
         event.setStatus("open");
         event.setScheduledDateTime(new Timestamp(new Date(System.currentTimeMillis() + 86400000L)));
@@ -230,8 +230,8 @@ public class EventAdapterTest {
     @Test
     public void testOnBindViewHolder() {
         Event event = new Event();
-        event.setEventId("event1");
-        event.setTitle("Test Event");
+        event.setEventId("holiday_craft_fair_2025");
+        event.setTitle("Holiday Craft Fair");
         event.setCapacity(100);
         event.setStatus("open");
         event.setScheduledDateTime(new Timestamp(new Date(System.currentTimeMillis() + 86400000L)));
@@ -249,7 +249,7 @@ public class EventAdapterTest {
         TextView tvCapacity = holder.itemView.findViewById(R.id.tvCapacityValue);
         TextView tvStatus = holder.itemView.findViewById(R.id.tvEventStatus);
 
-        assertEquals("Test Event", tvTitle.getText().toString());
+        assertEquals("Holiday Craft Fair", tvTitle.getText().toString());
         assertEquals("100", tvCapacity.getText().toString());
         assertEquals("OPEN", tvStatus.getText().toString());
     }

@@ -53,8 +53,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class EntrantProfileActivityTest {
 
     private static final String TEST_USER_ID = "test_entrant_user_id";
-    private static final String ORIGINAL_NAME = "Existing Entrant";
-    private static final String ORIGINAL_EMAIL = "existing.entrant@example.com";
+    private static final String ORIGINAL_NAME = "Mia Thompson";
+    private static final String ORIGINAL_EMAIL = "mia.thompson@gmail.com";
     private static final String ORIGINAL_PHONE = "7805550101";
 
     private FirebaseFirestore db;
@@ -313,7 +313,7 @@ public class EntrantProfileActivityTest {
 
         Map<String, Object> event = new HashMap<>();
         event.put("eventId", eventId);
-        event.put("title", "Test Event");
+        event.put("title", "Beginner Cooking Workshop");
         event.put("capacity", 10L);
         event.put("createdAt", Timestamp.now());
         Tasks.await(db.collection(FirestorePaths.EVENTS).document(eventId).set(event),

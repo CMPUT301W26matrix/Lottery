@@ -321,11 +321,11 @@ public class AdminBrowseProfilesActivityTest {
      */
     private void injectMixedRoleUsers(ActivityScenario<AdminBrowseProfilesActivity> scenario) {
         scenario.onActivity(activity -> {
-            User entrant = new User("e-1", "EntrantUser", "e@test.com", "");
+            User entrant = new User("e-1", "Liam Chen", "liam.chen@gmail.com", "");
             entrant.setRole("ENTRANT");
-            User organizer = new User("o-1", "OrganizerUser", "o@test.com", "");
+            User organizer = new User("o-1", "Sophia Liu", "sophia.liu@gmail.com", "");
             organizer.setRole("ORGANIZER");
-            User entrant2 = new User("e-2", "EntrantUser2", "e2@test.com", "");
+            User entrant2 = new User("e-2", "Oliver Ng", "oliver.ng@gmail.com", "");
             entrant2.setRole("ENTRANT");
 
             // Populate allUsers so filter buttons work correctly
@@ -403,7 +403,7 @@ public class AdminBrowseProfilesActivityTest {
             // Inject data, click filter, and assert atomically on the UI thread
             // to avoid race with the async Firestore loadProfiles() callback
             scenario.onActivity(activity -> {
-                User entrant = new User("e-1", "EntrantOnly", "e@test.com", "");
+                User entrant = new User("e-1", "Emma Wilson", "emma.wilson@gmail.com", "");
                 entrant.setRole("ENTRANT");
 
                 activity.allUsers.clear();
@@ -429,7 +429,7 @@ public class AdminBrowseProfilesActivityTest {
     public void deleteOrganizer_dialogShowsCascadeWarning() {
         try (ActivityScenario<AdminBrowseProfilesActivity> scenario = launchAdminActivity()) {
             scenario.onActivity(activity -> {
-                User organizer = new User("o-1", "BadOrganizer", "bad@test.com", "");
+                User organizer = new User("o-1", "Marcus Rivera", "marcus.rivera@gmail.com", "");
                 organizer.setRole("ORGANIZER");
 
                 activity.allUsers.clear();
@@ -453,7 +453,7 @@ public class AdminBrowseProfilesActivityTest {
             onView(withText("Delete Profile")).inRoot(isDialog()).check(matches(isDisplayed()));
             onView(withText(containsString("All events created by this organizer will also be deleted.")))
                     .inRoot(isDialog()).check(matches(isDisplayed()));
-            onView(withText(containsString("BadOrganizer"))).inRoot(isDialog()).check(matches(isDisplayed()));
+            onView(withText(containsString("Marcus Rivera"))).inRoot(isDialog()).check(matches(isDisplayed()));
 
             onView(withText("Cancel")).inRoot(isDialog()).perform(click());
         }
@@ -461,7 +461,7 @@ public class AdminBrowseProfilesActivityTest {
 
     private void prepareSingleProfileAndClickFirstRow(ActivityScenario<AdminBrowseProfilesActivity> scenario) {
         scenario.onActivity(activity -> {
-            User alice = new User("user-123", "Alice", "alice@email.com", "7801234567");
+            User alice = new User("user-123", "Alice Nguyen", "alice.nguyen@gmail.com", "7801234567");
 
             activity.allUsers.clear();
             activity.allUsers.add(alice);
@@ -494,7 +494,7 @@ public class AdminBrowseProfilesActivityTest {
             onView(withText("Delete Profile"))
                     .inRoot(isDialog())
                     .check(matches(isDisplayed()));
-            onView(withText("Delete profile for Alice?"))
+            onView(withText("Delete profile for Alice Nguyen?"))
                     .inRoot(isDialog())
                     .check(matches(isDisplayed()));
             onView(withText("Confirm"))

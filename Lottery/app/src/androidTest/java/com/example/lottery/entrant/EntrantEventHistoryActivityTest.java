@@ -85,7 +85,7 @@ public class EntrantEventHistoryActivityTest {
         Map<String, Object> event = new HashMap<>();
         event.put("eventId", eventId);
         event.put("title", title);
-        event.put("details", "Test event details");
+        event.put("details", "Open to all skill levels at the community centre");
         event.put("place", "Community Centre");
         event.put("capacity", 20L);
         event.put("organizerId", organizerId);
@@ -117,7 +117,7 @@ public class EntrantEventHistoryActivityTest {
                 new Date(System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(offsetMinutes)));
         Map<String, Object> record = new HashMap<>();
         record.put("userId", userId);
-        record.put("userName", "Test Entrant");
+        record.put("userName", "Casey Nguyen");
         record.put("email", "test@example.com");
         record.put("status", status);
         record.put("registeredAt", registeredAt);

@@ -174,7 +174,7 @@ public class DeviceIdentificationTest {
                 .putString("userId", expectedUserId)
                 .putString("userRole", "ENTRANT")
                 .putString("deviceId", androidId)
-                .putString("userName", "TestUser")
+                .putString("userName", "Morgan Lee")
                 .apply();
 
         // Verify persistence

@@ -334,7 +334,7 @@ public class EntrantEventDetailsActivityTest {
         seedEvent(
                 eventId,
                 "A one-week registration window for beginner swimming lessons before canoe season",
-                "data:image/jpeg;base64,SWIM_LESSONS_POSTER"
+                "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD"
         );
         seedUser(userId);
 

@@ -543,7 +543,7 @@ public class OrganizerCreateEventActivityTest {
         Date drawDate = calendar.getTime();
 
         String uniqueTitle = "Interpretive Dance Class Poster " + System.currentTimeMillis();
-        String posterBase64 = "data:image/jpeg;base64,CREATED_POSTER_DATA";
+        String posterBase64 = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQCreated";
 
         try (ActivityScenario<OrganizerCreateEventActivity> scenario =
                      ActivityScenario.launch(createLaunchIntent())) {
@@ -617,8 +617,8 @@ public class OrganizerCreateEventActivityTest {
     @Test
     public void testEditEvent_updatesPosterInFirestore() throws Exception {
         String eventId = "swim_poster_refresh_" + System.currentTimeMillis();
-        seedExistingEvent(eventId, 5, "data:image/jpeg;base64,OLD_POSTER", Timestamp.now());
-        String newPoster = "data:image/jpeg;base64,NEW_POSTER_DATA";
+        seedExistingEvent(eventId, 5, "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQOriginal", Timestamp.now());
+        String newPoster = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQUpdated";
 
         try (ActivityScenario<OrganizerCreateEventActivity> scenario =
                      ActivityScenario.launch(editLaunchIntent(eventId))) {

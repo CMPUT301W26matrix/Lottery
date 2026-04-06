@@ -58,9 +58,9 @@ public class AdminNavigationHelperTest {
         // Seed a test event so detail screens don't finish() early
         Event event = new Event();
         event.setEventId(TEST_EVENT_ID);
-        event.setTitle("Nav Test Event");
-        event.setDetails("Navigation test event.");
-        event.setOrganizerId("test_organizer");
+        event.setTitle("Neighborhood Block Party");
+        event.setDetails("Annual block party with food trucks, live music, and activities for all ages.");
+        event.setOrganizerId("grace.chen");
         event.touch();
         Tasks.await(db.collection(FirestorePaths.EVENTS).document(TEST_EVENT_ID).set(event), 10, TimeUnit.SECONDS);
 
@@ -384,8 +384,8 @@ public class AdminNavigationHelperTest {
 
     private Intent imageDetailIntent() {
         Event event = new Event();
-        event.setTitle("Nav Test Event");
-        event.setDetails("Navigation test.");
+        event.setTitle("Neighborhood Block Party");
+        event.setDetails("Annual block party with food trucks and live music.");
         event.setPosterBase64("data:image/png;base64,iVBORw0KGgo=");
         AdminImageDetailsActivity.testEvent = event;
 

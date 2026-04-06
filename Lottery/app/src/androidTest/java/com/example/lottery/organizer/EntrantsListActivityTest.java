@@ -337,13 +337,13 @@ public class EntrantsListActivityTest {
      */
     @Test
     public void testWaitedList_showsSeededWaitlistedEntrants() throws Exception {
-        seedWaitlistedEntrant("waitlisted_user_1", "Waitlisted User One", "wait1@example.com");
+        seedWaitlistedEntrant("waitlisted_user_1", "Ethan Patel", "wait1@example.com");
 
         onView(withId(R.id.entrants_list_waited_list_btn)).perform(scrollTo(), click());
         waitForActivityCondition(activity -> activity.findViewById(R.id.waited_list_empty_text)
                 .getVisibility() == android.view.View.GONE);
 
-        onView(allOf(withText("Waitlisted User One"),
+        onView(allOf(withText("Ethan Patel"),
                 isDescendantOfA(withId(R.id.waited_list_events_view))))
                 .check(matches(isDisplayed()));
     }

@@ -344,7 +344,7 @@ public class OrganizerNotificationsActivityTest {
             List<Event> mockList = new ArrayList<>();
             Event event = new Event();
             event.setEventId(TEST_EVENT_ID);
-            event.setTitle("Mock Test Event");
+            event.setTitle("Beginner Pottery Workshop");
             mockList.add(event);
 
             try {

@@ -18,19 +18,18 @@ public class EventTest {
     // US 03.04.01: Event model should store all fields needed for admin event browsing
     @Test
     public void testEventConstructorAndGetters() {
-        String eventId = "ev123";
-        String title = "Concert";
-        String details = "Music concert";
-        String organizerId = "org456";
-        Integer capacity = 500;
-        Integer waitingListLimit = 100;
-        String qrCodeContent = "qr_content";
+        String eventId = "spring_bbq_2025";
+        String title = "Spring Community BBQ";
+        String details = "Annual neighborhood BBQ with live music and games for all ages";
+        String organizerId = "jennifer.martinez";
+        Integer capacity = 200;
+        Integer waitingListLimit = 50;
+        String qrCodeContent = "SPRING_BBQ_2025_QR";
         String status = "open";
-        String posterBase64 = "base64_test";
-        String category = "Music";
+        String posterBase64 = "data:image/jpeg;base64,/9j/4AAQSkZJRg==";
+        String category = "Social";
         Timestamp now = Timestamp.now();
 
-        // Testing the full constructor with compliant fields
         String place = "Community Centre A, Room 101";
 
         Event event = new Event(eventId, title, details, organizerId, capacity,
@@ -84,7 +83,7 @@ public class EventTest {
     @Test
     public void testPosterBase64Storage() {
         Event event = new Event();
-        String testBase64 = "data:image/jpeg;base64,sample";
+        String testBase64 = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD";
         event.setPosterBase64(testBase64);
         assertEquals("Poster Base64 should be stored exactly as provided", testBase64, event.getPosterBase64());
     }
@@ -100,7 +99,7 @@ public class EventTest {
     @Test
     public void testPosterBase64CanBeCleared() {
         Event event = new Event();
-        event.setPosterBase64("data:image/jpeg;base64,sample");
+        event.setPosterBase64("data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD");
         event.setPosterBase64(null);
         assertNull("Poster Base64 should be null after clearing", event.getPosterBase64());
     }
@@ -155,8 +154,10 @@ public class EventTest {
     @Test
     public void fullConstructor_nullCategoryDefaultsToOther() {
         Timestamp now = Timestamp.now();
-        Event event = new Event("id", "t", "d", "o", 10, null,
-                "qr", "open", null, null, null,
+        Event event = new Event("craft_fair_2025", "Holiday Craft Fair",
+                "Handmade crafts and artisan goods from local vendors",
+                "sarah.thompson", 10, null,
+                "CRAFT_FAIR_QR", "open", null, null, null,
                 now, now, now, now, now, false, false, now, now);
         assertEquals("Other", event.getCategory());
     }
@@ -169,32 +170,32 @@ public class EventTest {
     @Test
     public void setEventId_updatesValue() {
         Event event = new Event();
-        event.setEventId("ev-new");
-        assertEquals("ev-new", event.getEventId());
+        event.setEventId("yoga_class_fall_2025");
+        assertEquals("yoga_class_fall_2025", event.getEventId());
     }
 
     // US 02.01.01: title setter
     @Test
     public void setTitle_updatesValue() {
         Event event = new Event();
-        event.setTitle("New Title");
-        assertEquals("New Title", event.getTitle());
+        event.setTitle("Beginner Yoga Class");
+        assertEquals("Beginner Yoga Class", event.getTitle());
     }
 
     // US 02.01.01: details setter
     @Test
     public void setDetails_updatesValue() {
         Event event = new Event();
-        event.setDetails("Some details");
-        assertEquals("Some details", event.getDetails());
+        event.setDetails("A relaxing yoga class for beginners held every Saturday morning");
+        assertEquals("A relaxing yoga class for beginners held every Saturday morning", event.getDetails());
     }
 
     // US 02.01.01: organizerId setter
     @Test
     public void setOrganizerId_updatesValue() {
         Event event = new Event();
-        event.setOrganizerId("org-1");
-        assertEquals("org-1", event.getOrganizerId());
+        event.setOrganizerId("michael.chen");
+        assertEquals("michael.chen", event.getOrganizerId());
     }
 
     // US 02.01.01: capacity setter
@@ -209,8 +210,8 @@ public class EventTest {
     @Test
     public void setQrCodeContent_updatesValue() {
         Event event = new Event();
-        event.setQrCodeContent("qr-abc");
-        assertEquals("qr-abc", event.getQrCodeContent());
+        event.setQrCodeContent("YOGA_CLASS_QR_2025");
+        assertEquals("YOGA_CLASS_QR_2025", event.getQrCodeContent());
     }
 
     // US 02.01.01: status setter
@@ -345,21 +346,25 @@ public class EventTest {
     public void fullConstructor_setsAllFields() {
         Timestamp t1 = Timestamp.now();
 
-        Event event = new Event("id1", "Title", "Details", "org1", 100, 50,
-                "qr1", "open", "poster1", "Sports", "Gym",
+        Event event = new Event("soccer_camp_2025", "Kids Soccer Camp",
+                "Week-long soccer camp for children ages 6 to 12",
+                "coach.williams", 100, 50,
+                "SOCCER_CAMP_QR", "open",
+                "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAA",
+                "Sports", "Riverside Sports Complex",
                 t1, t1, t1, t1, t1, true, true, t1, t1);
 
-        assertEquals("id1", event.getEventId());
-        assertEquals("Title", event.getTitle());
-        assertEquals("Details", event.getDetails());
-        assertEquals("org1", event.getOrganizerId());
+        assertEquals("soccer_camp_2025", event.getEventId());
+        assertEquals("Kids Soccer Camp", event.getTitle());
+        assertEquals("Week-long soccer camp for children ages 6 to 12", event.getDetails());
+        assertEquals("coach.williams", event.getOrganizerId());
         assertEquals(Integer.valueOf(100), event.getCapacity());
         assertEquals(Integer.valueOf(50), event.getWaitingListLimit());
-        assertEquals("qr1", event.getQrCodeContent());
+        assertEquals("SOCCER_CAMP_QR", event.getQrCodeContent());
         assertEquals("open", event.getStatus());
-        assertEquals("poster1", event.getPosterBase64());
+        assertEquals("data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAA", event.getPosterBase64());
         assertEquals("Sports", event.getCategory());
-        assertEquals("Gym", event.getPlace());
+        assertEquals("Riverside Sports Complex", event.getPlace());
         assertEquals(t1, event.getScheduledDateTime());
         assertEquals(t1, event.getEventEndDateTime());
         assertEquals(t1, event.getRegistrationStart());

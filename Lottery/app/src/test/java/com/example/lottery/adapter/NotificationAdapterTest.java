@@ -35,8 +35,8 @@ public class NotificationAdapterTest {
         context = ApplicationProvider.getApplicationContext();
         notifications = new ArrayList<>();
         // Updated constructor: notificationId, title, message, type, eventId, eventTitle, senderId, senderRole, isRead, createdAt
-        notifications.add(new NotificationItem("id1", "Title 1", "Message 1", "type1", "event1", "Event Title 1", "sender1", "organizer", false, Timestamp.now()));
-        notifications.add(new NotificationItem("id2", "Title 2", "Message 2", "type2", "event2", "Event Title 2", "sender2", "organizer", true, Timestamp.now()));
+        notifications.add(new NotificationItem("id1", "Lottery Draw Result", "You have been selected!", "invitation", "spring_bbq_2025", "Spring Community BBQ", "jennifer.martinez", "organizer", false, Timestamp.now()));
+        notifications.add(new NotificationItem("id2", "Event Cancelled", "The organizer has cancelled this event.", "cancellation", "yoga_class_fall", "Beginner Yoga Class", "michael.chen", "organizer", true, Timestamp.now()));
 
         adapter = new NotificationAdapter(notifications, item -> {
         });
@@ -66,12 +66,12 @@ public class NotificationAdapterTest {
         adapter.onBindViewHolder(holder, 0);
 
         // In the new NotificationAdapter, if eventTitle is present, the title is formatted as "eventTitle: title"
-        assertEquals("Event Title 1: Title 1", holder.tvTitle.getText().toString());
-        assertEquals("Message 1", holder.tvMessage.getText().toString());
+        assertEquals("Spring Community BBQ: Lottery Draw Result", holder.tvTitle.getText().toString());
+        assertEquals("You have been selected!", holder.tvMessage.getText().toString());
         assertEquals(View.VISIBLE, holder.tvNew.getVisibility());
 
         adapter.onBindViewHolder(holder, 1);
-        assertEquals("Event Title 2: Title 2", holder.tvTitle.getText().toString());
+        assertEquals("Beginner Yoga Class: Event Cancelled", holder.tvTitle.getText().toString());
         assertEquals(View.GONE, holder.tvNew.getVisibility());
     }
 
@@ -81,13 +81,13 @@ public class NotificationAdapterTest {
         notifications.clear();
         notifications.add(new NotificationItem(
                 "id3",
-                "Title 3",
-                "Message 3",
-                "win",
+                "System Maintenance Notice",
+                "The app will be down for maintenance tonight.",
+                "system",
                 "event3",
                 "", // Empty event title
-                "sender3",
-                "organizer",
+                "admin_system",
+                "admin",
                 true,
                 Timestamp.now()
         ));
@@ -100,6 +100,6 @@ public class NotificationAdapterTest {
 
         adapter.onBindViewHolder(holder, 0);
 
-        assertEquals("Title 3", holder.tvTitle.getText().toString());
+        assertEquals("System Maintenance Notice", holder.tvTitle.getText().toString());
     }
 }

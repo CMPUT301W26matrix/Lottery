@@ -61,8 +61,8 @@ public class OrganizerNavigationHelperTest {
         // Seed a test event so OrganizerEventDetailsActivity doesn't finish() early
         Event event = new Event();
         event.setEventId(TEST_EVENT_ID);
-        event.setTitle("Nav Test Event");
-        event.setDetails("Navigation test event.");
+        event.setTitle("Summer Swimming Lessons");
+        event.setDetails("Weekly swimming lessons for all skill levels at the community pool.");
         event.setOrganizerId(TEST_USER_ID);
         event.touch();
         Tasks.await(db.collection(FirestorePaths.EVENTS).document(TEST_EVENT_ID).set(event), 10, TimeUnit.SECONDS);

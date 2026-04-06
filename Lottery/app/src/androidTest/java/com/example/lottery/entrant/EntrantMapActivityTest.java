@@ -93,7 +93,7 @@ public class EntrantMapActivityTest {
         Map<String, Object> record = new HashMap<>();
         Timestamp now = Timestamp.now();
         record.put("userId", userId);
-        record.put("userName", "Family Registration");
+        record.put("userName", "Jordan Kim");
         record.put("email", userId + "@example.com");
         record.put("status", InvitationFlowUtil.STATUS_WAITLISTED);
         record.put("registeredAt", now);

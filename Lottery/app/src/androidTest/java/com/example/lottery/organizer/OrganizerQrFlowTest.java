@@ -54,8 +54,8 @@ public class OrganizerQrFlowTest {
         db = FirebaseFirestore.getInstance();
         deleteEventsForOrganizer(TEST_USER_ID);
         deleteEventsForOrganizer(OTHER_USER_ID);
-        seedEvent(OWN_EVENT_ID, TEST_USER_ID, "Organizer QR Event", "QR_CONTENT_FOR_ORGANIZER");
-        seedEvent(OTHER_EVENT_ID, OTHER_USER_ID, "Other Organizer QR Event", "QR_CONTENT_FOR_OTHER");
+        seedEvent(OWN_EVENT_ID, TEST_USER_ID, "Saturday Morning Farmers Market", "FARMERS_MARKET_QR_2025");
+        seedEvent(OTHER_EVENT_ID, OTHER_USER_ID, "Sunset Beach Volleyball Tournament", "VOLLEYBALL_QR_2025");
     }
 
     @After
@@ -128,8 +128,8 @@ public class OrganizerQrFlowTest {
         try (ActivityScenario<OrganizerQrEventListActivity> scenario = ActivityScenario.launch(createLaunchIntent())) {
             waitForQrEventCount(scenario, 1);
 
-            onView(withText("Organizer QR Event")).check(matches(isDisplayed()));
-            onView(withText("Other Organizer QR Event")).check(doesNotExist());
+            onView(withText("Saturday Morning Farmers Market")).check(matches(isDisplayed()));
+            onView(withText("Sunset Beach Volleyball Tournament")).check(doesNotExist());
 
             scenario.onActivity(activity -> {
                 RecyclerView recyclerView = activity.findViewById(R.id.rvQrEvents);
@@ -149,12 +149,12 @@ public class OrganizerQrFlowTest {
 
             onView(withId(R.id.rvQrEvents)).perform(
                     RecyclerViewActions.actionOnItem(
-                            hasDescendant(withText("Organizer QR Event")),
+                            hasDescendant(withText("Saturday Morning Farmers Market")),
                             click()
                     )
             );
 
-            onView(withId(R.id.tvDetailEventTitle)).check(matches(withText("Organizer QR Event")));
+            onView(withId(R.id.tvDetailEventTitle)).check(matches(withText("Saturday Morning Farmers Market")));
             onView(withId(R.id.ivQrCodeLarge)).check(matches(isDisplayed()));
         }
     }
